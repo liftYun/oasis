@@ -37,6 +37,7 @@ public class CustomOAuth2UserService
                 email    = kakaoAcc.get("email").toString();
                 Map<String,Object> prof = (Map)kakaoAcc.get("profile");
                 nickname = prof.get("nickname").toString();
+                break;
             case "naver":
                 Map<String,Object> resp = (Map)attrs.get("response");
                 email    = resp.get("email").toString();

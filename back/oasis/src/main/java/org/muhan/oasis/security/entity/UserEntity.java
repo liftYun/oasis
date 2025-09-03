@@ -23,6 +23,8 @@ public class UserEntity {
     private String nickname;
     private String userEmail;
     private Language language;
+    private String profileUrl;
+    private String certificateUrl;
     private String role;
 
     public UserEntity() {

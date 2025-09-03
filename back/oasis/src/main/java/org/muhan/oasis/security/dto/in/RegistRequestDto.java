@@ -1,21 +1,21 @@
 package org.muhan.oasis.security.dto.in;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.muhan.oasis.security.entity.UserEntity;
 import org.muhan.oasis.valueobject.Language;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class RegistRequestDto {
-    private int id;
+    private long id;
     private String nickname;
     private String userEmail;
+    private String profileUrl;
     private Language language;
+    private String certificateUrl;
     private String role;
 
     public static UserEntity from(RegistRequestDto dto){
@@ -25,8 +25,8 @@ public class RegistRequestDto {
                 .userEmail(dto.userEmail)
                 .role(dto.role)
                 .language(dto.language)
+                .certificateUrl(dto.certificateUrl)
+                .profileUrl(dto.profileUrl)
                 .build();
     }
-
-
 }

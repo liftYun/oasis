@@ -2,10 +2,11 @@ package org.muhan.oasis.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
-import org.muhan.oasis.security.Handler.OAuth2FailHandler;
+import org.muhan.oasis.security.Handler.OAuth2FailureHandler;
 import org.muhan.oasis.security.Handler.OAuth2SuccessHandler;
 import org.muhan.oasis.security.jwt.JWTFilter;
 import org.muhan.oasis.security.jwt.JWTUtil;
+import org.muhan.oasis.security.jwt.LangAwareAuthorizationRequestResolver;
 import org.muhan.oasis.security.service.CustomOAuth2UserService;
 import org.muhan.oasis.security.service.RefreshTokenService;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -43,11 +45,12 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final RefreshTokenService refreshTokenService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
-    private final OAuth2FailHandler oAuth2FailHandler;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
+    private final LangAwareAuthorizationRequestResolver langAwareAuthorizationRequestResolver;
 
     public SecurityConfig(
             ClientRegistrationRepository clientRegistrationRepository, AuthenticationConfiguration authenticationConfiguration,
-            JWTUtil jwtUtil, CustomOAuth2UserService customOAuth2UserService, RefreshTokenService refreshTokenService, OAuth2SuccessHandler oAuth2SuccessHandler, OAuth2FailHandler oAuth2FailHandler
+            JWTUtil jwtUtil, CustomOAuth2UserService customOAuth2UserService, RefreshTokenService refreshTokenService, OAuth2SuccessHandler oAuth2SuccessHandler, OAuth2FailureHandler oAuth2FailureHandler, LangAwareAuthorizationRequestResolver langAwareAuthorizationRequestResolver
     ) {
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.authenticationConfiguration = authenticationConfiguration;
@@ -55,7 +58,8 @@ public class SecurityConfig {
         this.customOAuth2UserService = customOAuth2UserService;
         this.refreshTokenService = refreshTokenService;
         this.oAuth2SuccessHandler = oAuth2SuccessHandler;
-        this.oAuth2FailHandler = oAuth2FailHandler;
+        this.oAuth2FailureHandler = oAuth2FailureHandler;
+        this.langAwareAuthorizationRequestResolver = langAwareAuthorizationRequestResolver;
     }
 
     @Bean
@@ -115,23 +119,41 @@ public class SecurityConfig {
         // 4) JWT 필터 등록 (모든 요청 앞에서 검사)
         http.addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
+        OAuth2AuthorizationRequestResolver resolver =
+                new DefaultOAuth2AuthorizationRequestResolver(
+                        clientRegistrationRepository,
+                        "/oauth2/authorization" // 로그인 시작 URL prefix (공용)
+                );
+
+//        http.oauth2Login(oauth2 -> oauth2
+//                .authorizationEndpoint(endpoint ->
+//                        endpoint.authorizationRequestResolver(
+//                                new DefaultOAuth2AuthorizationRequestResolver(
+//                                        clientRegistrationRepository,
+//                                        "/oauth2/authorization"
+//                                )
+//                        )
+//                )
+//                .redirectionEndpoint(redir ->
+//                        redir.baseUri("/login/oauth2/code/*")
+//                )
+//                // 회원정보(UserInfo)를 가져올 커스텀 서비스
+//                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+//                // 인증 성공 시 자체 JWT 발급
+//                .successHandler((AuthenticationSuccessHandler) oAuth2SuccessHandler)
+//                .failureHandler((AuthenticationFailureHandler) oAuth2FailHandler)
+//        );
         http.oauth2Login(oauth2 -> oauth2
-                .authorizationEndpoint(endpoint ->
-                        endpoint.authorizationRequestResolver(
-                                new DefaultOAuth2AuthorizationRequestResolver(
-                                        clientRegistrationRepository,
-                                        "/oauth2/authorization"
-                                )
-                        )
-                )
-                .redirectionEndpoint(redir ->
-                        redir.baseUri("/login/oauth2/code/*")
-                )
-                // 회원정보(UserInfo)를 가져올 커스텀 서비스
-                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                // 인증 성공 시 자체 JWT 발급
-                .successHandler((AuthenticationSuccessHandler) oAuth2SuccessHandler)
-                .failureHandler((AuthenticationFailureHandler) oAuth2FailHandler)
+                // 로그인 시작점: /oauth2/authorization/{registrationId}
+                .authorizationEndpoint(ep -> ep.authorizationRequestResolver(langAwareAuthorizationRequestResolver))
+                // 리다이렉트 수신: /login/oauth2/code/{registrationId}
+                .redirectionEndpoint(redir -> redir.baseUri("/login/oauth2/code/*"))
+                // 소셜별 사용자 정보 처리: 커스텀 OAuth2UserService (구글/네이버/카카오 모두 처리)
+                .userInfoEndpoint(ui -> ui.userService(customOAuth2UserService))
+                // 성공 시: JWT 발급 등
+                .successHandler(oAuth2SuccessHandler)
+                // 실패 시 처리
+                .failureHandler((AuthenticationFailureHandler) oAuth2FailureHandler)
         );
 
         // 6) 세션 상태를 Stateless 로 설정
