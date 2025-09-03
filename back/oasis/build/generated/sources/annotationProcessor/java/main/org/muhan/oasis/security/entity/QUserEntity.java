@@ -1,0 +1,53 @@
+package org.muhan.oasis.security.entity;
+
+import static com.querydsl.core.types.PathMetadataFactory.*;
+
+import com.querydsl.core.types.dsl.*;
+
+import com.querydsl.core.types.PathMetadata;
+import javax.annotation.processing.Generated;
+import com.querydsl.core.types.Path;
+
+
+/**
+ * QUserEntity is a Querydsl query type for UserEntity
+ */
+@Generated("com.querydsl.codegen.DefaultEntitySerializer")
+public class QUserEntity extends EntityPathBase<UserEntity> {
+
+    private static final long serialVersionUID = 1758088601L;
+
+    public static final QUserEntity userEntity = new QUserEntity("userEntity");
+
+    public final StringPath certificateImg = createString("certificateImg");
+
+    public final DateTimePath<java.time.LocalDateTime> createdAt = createDateTime("createdAt", java.time.LocalDateTime.class);
+
+    public final StringPath email = createString("email");
+
+    public final EnumPath<org.muhan.oasis.valueobject.Language> language = createEnum("language", org.muhan.oasis.valueobject.Language.class);
+
+    public final StringPath nickname = createString("nickname");
+
+    public final StringPath profileImage = createString("profileImage");
+
+    public final EnumPath<org.muhan.oasis.valueobject.Role> role = createEnum("role", org.muhan.oasis.valueobject.Role.class);
+
+    public final DateTimePath<java.time.LocalDateTime> updatedAt = createDateTime("updatedAt", java.time.LocalDateTime.class);
+
+    public final NumberPath<Long> uuid = createNumber("uuid", Long.class);
+
+    public QUserEntity(String variable) {
+        super(UserEntity.class, forVariable(variable));
+    }
+
+    public QUserEntity(Path<? extends UserEntity> path) {
+        super(path.getType(), path.getMetadata());
+    }
+
+    public QUserEntity(PathMetadata metadata) {
+        super(UserEntity.class, metadata);
+    }
+
+}
+

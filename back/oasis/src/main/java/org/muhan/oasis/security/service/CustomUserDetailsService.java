@@ -29,7 +29,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return null;
     }
 
-    public CustomUserDetails loadUserByUuid(String uuid) {
+    public CustomUserDetails loadUserByUuid(Long uuid) {
 
         return userRepository.findByUuid(uuid)
                 .map(CustomUserDetails::new)

@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.Getter;
+import org.muhan.oasis.valueobject.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -35,8 +36,8 @@ public class JWTUtil {
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
-    public String getUserUuid(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("uuid", String.class);
+    public Long getUserUuid(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("uuid", Long.class);
     }
 
     public String getUserEmail(String token) {
@@ -47,9 +48,9 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("nickname", String.class);
     }
 
-    public String getRole(String token) {
+    public Role getRole(String token) {
 
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", Role.class);
     }
 
     public String getLang(String token) {
@@ -66,7 +67,7 @@ public class JWTUtil {
         }
     }
 
-    public String createAccessToken(String uuid, String userEmail, String nickname, String role) {
+    public String createAccessToken(Long uuid, String userEmail, String nickname, Role role) {
         return Jwts.builder()
                 .claim("uuid", uuid)
                 .claim("userEmail", userEmail)
@@ -78,7 +79,7 @@ public class JWTUtil {
                 .compact();
     }
 
-    public String createRefreshToken(String uuid) {
+    public String createRefreshToken(Long uuid) {
         return Jwts.builder()
                 .claim("uuid", uuid)
                 .issuedAt(new Date(System.currentTimeMillis()))

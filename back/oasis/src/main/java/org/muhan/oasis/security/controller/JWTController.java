@@ -61,7 +61,7 @@ public class JWTController {
     ) {
         Claims claims = jwtUtil.parseClaims(refreshToken);
         System.out.println("logout to Refresh Token : " + claims);
-        String uuid = claims.get("uuid", String.class);
+        Long uuid = claims.get("uuid", Long.class);
         refreshTokenService.deleteToken(uuid);
 
         // 쿠키 만료 처리
@@ -87,14 +87,14 @@ public class JWTController {
                                              @Valid @RequestBody RegistRequestVo vo) {
 
         // 1) 인증 사용자 식별자
-        String uuid = user.getUserUuid();
+        Long uuid = user.getUserUuid();
 
         try {
             // 2) DB 업데이트
             UserEntity updated = joinService.completeProfile(
                     uuid,
                     vo.getNickname(),
-                    vo.getProfileImageUrl(),
+                    vo.getProfileImage(),
                     vo.getRole(),
                     vo.getLanguage()
             );
@@ -102,7 +102,7 @@ public class JWTController {
             // 3) AccessToken 재발급(닉네임/역할이 바뀌었을 수 있음)
             String newAccess = jwtUtil.createAccessToken(
                     updated.getUuid(),
-                    updated.getUserEmail(),
+                    updated.getEmail(),
                     updated.getNickname(),
                     updated.getRole()
             );

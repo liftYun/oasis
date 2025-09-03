@@ -22,7 +22,7 @@ public class RefreshTokenService {
      * DB에 저장된 refresh token과 전달받은 토큰을 비교하고,
      * JWTUtil.isExpired로 만료 여부까지 검사합니다.
      */
-    public boolean isValid(String uuid, String refreshToken) {
+    public boolean isValid(Long uuid, String refreshToken) {
         Optional<RefreshTokenEntity> tokenOpt = repository.findByUuid(uuid);
         if (tokenOpt.isEmpty()) {
             return false;
@@ -39,7 +39,7 @@ public class RefreshTokenService {
     /**
      * 로그인 시 새로 발급된 refresh token을 저장
      */
-    public void saveToken(String uuid, String refreshToken) {
+    public void saveToken(Long uuid, String refreshToken) {
         // 이미 있으면 갱신, 없으면 신규 저장
         repository.findByUuid(uuid)
                 .ifPresentOrElse(
@@ -54,7 +54,7 @@ public class RefreshTokenService {
     /**
      * 로그아웃 등 필요 시 DB에서 refresh token 삭제
      */
-    public void deleteToken(String uuid) {
+    public void deleteToken(Long uuid) {
         repository.deleteByUuid(uuid);
     }
 
@@ -63,7 +63,7 @@ public class RefreshTokenService {
      * 이미 사용자(uuid)로 저장된 레코드가 있으면 토큰만 갱신하고,
      * 없으면 새로 생성
      */
-    public void save(String uuid, String refreshToken) {
+    public void save(Long uuid, String refreshToken) {
         repository.findByUuid(uuid)
                 .ifPresentOrElse(
                         existing -> {

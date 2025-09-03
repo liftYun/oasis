@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.muhan.oasis.security.dto.in.UserDetailRequestDto;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
 import org.muhan.oasis.valueobject.Language;
+import org.muhan.oasis.valueobject.Role;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,10 +46,10 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         //토큰에서 id, email, nickname과 role 획득
-        String uuid = jwtUtil.getUserUuid(token);
+        Long uuid = jwtUtil.getUserUuid(token);
         String userEmail = jwtUtil.getUserEmail(token);
         String nickname = jwtUtil.getNickname(token);
-        String role = jwtUtil.getRole(token);
+        Role role = jwtUtil.getRole(token);
         Language lang = Language.valueOf(jwtUtil.getLang(token));
 
         //user를 생성하여 값 set

@@ -2,6 +2,7 @@ package org.muhan.oasis.security.dto.out;
 
 import org.muhan.oasis.security.entity.UserEntity;
 import org.muhan.oasis.valueobject.Language;
+import org.muhan.oasis.valueobject.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -25,8 +26,7 @@ public class CustomUserDetails implements UserDetails {
         collection.add(new GrantedAuthority() {
             @Override
             public String getAuthority() {
-
-                return userEntity.getRole();
+                return userEntity.getRole().name();
             }
         });
 
@@ -36,15 +36,15 @@ public class CustomUserDetails implements UserDetails {
         return this.userEntity;
     }
 
-    public long getUserId() { return userEntity.getId(); }
+    public void getUserId() { return; }
 
-    public String getUserUuid() { return userEntity.getUuid(); }
+    public Long getUserUuid() { return userEntity.getUuid(); }
 
-    public String getUserEmail() { return  userEntity.getUserEmail(); }
+    public String getUserEmail() { return  userEntity.getEmail(); }
 
     public String getUserNickname() { return userEntity.getNickname(); }
 
-    public String getRole() { return userEntity.getRole(); }
+    public Role getRole() { return userEntity.getRole(); }
 
     public Language getLanguage() { return userEntity.getLanguage(); }
 

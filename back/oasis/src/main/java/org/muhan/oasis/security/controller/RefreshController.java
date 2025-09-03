@@ -9,6 +9,7 @@ import org.muhan.oasis.security.dto.out.CustomUserDetails;
 import org.muhan.oasis.security.jwt.JWTUtil;
 import org.muhan.oasis.security.service.CustomUserDetailsService;
 import org.muhan.oasis.security.service.RefreshTokenService;
+import org.muhan.oasis.valueobject.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
@@ -40,7 +41,7 @@ public class RefreshController {
         // 1) 서명+만료 검사
         Claims claims = jwtUtil.parseClaims(refreshToken);
 //        Integer userId = claims.get("userId", Integer.class);
-        String uuid = claims.get("uuid", String.class);
+        Long uuid = claims.get("uuid", Long.class);
 //        System.out.println("Refresh Controller's uuid : "+ uuid);
 
         // 2) DB에 저장된 토큰과 일치하는지 확인
@@ -59,10 +60,10 @@ public class RefreshController {
         // 3) UserDetailsService 로부터 권한 조회
 //        UserDetails userDetails = customUserDetailsService.loadUserByUuid(uuid);
         CustomUserDetails userDetails = customUserDetailsService.loadUserByUuid(uuid);
-        String role = userDetails.getAuthorities().stream()
+        Role role = Role.valueOf(userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 // (여러 개라면 “ROLE_USER,ROLE_ADMIN” 식으로 합침)
-                .collect(Collectors.joining(","));
+                .collect(Collectors.joining(",")));
         String newRefreshToken = jwtUtil.createRefreshToken(uuid);
 
         refreshTokenService.saveToken(uuid, newRefreshToken);

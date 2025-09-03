@@ -11,6 +11,7 @@ import org.muhan.oasis.security.jwt.JWTUtil;
 import org.muhan.oasis.security.service.JoinService;
 import org.muhan.oasis.security.service.RefreshTokenService;
 import org.muhan.oasis.valueobject.Language;
+import org.muhan.oasis.valueobject.Role;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
@@ -40,8 +41,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // ✅ 사용자 기본정보
         UserEntity user = principal.getUser();
-        String uuid = user.getUuid();
-        String email = user.getUserEmail();
+        Long uuid = user.getUuid();
+        String email = user.getEmail();
         String nickname = user.getNickname();
 
         // ✅ 언어 회수
@@ -62,7 +63,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         }
 
         // ✅ 기본 Role (처음 가입 시 ROLE_GUEST 부여)
-        String role = user.getRole() != null ? user.getRole() : "ROLE_GUEST";
+        Role role = user.getRole() != null ? user.getRole() : Role.valueOf("ROLE_GUEST");
 
         // ✅ Access / Refresh Token 발급
         String accessToken = jwtUtil.createAccessToken(uuid, email, nickname, role);
@@ -86,6 +87,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
               "needProfileUpdate": %b
             }
             """.formatted(accessToken,
-                (user.getRole() == null || user.getProfileUrl() == null)));
+                (user.getRole() == null || user.getProfileImage() == null)));
     }
 }

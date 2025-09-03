@@ -3,6 +3,7 @@ package org.muhan.oasis.security.dto.in;
 import lombok.*;
 import org.muhan.oasis.security.entity.UserEntity;
 import org.muhan.oasis.valueobject.Language;
+import org.muhan.oasis.valueobject.Role;
 
 @Setter
 @AllArgsConstructor
@@ -10,18 +11,16 @@ import org.muhan.oasis.valueobject.Language;
 @ToString
 @Builder
 public class UserDetailRequestDto {
-    private int id;
-    private String uuid;
+    private Long uuid;
     private String nickname;
     private String userEmail;
-    private String role;
+    private Role role;
     private Language language;
 
     public static UserEntity from(UserDetailRequestDto dto){
         return UserEntity.builder()
-                .id(dto.id)
                 .uuid(dto.uuid)
-                .userEmail(dto.userEmail)
+                .email(dto.userEmail)
                 .role(dto.role)
                 .language(dto.language)
                 .build();

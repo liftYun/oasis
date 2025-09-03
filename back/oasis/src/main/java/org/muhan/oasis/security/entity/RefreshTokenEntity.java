@@ -19,12 +19,10 @@ import java.util.Date;
 public class RefreshTokenEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
     /** 로그인한 사용자의 고유 아이디 */
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, unique = true, length = 100)
-    private String uuid;
+    private Long uuid;
 
     /** JWT Refresh Token 자체 문자열 */
     @Column(nullable = false, length = 512)
@@ -32,7 +30,7 @@ public class RefreshTokenEntity {
 
     private Date expiresAt;
 
-    public RefreshTokenEntity(String uuid, String token) {
+    public RefreshTokenEntity(Long uuid, String token) {
         this.uuid = uuid;
         this.token = token;
     }

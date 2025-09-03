@@ -51,7 +51,7 @@ public class CustomOAuth2UserService
 
         // 소셜로 가입만 한 상태 -> 추가적인 정보 필요.
         UserEntity user = joinService
-                .registerSocialUserIfNotExist(email, nickname);
+                .registerSocialUserIfNotExist(email, nickname, null);
 
         // CustomOAuth2User 또는 DefaultOAuth2User 반환
         return new CustomOAuth2User(user, attrs);
