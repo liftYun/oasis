@@ -5,6 +5,8 @@ import org.muhan.oasis.security.entity.UserEntity;
 import org.muhan.oasis.security.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class JoinService {
 
@@ -29,7 +31,20 @@ public class JoinService {
         data.setNickname(registRequestDto.getNickname());
         data.setUserEmail(registRequestDto.getUserEmail());
         data.setRole(registRequestDto.getRole());
+        data.setLanguage(registRequestDto.getLanguage());
 
         userRepository.save(data);
+    }
+
+    public UserEntity registerSocialUserIfNotExist(String email, String nickname) {
+        return userRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    UserEntity member = UserEntity.builder()
+                            .uuid(UUID.randomUUID().toString())
+                            .userEmail(email)
+                            .nickname(nickname)
+                            .build();
+                    return userRepository.save(member);
+                });
     }
 }

@@ -2,8 +2,11 @@ package org.muhan.oasis.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
+import org.muhan.oasis.security.Handler.OAuth2FailHandler;
+import org.muhan.oasis.security.Handler.OAuth2SuccessHandler;
 import org.muhan.oasis.security.jwt.JWTFilter;
 import org.muhan.oasis.security.jwt.JWTUtil;
+import org.muhan.oasis.security.service.CustomOAuth2UserService;
 import org.muhan.oasis.security.service.RefreshTokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +19,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -30,17 +37,25 @@ import java.util.Collections;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
+    private final ClientRegistrationRepository clientRegistrationRepository;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
+    private final CustomOAuth2UserService customOAuth2UserService;
     private final RefreshTokenService refreshTokenService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2FailHandler oAuth2FailHandler;
 
     public SecurityConfig(
-            AuthenticationConfiguration authenticationConfiguration,
-            JWTUtil jwtUtil, RefreshTokenService refreshTokenService
+            ClientRegistrationRepository clientRegistrationRepository, AuthenticationConfiguration authenticationConfiguration,
+            JWTUtil jwtUtil, CustomOAuth2UserService customOAuth2UserService, RefreshTokenService refreshTokenService, OAuth2SuccessHandler oAuth2SuccessHandler, OAuth2FailHandler oAuth2FailHandler
     ) {
+        this.clientRegistrationRepository = clientRegistrationRepository;
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
+        this.customOAuth2UserService = customOAuth2UserService;
         this.refreshTokenService = refreshTokenService;
+        this.oAuth2SuccessHandler = oAuth2SuccessHandler;
+        this.oAuth2FailHandler = oAuth2FailHandler;
     }
 
     @Bean
@@ -79,7 +94,6 @@ public class SecurityConfig {
         // 3) 경로별 인가 설정
         http.authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET,
-                                "/api/v1/auth/login/test",
                                 "/api/v1/health/**").permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/auth/refresh",
@@ -116,7 +130,8 @@ public class SecurityConfig {
                 // 회원정보(UserInfo)를 가져올 커스텀 서비스
                 .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                 // 인증 성공 시 자체 JWT 발급
-                .successHandler(oAuth2SuccessHandler)
+                .successHandler((AuthenticationSuccessHandler) oAuth2SuccessHandler)
+                .failureHandler((AuthenticationFailureHandler) oAuth2FailHandler)
         );
 
         // 6) 세션 상태를 Stateless 로 설정
