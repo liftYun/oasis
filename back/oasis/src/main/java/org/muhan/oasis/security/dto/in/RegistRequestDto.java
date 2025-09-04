@@ -11,23 +11,23 @@ import org.muhan.oasis.valueobject.Role;
 @NoArgsConstructor
 @Builder
 public class RegistRequestDto {
-    private long uuid;
+    private String uuid;
     private String nickname;
     private String userEmail;
-    private String profileImage;
+    private String profileImg;
     private Language language;
     private String certificateImg;
     private Role role;
 
     public static UserEntity from(RegistRequestDto dto){
         return UserEntity.builder()
-                .uuid(dto.uuid)
+                .userUuid(dto.uuid)
                 .nickname(dto.nickname)
                 .email(dto.userEmail)
                 .role(dto.role)
                 .language(dto.language)
                 .certificateImg(dto.certificateImg)
-                .profileImage(dto.profileImage)
+                .profileImg(dto.profileImg)
                 .build();
     }
 }

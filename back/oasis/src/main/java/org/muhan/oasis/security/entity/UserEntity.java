@@ -52,8 +52,11 @@ public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_uuid")      // BIGINT PK
-    private Long uuid;
+    @Column(name = "id")                     // 서러게이트 PK
+    private Long id;
+
+    @Column(name = "user_uuid", nullable = false, unique = true, updatable = false)
+    private String userUuid;                   // 비즈니스 키(사용자 UUID)
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 20)
@@ -65,6 +68,16 @@ public class UserEntity {
     @Column(name = "email", nullable = false, length = 255, unique = true)
     private String email;
 
+    @Column(name = "profile_img", nullable = false, length = 2083)
+    private String profileImg;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "language", nullable = false, length = 3)
+    private Language language;
+
+    @Column(name = "certificate_img", length = 2083)
+    private String certificateImg;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -73,15 +86,10 @@ public class UserEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "profile_image", nullable = false, length = 2083)
-    private String profileImage;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "language", nullable = false, length = 3)
-    private Language language;
-
-    @Column(name = "certificate_img", length = 2083)
-    private String certificateImg;
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     public UserEntity() {
 

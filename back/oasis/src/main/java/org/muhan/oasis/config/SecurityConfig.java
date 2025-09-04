@@ -8,6 +8,7 @@ import org.muhan.oasis.security.jwt.JWTFilter;
 import org.muhan.oasis.security.jwt.JWTUtil;
 import org.muhan.oasis.security.jwt.LangAwareAuthorizationRequestResolver;
 import org.muhan.oasis.security.service.CustomOAuth2UserService;
+import org.muhan.oasis.security.service.CustomOidcUserService;
 import org.muhan.oasis.security.service.RefreshTokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,10 +48,11 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuth2FailureHandler oAuth2FailureHandler;
     private final LangAwareAuthorizationRequestResolver langAwareAuthorizationRequestResolver;
+    private final CustomOidcUserService customOidcUserService;
 
     public SecurityConfig(
             ClientRegistrationRepository clientRegistrationRepository, AuthenticationConfiguration authenticationConfiguration,
-            JWTUtil jwtUtil, CustomOAuth2UserService customOAuth2UserService, RefreshTokenService refreshTokenService, OAuth2SuccessHandler oAuth2SuccessHandler, OAuth2FailureHandler oAuth2FailureHandler, LangAwareAuthorizationRequestResolver langAwareAuthorizationRequestResolver
+            JWTUtil jwtUtil, CustomOAuth2UserService customOAuth2UserService, RefreshTokenService refreshTokenService, OAuth2SuccessHandler oAuth2SuccessHandler, OAuth2FailureHandler oAuth2FailureHandler, LangAwareAuthorizationRequestResolver langAwareAuthorizationRequestResolver, CustomOidcUserService customOidcUserService
     ) {
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.authenticationConfiguration = authenticationConfiguration;
@@ -60,6 +62,7 @@ public class SecurityConfig {
         this.oAuth2SuccessHandler = oAuth2SuccessHandler;
         this.oAuth2FailureHandler = oAuth2FailureHandler;
         this.langAwareAuthorizationRequestResolver = langAwareAuthorizationRequestResolver;
+        this.customOidcUserService = customOidcUserService;
     }
 
     @Bean
@@ -149,7 +152,9 @@ public class SecurityConfig {
                 // 리다이렉트 수신: /login/oauth2/code/{registrationId}
                 .redirectionEndpoint(redir -> redir.baseUri("/login/oauth2/code/*"))
                 // 소셜별 사용자 정보 처리: 커스텀 OAuth2UserService (구글/네이버/카카오 모두 처리)
-                .userInfoEndpoint(ui -> ui.userService(customOAuth2UserService))
+                .userInfoEndpoint(ui -> ui
+                        .userService(customOAuth2UserService)
+                        .oidcUserService(customOidcUserService)) // OIDC (구글))
                 // 성공 시: JWT 발급 등
                 .successHandler(oAuth2SuccessHandler)
                 // 실패 시 처리

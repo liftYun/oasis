@@ -25,17 +25,19 @@ public class QUserEntity extends EntityPathBase<UserEntity> {
 
     public final StringPath email = createString("email");
 
+    public final NumberPath<Long> id = createNumber("id", Long.class);
+
     public final EnumPath<org.muhan.oasis.valueobject.Language> language = createEnum("language", org.muhan.oasis.valueobject.Language.class);
 
     public final StringPath nickname = createString("nickname");
 
-    public final StringPath profileImage = createString("profileImage");
+    public final StringPath profileImg = createString("profileImg");
 
     public final EnumPath<org.muhan.oasis.valueobject.Role> role = createEnum("role", org.muhan.oasis.valueobject.Role.class);
 
     public final DateTimePath<java.time.LocalDateTime> updatedAt = createDateTime("updatedAt", java.time.LocalDateTime.class);
 
-    public final NumberPath<Long> uuid = createNumber("uuid", Long.class);
+    public final StringPath userUuid = createString("userUuid");
 
     public QUserEntity(String variable) {
         super(UserEntity.class, forVariable(variable));

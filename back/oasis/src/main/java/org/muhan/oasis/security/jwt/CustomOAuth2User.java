@@ -51,6 +51,6 @@ public class CustomOAuth2User extends DefaultOAuth2User {
         // 기본 키로 사용할 속성. 카카오 프로필 JSON에서 "id" 필드를 사용하거나,
         // DB 사용자 UUID를 사용하려면 user.getId() 반환으로 변경
         Object oauthId = getAttributes().get("id");
-        return oauthId != null ? oauthId.toString() : user.getUuid().toString();
+        return oauthId != null ? oauthId.toString() : user.getUserUuid().toString();
     }
 }

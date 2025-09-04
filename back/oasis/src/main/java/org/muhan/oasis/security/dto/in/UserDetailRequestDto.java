@@ -11,7 +11,7 @@ import org.muhan.oasis.valueobject.Role;
 @ToString
 @Builder
 public class UserDetailRequestDto {
-    private Long uuid;
+    private String uuid;
     private String nickname;
     private String userEmail;
     private Role role;
@@ -19,7 +19,7 @@ public class UserDetailRequestDto {
 
     public static UserEntity from(UserDetailRequestDto dto){
         return UserEntity.builder()
-                .uuid(dto.uuid)
+                .userUuid(dto.uuid)
                 .email(dto.userEmail)
                 .role(dto.role)
                 .language(dto.language)

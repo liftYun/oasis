@@ -29,9 +29,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         return null;
     }
 
-    public CustomUserDetails loadUserByUuid(Long uuid) {
+    public CustomUserDetails loadUserByUuid(String uuid) {
 
-        return userRepository.findByUuid(uuid)
+        return userRepository.findByUserUuid(uuid)
                 .map(CustomUserDetails::new)
                 .orElse(null);
     }

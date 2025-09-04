@@ -38,7 +38,7 @@ public class CustomUserDetails implements UserDetails {
 
     public void getUserId() { return; }
 
-    public Long getUserUuid() { return userEntity.getUuid(); }
+    public String getUserUuid() { return userEntity.getUserUuid(); }
 
     public String getUserEmail() { return  userEntity.getEmail(); }
 

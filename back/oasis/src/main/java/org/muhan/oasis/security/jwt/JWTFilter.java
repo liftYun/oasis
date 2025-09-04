@@ -46,7 +46,7 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         //토큰에서 id, email, nickname과 role 획득
-        Long uuid = jwtUtil.getUserUuid(token);
+        String uuid = jwtUtil.getUserUuid(token);
         String userEmail = jwtUtil.getUserEmail(token);
         String nickname = jwtUtil.getNickname(token);
         Role role = jwtUtil.getRole(token);

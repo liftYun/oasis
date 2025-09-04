@@ -4,8 +4,6 @@ swagger:
   uri: "/"
 
 spring:
-  config:
-    import: optional:file:.env
   datasource:
     url: jdbc:mysql://localhost:3306/jwt_test?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
     username: root

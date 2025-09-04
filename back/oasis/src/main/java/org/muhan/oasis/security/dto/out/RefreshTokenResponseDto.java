@@ -9,13 +9,13 @@ import java.util.Date;
 @Getter
 @Builder
 public class RefreshTokenResponseDto {
-    private Long uuid;
+    private String userUuid;
     private String token;
     private Date expiresAt;
 
     public static RefreshTokenResponseDto from(RefreshTokenEntity entity){
         return RefreshTokenResponseDto.builder()
-                .uuid(entity.getUuid())
+                .userUuid(entity.getUserUuid())
                 .token(entity.getToken())
                 .expiresAt(entity.getExpiresAt())
                 .build();

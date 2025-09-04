@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RestController
 @ResponseBody
 @Log4j2
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/auth")
 public class RefreshController {
 
     private final JWTUtil jwtUtil;
@@ -41,7 +41,7 @@ public class RefreshController {
         // 1) 서명+만료 검사
         Claims claims = jwtUtil.parseClaims(refreshToken);
 //        Integer userId = claims.get("userId", Integer.class);
-        Long uuid = claims.get("uuid", Long.class);
+        String uuid = claims.get("uuid", String.class);
 //        System.out.println("Refresh Controller's uuid : "+ uuid);
 
         // 2) DB에 저장된 토큰과 일치하는지 확인

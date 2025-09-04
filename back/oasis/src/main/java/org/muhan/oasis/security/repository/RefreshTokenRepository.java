@@ -10,10 +10,10 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshTokenEntity
     /**
      * 주어진 uuid 으로 저장된 RefreshToken 엔티티를 조회합니다.
      */
-    Optional<RefreshTokenEntity> findByUuid(Long uuid);
+    Optional<RefreshTokenEntity> findByUserUuid(String uuid);
 
     /**
      * 주어진 uuid 으로 저장된 RefreshToken 레코드를 삭제합니다.
      */
-    void deleteByUuid(Long uuid);
+    void deleteByUserUuid(String uuid);
 }

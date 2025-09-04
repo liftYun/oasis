@@ -9,6 +9,7 @@ import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.valueobject.Role;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -21,61 +22,32 @@ public class JoinService {
         this.userRepository = userRepository;
     }
 
-//    public void joinProcess(RegistRequestDto registRequestDto) {
-//
-//        String nickname = registRequestDto.getNickname();
-//        if (userRepository.existsByNickname(nickname)) {
-//
-//            return;
-//        }
-//
-//        UserEntity data = new UserEntity();
-//
-//        data.setUuid(java.util.UUID.randomUUID().toString());
-//        data.setNickname(registRequestDto.getNickname());
-//        data.setUserEmail(registRequestDto.getUserEmail());
-//        data.setRole(registRequestDto.getRole());
-//        data.setLanguage(registRequestDto.getLanguage());
-//
-//        userRepository.save(data);
-//    }
-
-//    public UserEntity registerSocialUserIfNotExist(String email, String nickname) {
-//        return userRepository.findByEmail(email)
-//                .orElseGet(() -> {
-//                    UserEntity member = UserEntity.builder()
-//                            .uuid(Long.valueOf(UUID.randomUUID().toString()))
-//                            .email(email)
-//                            .nickname(nickname)
-//                            .build();
-//                    return userRepository.save(member);
-//                });
-//    }
-
     // 소셜 로그인: 없으면 생성
     @Transactional
     public UserEntity registerSocialUserIfNotExist(String email, String nickname, @Nullable Language lang) {
         return userRepository.findByEmail(email).orElseGet(() -> {
             UserEntity u = new UserEntity();
+            u.setUserUuid(UUID.randomUUID().toString());
             u.setEmail(email);
             u.setNickname(safeNickname(nickname));          // null/중복 방지 정책 적용 권장
             u.setRole(Role.ROLE_GUEST);                     // 소셜 최초는 게스트
             u.setLanguage(lang != null ? lang : Language.KOR); // 기본값
-            u.setProfileImage(defaultProfile());            // NOT NULL
+            u.setProfileImg(defaultProfile());            // NOT NULL
+            u.setCreatedAt(LocalDateTime.now());
             return userRepository.save(u);
         });
     }
     @Transactional
-    public void updateLanguage(Long uuid, Language lang) {
-        userRepository.findByUuid(uuid).ifPresent(user -> {
+    public void updateLanguage(String uuid, Language lang) {
+        userRepository.findByUserUuid(uuid).ifPresent(user -> {
             user.setLanguage(lang);
             userRepository.save(user);
         });
     }
 
     @Transactional
-    public UserEntity completeProfile(Long uuid, String nickname, String profileImageUrl, String role, String language) {
-        UserEntity user = userRepository.findByUuid(uuid)
+    public UserEntity completeProfile(String uuid, String nickname, String profileImgUrl, String role, String language) {
+        UserEntity user = userRepository.findByUserUuid(uuid)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         // 닉네임이 변경되는 경우 중복 확인
@@ -85,7 +57,7 @@ public class JoinService {
         }
 
         user.setNickname(nickname);
-        if (profileImageUrl != null) user.setProfileImage(profileImageUrl);
+        if (profileImgUrl != null) user.setProfileImg(profileImgUrl);
         if (language != null) user.setLanguage(Language.valueOf(language));
 
         // 역할 변경 (최초 가입 시 ROLE_GUEST였다가 ROLE_HOST로 승급하는 케이스)
@@ -108,5 +80,9 @@ public class JoinService {
     private String safeNickname(String nickname) {
         // null/공백 → email 로컬 파트 사용 등 정책
         return (nickname == null || nickname.isBlank()) ? "user" + System.nanoTime() : nickname;
+    }
+
+    public boolean existsByNickname(String nickname) {
+        return userRepository.existsByNickname(nickname);
     }
 }

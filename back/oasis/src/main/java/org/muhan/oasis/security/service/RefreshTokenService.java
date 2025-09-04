@@ -1,10 +1,13 @@
 package org.muhan.oasis.security.service;
 
+import jakarta.transaction.Transactional;
 import org.muhan.oasis.security.entity.RefreshTokenEntity;
 import org.muhan.oasis.security.jwt.JWTUtil;
 import org.muhan.oasis.security.repository.RefreshTokenRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -22,8 +25,8 @@ public class RefreshTokenService {
      * DB에 저장된 refresh token과 전달받은 토큰을 비교하고,
      * JWTUtil.isExpired로 만료 여부까지 검사합니다.
      */
-    public boolean isValid(Long uuid, String refreshToken) {
-        Optional<RefreshTokenEntity> tokenOpt = repository.findByUuid(uuid);
+    public boolean isValid(String uuid, String refreshToken) {
+        Optional<RefreshTokenEntity> tokenOpt = repository.findByUserUuid(uuid);
         if (tokenOpt.isEmpty()) {
             return false;
         }
@@ -36,44 +39,26 @@ public class RefreshTokenService {
         return !jwtUtil.isExpired(refreshToken);
     }
 
-    /**
-     * 로그인 시 새로 발급된 refresh token을 저장
-     */
-    public void saveToken(Long uuid, String refreshToken) {
-        // 이미 있으면 갱신, 없으면 신규 저장
-        repository.findByUuid(uuid)
-                .ifPresentOrElse(
-                        t -> {
-                            t.setToken(refreshToken);
-                            repository.save(t);
-                        },
-                        () -> repository.save(new RefreshTokenEntity(uuid, refreshToken))
-                );
+    @Transactional
+    public void saveToken(String uuid, String refreshToken) {
+
+        // 기존 토큰 삭제
+        repository.deleteByUserUuid(uuid);
+        repository.flush();
+
+        RefreshTokenEntity n = new RefreshTokenEntity();
+
+        n.setUserUuid(uuid);
+        n.setToken(refreshToken);
+        n.setExpiresAt(new Date(System.currentTimeMillis() + jwtUtil.getRefreshExpiredMs()));
+
+        repository.save(n);
     }
 
     /**
      * 로그아웃 등 필요 시 DB에서 refresh token 삭제
      */
-    public void deleteToken(Long uuid) {
-        repository.deleteByUuid(uuid);
-    }
-
-    /**
-     * 로그인 시, 혹은 refresh 토큰 재발급 시 호출
-     * 이미 사용자(uuid)로 저장된 레코드가 있으면 토큰만 갱신하고,
-     * 없으면 새로 생성
-     */
-    public void save(Long uuid, String refreshToken) {
-        repository.findByUuid(uuid)
-                .ifPresentOrElse(
-                        existing -> {
-                            existing.setToken(refreshToken);
-                            repository.save(existing);
-                        },
-                        () -> {
-                            RefreshTokenEntity entity = new RefreshTokenEntity(uuid, refreshToken);
-                            repository.save(entity);
-                        }
-                );
+    public void deleteToken(String uuid) {
+        repository.deleteByUserUuid(uuid);
     }
 }

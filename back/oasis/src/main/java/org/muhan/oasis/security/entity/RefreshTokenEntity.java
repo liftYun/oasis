@@ -5,33 +5,37 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Date;
 
-/**
- * 사용자별 Refresh Token 을 저장하는 JPA 엔티티
- */
 @Entity
-@Table(name = "refresh_tokens",
-        indexes = @Index(columnList = "uuid", name = "refresh_token_uuid"))
-@Getter
-@Setter
-@NoArgsConstructor
+@Table(
+        name = "refresh_tokens",
+        uniqueConstraints = @UniqueConstraint(name = "ux_refresh_token_user", columnNames = "user_uuid"),
+        indexes = @Index(name = "idx_refresh_token_user_uuid", columnList = "user_uuid")
+)
+@Getter @Setter @NoArgsConstructor
 public class RefreshTokenEntity {
 
     @Id
-    /** 로그인한 사용자의 고유 아이디 */
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, unique = true, length = 100)
-    private Long uuid;
+    @Column(name = "id")                     // 서러게이트 PK
+    private Long id;
 
-    /** JWT Refresh Token 자체 문자열 */
-    @Column(nullable = false, length = 512)
+    @Column(name = "user_uuid", nullable = false)
+    private String userUuid;                   // 비즈니스 키(사용자 UUID)
+
+    @Column(name = "token", nullable = false, length = 512)
     private String token;
 
+    @Column(name = "expires_at", nullable = false)
     private Date expiresAt;
 
-    public RefreshTokenEntity(Long uuid, String token) {
-        this.uuid = uuid;
+
+    public RefreshTokenEntity(String userUuid, String token, Date expiresAt) {
+        this.userUuid = userUuid;
         this.token = token;
+        this.expiresAt = expiresAt;
     }
 }

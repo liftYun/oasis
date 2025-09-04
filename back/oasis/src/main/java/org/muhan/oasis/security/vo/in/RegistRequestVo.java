@@ -38,7 +38,7 @@ public class RegistRequestVo {
     private String nickname;
 
     // 선택: 프로필 이미지 URL
-    private String profileImage;
+    private String profileImg;
 
     // ROLE_GUEST 또는 ROLE_HOST
     @NotBlank(message = "역할은 필수입니다.")
