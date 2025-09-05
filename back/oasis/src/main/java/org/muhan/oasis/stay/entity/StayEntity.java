@@ -26,7 +26,7 @@ public class StayEntity {
         private Long id;
 
         @ManyToOne(fetch = FetchType.LAZY, optional = false)
-        @JoinColumn(name = "user_uuid", referencedColumnName = "user_uuid", nullable = false, updatable = false)
+        @JoinColumn(name = "user_id", nullable = false, updatable = false)
         private UserEntity user;
 
         @Column(name = "title")

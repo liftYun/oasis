@@ -22,8 +22,8 @@ public class CancellationPolicyEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_uuid", referencedColumnName = "user_uuid", nullable = false, updatable = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false, updatable = false)
     private UserEntity user;
 
     // 1~3일 전
