@@ -4,8 +4,8 @@ import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/atoms/button';
 import LanguageToggle from '@/components/molecules/LanguageToggle';
-import OnboardSlider, { Slide } from '@/components/organisms/OnboardSlider';
-
+import OnboardSlider from '@/components/organisms/OnboardSlider';
+import { Slide } from '@/types/slider';
 import Google from '@/assets/icons/google.png';
 
 type Lang = 'ko' | 'en';
@@ -43,14 +43,14 @@ export default function SplashPage() {
       desc:
         lang === 'ko'
           ? '디지털 키 하나로 \n 빠르고 편리하게 입실할 수 있어요.'
-          : 'You can enter quickly and conveniently with just one digital key.',
+          : 'You can enter quickly and conveniently \n with just one digital key.',
     },
     {
       title: lang === 'ko' ? '맞춤형 숙소 찾기' : 'Personalized stays',
       desc:
         lang === 'ko'
           ? '나에게 딱 맞는 숙소를 \n 빠르게 찾을 수 있어요.'
-          : 'You can quickly find the perfect accommodation for you.',
+          : 'You can quickly find \n the perfect accommodation for you.',
     },
   ];
 
@@ -61,7 +61,7 @@ export default function SplashPage() {
       <OnboardSlider slides={slides} autoPlayMs={3000} loop />
 
       <div className="mt-auto pb-6">
-        <Button variant="google" onClick={handleGoogleLogin} className="w-full max-w-xs mx-auto">
+        <Button variant="google" onClick={handleGoogleLogin} className="w-full max-w-lg mx-auto">
           <Image src={Google} alt="Google" width={18} height={18} className="mr-2" />
           {t.login}
         </Button>
