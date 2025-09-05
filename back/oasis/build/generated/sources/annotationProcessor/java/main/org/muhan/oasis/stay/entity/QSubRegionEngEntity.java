@@ -24,7 +24,7 @@ public class QSubRegionEngEntity extends EntityPathBase<SubRegionEngEntity> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final QRegionEntity region;
+    public final QRegionEngEntity region;
 
     public final StringPath subName = createString("subName");
 
@@ -46,7 +46,7 @@ public class QSubRegionEngEntity extends EntityPathBase<SubRegionEngEntity> {
 
     public QSubRegionEngEntity(Class<? extends SubRegionEngEntity> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.region = inits.isInitialized("region") ? new QRegionEntity(forProperty("region")) : null;
+        this.region = inits.isInitialized("region") ? new QRegionEngEntity(forProperty("region")) : null;
     }
 
 }

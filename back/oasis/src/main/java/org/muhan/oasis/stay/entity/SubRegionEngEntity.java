@@ -22,6 +22,6 @@ public class SubRegionEngEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "upper_name", referencedColumnName = "name", nullable = false)
-    private RegionEntity region;
+    private RegionEngEntity region;
 
 }

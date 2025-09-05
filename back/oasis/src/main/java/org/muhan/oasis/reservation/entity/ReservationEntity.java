@@ -16,8 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ReservationEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "reservation_id")                     // 서러게이트 PK
+    @Column(name = "reservation_id")
     private String reservationId;
 
     @ManyToOne(fetch = FetchType.LAZY)

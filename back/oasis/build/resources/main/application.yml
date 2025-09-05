@@ -44,3 +44,13 @@ logging:
   level:
     org.hibernate.SQL: debug #?? SQL ??? ??? ??
     org.hibernate.type: trace #SQL ??? ????? ???? ?? ??
+
+
+app:
+  translate:
+    timeout-ms: 3000
+
+papago:
+  base-url: https://papago.apigw.ntruss.com
+  client-id: ${PAPAGO_CLIENT_ID}
+  client-secret: ${PAPAGO_CLIENT_SECRET}
