@@ -27,7 +27,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="font-sans min-h-dvh flex flex-col">{children}</body>
+      <body className="font-sans min-h-dvh">
+        <div className="mx-auto w-full min-h-dvh flex flex-col bg-white border-x border-gray-200">
+          {children}
+        </div>
+      </body>
     </html>
   );
 }

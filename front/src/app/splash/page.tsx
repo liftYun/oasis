@@ -55,7 +55,7 @@ export default function SplashPage() {
   ];
 
   return (
-    <main className="relative flex flex-col w-full mx-0 px-6 py-10 text-center min-h-screen border-x border-gray-200">
+    <main className="relative flex flex-col w-full mx-0 px-6 py-10 text-center min-h-screen">
       <LanguageToggle label={t.tooltip} />
 
       <OnboardSlider slides={slides} autoPlayMs={3000} loop />

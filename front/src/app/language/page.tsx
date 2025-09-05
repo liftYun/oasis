@@ -1,49 +1,69 @@
-'use client';
-
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import EnDark from '@/assets/icons/en-dark.png';
+import EnLight from '@/assets/icons/en-light.png';
+import KoDark from '@/assets/icons/ko-dark.png';
+import KoLight from '@/assets/icons/ko-light.png';
 
 export default function LanguagePage() {
-  const [lang, setLang] = useState<'ko' | 'en'>('ko');
-
-  useEffect(() => {
-    const stored = localStorage.getItem('lang');
-    if (stored === 'en' || stored === 'ko') {
-      setLang(stored);
-    }
-  }, []);
+  const cardClass = () =>
+    'group block rounded-2xl px-5 py-10 transition focus-visible:outline-none bg-gray-100 text-gray-500 hover:bg-gray-500 hover:text-white';
 
   return (
-    <main className="w-full max-w-sm mx-auto px-6 py-10">
-      <h1 className="text-xl font-bold">
-        {lang === 'ko' ? '사용 언어를 선택해주세요.' : 'Please select a language.'}
-        <br />
-        <span className="text-gray-500 text-base">
-          {lang === 'ko' ? 'Please select a language.' : '언어를 선택해주세요.'}
-        </span>
+    <main className="relative flex flex-col w-full mx-0 px-6 py-10 min-h-screen">
+      <h1 className="text-2xl font-bold text-gray-500 leading-relaxed">
+        사용 언어를 선택해주세요. <br /> Please select a language.
       </h1>
 
-      <div className="mt-8 flex flex-col gap-4">
-        <Link
-          href="/splash"
-          className={`block rounded-2xl p-5 transition ${
-            lang === 'ko' ? 'bg-black text-white hover:opacity-90' : 'bg-gray-200 hover:bg-gray-300'
-          }`}
-          prefetch
-        >
-          <div className="text-lg font-semibold">한국어</div>
-          <div className="text-sm opacity-80 mt-1">한국어로 서비스 이용하기</div>
+      <div className="mt-20 flex flex-col gap-6">
+        <Link href="/register" prefetch className={cardClass()}>
+          <div className="flex justify-between gap-3 w-full max-w-lg mx-auto">
+            <div>
+              <div className="text-xl font-semibold">한국어</div>
+              <div className="text-sm opacity-80 mt-1">한국어로 서비스 이용하기</div>
+            </div>
+            <div className="relative w-20 h-20 group">
+              <Image
+                src={KoDark}
+                alt="Korean Dark Icon"
+                fill
+                priority
+                className="group-hover:hidden group-active:hidden group-focus:hidden"
+              />
+              <Image
+                src={KoLight}
+                alt="Korean Light Icon"
+                fill
+                priority
+                className="hidden group-hover:block group-active:block group-focus:block"
+              />
+            </div>
+          </div>
         </Link>
 
-        <Link
-          href="/splash"
-          className={`block rounded-2xl p-5 transition ${
-            lang === 'en' ? 'bg-black text-white hover:opacity-90' : 'bg-gray-200 hover:bg-gray-300'
-          }`}
-          prefetch
-        >
-          <div className="text-lg font-semibold">English</div>
-          <div className="text-sm opacity-80 mt-1">Use the service in English</div>
+        <Link href="/register" prefetch className={cardClass()}>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="text-xl font-semibold">English</div>
+              <div className="text-sm opacity-80 mt-1">Use the service in English</div>
+            </div>
+            <div className="relative w-20 h-20 group">
+              <Image
+                src={EnDark}
+                alt="English Dark Icon"
+                fill
+                priority
+                className="group-hover:hidden group-active:hidden group-focus:hidden"
+              />
+              <Image
+                src={EnLight}
+                alt="English Light Icon"
+                fill
+                priority
+                className="hidden group-hover:block group-active:block group-focus:block"
+              />
+            </div>
+          </div>
         </Link>
       </div>
     </main>
