@@ -26,7 +26,7 @@ import java.util.List;
         })
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
-@Getter
+@Getter @Setter
 public class UserEntity extends BaseEntity {
 
     @Id
