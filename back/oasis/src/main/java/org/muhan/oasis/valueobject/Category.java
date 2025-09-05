@@ -1,4 +1,5 @@
 package org.muhan.oasis.valueobject;
 
-public class Category {
+public enum Category {
+    BEDROOM, BATHROOM, KITCHEN, SERVICE, AMENITY
 }
