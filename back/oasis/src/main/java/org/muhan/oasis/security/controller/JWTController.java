@@ -1,6 +1,5 @@
 package org.muhan.oasis.security.controller;
 
-import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,9 +7,8 @@ import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.common.base.BaseResponseStatus;
-import org.muhan.oasis.security.dto.in.RegistRequestDto;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
-import org.muhan.oasis.security.entity.UserEntity;
+import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.security.jwt.JWTUtil;
 import org.muhan.oasis.security.service.JoinService;
 import org.muhan.oasis.security.service.RefreshTokenService;
@@ -18,8 +16,6 @@ import org.muhan.oasis.security.vo.in.RegistRequestVo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 import static org.muhan.oasis.common.base.BaseResponseStatus.DUPLICATED_NICKNAME;
 import static org.muhan.oasis.common.base.BaseResponseStatus.INVALID_PARAMETER;

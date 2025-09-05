@@ -2,8 +2,7 @@ package org.muhan.oasis.security.service;
 
 import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
-import org.muhan.oasis.security.dto.in.RegistRequestDto;
-import org.muhan.oasis.security.entity.UserEntity;
+import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.security.repository.UserRepository;
 import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.valueobject.Role;

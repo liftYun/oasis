@@ -1,6 +1,7 @@
 package org.muhan.oasis.security.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +16,8 @@ import java.util.Date;
         uniqueConstraints = @UniqueConstraint(name = "ux_refresh_token_user", columnNames = "user_uuid"),
         indexes = @Index(name = "idx_refresh_token_user_uuid", columnList = "user_uuid")
 )
-@Getter @Setter @NoArgsConstructor
+@Getter
+@NoArgsConstructor
 public class RefreshTokenEntity {
 
     @Id
@@ -32,7 +34,7 @@ public class RefreshTokenEntity {
     @Column(name = "expires_at", nullable = false)
     private Date expiresAt;
 
-
+    @Builder
     public RefreshTokenEntity(String userUuid, String token, Date expiresAt) {
         this.userUuid = userUuid;
         this.token = token;

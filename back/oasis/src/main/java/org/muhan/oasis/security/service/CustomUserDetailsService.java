@@ -1,7 +1,7 @@
 package org.muhan.oasis.security.service;
 
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
-import org.muhan.oasis.security.entity.UserEntity;
+import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.security.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
