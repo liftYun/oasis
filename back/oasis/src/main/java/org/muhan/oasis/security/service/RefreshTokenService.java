@@ -46,11 +46,7 @@ public class RefreshTokenService {
         repository.deleteByUserUuid(uuid);
         repository.flush();
 
-        RefreshTokenEntity n = new RefreshTokenEntity();
-
-        n.setUserUuid(uuid);
-        n.setToken(refreshToken);
-        n.setExpiresAt(new Date(System.currentTimeMillis() + jwtUtil.getRefreshExpiredMs()));
+        RefreshTokenEntity n = new RefreshTokenEntity(uuid, refreshToken, new Date(System.currentTimeMillis() + jwtUtil.getRefreshExpiredMs()));
 
         repository.save(n);
     }

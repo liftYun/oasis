@@ -2,8 +2,7 @@ package org.muhan.oasis.security.service;
 
 import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
-import org.muhan.oasis.security.dto.in.RegistRequestDto;
-import org.muhan.oasis.security.entity.UserEntity;
+import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.security.repository.UserRepository;
 import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.valueobject.Role;
@@ -26,14 +25,15 @@ public class JoinService {
     @Transactional
     public UserEntity registerSocialUserIfNotExist(String email, String nickname, @Nullable Language lang) {
         return userRepository.findByEmail(email).orElseGet(() -> {
-            UserEntity u = new UserEntity();
-            u.setUserUuid(UUID.randomUUID().toString());
-            u.setEmail(email);
-            u.setNickname(safeNickname(nickname));          // null/중복 방지 정책 적용 권장
-            u.setRole(Role.ROLE_GUEST);                     // 소셜 최초는 게스트
-            u.setLanguage(lang != null ? lang : Language.KOR); // 기본값
-            u.setProfileImg(defaultProfile());            // NOT NULL
-            u.setCreatedAt(LocalDateTime.now());
+            UserEntity u = new UserEntity(
+                    UUID.randomUUID().toString(),
+                    Role.ROLE_GUEST,
+                    safeNickname(nickname),
+                    email,
+                    defaultProfile(),
+                    lang != null ? lang : Language.KOR,
+                    null
+            );
             return userRepository.save(u);
         });
     }

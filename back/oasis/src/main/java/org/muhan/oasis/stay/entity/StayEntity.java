@@ -2,7 +2,7 @@ package org.muhan.oasis.stay.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.muhan.oasis.security.entity.UserEntity;
+import org.muhan.oasis.user.entity.UserEntity;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;

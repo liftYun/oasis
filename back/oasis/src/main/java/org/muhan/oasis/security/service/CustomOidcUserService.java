@@ -1,7 +1,7 @@
 package org.muhan.oasis.security.service;
 
 import lombok.RequiredArgsConstructor;
-import org.muhan.oasis.security.entity.UserEntity;
+import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.security.jwt.CustomOidcUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
