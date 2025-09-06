@@ -33,6 +33,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -83,7 +84,11 @@ public class SecurityConfig {
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 CorsConfiguration cfg = new CorsConfiguration();
-                cfg.setAllowedOrigins(Collections.singletonList("https://i13e103.p.ssafy.io"));
+                cfg.setAllowedOriginPatterns(List.of(
+                        "https://i13e103.p.ssafy.io",
+                        "http://127.0.0.1:*",
+                        "http://localhost:*"
+                ));
                 cfg.setAllowedMethods(Collections.singletonList("*"));
                 cfg.setAllowedHeaders(Collections.singletonList("*"));
                 cfg.setExposedHeaders(Collections.singletonList("Authorization"));
@@ -105,6 +110,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/auth/refresh",
                                 "/api/v1/auth/logout/rToken").permitAll()
+                        //테스트
+                        .requestMatchers("/api/v1/reservations/**").permitAll()
                         // Swagger, 공용 API
                         .requestMatchers( "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         // 토큰 보유자

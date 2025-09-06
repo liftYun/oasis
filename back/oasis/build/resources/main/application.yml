@@ -5,9 +5,9 @@ swagger:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/jwt_test?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/oasis?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
     username: root
-    password: root
+    password: 0930
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -26,7 +26,7 @@ spring:
       client:
         registration:
           google:
-            client-id: ${GOOGLE_CLIENT_ID}      # 환경변수 또는 실제 값
+            client-id: ${GOOGLE_CLIENT_ID}      # ???? ?? ?? ?
             client-secret: ${GOOGLE_CLIENT_SECRET}
             scope:
               - openid
@@ -40,7 +40,23 @@ jwt:
     expired-ms: 600000    # 10?
   refresh:
     expired-ms: 604800000 # 7?
+
+# Web3 설정
+infura:
+  url: https://rpc-amoy.polygon.technology/
+
+wallet:
+  private:
+    key: $0d9b9f51805db5db8468aa0863ae424d25353056d262ea9dfe216d4422a74fd3 # 운영자 지갑 개인키
+
+contract:
+  address: 0x42106dd5fae320c77de6ba756b9979a7339a203a  # 배포된 NomadBooking 컨트랙트 주소
+
+usdc:
+  address: 0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582  # Polygon Amoy USDC
+
 logging:
   level:
     org.hibernate.SQL: debug #?? SQL ??? ??? ??
     org.hibernate.type: trace #SQL ??? ????? ???? ?? ??
+    org.muhan.oasis.web3: debug  # Web3 관련 로그
