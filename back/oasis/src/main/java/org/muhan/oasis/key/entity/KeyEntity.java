@@ -19,7 +19,7 @@ public class KeyEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "device_id", nullable = false)
-    private DeviceEntity deviceId;   // 도어락 ID (FK)
+    private DeviceEntity device;   // 도어락 ID (FK)
 
     @Column(name = "activation_time")
     private LocalDateTime activationTime;
@@ -28,9 +28,9 @@ public class KeyEntity {
     private LocalDateTime expirationTime;
 
     @Builder
-    public KeyEntity(Long keyId, DeviceEntity deviceId, LocalDateTime activationTime, LocalDateTime expirationTime) {
+    public KeyEntity(Long keyId, DeviceEntity device, LocalDateTime activationTime, LocalDateTime expirationTime) {
         this.keyId = keyId;
-        this.deviceId = deviceId;
+        this.device = device;
         this.activationTime = activationTime;
         this.expirationTime = expirationTime;
     }
@@ -40,5 +40,21 @@ public class KeyEntity {
         if (activationTime == null) {
             activationTime = LocalDateTime.now();
         }
+    }
+
+    public boolean isValidNow() {
+        LocalDateTime now = LocalDateTime.now();
+
+        // 활성화 시간이 설정돼 있고, 아직 도래하지 않았다면 false
+        if (activationTime != null && now.isBefore(activationTime)) {
+            return false;
+        }
+
+        // 만료 시간이 설정돼 있고, 이미 지났다면 false
+        if (expirationTime != null && now.isAfter(expirationTime)) {
+            return false;
+        }
+
+        return true; // 그 외는 유효
     }
 }
