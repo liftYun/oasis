@@ -5,14 +5,10 @@ import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.key.service.KeyService;
 import org.muhan.oasis.key.vo.in.ShareKeyRequestVo;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
-import org.muhan.oasis.user.entity.UserEntity;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-
-import static org.muhan.oasis.common.base.BaseResponseStatus.NO_EXIST_USER;
 
 @RestController
 @ResponseBody
@@ -33,7 +29,6 @@ public class KeyController {
     @PostMapping("/{keyId}/open")
     public BaseResponse<?> open(
             @PathVariable Long keyId, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-
         // MQTT 발행
         String commandId = keyService.verifyOpenPermission(customUserDetails.getUserId(), keyId);
 

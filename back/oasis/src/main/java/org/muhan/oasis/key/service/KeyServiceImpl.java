@@ -10,9 +10,8 @@ import org.muhan.oasis.key.entity.KeyEntity;
 import org.muhan.oasis.key.entity.KeyOwnerEntity;
 import org.muhan.oasis.key.repository.KeyOwnerRepository;
 import org.muhan.oasis.key.repository.KeyRepository;
-import org.muhan.oasis.key.vo.in.ShareKeyRequestVo;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
-import org.muhan.oasis.security.repository.UserRepository;
+import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.stay.entity.DeviceEntity;
 import org.muhan.oasis.stay.entity.StayEntity;
 import org.muhan.oasis.user.entity.UserEntity;
@@ -23,6 +22,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Log4j2
@@ -56,66 +56,73 @@ public class KeyServiceImpl implements KeyService {
 
     @Override
     public Long issueKeysForAllUsers(ShareKeyRequestDto shareKeyRequestDto) {
-        // 1. 예약 정보 조회
+        // 1) 예약 조회
         ReservationEntity reservation = reservationRepository.findById(shareKeyRequestDto.getReservationId())
                 .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
 
-        // 2. 예약된 숙소 조회
+        // 2) 숙소/디바이스
         StayEntity stay = reservation.getStay();
-
-        // 3. 숙소에 연결된 디바이스 조회
         DeviceEntity device = deviceRepository.findByStayId(stay.getStayId());
-        if (device == null) {
-            throw new IllegalStateException("해당 숙소에는 도어락이 존재하지 않습니다.");
-        }
+        if (device == null) throw new IllegalStateException("해당 숙소에는 도어락이 존재하지 않습니다.");
 
-        // 4. 디바이스에 해당하는 예약에 맞춰 키 발급
-        KeyEntity key = KeyEntity.builder()
-                .device(device)
-                .activationTime(reservation.getCheckinDate().minusMinutes(30)) // 체크인 시간 - 30분
-                .expirationTime(reservation.getCheckoutDate().plusMinutes(30)) // 체크아웃 시간 + 30분
-                .build();
-
-        KeyEntity saved = keyRepository.save(key);
+        // 3) 키 생성
+        KeyEntity saved = keyRepository.save(
+                KeyEntity.builder()
+                        .device(device)
+                        .activationTime(reservation.getCheckinDate().minusMinutes(30))
+                        .expirationTime(reservation.getCheckoutDate().plusMinutes(30))
+                        .build()
+        );
         log.info("발급된 디지털 키: {}", saved);
 
-        List<String> userNicknames = new ArrayList<>(shareKeyRequestDto.getUserNicknames());
-        for (String userNickname : userNicknames) {
-            UserEntity user = userRepository.findByNickname(userNickname);
+        // 닉네임 중복 제거
+        List<String> nicknames = shareKeyRequestDto.getUserNicknames().stream()
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .distinct()
+                .toList();
 
-            if (user == null) {
-                throw new IllegalStateException(userNickname+" : 해당 유저는 존재하지 않습니다.");
-            } else {
-                KeyOwnerEntity keyOwner = KeyOwnerEntity.builder()
+        // 한 번에 사용자 조회
+        List<UserEntity> users = userRepository.findAllByNicknameIn(nicknames);
+
+        // 누락 닉네임 검증
+        var foundNickSet = users.stream().map(UserEntity::getNickname).collect(java.util.stream.Collectors.toSet());
+        List<String> missing = nicknames.stream().filter(n -> !foundNickSet.contains(n)).toList();
+        if (!missing.isEmpty()) {
+            throw new IllegalStateException("존재하지 않는 유저 닉네임: " + String.join(", ", missing));
+        }
+
+        // KeyOwner 저장 + Redis 추가를 한 번에
+        for (UserEntity user : users) {
+            // 중복 소유 방지
+            boolean exists = keyOwnerRepository.existsByKey_KeyIdAndUser_UserId(saved.getKeyId(), user.getUserId());
+            if (!exists) {
+                KeyOwnerEntity owner = KeyOwnerEntity.builder()
                         .key(saved)
                         .user(user)
                         .reservation(reservation)
                         .build();
-                KeyOwnerEntity savedOwner = keyOwnerRepository.save(keyOwner);
-                log.info("공유된 디지털 키: {}", savedOwner);
+                keyOwnerRepository.save(owner);
+                log.info("공유된 디지털 키: keyId={}, userId={}", saved.getKeyId(), user.getUserId());
             }
-        }
 
-        Duration ttl = computeTtl(saved.getExpirationTime()); // 게스트 키면 TTL, 마스터키면 null
-
-        // owners (모든 공유 유저 추가)
-        for (String userNickname : userNicknames) {
-            UserEntity user = userRepository.findByNickname(userNickname);
+            // Redis owners 세트에 추가
             redis.opsForSet().add(K_OWNERS + saved.getKeyId(), String.valueOf(user.getUserId()));
         }
+
+        // TTL/valid/device 캐시
+        Duration ttl = computeTtl(saved.getExpirationTime());
         if (ttl != null) redis.expire(K_OWNERS + saved.getKeyId(), ttl);
 
-        // valid
         redis.opsForValue().set(K_VALID + saved.getKeyId(), "1");
         if (ttl != null) redis.expire(K_VALID + saved.getKeyId(), ttl);
 
-        // device
         redis.opsForValue().set(K_DEVICE + saved.getKeyId(), String.valueOf(device.getId()));
         if (ttl != null) redis.expire(K_DEVICE + saved.getKeyId(), ttl);
 
-
         return saved.getKeyId();
     }
+
 
     @Override
     public String verifyOpenPermission(Long userId, Long keyId) {
