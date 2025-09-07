@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { OnboardSliderProps } from '@/types/slider';
+import { OnboardSliderProps } from '@/features/splash';
 import BlockChainImage from '@/assets/images/blockchain.png';
 import KeyImage from '@/assets/images/key.png';
 import StayImage from '@/assets/images/stay.png';
@@ -22,7 +22,7 @@ const variants = {
   }),
 };
 
-export default function OnboardSlider({
+export function OnboardSlider({
   slides,
   initialIndex = 0,
   loop = false,
