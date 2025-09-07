@@ -58,6 +58,9 @@ public enum BaseResponseStatus {
     DUPLICATED_NICKNAME(HttpStatus.CONFLICT, false, 409, "이미 사용중인 닉네임입니다."),
     SAME_NICKNAME(HttpStatus.CONFLICT, false, 409, "현재 사용중인 닉네임입니다."),
     INVALID_EMAIL_ADDRESS(HttpStatus.BAD_REQUEST, false, 400, "이메일을 다시 확인해주세요."),
+    NO_IMG_DATA(HttpStatus.BAD_REQUEST, false, 400, "업로드할 파일이 없습니다"),
+    OVER_IMG_DATA(HttpStatus.BAD_REQUEST, false, 400, "파일은 10MB 이하만 업로드 가능합니다."),
+    NO_IMG_FORM(HttpStatus.BAD_REQUEST, false, 400, "이미지 파일만 업로드 가능합니다."),
     UPDATE_NICKNAME_FAIL(HttpStatus.BAD_REQUEST, false, 400, "닉네임 업데이트를 실패했습니다.");
 
 

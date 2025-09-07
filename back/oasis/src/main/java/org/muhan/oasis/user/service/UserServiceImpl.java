@@ -1,9 +1,11 @@
 package org.muhan.oasis.user.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.common.exception.BaseException;
+import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.user.dto.out.UserDetailsResponseDto;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
@@ -16,7 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -24,6 +28,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final S3StorageService s3StorageService;
+
 
     @Override
     public UserSearchResultResponseVo autocomplete(String keyword, int page, int size, List<Long> excludeIds) {
@@ -68,5 +74,32 @@ public class UserServiceImpl implements UserService {
                 user.getRole(),
                 user.getLanguage()
         );
+    }
+
+    @Override
+    @Transactional
+    public void updateProfileImageUrl(Long userId, String newUrl) {
+        UserEntity user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        String oldUrl = user.getProfileImg(); // 기존 URL 컬럼명에 맞춰 변경
+
+        user.setProfileImg(newUrl);
+        userRepository.save(user);
+
+        // 이전 이미지 삭제(동일 버킷 경로만 안전하게 처리)
+        if (oldUrl != null && !oldUrl.isBlank()) {
+            extractKeyIfSameBucket(oldUrl).ifPresent(s3StorageService::delete);
+        }
+    }
+
+    private Optional<String> extractKeyIfSameBucket(String url) {
+        // 운영 환경에 맞게 파싱 로직 구현 (CloudFront or S3 URL → key)
+        // 예: https://bucket.s3.amazonaws.com/users/1/profile/xxx.jpg → users/1/profile/xxx.jpg
+        try {
+            URI uri = URI.create(url);
+            return Optional.of(uri.getPath().replaceFirst("^/", ""));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 }

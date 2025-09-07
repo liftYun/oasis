@@ -12,4 +12,6 @@ public interface UserService {
     Long getUserIdByExactNickname(String nickname);
 
     UserDetailsResponseDto getUser(Long userId);
+
+    void updateProfileImageUrl(Long userId, String imageUrl);
 }
