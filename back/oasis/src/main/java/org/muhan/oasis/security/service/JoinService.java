@@ -3,12 +3,11 @@ package org.muhan.oasis.security.service;
 import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
 import org.muhan.oasis.user.entity.UserEntity;
-import org.muhan.oasis.security.repository.UserRepository;
+import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.valueobject.Role;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
