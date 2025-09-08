@@ -10,10 +10,10 @@ import cameraIcon from '@/assets/icons/camera.png';
 
 export function CreateStay({ currentStep }: { currentStep: number }) {
   return (
-    <main className="flex flex-col min-h-screen p-6 bg-white">
+    <main className="flex flex-col flex-1 bg-white my-5">
       <header className="relative flex items-center justify-center h-12 mb-8">
         <div className="flex flex-col w-full">
-          <div className="mb-4">
+          <div className="mb-4 ms-0">
             <button type="button">
               <ChevronLeft />
             </button>
@@ -34,7 +34,7 @@ export function CreateStay({ currentStep }: { currentStep: number }) {
               <Input
                 id="stay-name"
                 placeholder="숙소 이름을 적어주세요."
-                className="pr-12 text-sm placeholder:text-gray-300"
+                className="pr-12 text-sm placeholder:text-gray-200"
               />
               <p className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
                 0/20
@@ -48,9 +48,9 @@ export function CreateStay({ currentStep }: { currentStep: number }) {
             <Input
               id="stay-location"
               placeholder="주소 검색하기"
-              className="text-sm placeholder:text-gray-300"
+              className="text-sm placeholder:text-gray-200"
             />
-            <Input placeholder="상세 주소" className="text-sm placeholder:text-gray-300" />
+            <Input placeholder="상세 주소" className="text-sm placeholder:text-gray-200" />
           </div>
 
           {/* 가격 */}
@@ -59,7 +59,7 @@ export function CreateStay({ currentStep }: { currentStep: number }) {
             <Input
               id="stay-price"
               placeholder="$ 가격을 적어주세요."
-              className="text-sm placeholder:text-gray-300"
+              className="text-sm placeholder:text-gray-200"
             />
           </div>
 

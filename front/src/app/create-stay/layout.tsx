@@ -1,3 +1,15 @@
 export default function CreateStayLayout({ children }: { children: React.ReactNode }) {
-  return <section className="flex-1 flex items-center justify-center">{children}</section>;
+  return (
+    <div
+      className="
+        mx-auto w-full max-w-[480px]
+        min-h-dvh
+        flex flex-col flex-1
+        px-6 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]
+        border-x border-gray-100
+      "
+    >
+      {children}
+    </div>
+  );
 }
