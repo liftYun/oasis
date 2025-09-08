@@ -7,30 +7,8 @@ import lombok.Getter;
 import org.muhan.oasis.security.dto.in.RegistRequestDto;
 import org.muhan.oasis.valueobject.Language;
 
-//@Setter
 @Getter
 @Builder
-//public class RegistRequestVo {
-//    private String nickname;
-//    private String userEmail;
-//    private String profileUrl;
-//    private Language language;
-//    private String certificateUrl;
-//    private String role;
-//
-//    public static RegistRequestDto from(RegistRequestVo vo){
-//
-//        return RegistRequestDto.builder()
-//                .nickname(vo.nickname)
-//                .userEmail(vo.userEmail)
-//                .profileUrl(vo.profileUrl)
-//                .language(vo.language)
-//                .certificateUrl(vo.certificateUrl)
-//                .role(vo.role)
-//                .build();
-//
-//    }
-//}
 public class RegistRequestVo {
 
     @NotBlank(message = "닉네임은 필수입니다.")
@@ -38,7 +16,8 @@ public class RegistRequestVo {
     private String nickname;
 
     // 선택: 프로필 이미지 URL
-    private String profileImg;
+    private String profileImgKey; // 권장: 서버가 안전한 URL 생성
+    private String profileImgUrl; // 대안: 이미 생성된 URL 전달 시
 
     // ROLE_GUEST 또는 ROLE_HOST
     @NotBlank(message = "역할은 필수입니다.")
@@ -46,6 +25,6 @@ public class RegistRequestVo {
     private String role;
 
     // 선택: ko/en 등 화이트리스트 권장
-    @Pattern(regexp = "ko|en|ja|zh|fr|de", message = "지원하지 않는 언어 코드입니다.")
+    @Pattern(regexp = "kor|eng", message = "지원하지 않는 언어 코드입니다.")
     private String language;
 }

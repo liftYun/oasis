@@ -54,6 +54,14 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'it.ozimov:embedded-redis:0.7.3'
 
+    // AWS SDK v2 (BOM으로 버전 일원화)
+    implementation platform("software.amazon.awssdk:bom:2.25.40")
+    implementation "software.amazon.awssdk:s3"
+    implementation "software.amazon.awssdk:s3-transfer-manager"  // (옵션) 대용량 업/다운로드 최적화
+
+    // (옵션) 썸네일/이미지 처리 시
+    // implementation 'net.coobird:thumbnailator:0.4.20'
+
     // 테스트 코드에도 lombok 적용
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor'org.projectlombok:lombok'
