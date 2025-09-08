@@ -40,7 +40,7 @@ public class ReviewController {
             @Valid @RequestBody RegistReviewRequestVo registReviewRequestVo
             ){
         Long userId = customUserDetails.getUserId();
-        return reviewService.registReview(userId, registReviewRequestVo)
+        return reviewService.registReview(userId, registReviewRequestVo.toDto())
                 ? BaseResponse.ok()
                 : BaseResponse.error(FAIL_REGIST_REVIEW);
     }
