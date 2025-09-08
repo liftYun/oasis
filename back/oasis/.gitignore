@@ -572,6 +572,7 @@ FodyWeavers.xsd
 .gradle/**
 .env
 **/.DS_Store
+build
 
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
