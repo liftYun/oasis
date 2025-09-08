@@ -1,0 +1,50 @@
+package org.muhan.oasis.openAI.service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.RequiredArgsConstructor;
+import org.muhan.oasis.openAI.client.OpenAiClient;
+import org.muhan.oasis.openAI.dto.in.ReviewListRequestDTO;
+import org.muhan.oasis.openAI.dto.in.ReviewRequestDTO;
+import org.muhan.oasis.openAI.dto.in.StayRequestDTO;
+import org.muhan.oasis.openAI.dto.out.ReviewSummaryResult;
+import org.muhan.oasis.openAI.dto.out.ReviewTranslationResult;
+import org.muhan.oasis.openAI.dto.out.StayTranslationResult;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class OpenAIService {
+
+    private final OpenAiClient openAiClient;
+
+    public StayTranslationResult getTranslatedStay(StayRequestDTO stayDTO) {
+        try {
+            return openAiClient.translateStay(stayDTO);
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+            // 커스텀 에러 넣기
+        }
+    }
+
+    public ReviewTranslationResult getTranslatedReview(ReviewRequestDTO reviewDTO) {
+        try {
+            return openAiClient.translateReview(reviewDTO);
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+            // 커스텀 에러 넣기
+        }
+    }
+
+    public ReviewSummaryResult getSummarizedReview(ReviewListRequestDTO reviewListDTO) {
+        try {
+            return openAiClient.summarizeReviews(reviewListDTO);
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+            // 커스텀 에러 넣기
+        }
+    }
+
+}
