@@ -4,15 +4,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
 import org.muhan.oasis.review.dto.in.RegistReviewRequestDto;
+import org.muhan.oasis.review.dto.out.ReviewResponseDto;
 import org.muhan.oasis.review.entity.ReviewEntity;
 import org.muhan.oasis.review.repository.ReviewRepository;
 import org.muhan.oasis.review.vo.in.RegistReviewRequestVo;
+import org.muhan.oasis.review.vo.out.ReviewResponseVo;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.valueobject.Language;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 @Service
@@ -25,7 +28,7 @@ public class ReviewServiceImpl implements ReviewService{
     private final OpenAIService openAIService;
 
     @Override
-    public boolean registReview(Long userId, RegistReviewRequestDto registReviewRequestDto) {
+    public Long registReview(Long userId, RegistReviewRequestDto registReviewRequestDto) {
         // 1) 예약 존재 확인
         ReservationEntity reservation = reservationRepository.findById(registReviewRequestDto.getReservationId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약입니다."));
@@ -76,11 +79,18 @@ public class ReviewServiceImpl implements ReviewService{
                     englishContent = null;
                     originalLang = null; // 혹은 Language.UNKNOWN 사용
             }
-        } catch (Exception e) {
-            // 번역 실패 시에도 리뷰 저장은 진행(원문만 한글 슬롯에 보관)
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            log.warn("[Review][translate] JSON 처리 오류 — 원문 저장. reservationId={}, userId={}, msg={}",
+                    registReviewRequestDto.getReservationId(), userId, e.getMessage(), e);
             koreanContent = original;
-            englishContent = null;
-            originalLang = null;
+        } catch (org.springframework.web.client.RestClientException e) {
+            log.warn("[Review][translate] OpenAI 호출 실패 — 원문 저장. reservationId={}, userId={}, msg={}",
+                    registReviewRequestDto.getReservationId(), userId, e.getMessage(), e);
+            koreanContent = original;
+        } catch (java.io.IOException e) {
+            log.warn("[Review][translate] I/O 오류 — 원문 저장. reservationId={}, userId={}, msg={}",
+                    registReviewRequestDto.getReservationId(), userId, e.getMessage(), e);
+            koreanContent = original;
         }
 
         // 5) 저장
@@ -98,7 +108,17 @@ public class ReviewServiceImpl implements ReviewService{
         // TODO : 숙소 평점 집계 업데이트 진행
         // stayService.recalculateRating(reservation.getStay().getId());
 
-        return true;
+        return review.getReviewId();
+    }
+
+    @Override
+    public List<ReviewResponseVo> getListOfReviews(Long userId) {
+        List<ReviewEntity> entities =
+                reviewRepository.findAllByUser_IdOrderByCreatedAtDesc(userId);
+
+        return entities.stream()
+                .map(ReviewResponseVo::fromEntity)
+                .toList();
     }
 
     private static String defaultIfNull(String s, String dft) {
@@ -115,4 +135,5 @@ public class ReviewServiceImpl implements ReviewService{
     private static <T> T getOrNull(Supplier<T> supplier) {
         try { return supplier.get(); } catch (Exception e) { return null; }
     }
+
 }
