@@ -5,9 +5,6 @@ const isDev = process.env.NODE_ENV === 'development';
 const nextConfig = {
   reactStrictMode: true,
   typedRoutes: true,
-  devImdicators: {
-    buildActivity: false,
-  },
 };
 
 export default withPWA({
