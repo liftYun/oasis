@@ -210,6 +210,57 @@ public class OpenAiClient {
             - If the input array is empty, set all counts to 0, wasDeduplicated=false, and return empty strings for both summaries and empty arrays for bullets.
             """;
 
+    private static final String PROMPT_TRANSLATE_ADDR = """
+            You are a KO↔EN converter for DETAIL ADDRESSES inside a building/complex (e.g., “A동 101호”).\s
+            This field is NOT a street/city/zip; it only contains building wing/tower, floor, and unit numbers.
+                        
+            Your tasks:
+            1) Detect the dominant language of the input "detailAddress". ("ko", "en", or "unknown")
+            2) If detectedLocale is "ko", produce the EN version. If "en", produce the KO version. If "unknown" or empty, do NOT translate.
+            3) Return ONE valid JSON object in the exact schema below—no extra text, no markdown, no comments.
+                        
+            Mapping rules (KO → EN):
+            - “{X}동” → “Bldg {X}” (keep letters/numbers as is; e.g., “101동”→“Bldg 101”, “A동”→“Bldg A”)
+            - “{n}층” → “{n}F” (e.g., “3층”→“3F”)
+            - “지하{n}층” → “B{n}F” (e.g., “지하1층”→“B1F”)
+            - “{n}호”, “호수 {n}” → “Unit {n}” (keep hyphens as is, e.g., “1203-1호”→“Unit 1203-1”)
+            - Order and separators: “Bldg …, {Floor if any}, Unit …” with comma+space between segments.
+                        
+            Mapping rules (EN → KO):
+            - “Building”, “Bldg”, “Bldg.” → “{…}동” (keep letters/numbers after it; e.g., “Bldg 3”→“3동”)
+            - “{n}F” → “{n}층”; “B{n}F” → “지하{n}층”
+            - “Unit {n}”, “Apt {n}”, “Room {n}”, “#{n}” → “{n}호” (strip leading “#”)
+            - Order and separators: “{동?} {층?} {호?}” with single spaces (no commas).
+                        
+            General rules:
+            - Preserve all numbers/letters/dashes exactly (e.g., “A-2동”, “1203-1호”).
+            - Do NOT add street/city names; do NOT guess missing parts.
+            - If only one component is present (e.g., just “A동” or “#804”), translate only that part.
+            - If unrecognized tokens appear, leave them as-is but still translate recognized parts.
+            - Keep ASCII for EN output; keep standard Korean for KO output.
+            - This is NOT a postal address formatter—just component translation + minimal reordering as specified.
+                        
+            STRICT output contract (field order must match; no trailing commas):
+            {
+              "detectedLocale": "ko" | "en" | "unknown",
+              "confidence": number,
+              "wasTranslated": boolean,
+              "targetLocale": "ko" | "en" | null,
+              "englishVersion": {
+                "detailAddress": string | null
+              },
+              "koreanVersion": {
+                "detailAddress": string | null
+              }
+            }
+                        
+            Formatting rules:
+            - Output MUST be valid JSON only (no prose, no code fences, no comments).
+            - Escape special characters properly.
+            - If input is empty or detectedLocale is "unknown": set wasTranslated=false, targetLocale=null, and both englishVersion/koreanVersion.detailAddress=null.
+                        
+            """;
+
     // ---- Public Facade Methods ----
 
     public StayTranslationResult translateStay(StayRequestDTO dto) throws JsonProcessingException {
@@ -225,6 +276,11 @@ public class OpenAiClient {
     public ReviewSummaryResult summarizeReviews(ReviewListRequestDTO dto) throws JsonProcessingException {
         OpenAiRequest req = buildRequest(PROMPT_SUMMARIZE_REVIEWS, dto.toString());
         return sendForSchema(req, ReviewSummaryResult.class);
+    }
+
+    public AddrTranslationResult translateAddr(AddrRequestDTO dto) throws JsonProcessingException {
+        OpenAiRequest req = buildRequest(PROMPT_TRANSLATE_ADDR, dto.toString());
+        return sendForSchema(req, AddrTranslationResult.class);
     }
 
 

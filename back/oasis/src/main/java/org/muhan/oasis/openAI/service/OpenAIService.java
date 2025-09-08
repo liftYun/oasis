@@ -3,9 +3,11 @@ package org.muhan.oasis.openAI.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.muhan.oasis.openAI.client.OpenAiClient;
+import org.muhan.oasis.openAI.dto.in.AddrRequestDTO;
 import org.muhan.oasis.openAI.dto.in.ReviewListRequestDTO;
 import org.muhan.oasis.openAI.dto.in.ReviewRequestDTO;
 import org.muhan.oasis.openAI.dto.in.StayRequestDTO;
+import org.muhan.oasis.openAI.dto.out.AddrTranslationResult;
 import org.muhan.oasis.openAI.dto.out.ReviewSummaryResult;
 import org.muhan.oasis.openAI.dto.out.ReviewTranslationResult;
 import org.muhan.oasis.openAI.dto.out.StayTranslationResult;
@@ -40,6 +42,16 @@ public class OpenAIService {
     public ReviewSummaryResult getSummarizedReview(ReviewListRequestDTO reviewListDTO) {
         try {
             return openAiClient.summarizeReviews(reviewListDTO);
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+            // 커스텀 에러 넣기
+        }
+    }
+
+    public AddrTranslationResult getTranslatedAddr(AddrRequestDTO addrDTO) {
+        try {
+            return openAiClient.translateAddr(addrDTO);
 
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
