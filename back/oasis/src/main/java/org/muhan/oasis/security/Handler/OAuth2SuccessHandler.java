@@ -5,7 +5,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.muhan.oasis.security.entity.UserEntity;
+import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.security.jwt.CustomOAuth2User;
 import org.muhan.oasis.security.jwt.CustomOidcUser;
 import org.muhan.oasis.security.jwt.JWTUtil;
@@ -82,22 +82,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String email = user.getEmail();
         String nickname = user.getNickname();
 
-        // ✅ 언어 회수
-        OAuth2AuthorizationRequest authReq = authReqRepo.removeAuthorizationRequest(request, response);
-        String lang = null;
-        if (authReq != null && authReq.getAttributes().get("pref_lang") != null) {
-            lang = authReq.getAttributes().get("pref_lang").toString();
-        } else if (request.getCookies() != null) {
-            for (Cookie c : request.getCookies()) {
-                if ("lang".equals(c.getName())) {
-                    lang = c.getValue();
-                }
-            }
-        }
-
-        if (lang != null) {
-            joinService.updateLanguage(uuid, Language.valueOf(lang));
-        }
 
         // ✅ 기본 Role (처음 가입 시 ROLE_GUEST 부여)
         Role role = user.getRole() != null ? user.getRole() : Role.valueOf("ROLE_GUEST");

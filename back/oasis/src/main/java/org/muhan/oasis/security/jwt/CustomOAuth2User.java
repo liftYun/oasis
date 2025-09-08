@@ -1,6 +1,6 @@
 package org.muhan.oasis.security.jwt;
 
-import org.muhan.oasis.security.entity.UserEntity;
+import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.valueobject.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

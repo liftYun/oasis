@@ -1,6 +1,6 @@
 package org.muhan.oasis.security.dto.out;
 
-import org.muhan.oasis.security.entity.UserEntity;
+import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.valueobject.Role;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,7 +36,7 @@ public class CustomUserDetails implements UserDetails {
         return this.userEntity;
     }
 
-    public void getUserId() { return; }
+    public Long getUserId() { return userEntity.getUserId(); }
 
     public String getUserUuid() { return userEntity.getUserUuid(); }
 
