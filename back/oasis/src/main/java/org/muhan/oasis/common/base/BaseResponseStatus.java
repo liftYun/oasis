@@ -34,10 +34,15 @@ public enum BaseResponseStatus {
      */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "Internal server error"),
     REDIS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "Internal Cache system failure"),
+    DEVICE_OFFLINE(HttpStatus.SERVICE_UNAVAILABLE, false, 503, "디바이스가 오프라인 상태입니다."),
+
 
     /**
      * Service Related Errors
      */
+    // key
+    NO_EXIST_KEY(HttpStatus.UNAUTHORIZED, false, 403, "키가 존재하지 않습니다."),
+    KEY_NOT_VALID(HttpStatus.UNAUTHORIZED, false, 403, "키가 유효하지 않습니다."),
 
     // token
     TOKEN_NOT_VALID(HttpStatus.UNAUTHORIZED, false, 403, "토큰이 유효하지 않습니다."),

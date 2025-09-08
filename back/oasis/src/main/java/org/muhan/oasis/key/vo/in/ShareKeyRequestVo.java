@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 public class ShareKeyRequestVo {
     // 예약 번호
-    private Long reservationId;
+    private String reservationId;
     // 공유할 유저 이름들
     private List<String> userNicknames;
 

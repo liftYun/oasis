@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @ToString
 public class ShareKeyRequestDto {
-    private Long reservationId;
+    private String reservationId;
 
     private List<String> userNicknames;
 }

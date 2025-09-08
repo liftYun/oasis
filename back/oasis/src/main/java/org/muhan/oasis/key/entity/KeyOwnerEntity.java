@@ -9,25 +9,29 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @Getter
 @Table(name = "key_owner")
+@IdClass(KeyOwnerId.class)
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
 public class KeyOwnerEntity {
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "key_id", nullable = false)
-    private KeyEntity keyId;
+    private KeyEntity key;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reservation_id", nullable = false)
-    private ReservationEntity reservationId;
-
+    @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity userId;
+    private UserEntity user;
 
-    public KeyOwnerEntity(KeyEntity keyId, ReservationEntity reservationId, UserEntity userId) {
-        this.keyId = keyId;
-        this.reservationId = reservationId;
-        this.userId = userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reservation_id")
+    private ReservationEntity reservation;
+
+
+    @Builder
+    public KeyOwnerEntity(KeyEntity key, ReservationEntity reservation, UserEntity user) {
+        this.key = key;
+        this.reservation = reservation;
+        this.user = user;
     }
 }
