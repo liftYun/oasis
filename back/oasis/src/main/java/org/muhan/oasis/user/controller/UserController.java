@@ -13,6 +13,7 @@ import org.muhan.oasis.security.dto.out.CustomUserDetails;
 import org.muhan.oasis.user.service.UserService;
 import org.muhan.oasis.user.vo.out.UserDetailsResponseVo;
 import org.muhan.oasis.user.vo.out.UserSearchResultResponseVo;
+import org.muhan.oasis.valueobject.Language;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -189,6 +190,25 @@ public class UserController {
         userService.updateProfileImageUrl(userDetails.getUserId(), publicUrl);
 
         return BaseResponse.of(Map.of("profileImgUrl", publicUrl));
+    }
+
+    @Operation(
+            summary = "언어 변경",
+            description = """
+                마이페이지에서 언어를 변경합니다(KOR <-> ENG)
+                """,
+            tags = {"회원"}
+    )
+    @PatchMapping("/updateLang")
+    public BaseResponse<?> updateLang(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestParam("Langauge") String language
+            ){
+        Language lang = Language.valueOf(language);
+        Long userId = customUserDetails.getUserId();
+         return userService.updateLang(userId, lang)
+                 ? BaseResponse.ok()
+                 : BaseResponse.error(UPDATE_LANG_FAIL);
     }
 
     // 파일 확장자

@@ -12,6 +12,7 @@ import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.user.vo.out.UserBriefResponseVo;
 import org.muhan.oasis.user.vo.out.UserDetailsResponseVo;
 import org.muhan.oasis.user.vo.out.UserSearchResultResponseVo;
+import org.muhan.oasis.valueobject.Language;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -90,6 +91,16 @@ public class UserServiceImpl implements UserService {
         if (oldUrl != null && !oldUrl.isBlank()) {
             extractKeyIfSameBucket(oldUrl).ifPresent(s3StorageService::delete);
         }
+    }
+
+    @Override
+    public boolean updateLang(Long userId, Language lang) {
+        UserEntity user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        user.setLanguage(lang);
+        userRepository.save(user);
+
+        return true;
     }
 
     private Optional<String> extractKeyIfSameBucket(String url) {
