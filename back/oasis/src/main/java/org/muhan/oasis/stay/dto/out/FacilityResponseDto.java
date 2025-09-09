@@ -1,7 +1,6 @@
 package org.muhan.oasis.stay.dto.out;
 
 import lombok.Builder;
-import lombok.Getter;
 import org.muhan.oasis.stay.entity.FacilityEntity;
 
 @Builder

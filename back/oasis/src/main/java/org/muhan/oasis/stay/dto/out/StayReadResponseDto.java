@@ -6,9 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.muhan.oasis.stay.entity.StayEntity;
 import org.muhan.oasis.stay.entity.StayFacilityEntity;
-import org.muhan.oasis.stay.entity.StayPhotoEntity;
 import org.muhan.oasis.valueobject.Language;
-import org.springframework.cglib.core.Local;
 
 import java.util.List;
 

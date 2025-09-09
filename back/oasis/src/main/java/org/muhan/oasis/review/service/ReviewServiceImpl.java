@@ -2,7 +2,9 @@ package org.muhan.oasis.review.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.muhan.oasis.openAI.service.OpenAIService;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
+import org.muhan.oasis.reservation.repository.ReservationRepository;
 import org.muhan.oasis.review.dto.in.RegistReviewRequestDto;
 import org.muhan.oasis.review.dto.out.ReviewResponseDto;
 import org.muhan.oasis.review.entity.ReviewEntity;

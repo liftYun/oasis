@@ -2,13 +2,10 @@ package org.muhan.oasis.stay.dto.out;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import org.muhan.oasis.stay.entity.StayEntity;
 import org.muhan.oasis.stay.entity.StayPhotoEntity;
-import org.muhan.oasis.valueobject.Language;
 
 import java.util.List;
 
-@AllArgsConstructor
 @Builder
 public record ImageResponseDto(String url, Integer sortOrder) {
 

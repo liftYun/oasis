@@ -1,7 +1,6 @@
 package org.muhan.oasis.stay.dto.out;
 
 import org.muhan.oasis.stay.entity.FacilityEntity;
-import org.muhan.oasis.stay.entity.RegionEntity;
 import org.muhan.oasis.stay.entity.StayFacilityEntity;
 import org.muhan.oasis.valueobject.Category;
 
