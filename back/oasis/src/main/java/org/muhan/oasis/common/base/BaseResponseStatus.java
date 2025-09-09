@@ -74,6 +74,9 @@ public enum BaseResponseStatus {
     OPENAI_INVALID_RESPONSE(HttpStatus.BAD_REQUEST, false, 400, "AI 응답을 파싱하는데 실패했습닌다."),
     FAIL_OPENAI_COMMUNICATION(HttpStatus.SERVICE_UNAVAILABLE, false, 503, "OpenAI와 통신에 실패했습니다."),
 
+    // 숙소
+    NO_STAY(HttpStatus.NOT_FOUND, false, 404, "숙소가 존재하지 않습니다."),
+
     // region
     NO_EXIST_SUBREGION(HttpStatus.NOT_FOUND, false, 404, "존재하지 않는 지역 정보입니다."),
     // facility

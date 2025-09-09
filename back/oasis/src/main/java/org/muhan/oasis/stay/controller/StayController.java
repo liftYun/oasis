@@ -11,13 +11,12 @@ import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
 import org.muhan.oasis.stay.dto.in.CreateStayRequestDto;
 import org.muhan.oasis.stay.dto.out.StayCreateResponseDto;
+import org.muhan.oasis.stay.dto.out.StayReadResponseDto;
 import org.muhan.oasis.stay.service.StayService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -88,6 +87,16 @@ public class StayController {
     // 숙소 삭제
 
     // 숙소 상세글 조회
+    @GetMapping("/{stayId}")
+    public ResponseEntity<BaseResponse<StayReadResponseDto>> readStay(
+            @PathVariable Long stayId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        StayReadResponseDto stayResponse = stayService.getStayById(stayId, userDetails.getLanguage());
+        BaseResponse<StayReadResponseDto> body = new BaseResponse<>(stayResponse);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
 
     // 숙소 사진 업로드 (여러장)
 
