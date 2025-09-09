@@ -6,6 +6,5 @@ import org.muhan.oasis.stay.dto.out.StayCreateResponseDto;
 
 public interface StayService {
     StayCreateResponseDto registStay(CreateStayRequestDto stayRequest, Long userId);
-    StayCreateResponseDto updateStay
 
 }
