@@ -11,6 +11,8 @@ import org.muhan.oasis.key.entity.KeyOwnerEntity;
 import org.muhan.oasis.key.repository.KeyOwnerRepository;
 import org.muhan.oasis.key.repository.KeyRepository;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
+import org.muhan.oasis.reservation.repository.ReservationRepository;
+import org.muhan.oasis.stay.repository.DeviceRepository;
 import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.stay.entity.DeviceEntity;
 import org.muhan.oasis.stay.entity.StayEntity;
