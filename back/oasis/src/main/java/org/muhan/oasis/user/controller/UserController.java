@@ -6,14 +6,21 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
+import org.muhan.oasis.security.jwt.JWTUtil;
+import org.muhan.oasis.security.service.RefreshTokenService;
 import org.muhan.oasis.user.service.UserService;
 import org.muhan.oasis.user.vo.out.UserDetailsResponseVo;
 import org.muhan.oasis.user.vo.out.UserSearchResultResponseVo;
 import org.muhan.oasis.valueobject.Language;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,10 +40,14 @@ public class UserController {
 
     private final UserService userService;
     private final S3StorageService s3StorageService;
+    private final JWTUtil jwtUtil;
+    private final RefreshTokenService refreshTokenService;
 
-    public UserController(UserService userService, S3StorageService s3StorageService) {
+    public UserController(UserService userService, S3StorageService s3StorageService, JWTUtil jwtUtil, RefreshTokenService refreshTokenService) {
         this.userService = userService;
         this.s3StorageService = s3StorageService;
+        this.jwtUtil = jwtUtil;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Operation(
@@ -198,43 +209,85 @@ public class UserController {
             description = "요청한 언어 코드로 사용자 언어를 부분 업데이트합니다. 예: language=KOR|ENG"
     )
     @SecurityRequirement(name = "bearerAuth")
-    public BaseResponse<?> updateLang(
+    public ResponseEntity<BaseResponse<?>> updateLang(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestParam(name = "language") String languageParam
+            @RequestParam(name = "language") String languageParam,
+            HttpServletResponse response
     ) {
         Long userId = customUserDetails.getUserId();
 
-        Language lang;
+        // 1) 언어 파싱
+        final Language lang;
         try {
             lang = Language.valueOf(languageParam.trim().toUpperCase());
         } catch (IllegalArgumentException | NullPointerException e) {
             log.warn("[updateLang] invalid language param. userId={}, param={}", userId, languageParam, e);
-            return BaseResponse.error(INVALID_PARAMETER);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(BaseResponse.error(INVALID_PARAMETER));
         }
 
+        // 2) 부분 업데이트
         try {
-            boolean ok = userService.updateLang(userId, lang);
+            userService.updateLang(userId, lang);
+        } catch (jakarta.persistence.EntityNotFoundException ex) {
+            log.error("[updateLang] user not found. userId={}", userId, ex);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(BaseResponse.error(NO_EXIST_MEMBER));
+        } catch (org.springframework.dao.DataAccessException ex) {
+            log.error("[updateLang] DB access error. userId={}, lang={}", userId, lang, ex);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(BaseResponse.error(UPDATE_LANG_FAIL));
+        } catch (Exception ex) {
+            log.error("[updateLang] unexpected error. userId={}, lang={}", userId, lang, ex);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(BaseResponse.error(DISALLOWED_ACTION));
+        }
 
-            // 데이터 포함 응답 형태가 있으면 사용 (예: BaseResponse.ok(data))
+        // 3) 토큰 재발급 (갱신된 언어 반영)
+        try {
+            final String uuid = customUserDetails.getUserUuid();
+
+            // 3-1) Refresh Token 회전 + 쿠키 재설정
+            String newRefreshToken = jwtUtil.createRefreshToken(uuid);
+            refreshTokenService.saveToken(uuid, newRefreshToken);
+
+            Cookie cookie = new Cookie("refreshToken", newRefreshToken);
+            cookie.setHttpOnly(true);
+            cookie.setPath("/");
+            cookie.setMaxAge((int)(jwtUtil.getRefreshExpiredMs() / 1000));
+            response.addCookie(cookie);
+
+            // 3-2) Access Token 재발급 (언어는 반드시 업데이트된 lang 사용)
+            String newAccessToken = jwtUtil.createAccessToken(
+                    uuid,
+                    customUserDetails.getUserProfileUrl(),
+                    customUserDetails.getUserNickname(),
+                    customUserDetails.getRole(),
+                    lang
+            );
+
             Map<String, Object> payload = Map.of(
                     "userId", userId,
                     "language", lang.name(),
-                    "updated", ok
+                    "updated", true
             );
-            log.info("[updateLang] success. payload={}", payload);
-            return BaseResponse.of(payload);
+
+            return ResponseEntity.ok()
+                    .header("Authorization", "Bearer " + newAccessToken)
+                    .header("Access-Control-Expose-Headers", "Authorization")
+                    .body(BaseResponse.of(payload));
 
         } catch (jakarta.persistence.EntityNotFoundException ex) {
-            log.error("[updateLang] user not found. userId={}", userId, ex);
-            return BaseResponse.error(NO_EXIST_MEMBER); // 존재하지 않는 회원
-        } catch (org.springframework.dao.DataAccessException ex) {
-            log.error("[updateLang] DB access error. userId={}, lang={}", userId, lang, ex);
-            return BaseResponse.error(UPDATE_LANG_FAIL);
+            log.error("[updateLang] user details not found for token reissue. userId={}", userId, ex);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(BaseResponse.error(UPDATE_LANG_FAIL));
         } catch (Exception ex) {
-            log.error("[updateLang] unexpected error. userId={}, lang={}", userId, lang, ex);
-            return BaseResponse.error(DISALLOWED_ACTION);
+            log.error("[updateLang] unexpected error on token reissue. userId={}", userId, ex);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(BaseResponse.error(UPDATE_LANG_FAIL));
         }
     }
+
 
     // 파일 확장자
     private String contentTypeToExt(String contentType) {
