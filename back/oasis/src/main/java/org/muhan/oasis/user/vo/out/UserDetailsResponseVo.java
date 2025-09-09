@@ -13,7 +13,7 @@ import org.muhan.oasis.valueobject.Role;
 public class UserDetailsResponseVo {
     private String nickname;
     private String email;
-    private String profileImg;
+    private String profileUrl;
     private Role role;
     private Language language;
 
@@ -21,7 +21,7 @@ public class UserDetailsResponseVo {
         return UserDetailsResponseVo.builder()
                 .nickname(userDetailsResponseDto.getNickname())
                 .email(userDetailsResponseDto.getEmail())
-                .profileImg(userDetailsResponseDto.getProfileImg())
+                .profileUrl(userDetailsResponseDto.getProfileUrl())
                 .role(userDetailsResponseDto.getRole())
                 .language(userDetailsResponseDto.getLanguage())
                 .build();

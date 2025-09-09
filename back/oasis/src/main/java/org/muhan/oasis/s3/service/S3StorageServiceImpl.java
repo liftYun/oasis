@@ -23,6 +23,7 @@ public class S3StorageServiceImpl implements S3StorageService {
     private final S3Client s3Client;      // @Bean 등록 필요
     private final S3Presigner s3Presigner;
     @Value("${cloud.aws.s3.bucket}") private String bucket;
+    @Value("${cloud.aws.region}") private String region;
     @Value("${cloud.aws.cloudfront.domain:}") private String cloudfrontDomain;
 
     @Override
@@ -78,9 +79,8 @@ public class S3StorageServiceImpl implements S3StorageService {
 
     @Override
     public String toPublicUrl(String key) {
-        if (cloudfrontDomain != null && !cloudfrontDomain.isBlank()) {
-            return "https://" + cloudfrontDomain + "/" + key;
-        }
-        return "https://" + bucket + ".s3.amazonaws.com/" + key;
+        // region-aware S3 public URL
+        return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + key;
     }
+
 }
