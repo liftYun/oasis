@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.muhan.oasis.common.base.BaseResponse;
+import org.muhan.oasis.common.base.BaseResponseStatus;
+import org.muhan.oasis.common.exception.BaseException;
 import org.muhan.oasis.openAI.domain.OpenAIMessageEntity;
 import org.muhan.oasis.openAI.dto.in.*;
 import org.muhan.oasis.openAI.dto.out.*;
@@ -264,17 +267,17 @@ public class OpenAiClient {
     // ---- Public Facade Methods ----
 
     public StayTranslationResult translateStay(StayRequestDTO dto) throws JsonProcessingException {
-        OpenAiRequest req = buildRequest(PROMPT_TRANSLATE_STAY, dto.toString());
+        OpenAiRequest req = buildRequest(PROMPT_TRANSLATE_STAY, dto);
         return sendForSchema(req, StayTranslationResult.class);
     }
 
     public ReviewTranslationResult translateReview(ReviewRequestDTO dto) throws JsonProcessingException {
-        OpenAiRequest req = buildRequest(PROMPT_TRANSLATE_REVIEW, dto.toString());
+        OpenAiRequest req = buildRequest(PROMPT_TRANSLATE_REVIEW, dto);
         return sendForSchema(req, ReviewTranslationResult.class);
     }
 
     public ReviewSummaryResult summarizeReviews(ReviewListRequestDTO dto) throws JsonProcessingException {
-        OpenAiRequest req = buildRequest(PROMPT_SUMMARIZE_REVIEWS, dto.toString());
+        OpenAiRequest req = buildRequest(PROMPT_SUMMARIZE_REVIEWS, dto);
         return sendForSchema(req, ReviewSummaryResult.class);
     }
 
@@ -287,14 +290,29 @@ public class OpenAiClient {
     // ---- Private Helpers ----
 
     /** 공통 OpenAI 요청 생성 */
-    private OpenAiRequest buildRequest(String systemPrompt, String userPayloadJson) {
+    private OpenAiRequest buildRequest(String systemPrompt, Object userPayload) {
         OpenAIMessageEntity systemMessage = new OpenAIMessageEntity("system", systemPrompt);
-        OpenAIMessageEntity userMessage   = new OpenAIMessageEntity("user", userPayloadJson);
+        String userJson = toJson(userPayload);
+        OpenAIMessageEntity userMessage   = new OpenAIMessageEntity("user", userJson);
         return new OpenAiRequest(model, java.util.List.of(systemMessage, userMessage));
     }
 
+    private static final ObjectMapper MAPPER = new ObjectMapper()
+            .findAndRegisterModules()
+            .setSerializationInclusion(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL);
+
+    private String toJson(Object payload) {
+        if (payload == null) {
+            throw new BaseException(BaseResponseStatus.INVALID_PARAMETER);
+        }
+        try {
+            return MAPPER.writeValueAsString(payload);
+        } catch (JsonProcessingException e) {
+            throw new BaseException(BaseResponseStatus.SERIALIZATION_FAIL);
+         }
+    }
+
     /** 공통 POST & 에러 처리 */
-    private final ObjectMapper MAPPER = new ObjectMapper();
 
     private <T> T sendForSchema(OpenAiRequest request, Class<T> targetType) throws JsonProcessingException {
         ResponseEntity<ChatCompletionResponse> resp =
@@ -307,10 +325,10 @@ public class OpenAiClient {
         String content = (first != null && first.getMessage() != null)
                 ? first.getMessage().getContent() : null;
         if (content == null || content.isBlank()) {
-            throw new IllegalStateException("Empty completion content");
+            throw new BaseException(BaseResponseStatus.FAIL_OPENAI_COMMUNICATION);
         }
 
-        String json = normalizeContent(content); // ```json ... ``` 방어
+        String json = normalizeContent(content);
         T parsed = MAPPER.readValue(json, targetType);
 
         return parsed;
@@ -318,7 +336,7 @@ public class OpenAiClient {
 
     private ChatCompletionResponse requireOk(ResponseEntity<ChatCompletionResponse> resp) {
         if (!resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null) {
-            throw new RuntimeException("OpenAI API 호출 실패: status=" + resp.getStatusCode());
+            throw new BaseException(BaseResponseStatus.FAIL_OPENAI_COMMUNICATION);
         }
         return resp.getBody();
     }

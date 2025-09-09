@@ -2,6 +2,8 @@ package org.muhan.oasis.openAI.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
+import org.muhan.oasis.common.base.BaseResponseStatus;
+import org.muhan.oasis.common.exception.BaseException;
 import org.muhan.oasis.openAI.client.OpenAiClient;
 import org.muhan.oasis.openAI.dto.in.AddrRequestDTO;
 import org.muhan.oasis.openAI.dto.in.ReviewListRequestDTO;
@@ -24,8 +26,7 @@ public class OpenAIService {
             return openAiClient.translateStay(stayDTO);
 
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-            // 커스텀 에러 넣기
+            throw new BaseException(BaseResponseStatus.OPENAI_INVALID_RESPONSE);
         }
     }
 
@@ -34,8 +35,7 @@ public class OpenAIService {
             return openAiClient.translateReview(reviewDTO);
 
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-            // 커스텀 에러 넣기
+            throw new BaseException(BaseResponseStatus.OPENAI_INVALID_RESPONSE);
         }
     }
 
@@ -44,8 +44,7 @@ public class OpenAIService {
             return openAiClient.summarizeReviews(reviewListDTO);
 
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-            // 커스텀 에러 넣기
+            throw new BaseException(BaseResponseStatus.OPENAI_INVALID_RESPONSE);
         }
     }
 
@@ -54,8 +53,7 @@ public class OpenAIService {
             return openAiClient.translateAddr(addrDTO);
 
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-            // 커스텀 에러 넣기
+            throw new BaseException(BaseResponseStatus.OPENAI_INVALID_RESPONSE);
         }
     }
 

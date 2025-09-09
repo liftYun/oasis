@@ -61,11 +61,12 @@ public enum BaseResponseStatus {
     NO_IMG_DATA(HttpStatus.BAD_REQUEST, false, 400, "업로드할 파일이 없습니다"),
     OVER_IMG_DATA(HttpStatus.BAD_REQUEST, false, 400, "파일은 10MB 이하만 업로드 가능합니다."),
     NO_IMG_FORM(HttpStatus.BAD_REQUEST, false, 400, "이미지 파일만 업로드 가능합니다."),
-    UPDATE_NICKNAME_FAIL(HttpStatus.BAD_REQUEST, false, 400, "닉네임 업데이트를 실패했습니다.");
+    UPDATE_NICKNAME_FAIL(HttpStatus.BAD_REQUEST, false, 400, "닉네임 업데이트를 실패했습니다."),
 
-
-
-
+    // OpenAI
+    SERIALIZATION_FAIL(HttpStatus.BAD_REQUEST, false, 400, "AI 요청 JSON 직렬화 실패했습니다."),
+    OPENAI_INVALID_RESPONSE(HttpStatus.BAD_REQUEST, false, 400, "AI 응답을 파싱하는데 실패했습닌다."),
+    FAIL_OPENAI_COMMUNICATION(HttpStatus.SERVICE_UNAVAILABLE, false, 503, "OpenAI와 통신에 실패했습니다.");
 
     private final HttpStatusCode httpStatusCode;
     private final boolean isSuccess;
