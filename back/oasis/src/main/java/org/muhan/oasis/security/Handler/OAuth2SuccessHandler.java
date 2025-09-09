@@ -102,7 +102,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // ✅ 추가 정보 입력이 필요한 상태라면 프론트에서 별도 요청하도록 안내
         response.setContentType("application/json");
-        boolean need = (user.getRole() == null || user.getProfileImg() == null);
+        boolean need = (user.getRole() == null || user.getProfileUrl() == null);
         response.getWriter().write("""
         {
           "status": "SUCCESS",

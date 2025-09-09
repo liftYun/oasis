@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
         return new UserDetailsResponseDto(
                 user.getNickname(),
                 user.getEmail(),
-                user.getProfileImg(),
+                user.getProfileUrl(),
                 user.getRole(),
                 user.getLanguage()
         );
@@ -81,9 +81,9 @@ public class UserServiceImpl implements UserService {
     public void updateProfileImageUrl(Long userId, String newUrl) {
         UserEntity user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        String oldUrl = user.getProfileImg(); // 기존 URL 컬럼명에 맞춰 변경
+        String oldUrl = user.getProfileUrl(); // 기존 URL 컬럼명에 맞춰 변경
 
-        user.setProfileImg(newUrl);
+        user.setProfileUrl(newUrl);
         userRepository.save(user);
 
         // 이전 이미지 삭제(동일 버킷 경로만 안전하게 처리)

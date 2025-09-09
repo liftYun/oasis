@@ -29,7 +29,6 @@ public class JoinService {
                     Role.ROLE_GUEST,
                     safeNickname(nickname),
                     email,
-                    defaultProfile(),
                     lang != null ? lang : Language.KOR,
                     null
             );
@@ -45,7 +44,7 @@ public class JoinService {
     }
 
     @Transactional
-    public UserEntity completeProfile(String uuid, String nickname, String profileImgUrl, String role, String language) {
+    public UserEntity completeProfile(String uuid, String nickname, String profileKey, String profileImgUrl, String role, String language) {
         UserEntity user = userRepository.findByUserUuid(uuid)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
@@ -56,7 +55,7 @@ public class JoinService {
         }
 
         user.setNickname(nickname);
-        if (profileImgUrl != null) user.setProfileImg(profileImgUrl);
+        if (profileImgUrl != null) user.setProfileUrl(profileImgUrl);
         if (language != null) user.setLanguage(Language.valueOf(language));
 
         // 역할 변경 (최초 가입 시 ROLE_GUEST였다가 ROLE_HOST로 승급하는 케이스)
@@ -70,10 +69,6 @@ public class JoinService {
 
     public static class DuplicateNicknameException extends RuntimeException {
         public DuplicateNicknameException(String msg) { super(msg); }
-    }
-
-    private String defaultProfile() {
-        return "https://your-cdn.example.com/static/img/profile/default.png";
     }
 
     private String safeNickname(String nickname) {

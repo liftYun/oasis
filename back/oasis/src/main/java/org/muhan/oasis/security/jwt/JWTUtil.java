@@ -67,10 +67,10 @@ public class JWTUtil {
         }
     }
 
-    public String createAccessToken(String uuid, String profileImg, String nickname, Role role) {
+    public String createAccessToken(String uuid, String profileUrl, String nickname, Role role) {
         return Jwts.builder()
                 .claim("uuid", uuid)
-                .claim("profileImg", profileImg)
+                .claim("profileUrl", profileUrl)
                 .claim("nickname", nickname)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
