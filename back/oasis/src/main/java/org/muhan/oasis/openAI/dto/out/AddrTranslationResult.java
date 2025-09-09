@@ -28,4 +28,12 @@ public class AddrTranslationResult {
     public static class Version {
         private String detailAddress; // may be null
     }
+
+    public String getKorDetailAddr() {
+        return koreanVersion.getDetailAddress();
+    }
+
+    public String getEngDetailAddr() {
+        return englishVersion.getDetailAddress();
+    }
 }
