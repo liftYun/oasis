@@ -5,6 +5,7 @@ import { ACCEPTED_IMAGE_TYPES, type CreateStayInput } from '@/features/create-st
 import { FormField } from '@/components/molecules/FormField';
 import { ImageUploader } from '@/components/molecules/ImageUploader';
 import { Button } from '@/components/atoms/button';
+import { AddressField } from '@/components/molecules/AddressField';
 
 interface StayFormProps {
   form: UseFormReturn<CreateStayInput>;
@@ -46,31 +47,13 @@ export function StayForm({
         </p>
       </FormField>
 
-      <div className="flex flex-col gap-2">
-        <label className="text-base font-medium text-sm">숙소 위치</label>
-        <div className="flex flex-col gap-2">
-          <input
-            type="text"
-            id="address"
-            placeholder="주소 검색하기"
-            className="flex h-12 w-full cursor-pointer rounded-lg border border-gray-300 bg-white px-4 py-2 text-base placeholder:text-gray-300 placeholder:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
-            value={watch('address') || ''}
-            readOnly
-            onClick={openAddressModal}
-          />
-          {errors.address && <p className="text-sm text-red-500">{errors.address.message}</p>}
+      <AddressField
+        register={register}
+        errors={errors}
+        watch={watch}
+        onSearchClick={openAddressModal}
+      />
 
-          <input
-            {...register('addressDetail')}
-            id="addressDetail"
-            placeholder="상세 주소"
-            className="flex h-12 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base placeholder:text-gray-300 placeholder:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
-          />
-          {errors.addressDetail && (
-            <p className="text-sm text-red-500">{errors.addressDetail.message}</p>
-          )}
-        </div>
-      </div>
       <FormField
         label="가격"
         registration={register('price', {

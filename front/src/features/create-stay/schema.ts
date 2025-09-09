@@ -9,6 +9,7 @@ export const createStayInputSchema = z.object({
     .string()
     .min(1, '숙소 이름을 입력해주세요.')
     .max(20, '숙소 이름은 20자 이내로 입력해주세요.'),
+  postalCode: z.string().min(1, '주소를 검색해주세요.'),
   address: z.string().min(1, '주소를 검색해주세요.'),
   addressDetail: z.string(),
   price: z
