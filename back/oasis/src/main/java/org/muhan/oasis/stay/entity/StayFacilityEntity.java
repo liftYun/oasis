@@ -27,5 +27,4 @@ public class StayFacilityEntity {
     @JoinColumn(name = "facilities_id", nullable = false)
     private FacilityEntity facility;
 
-
 }

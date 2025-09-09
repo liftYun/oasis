@@ -12,9 +12,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateStayRequestDTO {
+public class CreateStayRequestDto {
     @NotBlank
-    private Integer subRegionId;
+    private Long subRegionId;
     @NotBlank
     private String title;
     @NotBlank
@@ -33,9 +33,14 @@ public class CreateStayRequestDTO {
     private Integer maxGuest;
     @NotNull
     @Size(min = 1, max = 10)
-    private List<String> images;
+    private List<ImageRequestDto> imageRequestList;
     @NotNull
-    private List<Integer> facilities;
+    private List<Long> facilities;
     @NotNull
     private List<BlockRangeDto> blockRangeList;
+
+    public String getThumbnail(){
+        if(imageRequestList.isEmpty()) return null;
+        return imageRequestList.get(0).key();
+    }
 }

@@ -6,7 +6,6 @@ import org.muhan.oasis.valueobject.Category;
 
 @Entity
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @Table(name = "facilities")

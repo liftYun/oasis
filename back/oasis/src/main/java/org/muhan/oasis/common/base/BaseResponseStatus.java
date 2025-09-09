@@ -6,6 +6,8 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
+import java.lang.constant.DynamicCallSiteDesc;
+
 // https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
 // following http status code standard from above
 
@@ -65,14 +67,18 @@ public enum BaseResponseStatus {
     UPDATE_NICKNAME_FAIL(HttpStatus.BAD_REQUEST, false, 400, "닉네임 업데이트를 실패했습니다."),
 
     // 리뷰
-    FAIL_REGIST_REVIEW(HttpStatus.BAD_REQUEST, false, 400, "리뷰 등록에 실패했습니다. 재확인 해주세요");
-
+    FAIL_REGIST_REVIEW(HttpStatus.BAD_REQUEST, false, 400, "리뷰 등록에 실패했습니다. 재확인 해주세요"),
 
     // OpenAI
     SERIALIZATION_FAIL(HttpStatus.BAD_REQUEST, false, 400, "AI 요청 JSON 직렬화 실패했습니다."),
     OPENAI_INVALID_RESPONSE(HttpStatus.BAD_REQUEST, false, 400, "AI 응답을 파싱하는데 실패했습닌다."),
-    FAIL_OPENAI_COMMUNICATION(HttpStatus.SERVICE_UNAVAILABLE, false, 503, "OpenAI와 통신에 실패했습니다.");
+    FAIL_OPENAI_COMMUNICATION(HttpStatus.SERVICE_UNAVAILABLE, false, 503, "OpenAI와 통신에 실패했습니다."),
 
+    // region
+    NO_EXIST_SUBREGION(HttpStatus.NOT_FOUND, false, 404, "존재하지 않는 지역 정보입니다."),
+    // facility
+    NO_EXIST_FACILITY(HttpStatus.NOT_FOUND, false, 404, "존재하지 않는 편의시설 정보입니다."),
+    NO_EXIST_CANCELLATION_POLICY(HttpStatus.NOT_FOUND, false, 404, "취소 정책이 존재하지 않습니다.");
     private final HttpStatusCode httpStatusCode;
     private final boolean isSuccess;
     private final int code;

@@ -3,6 +3,7 @@ package org.muhan.oasis.stay.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
+import org.muhan.oasis.stay.dto.in.ImageRequestDto;
 
 @Entity
 @Table(name = "stay_photos", uniqueConstraints = {
@@ -31,4 +32,16 @@ public class StayPhotoEntity {
 
     @Column(name = "url", length = 2083, nullable = false)
     private String url;
+
+    @Column(name = "key", length = 512, nullable = false)
+    private String key;
+
+    public static StayPhotoEntity from(ImageRequestDto imageRequestDto, StayEntity stay, String url){
+        return StayPhotoEntity.builder()
+                .stay(stay)
+                .key(imageRequestDto.key())
+                .url(url)
+                .sortOrder(imageRequestDto.sortOrder())
+                .build();
+    }
 }
