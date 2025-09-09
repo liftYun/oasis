@@ -47,15 +47,21 @@ public class UserEntity extends BaseEntity {
     @Column(name = "email", nullable = false, length = 255, unique = true)
     private String email;
 
-    @Column(name = "profile_img", nullable = false, length = 2083)
-    private String profileImg;
+    @Column(name = "profile_key", length = 512)
+    private String profileKey;
+
+    @Column(name = "profile_url", length = 2083)
+    private String profileUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "language", nullable = false, length = 3)
     private Language language;
 
-    @Column(name = "certificate_img", length = 2083)
-    private String certificateImg;
+    @Column(name = "certificate_key", length = 512)
+    private String certificateKey;
+
+    @Column(name = "certificate_url", length = 2083)
+    private String certificateUrl;
 
     @OneToMany(mappedBy = "userId")
     private List<WishEntity> wishList = new ArrayList<>();
@@ -113,14 +119,12 @@ public class UserEntity extends BaseEntity {
 //    }
 
     @Builder
-    public UserEntity(String userUuid, Role role, String nickname, String email, String profileImg, Language language, String certificateImg) {
+    public UserEntity(String userUuid, Role role, String nickname, String email, Language language, String certificateImg) {
         this.userUuid = userUuid;
         this.role = role;
         this.nickname = nickname;
         this.email = email;
-        this.profileImg = profileImg;
         this.language = language;
-        this.certificateImg = certificateImg;
     }
 
 }

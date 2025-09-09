@@ -14,9 +14,7 @@ public class RegistRequestDto {
     private String uuid;
     private String nickname;
     private String userEmail;
-    private String profileImg;
     private Language language;
-    private String certificateImg;
     private Role role;
 
     public static UserEntity from(RegistRequestDto dto){
@@ -26,8 +24,6 @@ public class RegistRequestDto {
                 .email(dto.userEmail)
                 .role(dto.role)
                 .language(dto.language)
-                .certificateImg(dto.certificateImg)
-                .profileImg(dto.profileImg)
                 .build();
     }
 }

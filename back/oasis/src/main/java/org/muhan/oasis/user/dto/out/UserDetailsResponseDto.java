@@ -14,7 +14,7 @@ import org.muhan.oasis.valueobject.Role;
 public class UserDetailsResponseDto {
     private String nickname;
     private String email;
-    private String profileImg;
+    private String profileUrl;
     private Role role;
     private Language language;
 }

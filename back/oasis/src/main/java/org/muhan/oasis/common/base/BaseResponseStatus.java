@@ -19,6 +19,7 @@ public enum BaseResponseStatus {
      * 2XX: Success(성공)
      **/
     SUCCESS(HttpStatus.OK, true, 200, "요청에 성공하였습니다."),
+    CREATED(HttpStatus.CREATED, true, 201, "리소스가 생성되었습니다."),
 
     /**
      * 4XX: Client Error(클라이언트 에러)
@@ -64,6 +65,10 @@ public enum BaseResponseStatus {
     OVER_IMG_DATA(HttpStatus.BAD_REQUEST, false, 400, "파일은 10MB 이하만 업로드 가능합니다."),
     NO_IMG_FORM(HttpStatus.BAD_REQUEST, false, 400, "이미지 파일만 업로드 가능합니다."),
     UPDATE_NICKNAME_FAIL(HttpStatus.BAD_REQUEST, false, 400, "닉네임 업데이트를 실패했습니다."),
+
+    // 리뷰
+    FAIL_REGIST_REVIEW(HttpStatus.BAD_REQUEST, false, 400, "리뷰 등록에 실패했습니다. 재확인 해주세요");
+
 
     // OpenAI
     SERIALIZATION_FAIL(HttpStatus.BAD_REQUEST, false, 400, "AI 요청 JSON 직렬화 실패했습니다."),
