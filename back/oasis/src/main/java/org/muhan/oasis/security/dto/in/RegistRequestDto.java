@@ -14,11 +14,7 @@ public class RegistRequestDto {
     private String uuid;
     private String nickname;
     private String userEmail;
-    private String profileKey;
-    private String profileUrl;
     private Language language;
-    private String certificateKey;
-    private String certificateUrl;
     private Role role;
 
     public static UserEntity from(RegistRequestDto dto){
@@ -28,10 +24,6 @@ public class RegistRequestDto {
                 .email(dto.userEmail)
                 .role(dto.role)
                 .language(dto.language)
-                .certificateKey(dto.certificateKey)
-                .certificateUrl(dto.certificateUrl)
-                .profileKey(dto.profileKey)
-                .profileUrl(dto.profileUrl)
                 .build();
     }
 }

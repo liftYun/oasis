@@ -115,11 +115,12 @@ public class JWTController {
 
         final String uuid = user.getUserUuid();
         String finalProfileUrl = null;
+        String key = null;
 
         try {
             // 0) 프로필 이미지 결정
             if (vo.getProfileImgKey() != null && !vo.getProfileImgKey().isBlank()) {
-                String key = vo.getProfileImgKey();
+                key = vo.getProfileImgKey();
                 String requiredPrefix = "users/" + uuid + "/profile/";
                 if (!key.startsWith(requiredPrefix)) {
                     return BaseResponse.error(INVALID_PARAMETER);
@@ -140,6 +141,7 @@ public class JWTController {
             UserEntity updated = joinService.completeProfile(
                     uuid,
                     vo.getNickname(),
+                    key,
                     finalProfileUrl,
                     vo.getRole(),
                     vo.getLanguage()
@@ -148,7 +150,7 @@ public class JWTController {
             // 2) AccessToken 재발급 (헤더 ONLY)
             String newAccess = jwtUtil.createAccessToken(
                     updated.getUserUuid(),
-                    updated.getProfileImg(),
+                    updated.getProfileUrl(),
                     updated.getNickname(),
                     updated.getRole()
             );

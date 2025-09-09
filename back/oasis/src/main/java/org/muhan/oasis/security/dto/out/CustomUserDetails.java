@@ -42,6 +42,8 @@ public class CustomUserDetails implements UserDetails {
 
     public String getUserEmail() { return  userEntity.getEmail(); }
 
+    public String getUserProfileUrl() { return  userEntity.getProfileUrl(); }
+
     public String getUserNickname() { return userEntity.getNickname(); }
 
     public Role getRole() { return userEntity.getRole(); }

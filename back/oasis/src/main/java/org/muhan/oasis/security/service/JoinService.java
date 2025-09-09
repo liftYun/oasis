@@ -44,7 +44,7 @@ public class JoinService {
     }
 
     @Transactional
-    public UserEntity completeProfile(String uuid, String nickname, String profileImgUrl, String role, String language) {
+    public UserEntity completeProfile(String uuid, String nickname, String profileKey, String profileImgUrl, String role, String language) {
         UserEntity user = userRepository.findByUserUuid(uuid)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
