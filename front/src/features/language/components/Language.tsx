@@ -20,7 +20,7 @@ export function Language() {
       </h1>
 
       <div className="mt-20 flex flex-col gap-6">
-        <Link href="/register" prefetch className={cardClass()} onClick={() => changeLang('ko')}>
+        <Link href="/register" prefetch className={cardClass()} onClick={() => changeLang('kor')}>
           <div className="flex justify-between gap-3 w-full max-w-lg mx-auto">
             <div>
               <div className="text-xl font-semibold">한국어</div>
@@ -45,7 +45,7 @@ export function Language() {
           </div>
         </Link>
 
-        <Link href="/register" prefetch className={cardClass()} onClick={() => changeLang('en')}>
+        <Link href="/register" prefetch className={cardClass()} onClick={() => changeLang('eng')}>
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="text-xl font-semibold">English</div>

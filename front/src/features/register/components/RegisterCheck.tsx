@@ -8,23 +8,19 @@ import { useLanguage } from '@/features/language';
 import PreviewUser from '@/assets/icons/preview-user.png';
 
 export function RegisterCheck() {
+  const {
+    email,
+    nickname,
+    profileImage,
+    setProfileImage: setStoreProfileImage,
+    next,
+  } = useRegisterStore();
   const { lang } = useLanguage();
   const t = registerMessages[lang];
 
-  const email = useRegisterStore((s) => (s as any).data?.email ?? '');
-  const nickname = useRegisterStore((s) => (s as any).data?.nickname ?? '');
-  const setStoreEmail = useRegisterStore((s) => (s as any).setEmail) as (v: string) => void;
-  const setStoreProfileImage = useRegisterStore((s) => (s as any).setProfileImage) as
-    | ((f: File | null) => void)
-    | undefined;
-  const next = useRegisterStore((s) => s.next);
-
-  // 이미지 업로드 상태
-  const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // 파일 선택
   const onSelectFile: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
@@ -32,26 +28,27 @@ export function RegisterCheck() {
       alert('이미지 파일만 업로드할 수 있어요.');
       return;
     }
-    setFile(f);
+    setStoreProfileImage?.(f);
   };
 
-  // 미리보기 URL 관리
   useEffect(() => {
-    if (!file) {
+    if (!profileImage) {
       setPreview(null);
       return;
     }
-    const url = URL.createObjectURL(file);
-    setPreview(url);
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
+    if (profileImage instanceof File) {
+      const url = URL.createObjectURL(profileImage);
+      setPreview(url);
+      return () => URL.revokeObjectURL(url);
+    }
+    setPreview(profileImage as string);
+  }, [profileImage]);
 
-  // 제출(확정)
   const handleFinalConfirm = () => {
-    setStoreEmail(email.trim());
-    if (setStoreProfileImage) setStoreProfileImage(file ?? null);
     next();
   };
+
+  const hasPreview = Boolean(preview);
 
   return (
     <main className="flex flex-col w-full px-6 py-10 min-h-screen">
@@ -64,15 +61,15 @@ export function RegisterCheck() {
         <div
           onClick={() => inputRef.current?.click()}
           className="relative h-24 w-24 rounded-full mb-8 bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center cursor-pointer group"
-          aria-label={preview ? t.imageLabelAfter : t.imageLabelBefore}
+          aria-label={hasPreview ? t.imageLabelAfter : t.imageLabelBefore}
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
           }}
         >
-          {preview ? (
-            <img src={preview} alt="Profile preview" className="h-full w-full object-cover" />
+          {hasPreview ? (
+            <img src={preview!} alt="Profile preview" className="h-full w-full object-cover" />
           ) : (
             <Image
               src={PreviewUser}
@@ -82,7 +79,7 @@ export function RegisterCheck() {
           )}
 
           <div className="absolute inset-0 rounded-full bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 text-white text-xs">
-            {preview ? t.imageLabelAfter : t.imageLabelBefore}
+            {hasPreview ? t.imageLabelAfter : t.imageLabelBefore}
           </div>
         </div>
 
@@ -99,7 +96,7 @@ export function RegisterCheck() {
         <label className="block text-sm mb-2 text-gray-300">{t.emailLabel}</label>
         <div className="flex items-center gap-2 border-b-2 mb-8 border-gray-200">
           <input
-            value={email}
+            value={email ?? ''}
             readOnly
             className="flex-1 bg-transparent py-2 text-base text-gray-600 placeholder-gray-300 focus:outline-none cursor-default"
           />
@@ -108,7 +105,7 @@ export function RegisterCheck() {
         <label className="block text-sm mb-2 text-gray-300">{t.nicknamePlaceholder}</label>
         <div className="flex items-center gap-2 border-b-2 border-gray-200">
           <input
-            value={nickname}
+            value={nickname ?? ''}
             readOnly
             className="flex-1 bg-transparent py-2 text-base text-gray-600 placeholder-gray-300 focus:outline-none cursor-default"
           />

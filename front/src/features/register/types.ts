@@ -12,6 +12,21 @@ export type RegisterTexts = {
   emailLabel?: string;
   imageLabelBefore?: string;
   imageLabelAfter?: string;
+  roleTitle: string;
+  roleSubtitle: string;
+  guestRole: string;
+  guestDescription: string;
+  hostRole: string;
+  hostDescription: string;
+  hostTitle: string;
+  hostSubtitle: string;
+  hostImage: string;
+  hostImageGuide: string;
+  moneyTitle: string;
+  moneySubTitle: string;
+  moneyModalTitle: string;
+  moneyModalDescription: string;
+  back: string;
 };
 
 export type Step = 'nickname' | 'check' | 'role' | 'done';

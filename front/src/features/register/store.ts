@@ -6,9 +6,14 @@ type Step = 'nickname' | 'check' | 'role';
 
 interface RegisterState {
   step: Step;
+  email: string;
+  profileImage: File | string | null;
   nickname: string;
 
+  setEmail: (v: string) => void;
+  setProfileImage: (v: File | string | null) => void;
   setNickname: (v: string) => void;
+
   next: () => void;
   prev: () => void;
   goTo: (s: Step) => void;
@@ -16,8 +21,12 @@ interface RegisterState {
 
 export const useRegisterStore = create<RegisterState>((set, get) => ({
   step: 'nickname',
+  email: '',
+  profileImage: null,
   nickname: '',
 
+  setEmail: (v) => set({ email: v }),
+  setProfileImage: (v) => set({ profileImage: v }),
   setNickname: (v) => set({ nickname: v }),
 
   next: () => {

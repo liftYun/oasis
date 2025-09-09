@@ -1,44 +1,85 @@
 'use client';
 
-import { Button } from '@/components/atoms/Button';
+import Image from 'next/image';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useRegisterStore, registerMessages } from '@/features/register';
+import { addInformations } from '@/services/auth.api';
+import type { UserRole } from '@/services/auth.types';
 import { useLanguage } from '@/features/language';
+import Guest from '@/assets/images/guest.png';
+import Host from '@/assets/images/host.png';
+import { useShallow } from 'zustand/react/shallow';
 
 export function RegisterRole() {
-  const { nickname, setNickname, handleSubmit } = useRegisterStore();
+  const router = useRouter();
   const { lang } = useLanguage();
   const t = registerMessages[lang];
+
+  const [profileImage, setProfileImage] = useRegisterStore(
+    useShallow((s) => [s.profileImage, s.setProfileImage])
+  );
+  const [nickname, setNickname] = useRegisterStore(useShallow((s) => [s.nickname, s.setNickname]));
+  const [email, setEmail] = useRegisterStore(useShallow((s) => [s.email, s.setEmail]));
+
+  const [role, setRole] = useState<UserRole | null>(null);
+
+  const handleSubmit = async () => {
+    if (!role) {
+      console.warn('역할을 선택해주세요');
+      return;
+    }
+
+    await addInformations({
+      nickname,
+      role,
+      language: lang,
+      profileImgKey: profileImage,
+    });
+  };
+
+  const cardClass = () =>
+    'group relative block rounded-2xl transition focus-visible:outline-none bg-gray-100 text-gray-500 hover:bg-primary hover:text-white cursor-pointer overflow-hidden';
+
+  const goGuest = () => {
+    setRole('ROLE_GUEST');
+    router.push('/main');
+  };
+
+  const goHost = () => {
+    setRole('ROLE_HOST');
+    router.push('/register/host');
+  };
 
   return (
     <main className="flex flex-col w-full px-6 py-10 min-h-screen">
       <h1 className="text-2xl font-bold leading-relaxed text-gray-600 mb-3 whitespace-pre-line">
-        {t.title}
+        {t.roleTitle}
       </h1>
-      <p className="text-base text-gray-400 mb-8">{t.subtitle}</p>
+      <p className="text-base text-gray-400 mb-2">{t.roleSubtitle}</p>
 
-      <div className="flex items-center gap-2 border-b-2 border-gray-200 focus-within:border-primary">
-        <input
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
-          maxLength={15}
-          placeholder={t.nicknamePlaceholder}
-          className="flex-1 bg-transparent py-2 text-base text-gray-600 placeholder-gray-300 focus:outline-none"
-        />
+      <div className="mt-20 flex flex-col gap-6">
+        <div className={cardClass()} onClick={goGuest}>
+          <div className="px-5 py-10 pr-28">
+            <div className="text-xl font-semibold">{t.guestRole}</div>
+            <div className="text-sm opacity-80 mt-1 mb-4">{t.guestDescription}</div>
+          </div>
+          <div className="absolute bottom-0 right-0 pr-5 pb-0 pointer-events-none">
+            <Image src={Guest} alt="Guest Icon" width={110} height={110} />
+          </div>
+        </div>
 
-        <button
-          type="button"
-          className="text-sm text-gray-500 px-4 py-[6px] mb-2 rounded-sm bg-gray-200 hover:bg-gray-300"
-          onClick={handleSubmit}
-        >
-          {t.confirm}
-        </button>
-      </div>
-      <p className="text-sm text-gray-300 mt-2">{nickname.length} / 15</p>
-
-      <div className="mt-auto pb-6">
-        <Button variant="blue" onClick={handleSubmit} className="w-full max-w-lg mx-auto">
-          {t.confirm}
-        </Button>
+        <div className={cardClass()} onClick={goHost}>
+          <div className="px-5 py-10 pr-28">
+            <div className="text-xl font-semibold">{t.hostRole}</div>
+            <div className="text-sm opacity-80 mt-1 mb-4 whitespace-pre-line">
+              {t.hostDescription}
+            </div>
+          </div>
+          <div className="absolute bottom-0 right-0 pr-5 pb-0 pointer-events-none">
+            <Image src={Host} alt="Host Icon" width={100} height={100} />
+          </div>
+        </div>
       </div>
     </main>
   );

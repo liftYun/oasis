@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Lang } from '@/features/language';
 const STORAGE_KEY = 'app_lang';
 
-export function useLanguage(defaultLang: Lang = 'ko') {
+export function useLanguage(defaultLang: Lang = 'kor') {
   const [lang, setLang] = useState<Lang>(defaultLang);
 
   useEffect(() => {

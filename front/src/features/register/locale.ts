@@ -1,7 +1,7 @@
 import type { RegisterTexts } from '@/features/register';
 
-export const registerMessages: Record<'ko' | 'en', RegisterTexts> = {
-  ko: {
+export const registerMessages: Record<'kor' | 'eng', RegisterTexts> = {
+  kor: {
     title: '서비스에서 사용할 \n 닉네임을 정해주세요.',
     subtitle: '보안상 닉네임 변경이 불가능합니다.',
     nicknamePlaceholder: '닉네임',
@@ -13,8 +13,23 @@ export const registerMessages: Record<'ko' | 'en', RegisterTexts> = {
     emailLabel: '이메일',
     imageLabelBefore: '추가',
     imageLabelAfter: '변경',
+    roleTitle: '숙소를 예약하시나요, \n 아니면 등록하시나요?',
+    roleSubtitle: '게스트와 호스트 중 하나를 선택해주세요.',
+    guestRole: '게스트',
+    guestDescription: '숙소를 예약할 수 있어요.',
+    hostRole: '호스트',
+    hostDescription: '숙소를 관리하고 예약할 수 있어요.',
+    hostTitle: '사업자등록증이나 \n 숙박업 허가증을 올려주세요.',
+    hostSubtitle: '안전한 서비스를 위해 확인합니다.',
+    hostImage: '이미지 / PDF 업로드',
+    hostImageGuide: '최대 10MB',
+    moneyTitle: '취소·환불 규정 등록',
+    moneySubTitle: '블록체인 기반 스마트 컨트랙트가 \n 규정에 따라 자동 환불을 보장합니다.',
+    moneyModalTitle: '규정 변경불가 안내',
+    moneyModalDescription: '환불 규정은 스마트 컨트랙트에 기록되며, \n 이후 변경할 수 없습니다.',
+    back: '돌아가기',
   },
-  en: {
+  eng: {
     title: 'Set a nickname \nto use in the service.',
     subtitle: 'For security, nickname cannot be changed later.',
     nicknamePlaceholder: 'Nickname',
@@ -26,5 +41,21 @@ export const registerMessages: Record<'ko' | 'en', RegisterTexts> = {
     emailLabel: 'Email',
     imageLabelBefore: 'Add',
     imageLabelAfter: 'Change',
+    roleTitle: 'Do you want to \nreserve a room or register a room?',
+    roleSubtitle: 'Select one of guest or host.',
+    guestRole: 'Guest',
+    guestDescription: 'You can reserve a room.',
+    hostRole: 'Host',
+    hostDescription: 'You can manage a room \n and reserve a room.',
+    hostTitle: 'Please select either \n a room or a room reservation.',
+    hostSubtitle: 'Please verify for security.',
+    hostImage: 'Upload image / PDF',
+    hostImageGuide: 'Maximum 10MB',
+    moneyTitle: 'Cancellation/Refund Registration',
+    moneySubTitle: 'Automatically adjust the refund amount \n based on the smart contract.',
+    moneyModalTitle: 'Non-change of regulations',
+    moneyModalDescription:
+      'The refund amount is recorded in the smart contract, \n and cannot be changed later.',
+    back: 'Back',
   },
 };

@@ -1,14 +1,15 @@
 import { http } from '@/apis';
-
-export type NicknameValidationPayload = { nickname: string };
-export type NicknameValidationResponse = { success: boolean; message?: string };
-export type SaveProfilePayload = { profileImage: Blob; nickname: string; email?: string | null };
-export type SaveProfileResponse = { success: boolean; userId?: string; message?: string };
+import {
+  NicknameValidationPayload,
+  NicknameValidationResponse,
+  AddInformationsRequest,
+  AddInformationsResponse,
+} from './auth.types';
 
 export const validateNickname = ({ nickname }: NicknameValidationPayload) =>
   http.get<NicknameValidationResponse>(
     `/api/v1/auth/existByNickname/${encodeURIComponent(nickname)}`
   );
 
-export const saveProfile = (payload: SaveProfilePayload) =>
-  http.post<SaveProfileResponse>('/auth/addInformations', payload);
+export const addInformations = (body: AddInformationsRequest) =>
+  http.put<AddInformationsResponse>('/api/v1/user/addInformations', body);
