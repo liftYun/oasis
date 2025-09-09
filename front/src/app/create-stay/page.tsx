@@ -1,19 +1,53 @@
-import { CreateStay } from '@/features/create-stay';
+'use client';
 
-export default function Page({
-  searchParams,
-}: {
-  searchParams?: { step?: string | string[] };
-}) {
-  // 1. 배열일 경우 첫 번째 값을 사용하고, 아니면 그대로 사용
-  const raw = Array.isArray(searchParams?.step) ? searchParams!.step[0] : searchParams?.step;
-  
-  // 2. 문자열을 숫자로 변환
-  const parsed = Number(raw);
+import { useRouter } from 'next/navigation';
+import { ProgressBar } from '@/components/molecules/ProgressBar';
+import { ChevronLeft } from 'lucide-react';
+import { useCreateStayStore } from '@/features/create-stay/store';
+import { Step1_StayInfo } from '@/features/create-stay/components/Step1_StayInfo';
+import { Step2_Amenities } from '@/features/create-stay/components/Step2_Amenities';
+import { Step3_Description } from '@/features/create-stay/components/Step3_Description';
 
-  // 3. 유효한 숫자인지 검증하고, 아니면 기본값(1)을 사용
-  const currentStep = Number.isFinite(parsed) && parsed >= 1 ? parsed : 1;
+export default function CreateStayPage() {
+  const router = useRouter();
+  const { currentStep, setStep } = useCreateStayStore();
 
-  // 이제 currentStep을 안전하게 사용할 수 있습니다.
-  return <div>Current Step: {currentStep}</div>;
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setStep(currentStep - 1);
+    } else {
+      router.back();
+    }
+  };
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return <Step1_StayInfo />;
+      case 2:
+        return <Step2_Amenities />;
+      case 3:
+        return <Step3_Description />;
+      default:
+        return <Step1_StayInfo />;
+    }
+  };
+
+  return (
+    <main className="flex flex-col flex-1 bg-white my-5">
+      <header className="relative flex items-center justify-center h-12 mb-8">
+        <div className="flex flex-col w-full">
+          <div className="mb-4 ms-0">
+            <button type="button" onClick={handleBack}>
+              <ChevronLeft />
+            </button>
+          </div>
+          <div>
+            <ProgressBar totalSteps={4} currentStep={currentStep} />
+          </div>
+        </div>
+      </header>
+      <div className="flex flex-col flex-grow">{renderStep()}</div>
+    </main>
+  );
 }

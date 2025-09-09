@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import type { UseFormSetValue } from 'react-hook-form';
 import type { CreateStayInput } from '@/features/create-stay/schema';
@@ -13,25 +15,11 @@ interface UseAddressSearchProps {
   setValue: UseFormSetValue<CreateStayInput>;
 }
 
-export function useAddressSearch({ setValue }: UseAddressSearchProps) {
+export const useAddressSearch = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const handleSelectAddress = (address: Address) => {
-    // react-hook-form의 상태를 업데이트
-    setValue('postalCode', address.postalCode, { shouldValidate: true });
-    setValue('address', address.main, { shouldValidate: true });
-    // 상세 주소 필드는 비워두거나 필요에 따라 다른 값으로 설정
-    setValue('addressDetail', address.detail || '');
-    closeModal();
-  };
-
-  return {
-    isModalOpen,
-    openModal,
-    closeModal,
-    handleSelectAddress,
-  };
-}
+  return { isModalOpen, openModal, closeModal };
+};
