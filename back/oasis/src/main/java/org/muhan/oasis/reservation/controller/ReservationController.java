@@ -6,6 +6,7 @@ import org.muhan.oasis.reservation.service.ReservationService;
 import org.muhan.oasis.reservation.vo.in.ExecuteReservationRequestVo;
 import org.muhan.oasis.reservation.vo.in.RecordReservationRequest;
 import org.muhan.oasis.reservation.vo.out.BookingResponseVo;
+import org.muhan.oasis.reservation.vo.out.CancellationPreviewVo;
 import org.muhan.oasis.web3.service.Web3Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,4 +44,11 @@ public class ReservationController {
             return ResponseEntity.internalServerError().body("ERROR: " + e.getMessage());
         }
     }
+
+    // 예약 취소 정책 미리보기 API
+//    @GetMapping("/{reservationId}/cancellation-preview")
+//    public ResponseEntity<CancellationPreviewVo> getCancellationPreview(@PathVariable String reservationId) {
+//        CancellationPreviewVo preview = reservationService.calculateCancellationSplit(reservationId);
+//        return ResponseEntity.ok(preview);
+//    }
 }

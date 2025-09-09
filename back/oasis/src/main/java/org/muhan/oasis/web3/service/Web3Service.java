@@ -2,6 +2,7 @@ package org.muhan.oasis.web3.service;
 
 import org.muhan.oasis.reservation.dto.in.CreateReservationRequestDto;
 import org.muhan.oasis.reservation.dto.out.BookingResponse;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.web3j.abi.FunctionEncoder;
@@ -19,6 +20,7 @@ import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.RawTransactionManager;
+import org.web3j.tx.TransactionManager;
 import org.web3j.tx.response.PollingTransactionReceiptProcessor;
 import org.web3j.tx.response.TransactionReceiptProcessor;
 import org.web3j.utils.Numeric;
@@ -36,14 +38,18 @@ public class Web3Service {
     private static final long CHAIN_ID = 80002L; // Polygon Amoy
 
     private static final int USDC_DECIMALS = 6;
+    private final TransactionManager txManager;
 
 
     public Web3Service(
             @Value("${infura.url}") String infuraUrl,
-            @Value("${contract.address}") String contractAddress
+            @Value("${contract.address}") String contractAddress,
+            Web3j web3j,
+            @Qualifier("web3TxManager") org.web3j.tx.TransactionManager txManager
     ) {
-        this.web3j = Web3j.build(new HttpService(infuraUrl));
+        this.web3j = web3j; // Bean 사용
         this.contractAddress = contractAddress;
+        this.txManager = txManager;
     }
 
     /**
@@ -218,6 +224,48 @@ public class Web3Service {
     }
     private static String formatUSDC(BigInteger raw) {
         return new BigDecimal(raw).movePointLeft(USDC_DECIMALS).toPlainString() + " USDC";
+    }
+
+    public String releaseAndWait(String resIdHex) throws Exception {
+        // 1) 인코딩
+        Function fn = new Function(
+                "release",
+                List.of(new Bytes32(Numeric.hexStringToByteArray(resIdHex))),
+                Collections.emptyList()
+        );
+        String data = FunctionEncoder.encode(fn);
+        String from = txManager.getFromAddress();
+
+        // 2) dry-run
+        var dry = web3j.ethCall(
+                Transaction.createEthCallTransaction(from, contractAddress, data),
+                DefaultBlockParameterName.LATEST
+        ).send();
+        if (dry.isReverted()) {
+            throw new RuntimeException("eth_call reverted: " + dry.getRevertReason());
+        }
+
+        // 3) 가스 추정
+        var gasPrice = web3j.ethGasPrice().send().getGasPrice();        // 간단 버전
+        var est = web3j.ethEstimateGas(
+                Transaction.createFunctionCallTransaction(from, null, gasPrice, null, contractAddress, data)
+        ).send();
+        if (est.hasError()) throw new RuntimeException("eth_estimateGas error: " + est.getError().getMessage());
+        var gasLimit = est.getAmountUsed().multiply(BigInteger.valueOf(12)).divide(BigInteger.TEN);
+
+        // 4) 전송 (로컬서명)
+        var sent = txManager.sendTransaction(gasPrice, gasLimit, contractAddress, data, BigInteger.ZERO);
+        if (sent.hasError()) throw new RuntimeException("send error: " + sent.getError().getMessage());
+
+        // 5) receipt 대기 (in-flight 제한 회피 핵심)
+        var proc = new PollingTransactionReceiptProcessor(web3j, 3_000, 40); // 3s 간격, 최대 40회(≈2분)
+        var receipt = proc.waitForTransactionReceipt(sent.getTransactionHash());
+
+        // 선택: 실패/리버트 케이스 검사
+        if (!"0x1".equals(receipt.getStatus())) {
+            throw new RuntimeException("tx failed: " + receipt.getTransactionHash());
+        }
+        return receipt.getTransactionHash();
     }
 
 }

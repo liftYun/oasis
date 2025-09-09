@@ -105,21 +105,17 @@ public class SecurityConfig {
 
         // 3) 경로별 인가 설정
         http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/v1/health/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,
-                                "/api/v1/auth/refresh",
-                                "/api/v1/auth/logout/rToken").permitAll()
-                        //테스트
-                        .requestMatchers("/api/v1/reservations/**").permitAll()
-                        // Swagger, 공용 API
-                        .requestMatchers( "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        // 토큰 보유자
-                        .requestMatchers("/api/v1/**").authenticated()
-                        // 역할별 접근 제어
-//                .requestMatchers("/admin/**").hasRole("ADMIN")
-//                .requestMatchers("/user/**").hasRole("USER")
-                        .anyRequest().authenticated()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                .requestMatchers(HttpMethod.GET, "/api/v1/health/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh", "/api/v1/auth/logout/rToken").permitAll()
+
+                // 테스트용 열어둔 엔드포인트
+                .requestMatchers("/api/v1/reservations/**").permitAll()
+
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/api/v1/**").authenticated()
+                .anyRequest().authenticated()
         );
         // 인증 실패 시 리다이렉트 대신 401 응답만
         http.exceptionHandling(ex -> ex

@@ -47,4 +47,10 @@ public class Reservation {
     @CreationTimestamp
     @Column(name = "reservation_date", updatable = false)
     private LocalDate reservationDate;
+
+    public void cancel() {
+        this.canceled = true;
+        // 여기에 취소와 관련된 다른 로직이 추가될 수 있습니다.
+        // 예: this.cancellationDate = LocalDateTime.now();
+    }
 }
