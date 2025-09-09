@@ -1,5 +1,6 @@
 package org.muhan.oasis.user.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -94,12 +95,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public boolean updateLang(Long userId, Language lang) {
-        UserEntity user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        user.setLanguage(lang);
-        userRepository.save(user);
-
+        int updated = userRepository.updateLanguageById(userId, lang);
+        if (updated == 0) {
+            log.warn("[updateLang] no rows updated. userId={}", userId);
+            throw new EntityNotFoundException("사용자를 찾을 수 없습니다.");
+        }
+        log.info("[updateLang] language updated. userId={}, language={}", userId, lang);
         return true;
     }
 

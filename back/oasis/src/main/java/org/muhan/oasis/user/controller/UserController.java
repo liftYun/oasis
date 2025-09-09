@@ -192,23 +192,48 @@ public class UserController {
         return BaseResponse.of(Map.of("profileImgUrl", publicUrl));
     }
 
+    @PatchMapping("/language")
     @Operation(
-            summary = "언어 변경",
-            description = """
-                마이페이지에서 언어를 변경합니다(KOR <-> ENG)
-                """,
-            tags = {"회원"}
+            summary = "사용자 언어 설정 수정(PATCH)",
+            description = "요청한 언어 코드로 사용자 언어를 부분 업데이트합니다. 예: language=KOR|ENG"
     )
-    @PatchMapping("/updateLang")
+    @SecurityRequirement(name = "bearerAuth")
     public BaseResponse<?> updateLang(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestParam("Langauge") String language
-            ){
-        Language lang = Language.valueOf(language);
+            @RequestParam(name = "language") String languageParam
+    ) {
         Long userId = customUserDetails.getUserId();
-         return userService.updateLang(userId, lang)
-                 ? BaseResponse.ok()
-                 : BaseResponse.error(UPDATE_LANG_FAIL);
+
+        Language lang;
+        try {
+            lang = Language.valueOf(languageParam.trim().toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            log.warn("[updateLang] invalid language param. userId={}, param={}", userId, languageParam, e);
+            return BaseResponse.error(INVALID_PARAMETER);
+        }
+
+        try {
+            boolean ok = userService.updateLang(userId, lang);
+
+            // 데이터 포함 응답 형태가 있으면 사용 (예: BaseResponse.ok(data))
+            Map<String, Object> payload = Map.of(
+                    "userId", userId,
+                    "language", lang.name(),
+                    "updated", ok
+            );
+            log.info("[updateLang] success. payload={}", payload);
+            return BaseResponse.of(payload);
+
+        } catch (jakarta.persistence.EntityNotFoundException ex) {
+            log.error("[updateLang] user not found. userId={}", userId, ex);
+            return BaseResponse.error(NO_EXIST_MEMBER); // 존재하지 않는 회원
+        } catch (org.springframework.dao.DataAccessException ex) {
+            log.error("[updateLang] DB access error. userId={}, lang={}", userId, lang, ex);
+            return BaseResponse.error(UPDATE_LANG_FAIL);
+        } catch (Exception ex) {
+            log.error("[updateLang] unexpected error. userId={}, lang={}", userId, lang, ex);
+            return BaseResponse.error(DISALLOWED_ACTION);
+        }
     }
 
     // 파일 확장자
