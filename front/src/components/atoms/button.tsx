@@ -8,7 +8,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const baseStyles =
   'inline-flex items-center justify-center font-medium rounded-md ' +
-  'h-[50px] px-4 text-sm transition-colors duration-200 ' +
+  'h-[50px] text-sm transition-colors duration-200' +
   'disabled:opacity-30 disabled:pointer-events-none select-none';
 
 const variants = {
