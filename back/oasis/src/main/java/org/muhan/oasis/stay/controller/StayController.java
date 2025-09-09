@@ -57,8 +57,6 @@ public class StayController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청(필드 검증 실패 등)"),
             @ApiResponse(responseCode = "404", description = "하위지역/취소정책 등 존재하지 않음"),
     })
-
-
     @PostMapping
     public ResponseEntity<BaseResponse<Void>> createStay(
             CreateStayRequestDto stayRequest,
@@ -87,6 +85,19 @@ public class StayController {
     // 숙소 삭제
 
     // 숙소 상세글 조회
+    @Operation(
+            summary = "숙소 상세 조회",
+            description = """
+        숙소 ID로 상세 정보를 조회합니다.
+        - 사용자 언어 선호에 따라 제목/설명 등의 번역 필드가 포함될 수 있습니다.
+        """,
+            tags = {"숙소"},
+            operationId = "getStayById"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "404", description = "숙소가 존재하지 않음", content = @Content),
+    })
     @GetMapping("/{stayId}")
     public ResponseEntity<BaseResponse<StayReadResponseDto>> readStay(
             @PathVariable Long stayId,
