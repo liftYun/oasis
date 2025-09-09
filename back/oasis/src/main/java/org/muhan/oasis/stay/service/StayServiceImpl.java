@@ -162,8 +162,9 @@ public class StayServiceImpl implements StayService{
     @Override
     @Transactional(readOnly = true)
     public StayReadResponseDto getStayById(Long stayId, Language language) {
-        StayEntity stay = stayRepository.findById(stayId).orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY));
-        return StayReadResponseDto.from(stay, language);
+        StayEntity stay = stayRepository.findDetailForRead(stayId).orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY));
+        List<StayFacilityEntity> facilities = stayFacilityRepository.findWithFacilityByStayId(stayId);
+        return StayReadResponseDto.from(stay, facilities, language);
     }
 
 

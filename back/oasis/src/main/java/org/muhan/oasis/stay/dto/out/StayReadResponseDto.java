@@ -1,16 +1,20 @@
 package org.muhan.oasis.stay.dto.out;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import org.muhan.oasis.stay.entity.StayEntity;
+import org.muhan.oasis.stay.entity.StayFacilityEntity;
 import org.muhan.oasis.stay.entity.StayPhotoEntity;
 import org.muhan.oasis.valueobject.Language;
 import org.springframework.cglib.core.Local;
 
 import java.util.List;
 
-@AllArgsConstructor
-@Builder
+@Getter
+@Builder @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class StayReadResponseDto{
     String title;
     String description;
@@ -25,41 +29,26 @@ public class StayReadResponseDto{
     StayReviewResponseDto review;
     // nickname, uuid, url(프로필이미지)
     HostInfoResponseDto host;
+    List<FacilityCategoryResponseDto> facilities;
 
-    private static String nvl(String a, String b) {
-        return (a != null && !a.isBlank()) ? a : b;
-    }
-
-    public static StayReadResponseDto from(StayEntity stay, Language language) {
-
-        boolean isKor = language == Language.KOR;
-
-        String title = isKor ? nvl(stay.getTitle(), stay.getTitleEng())
-                : nvl(stay.getTitleEng(), stay.getTitle());
-        String desc  = isKor ? nvl(stay.getDescription(), stay.getDescriptionEng())
-                : nvl(stay.getDescriptionEng(), stay.getDescription());
-
-        String region = isKor
-                ? stay.getSubRegionEntity().getRegion().getName()
-                : stay.getSubRegionEngEntity().getRegion().getName();
-
-        String subRegion = isKor
-                ? stay.getSubRegionEntity().getSubName()
-                : stay.getSubRegionEngEntity().getSubName();
-
-        var summary = stay.getRatingSummary();
-
+    public static StayReadResponseDto from(StayEntity stay, List<StayFacilityEntity> facilities, Language language) {
         return StayReadResponseDto.builder()
-                .title(title)
-                .description(desc)
-                .region(region)
-                .subRegion(subRegion)
+                .title(stay.title(language))
+                .description(stay.description(language))
+                .region(language == Language.KOR
+                        ? stay.getSubRegionEntity().getRegion().getName()
+                        : stay.getSubRegionEngEntity().getRegion().getName())
+                .subRegion(language == Language.KOR
+                        ? stay.getSubRegionEntity().getSubName()
+                        : stay.getSubRegionEngEntity().getSubName())
                 .postalCode(stay.getPostalCode())
                 .maxGuest(stay.getMaxGuests())
                 .price(stay.getPrice())
                 .photos(ImageResponseDto.from(stay.getStayPhotoEntities()))
-                .review(summary != null ? StayReviewResponseDto.from(summary) : null)
+                .review(stay.getRatingSummary()!=null ? StayReviewResponseDto.from(stay.getRatingSummary()) : null)
                 .host(HostInfoResponseDto.from(stay.getUser()))
+                .facilities(FacilityCategoryResponseDto.from(facilities))
                 .build();
     }
+
 }
