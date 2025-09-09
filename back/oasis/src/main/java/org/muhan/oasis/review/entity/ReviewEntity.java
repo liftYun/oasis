@@ -1,16 +1,19 @@
 package org.muhan.oasis.review.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
 import org.muhan.oasis.user.entity.UserEntity;
+import org.muhan.oasis.valueobject.Language;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reviews")
+@Getter
 @NoArgsConstructor
 public class ReviewEntity {
     @Id
@@ -33,7 +36,10 @@ public class ReviewEntity {
     private String content;
 
     @Column(name ="content_eng")
-    private String content_eng;
+    private String contentEng;
+
+    @Column(name = "original_lang")
+    private Language originalLang;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -44,13 +50,14 @@ public class ReviewEntity {
         this.createdAt = LocalDateTime.now();
     }
 
-    public ReviewEntity(Long reviewId, ReservationEntity reservationId, UserEntity userId, float rating, String content, String content_eng, LocalDateTime createdAt) {
-        this.reviewId = reviewId;
+    @Builder
+    public ReviewEntity(ReservationEntity reservationId, UserEntity userId, float rating, String content, String contentEng, Language originalLang, LocalDateTime createdAt) {
         this.reservationId = reservationId;
         this.userId = userId;
         this.rating = rating;
         this.content = content;
-        this.content_eng = content_eng;
+        this.contentEng = contentEng;
+        this.originalLang = originalLang;
         this.createdAt = createdAt;
     }
 }
