@@ -1,6 +1,7 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 import { ProgressBar } from '@/components/molecules/ProgressBar';
 import { ChevronLeft } from 'lucide-react';
 import { useCreateStayStore } from '@/features/create-stay/store';
@@ -12,7 +13,29 @@ import { AddressSearch } from '@/features/create-stay/components/AddressSearch';
 
 export default function CreateStayPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { currentStep, setStep, view, setView } = useCreateStayStore();
+
+  // Sync URL -> store
+  useEffect(() => {
+    const urlStep = searchParams.get('step');
+    if (urlStep && !isNaN(Number(urlStep))) {
+      const step = Number(urlStep);
+      if (step >= 1 && step <= 4 && step !== currentStep) {
+        setStep(step);
+      }
+    }
+  }, [searchParams, setStep, currentStep]);
+
+  // Sync store -> URL
+  useEffect(() => {
+    const currentUrlStep = searchParams.get('step');
+    if (currentUrlStep !== currentStep.toString()) {
+      const params = new URLSearchParams(searchParams);
+      params.set('step', currentStep.toString());
+      router.replace(`/create-stay?${params.toString()}`, { scroll: false });
+    }
+  }, [currentStep, router, searchParams]);
 
   const handleBack = () => {
     if (view === 'searchAddress') {
@@ -20,7 +43,7 @@ export default function CreateStayPage() {
     } else if (currentStep > 1) {
       setStep(currentStep - 1);
     } else {
-      router.back();
+      router.push('/'); // Or your desired fallback route
     }
   };
 

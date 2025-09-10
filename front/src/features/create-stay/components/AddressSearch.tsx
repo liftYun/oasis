@@ -2,26 +2,14 @@
 
 import { useState } from 'react';
 import { Input } from '@/components/atoms/input';
-import { Button } from '@/components/atoms/Button';
 import type { AddressSearchResult } from '@/features/create-stay/types';
 import { useCreateStayStore } from '@/features/create-stay/store';
 import { useAddressSearchQuery } from '../hooks/useAddressSearchQuery';
 
 export function AddressSearch() {
   const { setFormData, setView } = useCreateStayStore();
-
   const [keyword, setKeyword] = useState('');
-  const [submittedKeyword, setSubmittedKeyword] = useState('');
-
-  const { addresses, isLoading, isError, error } = useAddressSearchQuery(submittedKeyword);
-
-  const handleSearch = () => {
-    if (!keyword.trim()) {
-      alert('검색어를 입력해주세요.');
-      return;
-    }
-    setSubmittedKeyword(keyword);
-  };
+  const { addresses, isLoading, isError, error } = useAddressSearchQuery(keyword);
 
   const handleSelectAddress = (result: AddressSearchResult) => {
     setFormData({
@@ -39,13 +27,11 @@ export function AddressSearch() {
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           placeholder="주소를 입력해주세요. (예: 서초대로 38)"
-          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           className="bg-gray-300"
         />
-        <Button onClick={handleSearch} disabled={isLoading} className="w-20">
-          {isLoading ? '검색중...' : '검색'}
-        </Button>
       </div>
+
+      {/* {isLoading && <p className="text-sm mb-4">검색중...</p>} */}
 
       {isError && (
         <p className="text-red-500 text-sm mb-4">
@@ -66,22 +52,22 @@ export function AddressSearch() {
               </div>
             ))
           : !isLoading &&
-            !isError && (
+            !isError &&
+            keyword && (
               <div className="text-sm text-gray-500 pt-4">
-                {submittedKeyword ? (
-                  <p>검색 결과가 없습니다.</p>
-                ) : (
-                  <>
-                    <p className="font-bold mb-2">주소 입력 예시</p>
-                    <ul>
-                      <li>도로명 + 건물 번호: 서초대로38길 12</li>
-                      <li>동/읍/면/리 + 번지: 서초동 1498-5</li>
-                      <li>건물명, 아파트명: 서초동 마제스타시티</li>
-                    </ul>
-                  </>
-                )}
+                <p>검색 결과가 없습니다.</p>
               </div>
             )}
+        {!keyword && (
+          <div className="text-sm text-gray-500 pt-4">
+            <p className="font-bold mb-2">주소 입력 예시</p>
+            <ul>
+              <li>도로명 + 건물 번호: 서초대로38길 12</li>
+              <li>동/읍/면/리 + 번지: 서초동 1498-5</li>
+              <li>건물명, 아파트명: 서초동 마제스타시티</li>
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

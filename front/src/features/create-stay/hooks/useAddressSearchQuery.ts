@@ -1,17 +1,34 @@
 import { useQuery } from '@tanstack/react-query';
+import { useDebounce } from 'use-debounce';
 import { http } from '@/apis/httpClient';
 import type { AddressSearchResult } from '@/features/create-stay/types';
 
-const getAddress = async (query: string) => {
-  const data = await http.get<AddressSearchResult[]>(`/api/search-address?query=${query}`);
-  return data;
+const getAddress = async (query: string, signal?: AbortSignal) => {
+  try {
+    const data = await http.get<AddressSearchResult[]>(
+      `/api/search-address?query=${encodeURIComponent(query)}`,
+      { signal }
+    );
+    return data;
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      // AbortError는 React Query에서 자동으로 처리하므로, 그대로 throw합니다.
+      throw error;
+    }
+    // 다른 종류의 에러는 사용자에게 친화적인 메시지로 변환하여 throw합니다.
+    throw new Error('주소 검색 중 오류가 발생했습니다.');
+  }
 };
 
 export const useAddressSearchQuery = (keyword: string) => {
+  const [debouncedKeyword] = useDebounce(keyword, 500);
+
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['addressSearch', keyword],
-    queryFn: () => getAddress(keyword),
-    enabled: !!keyword, // keyword가 비어있지 않을 때만 쿼리를 실행
+    queryKey: ['addressSearch', debouncedKeyword],
+    queryFn: ({ signal }) => getAddress(debouncedKeyword, signal),
+    enabled: !!debouncedKeyword, // debouncedKeyword가 있을 때만 쿼리 실행
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
   });
 
   return {
