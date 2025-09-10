@@ -1,0 +1,32 @@
+stages:
+  - notify
+
+# 공통 알림 잡
+.notify_template:
+  stage: notify
+  image: alpine:3.20
+  before_script:
+    - apk add --no-cache curl jq
+  script:
+    - >
+      MR_INFO=$(curl -s --header "PRIVATE-TOKEN: $999QWSJmxFZ8sqCJtPid"
+      "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID")
+    - TITLE=$(echo "$MR_INFO" | jq -r '.title')
+    - URL=$(echo "$MR_INFO" | jq -r '.web_url')
+    - REVIEWERS=$(echo "$MR_INFO" | jq -r '[.reviewers[]?.username] | map("@"+.) | join(", ") // "없음"')
+    - >
+      curl -s -X POST -H 'Content-Type: application/json'
+      -d "{\"text\":\"📢 MR 알림: !${CI_MERGE_REQUEST_IID} $TITLE ($REVIEWERS)\n$URL\"}"
+      "$https://meeting.ssafy.com/hooks/hr7rrkx16pbx3xb8zbg477zm5y"
+
+# back용 알림
+notify:back:
+  extends: .notify_template
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_PATH =~ /back/'
+
+# front용 알림
+notify:front:
+  extends: .notify_template
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_PATH =~ /front/'
