@@ -1,32 +1,54 @@
-stages:
-  - notify
+stages: [notify]
 
-# 공통 알림 잡
+# 공통 템플릿
 .notify_template:
   stage: notify
   image: alpine:3.20
   before_script:
     - apk add --no-cache curl jq
   script:
+    # MR 상세 조회 (리뷰어/라벨 포함)
     - >
-      MR_INFO=$(curl -s --header "PRIVATE-TOKEN: $999QWSJmxFZ8sqCJtPid"
+      MR_INFO=$(curl -s --header "PRIVATE-TOKEN: $GITLAB_TOKEN"
       "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID")
     - TITLE=$(echo "$MR_INFO" | jq -r '.title')
     - URL=$(echo "$MR_INFO" | jq -r '.web_url')
+    - SRC=$(echo "$MR_INFO" | jq -r '.source_branch')
+    - TGT=$(echo "$MR_INFO" | jq -r '.target_branch')
     - REVIEWERS=$(echo "$MR_INFO" | jq -r '[.reviewers[]?.username] | map("@"+.) | join(", ") // "없음"')
+    - LABELS=$(echo "$MR_INFO" | jq -r '[.labels[]?] | join(", ") // "없음"')
+    - AUTHOR="$GITLAB_USER_NAME (@$GITLAB_USER_LOGIN)"
     - >
       curl -s -X POST -H 'Content-Type: application/json'
-      -d "{\"text\":\"📢 MR 알림: !${CI_MERGE_REQUEST_IID} $TITLE ($REVIEWERS)\n$URL\"}"
-      "$https://meeting.ssafy.com/hooks/hr7rrkx16pbx3xb8zbg477zm5y"
+      -d "{\"attachments\":[{\"pretext\":\"🧩 Merge Request 알림\",
+      \"title\":\"!$CI_MERGE_REQUEST_IID $TITLE\",
+      \"title_link\":\"$URL\",
+      \"text\":\"$AUTHOR 님이 MR을 업데이트했습니다.\",
+      \"fields\":[
+        {\"title\":\"리뷰어\",\"value\":\"$REVIEWERS\",\"short\":true},
+        {\"title\":\"브랜치\",\"value\":\"$SRC → $TGT\",\"short\":true},
+        {\"title\":\"라벨\",\"value\":\"$LABELS\",\"short\":true}
+      ]}]}\""
+      "$MATTERMOST_WEBHOOK"
 
-# back용 알림
+# back 폴더 변경 시 (MR 이벤트)
 notify:back:
   extends: .notify_template
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_PATH =~ /back/'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - back/**
 
-# front용 알림
+# front 폴더 변경 시 (MR 이벤트)
 notify:front:
   extends: .notify_template
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_PATH =~ /front/'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - front/**
+
+# 병합(타깃 브랜치 push) 시 알림 추가 예시 - 선택
+notify:merged:
+  extends: .notify_template
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"'
