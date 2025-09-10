@@ -1,0 +1,73 @@
+server:
+  port: ${SERVER_PORT}
+swagger:
+  uri: "/"
+
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  # 일반 캐시용 Redis
+  #  data:
+  #    redis:
+  #      host: ${REDIS_HOST}
+  #      port: ${REDIS_PORT}
+  #      password: ${REDIS_PASSWORD}
+  #      timeout: 20000  # 연결 타임아웃 (ms)
+  datasource:
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  jwt:
+    secret: ${JWT_SECRET_KEY}
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}      # 환경변수 또는 실제 값
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - openid
+              - profile
+              - email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-name: Google
+
+jwt:
+  access:
+    expired-ms: 600000    # 10?
+  refresh:
+    expired-ms: 604800000 # 7?
+logging:
+  level:
+    org.hibernate.SQL: debug #?? SQL ??? ??? ??
+    org.hibernate.type: trace #SQL ??? ????? ???? ?? ??
+
+app:
+  translate:
+    timeout-ms: 3000
+
+papago:
+  base-url: https://papago.apigw.ntruss.com
+  client-id: ${PAPAGO_CLIENT_ID}
+  client-secret: ${PAPAGO_CLIENT_SECRET}
+
+cloud:
+  aws:
+    region: ${S3_REGION}          # 서울 리전
+    s3:
+      bucket: ${S3_BUCKET}      # 실제 버킷명
