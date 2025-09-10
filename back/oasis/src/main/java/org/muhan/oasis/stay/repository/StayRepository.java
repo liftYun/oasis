@@ -1,9 +1,11 @@
 package org.muhan.oasis.stay.repository;
 
+import org.muhan.oasis.stay.entity.CancellationPolicyEntity;
 import org.muhan.oasis.stay.entity.StayEntity;
 import org.muhan.oasis.stay.entity.StayFacilityEntity;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -26,4 +28,13 @@ public interface StayRepository extends JpaRepository<StayEntity, Long> {
       where s.id = :id
     """)
     Optional<StayEntity> findDetailForRead(@Param("id") Long id);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+       update StayEntity s
+          set s.cancellationPolicyEntity = :newPolicy
+        where s.cancellationPolicyEntity = :oldPolicy
+       """)
+    int rebindCancellationPolicy(@Param("oldPolicy") CancellationPolicyEntity oldPolicy,
+                                 @Param("newPolicy") CancellationPolicyEntity newPolicy);
 }

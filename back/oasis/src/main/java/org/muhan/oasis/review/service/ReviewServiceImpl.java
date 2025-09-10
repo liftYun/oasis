@@ -4,20 +4,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.muhan.oasis.openAI.service.OpenAIService;
 import org.muhan.oasis.openAI.dto.out.ReviewTranslationResult;
-import org.muhan.oasis.openAI.service.OpenAIService;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
 import org.muhan.oasis.review.dto.in.RegistReviewRequestDto;
-import org.muhan.oasis.review.dto.out.ReviewResponseDto;
 import org.muhan.oasis.review.entity.ReviewEntity;
 import org.muhan.oasis.review.repository.ReviewRepository;
-import org.muhan.oasis.review.vo.in.RegistReviewRequestVo;
 import org.muhan.oasis.review.vo.out.ReviewResponseVo;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
+import org.muhan.oasis.user.service.UserExistService;
 import org.muhan.oasis.valueobject.Language;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.muhan.oasis.openAI.dto.in.ReviewRequestDto;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -30,6 +29,7 @@ public class ReviewServiceImpl implements ReviewService{
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final OpenAIService openAIService;
+    private final UserExistService userExistService;
 
     @Override
     public Long registReview(Long userId, RegistReviewRequestDto registReviewRequestDto) {
@@ -48,8 +48,7 @@ public class ReviewServiceImpl implements ReviewService{
         }
 
         // 4) 작성자, 예약 참조 엔티티 로드
-        UserEntity writer = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        UserEntity writer = userExistService.userExist(userId);
 
         final String original = defaultIfNull(registReviewRequestDto.getOriginalContent(), "");
         String koreanContent = null;
@@ -58,7 +57,7 @@ public class ReviewServiceImpl implements ReviewService{
 
         try {
             ReviewRequestDto dto = new ReviewRequestDto(original);
-            ReviewTranslationResult tr = openAIService.getTranslateReview(dto);
+            ReviewTranslationResult tr = openAIService.getTranslatedReview(dto);
 
             String detected = defaultIfNull(tr.getDetectedLocale(), "unknown");
 

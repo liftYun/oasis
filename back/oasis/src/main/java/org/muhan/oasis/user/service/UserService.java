@@ -1,7 +1,8 @@
 package org.muhan.oasis.user.service;
 
+import org.muhan.oasis.user.dto.in.CancellationPolicyRequestDto;
+import org.muhan.oasis.user.dto.in.UpdateCancellationPolicyRequestDto;
 import org.muhan.oasis.user.dto.out.UserDetailsResponseDto;
-import org.muhan.oasis.user.vo.out.UserDetailsResponseVo;
 import org.muhan.oasis.user.vo.out.UserSearchResultResponseVo;
 import org.muhan.oasis.valueobject.Language;
 
@@ -16,5 +17,9 @@ public interface UserService {
 
     void updateProfileImageUrl(Long userId, String imageUrl);
 
-    boolean updateLang(Long userId, Language lang);
+    void updateLang(Long userId, Language lang);
+
+    void registCancellationPolicy(Long userId, CancellationPolicyRequestDto dto);
+
+    void updateCancellationPolicy(Long userId, UpdateCancellationPolicyRequestDto from);
 }
