@@ -3,14 +3,12 @@ package org.muhan.oasis.stay.service;
 import lombok.RequiredArgsConstructor;
 import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.common.exception.BaseException;
-import org.muhan.oasis.openAI.dto.in.AddrRequestDTO;
-import org.muhan.oasis.openAI.dto.in.StayRequestDTO;
-import org.muhan.oasis.openAI.dto.out.AddrTranslationResult;
-import org.muhan.oasis.openAI.dto.out.StayTranslationResult;
-import org.muhan.oasis.openAI.service.OpenAIService;
+import org.muhan.oasis.openAI.dto.in.AddrRequestDto;
+import org.muhan.oasis.openAI.dto.in.StayRequestDto;
+import org.muhan.oasis.openAI.dto.out.StayTranslationResultDto;
 import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.stay.dto.in.CreateStayRequestDto;
-import org.muhan.oasis.stay.dto.out.StayCreateResponseDto;
+import org.muhan.oasis.stay.dto.out.StayResponseDto;
 import org.muhan.oasis.stay.dto.out.StayReadResponseDto;
 import org.muhan.oasis.stay.entity.*;
 import org.muhan.oasis.stay.repository.*;
@@ -31,7 +29,6 @@ import java.util.stream.Collectors;
 public class StayServiceImpl implements StayService{
 
     private final UserRepository userRepository;
-    private final OpenAIService openAIService;
     private final SubRegionRepository subRegionRepository;
     private final SubRegionEngRepository subRegionEngRepository;
     private final FacilityRepository facilityRepository;
@@ -45,15 +42,9 @@ public class StayServiceImpl implements StayService{
 
     @Override
     @Transactional
-    public StayCreateResponseDto registStay(CreateStayRequestDto stayRequest, Long userId) {
+    public StayResponseDto registStay(CreateStayRequestDto stayRequest, Long userId) {
 
         UserEntity user = userRepository.findByUserId(userId).orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
-
-        // 영어 번역하기 or 한국어 번역하기
-        StayTranslationResult translation = openAIService.getTranslatedStay(new StayRequestDTO(stayRequest.getTitle(), stayRequest.getDescription()));
-
-        // 상세 주소
-        AddrTranslationResult addrDetail = openAIService.getTranslatedAddr(new AddrRequestDTO(stayRequest.getAddressDetail()));
 
         // subRegion 찾기
         Long subRegionId = stayRequest.getSubRegionId();
@@ -63,18 +54,20 @@ public class StayServiceImpl implements StayService{
         SubRegionEngEntity subRegionEng = subRegionEngRepository.findById(subRegionId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_SUBREGION));
 
-        // 취소정책 찾기
-        CancellationPolicyEntity cancellationPolicy =
-                Optional.ofNullable(user.getCancellationPolicy())
-                        .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY));
+        // 취소정책 찾기 - 이후 수정
+        Optional<CancellationPolicyEntity> optionalPolicy = Optional.ofNullable(user.getCancellationPolicy().get(0));
+
+        CancellationPolicyEntity policy = optionalPolicy.orElseThrow(
+                () -> new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY)
+        );
 
         // 숙소 이름, 설명, 가격, 주소, 우편번호, 수용인원, 썸네일, 지역으로 생성
         StayEntity stay =
                 stayRepository.save(StayEntity.builder()
-                .title(translation.getKorTitle())
-                .titleEng(translation.getEngTitle())
-                .description(translation.getKorContent())
-                .descriptionEng(translation.getEngContent())
+                .title(stayRequest.getTitle())
+                .titleEng(stayRequest.getTitleEng())
+                .description(stayRequest.getDescription())
+                .descriptionEng(stayRequest.getDescriptionEng())
                 .price(stayRequest.getPrice())
                 .addressLine(stayRequest.getAddress())
                 .addressLineEng(stayRequest.getAddressEng())
@@ -84,16 +77,16 @@ public class StayServiceImpl implements StayService{
                 .subRegionEntity(subRegion)
                 .subRegionEngEntity(subRegionEng)
                 .user(user)
-                .cancellationPolicyEntity(cancellationPolicy)
-                .addrDetail(addrDetail.getKorDetailAddr())
-                .addrDetailEng(addrDetail.getEngDetailAddr())
+                .cancellationPolicyEntity(policy)
+                .addrDetail(stayRequest.getAddressDetail())
+                .addrDetailEng(stayRequest.getAddressDetailEng())
                 .build());
 
         // 디바이스 생성
         DeviceEntity device = deviceRepository.save(
                 DeviceEntity.builder()
-                .stayName(translation.getKorTitle())
-                .stayNameEng(translation.getEngTitle())
+                .stayName(stayRequest.getTitle())
+                .stayNameEng(stayRequest.getTitleEng())
                 .stay(stay)
                 .build());
 
@@ -155,7 +148,7 @@ public class StayServiceImpl implements StayService{
 
         stay.addPhotos(photoList);
 
-        return StayCreateResponseDto.builder()
+        return StayResponseDto.builder()
                 .stayId(stay.getId()).build();
     }
 
@@ -165,6 +158,11 @@ public class StayServiceImpl implements StayService{
         StayEntity stay = stayRepository.findDetailForRead(stayId).orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY));
         List<StayFacilityEntity> facilities = stayFacilityRepository.findWithFacilityByStayId(stayId);
         return StayReadResponseDto.from(stay, facilities, language);
+    }
+
+    @Override
+    public StayResponseDto updateStay(Long stayId) {
+        return null;
     }
 
 
