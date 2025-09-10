@@ -44,7 +44,6 @@ public class SqsAsyncListener {
         sqsAsyncClient.receiveMessage(receiveRequest)
                 .thenAcceptAsync(response -> {
                     for (Message message : response.messages()) {
-                        // 메시지별로 비동기 처리
                         processMessage(message);
                     }
                     pollQueue();
@@ -60,7 +59,6 @@ public class SqsAsyncListener {
 
         try {
             StayRequestDto request = objectMapper.readValue(message.body(), StayRequestDto.class);
-            System.out.println("번역시작");
 
             CompletableFuture.supplyAsync(() -> {
                         try {
@@ -69,10 +67,8 @@ public class SqsAsyncListener {
                             System.err.println("Translation failed due to JSON processing error: " + e.getMessage());
                             throw new RuntimeException(e);
                         }
-                    }, executor) // 별도 스레드 풀에서 번역 실행
-                    .thenAcceptAsync(translationResult -> { // 번역 완료 후 다음 작업 실행
-                        System.out.println("번역완료 : " + translationResult.getTitle());
-                        System.out.println("번역완료 : " + translationResult.getContent());
+                    }, executor)
+                    .thenAcceptAsync(translationResult -> {
 
                         deleteMessage(sqsQueueUrl, message.receiptHandle());
 
@@ -81,7 +77,6 @@ public class SqsAsyncListener {
                     }, executor)
                     .exceptionally(throwable -> {
                         System.err.println("An error occurred during translation: " + throwable.getMessage());
-                        // 번역 실패 시 재시도 로직이나 데드 레터 큐로 이동
                         return null;
                     });
 

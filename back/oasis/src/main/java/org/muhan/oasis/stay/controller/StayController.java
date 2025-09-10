@@ -171,9 +171,7 @@ public class StayController {
                     .thenRun(() -> System.out.println("Message sent asynchronously."));
 
         }
-        catch (JsonProcessingException e){
-            System.out.println("에러입니다리~~~");
-        }
+        catch (JsonProcessingException e){}
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(BaseResponse.ok());
