@@ -26,7 +26,7 @@ export function ImageUploader({
   return (
     <div className="flex flex-col items-start gap-2">
       <Label>숙소 사진</Label>
-      <div className="bg-primary/10 text-primary text-[10px] p-2 rounded-md">
+      <div className="bg-primary/10 text-primary text-xs p-2 rounded-md">
         <span className="text-primary font-bold">TIP</span> 첫 사진은 숙소가 잘 보이게
         업로드해주세요.
       </div>

@@ -41,6 +41,7 @@ export function StayForm({
         registration={register('title')}
         id="title"
         placeholder="숙소 이름을 적어주세요."
+        maxLength={20}
         error={errors.title}
         className="pr-12"
       >
