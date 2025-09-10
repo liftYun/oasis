@@ -566,8 +566,6 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-/src/main/resources/**
-
 .idea/**
 .gradle/**
 .env

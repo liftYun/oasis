@@ -59,7 +59,6 @@ public class JWTController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "성공적으로 로그아웃됨")
     })
-    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/logout")
     public ResponseEntity<?> logout(
             @Parameter(hidden = true)
@@ -105,7 +104,6 @@ public class JWTController {
             @ApiResponse(responseCode = "409", description = "닉네임 중복"),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
-    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/addInformations")
     public BaseResponse<Void> addInformations(
             @Parameter(hidden = true)

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Lang } from '@/features/language';
+import { Lang } from '@/types/lang';
 const STORAGE_KEY = 'app_lang';
 
 export function useLanguage(defaultLang: Lang = 'kor') {

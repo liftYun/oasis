@@ -89,8 +89,8 @@ public class UserEntity extends BaseEntity {
     private List<KeyOwnerEntity> keyOwners = new ArrayList<>();
 
     // 나의 취소 정책 (users 1 : 1 cancellation_policies)
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private CancellationPolicyEntity cancellationPolicy;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<CancellationPolicyEntity> cancellationPolicy;
 
     /* ---------- 편의 메서드 ---------- */
 //    public void addWish(WishEntity wish) {
