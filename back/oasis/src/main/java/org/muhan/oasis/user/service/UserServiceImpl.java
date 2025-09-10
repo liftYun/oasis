@@ -130,6 +130,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void updateCancellationPolicy(Long userId, UpdateCancellationPolicyRequestDto dto) {
         // 유저 유효성 검사 및 Entity 생성
         UserEntity user = userExistService.userExist(userId);
@@ -165,17 +166,10 @@ public class UserServiceImpl implements UserService {
         CancellationPolicyEntity newPolicy = cancellationPolicyRepository.save(policy);
 
         // 등록된 숙소들에 새로 변경된 정책 업데이트
-        int affected = stayRepository.rebindCancellationPolicy(oldPolicy, newPolicy);
+        stayRepository.rebindCancellationPolicy(oldPolicy, newPolicy);
 
-        if(affected == 0) {
-            log.warn("[updateLang] no rows updated. policyId={}", newPolicy.getId());
-            // TODO : 수정 필요
-            throw new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY);
-        } else {
-            log.info("[updateLang] Policy created. policyId={}",
-                    newPolicy.getId());
-        }
-
+        log.info("[updateLang] Policy created. policyId={}",
+                newPolicy.getId());
     }
 
     private Optional<String> extractKeyIfSameBucket(String url) {
