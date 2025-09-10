@@ -1,13 +1,26 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT}
 swagger:
   uri: "/"
 
 spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  # ?? ??? Redis
+  #  data:
+  #    redis:
+  #      host: ${REDIS_HOST}
+  #      port: ${REDIS_PORT}
+  #      password: ${REDIS_PASSWORD}
+  #      timeout: 20000  # ?? ???? (ms)
   datasource:
-    url: jdbc:mysql://localhost:3306/oasis?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
-    username: root
-    password: 0930
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -19,7 +32,6 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
   jwt:
     secret: ${JWT_SECRET_KEY}
-
 
   security:
     oauth2:
@@ -40,23 +52,38 @@ jwt:
     expired-ms: 600000    # 10?
   refresh:
     expired-ms: 604800000 # 7?
-
-# Web3 설정
-infura:
-  url: https://rpc-amoy.polygon.technology/
-
-wallet:
-  private:
-    key: $0d9b9f51805db5db8468aa0863ae424d25353056d262ea9dfe216d4422a74fd3 # 운영자 지갑 개인키
-
-contract:
-  address: 0x42106dd5fae320c77de6ba756b9979a7339a203a  # 배포된 NomadBooking 컨트랙트 주소
-
-usdc:
-  address: 0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582  # Polygon Amoy USDC
-
 logging:
   level:
     org.hibernate.SQL: debug #?? SQL ??? ??? ??
     org.hibernate.type: trace #SQL ??? ????? ???? ?? ??
-    org.muhan.oasis.web3: debug  # Web3 관련 로그
+
+app:
+  translate:
+    timeout-ms: 3000
+
+papago:
+  base-url: https://papago.apigw.ntruss.com
+  client-id: ${PAPAGO_CLIENT_ID}
+  client-secret: ${PAPAGO_CLIENT_SECRET}
+
+openai:
+  secret-key: ${OPENAI_SECRET_KEY}
+  chat-url: https://gms.ssafy.io/gmsapi/api.openai.com/v1/chat/completions
+  chat-model: gpt-4.1-mini
+
+circle:
+  api:
+    url: https://api.circle.com/v1/w3s
+    key: TEST_API_KEY:ec7bb7f5221b5a64060ff39d8c1da625:e4509722324693297ca398b2a51c707d
+
+infura:
+  url: https://polygon-amoy.infura.io/v3/d4c6f7b6c50040eeacfa2f575c9a58dc
+
+# ??? ???? ??
+contract:
+  address: 0x42106dd5fae320c77de6ba756b9979a7339a203a
+
+# ?? ??? ?? ?
+wallet:
+  private:
+    key: 0x1a097c962c0682060c91631141628d58470884589a770f93504bbcbd3197834e

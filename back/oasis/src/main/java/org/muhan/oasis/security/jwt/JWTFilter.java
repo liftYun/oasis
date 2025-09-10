@@ -26,6 +26,14 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String path = request.getRequestURI();
+
+        // /api/v1/wallets/** 요청은 토큰 검사 아예 건너뛰기
+        if (path.startsWith("/api/v1/wallets")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         //request에서 Authorization 헤더를 찾음
         String authorization = request.getHeader("Authorization");
 

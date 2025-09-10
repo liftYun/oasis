@@ -111,7 +111,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh", "/api/v1/auth/logout/rToken").permitAll()
 
                 // 테스트용 열어둔 엔드포인트
-                .requestMatchers("/api/v1/reservations/**").permitAll()
+                .requestMatchers("/api/v1/reservations/**", "/api/v1/wallets/**").permitAll()
 
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/v1/**").authenticated()
