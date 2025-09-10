@@ -75,7 +75,7 @@ public class RefreshController {
 
 //        System.out.println("RefreshController userEmail : " + userDetails.getUserEmail());
 //        System.out.println("RefreshController username : " + userDetails.getUserNickname());
-        String newAccessToken = jwtUtil.createAccessToken(uuid, userDetails.getUserProfileUrl(), userDetails.getUserNickname(), role);
+        String newAccessToken = jwtUtil.createAccessToken(uuid, userDetails.getUserProfileUrl(), userDetails.getUserNickname(), role, userDetails.getLanguage());
 
         return ResponseEntity.ok()
                 .header("Authorization", "Bearer " + newAccessToken)

@@ -11,10 +11,12 @@ import org.muhan.oasis.openAI.service.OpenAIService;
 import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.stay.dto.in.CreateStayRequestDto;
 import org.muhan.oasis.stay.dto.out.StayCreateResponseDto;
+import org.muhan.oasis.stay.dto.out.StayReadResponseDto;
 import org.muhan.oasis.stay.entity.*;
 import org.muhan.oasis.stay.repository.*;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
+import org.muhan.oasis.valueobject.Language;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -155,6 +157,14 @@ public class StayServiceImpl implements StayService{
 
         return StayCreateResponseDto.builder()
                 .stayId(stay.getId()).build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public StayReadResponseDto getStayById(Long stayId, Language language) {
+        StayEntity stay = stayRepository.findDetailForRead(stayId).orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY));
+        List<StayFacilityEntity> facilities = stayFacilityRepository.findWithFacilityByStayId(stayId);
+        return StayReadResponseDto.from(stay, facilities, language);
     }
 
 

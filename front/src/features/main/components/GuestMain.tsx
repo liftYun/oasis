@@ -1,9 +1,15 @@
 'use client';
 
+import SearchBar from '@/components/molecules/SearchBar';
+import PromoCard from '@/components/organisms/promo-card/PromoCard';
+
 export function GuestMain() {
   return (
-    <main className="min-h-screen bg-white">
-      <h1>메인</h1>
+    <main className="flex flex-col w-full px-6 py-10 min-h-screen">
+      <SearchBar />
+      <div className="mt-6">
+        <PromoCard />
+      </div>
     </main>
   );
 }

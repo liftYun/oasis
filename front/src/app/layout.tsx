@@ -24,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="font-sans min-h-dvh flex flex-col">
+      <body className="font-sans min-h-dvh flex flex-col border-x border-gray-200">
         <ReactQueryProvider>{children}</ReactQueryProvider>
       </body>
     </html>

@@ -86,8 +86,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // ✅ 기본 Role (처음 가입 시 ROLE_GUEST 부여)
         Role role = user.getRole() != null ? user.getRole() : Role.valueOf("ROLE_GUEST");
 
+        Language language = user.getLanguage() != null ? user.getLanguage() : Language.valueOf("KOR");
+
         // ✅ Access / Refresh Token 발급
-        String accessToken = jwtUtil.createAccessToken(uuid, email, nickname, role);
+        String accessToken = jwtUtil.createAccessToken(uuid, email, nickname, role, language);
         String refreshToken = jwtUtil.createRefreshToken(uuid);
 
         refreshTokenService.saveToken(uuid, refreshToken);
