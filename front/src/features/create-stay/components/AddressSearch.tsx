@@ -43,7 +43,7 @@ export function AddressSearch() {
         {addresses && addresses.length > 0
           ? addresses.map((result, index) => (
               <div
-                key={index}
+                key={`${result.zone_no}-${result.road_address_name || result.address_name}`}
                 className="py-3 px-1 cursor-pointer hover:bg-gray-100 rounded border-b"
                 onClick={() => handleSelectAddress(result)}
               >

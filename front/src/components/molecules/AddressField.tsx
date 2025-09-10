@@ -25,9 +25,8 @@ export function AddressField({ register, errors, watch, onSearchClick }: Address
     <div className="flex flex-col gap-2">
       <Label>숙소 위치</Label>
       <div className="flex flex-col gap-2">
-        {postalCodeValue || addressValue ? (
+        {postalCodeValue && addressValue ? (
           <>
-            {/* 주소 선택 후 UI */}
             <Input
               {...register('postalCode')}
               placeholder="우편번호"
@@ -60,12 +59,14 @@ export function AddressField({ register, errors, watch, onSearchClick }: Address
               aria-label="주소 검색하기"
             >
               주소 검색하기
-            </div>{' '}
+            </div>
           </>
         )}
 
         {(errors.postalCode || errors.address) && (
-          <p className="text-sm text-red-500">{errors.address?.message}</p>
+          <p className="text-sm text-red-500">
+            {errors.address?.message || errors.postalCode?.message}
+          </p>
         )}
         <Input
           {...register('addressDetail')}

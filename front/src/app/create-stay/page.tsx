@@ -6,8 +6,8 @@ import { ProgressBar } from '@/components/molecules/ProgressBar';
 import { ChevronLeft } from 'lucide-react';
 import { useCreateStayStore } from '@/features/create-stay/store';
 import { Step1_StayInfo } from '@/features/create-stay/components/Step1_StayInfo';
-import { Step2_Amenities } from '@/features/create-stay/components/Step2_Amenities';
-import { Step3_Description } from '@/features/create-stay/components/Step3_Description';
+import { Step2_Description } from '@/features/create-stay/components/Step2_Description';
+import { Step3_Amenities } from '@/features/create-stay/components/Step3_Amenities';
 import { Step4_Availability } from '@/features/create-stay/components/Step4_Availability';
 import { AddressSearch } from '@/features/create-stay/components/AddressSearch';
 
@@ -21,12 +21,11 @@ export default function CreateStayPage() {
     const urlStep = searchParams.get('step');
     if (urlStep && !isNaN(Number(urlStep))) {
       const step = Number(urlStep);
-      if (step >= 1 && step <= 4 && step !== currentStep) {
+      if (step >= 1 && step <= 4) {
         setStep(step);
       }
     }
-  }, [searchParams, setStep, currentStep]);
-
+  }, [searchParams, setStep]);
   // Sync store -> URL
   useEffect(() => {
     const currentUrlStep = searchParams.get('step');
@@ -52,9 +51,9 @@ export default function CreateStayPage() {
       case 1:
         return <Step1_StayInfo />;
       case 2:
-        return <Step2_Amenities />;
+        return <Step2_Description />;
       case 3:
-        return <Step3_Description />;
+        return <Step3_Amenities />;
       case 4:
         return <Step4_Availability />;
       default:

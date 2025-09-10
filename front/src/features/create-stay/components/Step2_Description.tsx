@@ -1,5 +1,5 @@
 'use client';
 
-export function Step3_Description() {
+export function Step2_Description() {
   return <div>숙소 소개글 작성 페이지</div>;
 }

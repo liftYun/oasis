@@ -1,6 +1,7 @@
 'use client';
 
 import type { UseFormReturn } from 'react-hook-form';
+import { useWatch } from 'react-hook-form';
 import { ACCEPTED_IMAGE_TYPES, type CreateStayInput } from '@/features/create-stay/schema';
 import { FormField } from '@/components/molecules/FormField';
 import { ImageUploader } from '@/components/molecules/ImageUploader';
@@ -30,7 +31,7 @@ export function StayForm({
     formState: { errors, isValid },
   } = form;
 
-  const titleValue = watch('title', '');
+  const titleValue = useWatch({ control: form.control, name: 'title' }) ?? '';
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col flex-grow gap-6">
@@ -80,7 +81,11 @@ export function StayForm({
         <Button
           type="submit"
           disabled={!isValid || isSubmitting}
-          className="w-full bg-gray-200 text-gray-600 font-bold hover:bg-gray-300 active:bg-gray-300 mb-10"
+          className={`w-full font-bold mb-10 ${
+            isValid && !isSubmitting
+              ? 'bg-black text-white hover:bg-black active:bg-black'
+              : 'bg-gray-200 text-gray-600 hover:bg-gray-300 active:bg-gray-300 disabled:opacity-100'
+          }`}
         >
           {isSubmitting ? '처리 중...' : '다음'}
         </Button>
