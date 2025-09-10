@@ -9,7 +9,7 @@ const getAddress = async (query: string, signal?: AbortSignal) => {
       `/api/search-address?query=${encodeURIComponent(query)}`,
       { signal }
     );
-    return data;
+    return data.filter((d) => !!d.zone_no);
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
       // AbortError는 React Query에서 자동으로 처리하므로, 그대로 throw합니다.

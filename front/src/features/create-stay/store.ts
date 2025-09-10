@@ -1,17 +1,23 @@
 import { create } from 'zustand';
 import type { CreateStayInput } from '@/features/create-stay/schema';
+import type { AmenitiesSelection } from '@/features/create-stay/constants/amenities';
 
 type CreateStayView = 'form' | 'searchAddress';
 
+type CreateStayFormData = Partial<CreateStayInput> & {
+  description?: string;
+  amenities?: AmenitiesSelection;
+};
+
 interface CreateStayState {
   currentStep: number;
-  formData: Partial<CreateStayInput>;
+  formData: CreateStayFormData;
   view: CreateStayView;
 }
 
 interface CreateStayActions {
   setStep: (step: number) => void;
-  setFormData: (data: Partial<CreateStayInput>) => void;
+  setFormData: (data: Partial<CreateStayFormData>) => void;
   setView: (view: CreateStayView) => void;
   reset: () => void;
 }

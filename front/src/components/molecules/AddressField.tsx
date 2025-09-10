@@ -32,14 +32,14 @@ export function AddressField({ register, errors, watch, onSearchClick }: Address
               placeholder="우편번호"
               readOnly
               onClick={onSearchClick}
-              className={`${readOnlyInputClassName} bg-gray-300`}
+              className={`${readOnlyInputClassName} bg-gray-200`}
             />
             <Input
               {...register('address')}
               placeholder="주소"
               readOnly
               onClick={onSearchClick}
-              className={readOnlyInputClassName}
+              className={`${readOnlyInputClassName} bg-gray-200`}
             />
           </>
         ) : (

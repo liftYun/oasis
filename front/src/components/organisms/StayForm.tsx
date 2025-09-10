@@ -7,6 +7,7 @@ import { FormField } from '@/components/molecules/FormField';
 import { ImageUploader } from '@/components/molecules/ImageUploader';
 import { Button } from '@/components/atoms/Button';
 import { AddressField } from '@/components/molecules/AddressField';
+import { PriceField } from '@/components/molecules/PriceField';
 
 interface StayFormProps {
   form: UseFormReturn<CreateStayInput>;
@@ -55,17 +56,24 @@ export function StayForm({
         onSearchClick={openAddressModal}
       />
 
-      <FormField
-        label="가격"
+      <PriceField
+        control={form.control}
+        name="price"
         registration={register('price', {
-          setValueAs: (value) => (value === '' ? undefined : Number(value)),
+          setValueAs: (raw) => {
+            if (raw === '' || raw == null) return undefined;
+            const str: string = String(raw);
+            // 09.00 -> 9 또는 9.00: 숫자 이외 제거 후 앞자리 0 제거, 소수점 2자리 보존
+            const match = str.match(/^(\d+)(?:\.(\d{1,2}))?$/);
+            if (!match) return Number(str); // 폴백
+            const intPart = match[1].replace(/^0+(\d)/, '$1');
+            const frac = match[2] ?? '';
+            const normalized = frac ? `${intPart}.${frac}` : intPart;
+            const num = Number(normalized);
+            return num;
+          },
         })}
-        id="price"
-        placeholder="$ 가격을 적어주세요."
         error={errors.price}
-        inputMode="numeric"
-        type="number"
-        step="0.01"
       />
 
       {/* ImageUploader는 hook과 연결될 예정 */}

@@ -34,11 +34,16 @@ export async function GET(request: Request) {
     }
 
     const data = await response.json();
-    const results = (data.documents ?? []).map((d: any) => ({
-      address_name: d.address_name ?? d.address?.address_name ?? '',
-      road_address_name: d.road_address?.address_name ?? '',
-      zone_no: d.road_address?.zone_no ?? '',
-    }));
+    const results = (data.documents ?? [])
+      .map((d: any) => {
+        const zoneNo = d.road_address?.zone_no ?? d.address?.zip_code ?? '';
+        return {
+          address_name: d.address_name ?? d.address?.address_name ?? '',
+          road_address_name: d.road_address?.address_name ?? '',
+          zone_no: zoneNo,
+        };
+      })
+      .filter((r: any) => !!r.zone_no);
 
     // 우리 앱의 표준 응답 형식으로 래핑
     return NextResponse.json({

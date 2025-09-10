@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { ProgressBar } from '@/components/molecules/ProgressBar';
 import { ChevronLeft } from 'lucide-react';
 import { useCreateStayStore } from '@/features/create-stay/store';
@@ -16,25 +16,33 @@ export default function CreateStayPage() {
   const searchParams = useSearchParams();
   const { currentStep, setStep, view, setView } = useCreateStayStore();
 
-  // Sync URL -> store
+  // 현재 URL의 step 파라미터만 안정적으로 추출
+  const stepParam = useMemo(() => searchParams.get('step'), [searchParams]);
+
+  // URL -> store: step 파라미터가 있을 때만, 값이 달라야 동기화
   useEffect(() => {
-    const urlStep = searchParams.get('step');
-    if (urlStep && !isNaN(Number(urlStep))) {
-      const step = Number(urlStep);
-      if (step >= 1 && step <= 4) {
+    if (stepParam && !isNaN(Number(stepParam))) {
+      const step = Number(stepParam);
+      if (step >= 1 && step <= 4 && step !== currentStep) {
         setStep(step);
       }
     }
-  }, [searchParams, setStep]);
-  // Sync store -> URL
+  }, [stepParam, currentStep, setStep]);
+
+  // store -> URL: 첫 렌더는 건너뛰고, 이후 currentStep이 바뀔 때만 동기화
+  const didMountRef = useRef(false);
   useEffect(() => {
-    const currentUrlStep = searchParams.get('step');
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+    const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    const currentUrlStep = params.get('step');
     if (currentUrlStep !== currentStep.toString()) {
-      const params = new URLSearchParams(searchParams);
       params.set('step', currentStep.toString());
       router.replace(`/create-stay?${params.toString()}`, { scroll: false });
     }
-  }, [currentStep, router, searchParams]);
+  }, [currentStep, router]);
 
   const handleBack = () => {
     if (view === 'searchAddress') {
