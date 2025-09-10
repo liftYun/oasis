@@ -17,27 +17,27 @@ export function AddressField({ register, errors, watch, onSearchClick }: Address
   const addressValue = watch('address');
 
   const readOnlyInputClassName =
-    'flex h-12 w-full cursor-pointer rounded-lg border border-gray-300 bg-white px-4 py-2 text-base placeholder:text-gray-300 placeholder:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50';
+    'flex h-12 w-full cursor-pointer items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-base placeholder:text-sm placeholder:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50';
   const editableInputClassName =
-    'flex h-12 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base placeholder:text-gray-300 placeholder:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50';
+    'flex h-12 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base placeholder:text-sm placeholder:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50';
 
   return (
     <div className="flex flex-col gap-2">
       <Label>숙소 위치</Label>
       <div className="flex flex-col gap-2">
-        {addressValue ? (
+        {postalCodeValue || addressValue ? (
           <>
             {/* 주소 선택 후 UI */}
             <Input
+              {...register('postalCode')}
               placeholder="우편번호"
-              value={postalCodeValue || ''}
               readOnly
               onClick={onSearchClick}
-              className={readOnlyInputClassName}
+              className={`${readOnlyInputClassName} bg-gray-300`}
             />
             <Input
+              {...register('address')}
               placeholder="주소"
-              value={addressValue || ''}
               readOnly
               onClick={onSearchClick}
               className={readOnlyInputClassName}
@@ -46,13 +46,12 @@ export function AddressField({ register, errors, watch, onSearchClick }: Address
         ) : (
           <>
             {/* 초기 UI */}
-            <Input
-              placeholder="주소 검색하기"
-              value=""
-              readOnly
+            <div
               onClick={onSearchClick}
-              className={readOnlyInputClassName}
-            />
+              className={`${readOnlyInputClassName} text-gray-300 text-sm`}
+            >
+              주소 검색하기
+            </div>
           </>
         )}
 

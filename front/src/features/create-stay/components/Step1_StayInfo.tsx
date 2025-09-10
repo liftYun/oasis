@@ -1,17 +1,16 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useCreateStayStore } from '@/features/create-stay/store';
 import { StayForm } from '@/components/organisms/StayForm';
 import { useCreateStayForm } from '@/features/create-stay/hooks/useCreateStayForm';
 import { useImageUploader } from '@/features/create-stay/hooks/useImageUploader';
-import { useAddressSearch } from '@/features/create-stay/hooks/useAddressSearch';
-import { AddressSearchModal } from './AddressSearchModal';
 import type { CreateStayInput } from '@/features/create-stay/schema';
 
 export function Step1_StayInfo() {
-  const { setStep, setFormData, formData } = useCreateStayStore();
+  const { setStep, setFormData, formData, setView } = useCreateStayStore();
 
-  const handleNextStep = (data: CreateStayInput) => {
+  const handleNextStep = async (data: CreateStayInput) => {
     setFormData(data);
     setStep(2);
   };
@@ -22,12 +21,22 @@ export function Step1_StayInfo() {
   });
   const { watch, setValue } = form;
 
-  const { imagePreviews, handleRemoveImage } = useImageUploader({ watch, setValue });
-  const { isModalOpen, openModal, closeModal } = useAddressSearch();
+  useEffect(() => {
+    // 주소 검색 페이지에서 돌아왔을 때, 스토어의 최신 주소 정보를 폼에 반영
+    if (formData.address) {
+      setValue('address', formData.address, { shouldValidate: true });
+    }
+    if (formData.postalCode) {
+      setValue('postalCode', formData.postalCode, { shouldValidate: true });
+    }
+  }, [formData.address, formData.postalCode, setValue]);
 
-  const handleSelectAddress = (address: { address: string; postalCode: string }) => {
-    setValue('address', address.address, { shouldValidate: true });
-    setValue('postalCode', address.postalCode, { shouldValidate: true });
+  const { imagePreviews, handleRemoveImage } = useImageUploader({ watch, setValue });
+
+  const handleSearchAddress = () => {
+    // 현재 폼 데이터를 스토어에 저장하고 뷰 전환
+    setFormData(watch());
+    setView('searchAddress');
   };
 
   return (
@@ -36,12 +45,11 @@ export function Step1_StayInfo() {
       <StayForm
         form={form}
         handleSubmit={handleSubmit}
-        openAddressModal={openModal}
+        openAddressModal={handleSearchAddress}
         imagePreviews={imagePreviews}
         onRemoveImage={handleRemoveImage}
         isSubmitting={form.formState.isSubmitting}
       />
-      {isModalOpen && <AddressSearchModal onClose={closeModal} onSelect={handleSelectAddress} />}
     </>
   );
 }

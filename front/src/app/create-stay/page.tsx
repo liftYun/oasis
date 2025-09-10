@@ -7,13 +7,17 @@ import { useCreateStayStore } from '@/features/create-stay/store';
 import { Step1_StayInfo } from '@/features/create-stay/components/Step1_StayInfo';
 import { Step2_Amenities } from '@/features/create-stay/components/Step2_Amenities';
 import { Step3_Description } from '@/features/create-stay/components/Step3_Description';
+import { Step4_Availability } from '@/features/create-stay/components/Step4_Availability';
+import { AddressSearch } from '@/features/create-stay/components/AddressSearch';
 
 export default function CreateStayPage() {
   const router = useRouter();
-  const { currentStep, setStep } = useCreateStayStore();
+  const { currentStep, setStep, view, setView } = useCreateStayStore();
 
   const handleBack = () => {
-    if (currentStep > 1) {
+    if (view === 'searchAddress') {
+      setView('form');
+    } else if (currentStep > 1) {
       setStep(currentStep - 1);
     } else {
       router.back();
@@ -28,6 +32,8 @@ export default function CreateStayPage() {
         return <Step2_Amenities />;
       case 3:
         return <Step3_Description />;
+      case 4:
+        return <Step4_Availability />;
       default:
         return <Step1_StayInfo />;
     }
@@ -35,19 +41,28 @@ export default function CreateStayPage() {
 
   return (
     <main className="flex flex-col flex-1 bg-white my-5">
-      <header className="relative flex items-center justify-center h-12 mb-8">
-        <div className="flex flex-col w-full">
-          <div className="mb-4 ms-0">
-            <button type="button" onClick={handleBack}>
+      <header className="mb-8">
+        {view === 'form' ? (
+          <div>
+            <div className="flex h-12 items-center">
+              <button type="button" onClick={handleBack}>
+                <ChevronLeft />
+              </button>
+            </div>
+            <ProgressBar totalSteps={4} currentStep={currentStep} className="mt-2" />
+          </div>
+        ) : (
+          <div className="relative flex h-12 items-center justify-center">
+            <button type="button" onClick={handleBack} className="absolute left-0">
               <ChevronLeft />
             </button>
+            <h1 className="text-lg font-bold">주소 찾기</h1>
           </div>
-          <div>
-            <ProgressBar totalSteps={4} currentStep={currentStep} />
-          </div>
-        </div>
+        )}
       </header>
-      <div className="flex flex-col flex-grow">{renderStep()}</div>
+      <div className="flex flex-col flex-grow">
+        {view === 'form' ? renderStep() : <AddressSearch />}
+      </div>
     </main>
   );
 }
