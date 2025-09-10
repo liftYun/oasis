@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.Getter;
+import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.valueobject.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -67,12 +68,13 @@ public class JWTUtil {
         }
     }
 
-    public String createAccessToken(String uuid, String profileUrl, String nickname, Role role) {
+    public String createAccessToken(String uuid, String profileUrl, String nickname, Role role, Language language) {
         return Jwts.builder()
                 .claim("uuid", uuid)
                 .claim("profileUrl", profileUrl)
                 .claim("nickname", nickname)
                 .claim("role", role)
+                .claim(("language"), language)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + accessExpiredMs))
                 .signWith(secretKey)

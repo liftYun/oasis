@@ -152,7 +152,8 @@ public class JWTController {
                     updated.getUserUuid(),
                     updated.getProfileUrl(),
                     updated.getNickname(),
-                    updated.getRole()
+                    updated.getRole(),
+                    updated.getLanguage()
             );
             response.addHeader("Authorization", "Bearer " + newAccess);
 
