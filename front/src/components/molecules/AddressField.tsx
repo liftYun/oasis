@@ -49,9 +49,18 @@ export function AddressField({ register, errors, watch, onSearchClick }: Address
             <div
               onClick={onSearchClick}
               className={`${readOnlyInputClassName} text-gray-300 text-sm`}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSearchClick();
+                }
+              }}
+              aria-label="주소 검색하기"
             >
               주소 검색하기
-            </div>
+            </div>{' '}
           </>
         )}
 

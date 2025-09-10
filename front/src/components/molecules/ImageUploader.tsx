@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Label } from '@/components/atoms/label';
 import cameraIcon from '@/assets/icons/camera.png';
 import type { UseFormRegisterReturn } from 'react-hook-form';
-import { Button } from '../atoms/button';
+import { Button } from '@/components/atoms/Button';
 import { X } from 'lucide-react';
 
 interface ImageUploaderProps {

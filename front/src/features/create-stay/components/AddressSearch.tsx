@@ -4,42 +4,23 @@ import { useState } from 'react';
 import { Input } from '@/components/atoms/input';
 import { Button } from '@/components/atoms/Button';
 import type { AddressSearchResult } from '@/features/create-stay/types';
-import { http } from '@/apis/httpClient';
-import { ApiError } from '@/apis/httpClient';
 import { useCreateStayStore } from '@/features/create-stay/store';
+import { useAddressSearchQuery } from '../hooks/useAddressSearchQuery';
 
 export function AddressSearch() {
   const { setFormData, setView } = useCreateStayStore();
 
   const [keyword, setKeyword] = useState('');
-  const [results, setResults] = useState<AddressSearchResult[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [submittedKeyword, setSubmittedKeyword] = useState('');
 
-  const handleSearch = async () => {
+  const { addresses, isLoading, isError, error } = useAddressSearchQuery(submittedKeyword);
+
+  const handleSearch = () => {
     if (!keyword.trim()) {
       alert('검색어를 입력해주세요.');
       return;
     }
-
-    setIsLoading(true);
-    setError(null);
-    setResults([]);
-
-    try {
-      const data = await http.get<AddressSearchResult[]>(`/api/search-address?query=${keyword}`);
-      if (data.length === 0) {
-        setError('검색 결과가 없습니다.');
-      } else {
-        setResults(data);
-      }
-    } catch (err) {
-      const message =
-        err instanceof ApiError || err instanceof Error ? err.message : '알 수 없는 오류';
-      setError(message);
-    } finally {
-      setIsLoading(false);
-    }
+    setSubmittedKeyword(keyword);
   };
 
   const handleSelectAddress = (result: AddressSearchResult) => {
@@ -66,11 +47,15 @@ export function AddressSearch() {
         </Button>
       </div>
 
-      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+      {isError && (
+        <p className="text-red-500 text-sm mb-4">
+          {(error as Error)?.message || '주소를 검색하는 데 실패했습니다.'}
+        </p>
+      )}
 
       <div className="flex-grow overflow-y-auto">
-        {results.length > 0
-          ? results.map((result, index) => (
+        {addresses && addresses.length > 0
+          ? addresses.map((result, index) => (
               <div
                 key={index}
                 className="py-3 px-1 cursor-pointer hover:bg-gray-100 rounded border-b"
@@ -81,14 +66,20 @@ export function AddressSearch() {
               </div>
             ))
           : !isLoading &&
-            !error && (
+            !isError && (
               <div className="text-sm text-gray-500 pt-4">
-                <p className="font-bold mb-2">주소 입력 예시</p>
-                <ul>
-                  <li>도로명 + 건물 번호: 서초대로38길 12</li>
-                  <li>동/읍/면/리 + 번지: 서초동 1498-5</li>
-                  <li>건물명, 아파트명: 서초동 마제스타시티</li>
-                </ul>
+                {submittedKeyword ? (
+                  <p>검색 결과가 없습니다.</p>
+                ) : (
+                  <>
+                    <p className="font-bold mb-2">주소 입력 예시</p>
+                    <ul>
+                      <li>도로명 + 건물 번호: 서초대로38길 12</li>
+                      <li>동/읍/면/리 + 번지: 서초동 1498-5</li>
+                      <li>건물명, 아파트명: 서초동 마제스타시티</li>
+                    </ul>
+                  </>
+                )}
               </div>
             )}
       </div>
