@@ -57,18 +57,6 @@ public class SqsAsyncListener {
     }
 
     private void processMessage(Message message) {
-        // 어떤 메세지인지 구분이 필요
-        // 타입이랑 데이터로 구분 필요
-
-        /*
-        {
-          "type": "message_type",
-          "data": {
-            "key1": "value1",
-            "key2": "value2"
-          }
-        }
-        */
 
         try {
             StayRequestDto request = objectMapper.readValue(message.body(), StayRequestDto.class);
