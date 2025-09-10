@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class  ChatCompletionResponse {
+public class ChatCompletionResponseDto {
     private List<Choice> choices;
 
     @Getter @NoArgsConstructor

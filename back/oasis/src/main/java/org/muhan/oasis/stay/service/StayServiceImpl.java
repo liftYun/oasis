@@ -3,14 +3,13 @@ package org.muhan.oasis.stay.service;
 import lombok.RequiredArgsConstructor;
 import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.common.exception.BaseException;
-import org.muhan.oasis.openAI.dto.in.AddrRequestDTO;
-import org.muhan.oasis.openAI.dto.in.StayRequestDTO;
-import org.muhan.oasis.openAI.dto.out.AddrTranslationResult;
-import org.muhan.oasis.openAI.dto.out.StayTranslationResult;
+import org.muhan.oasis.openAI.dto.in.AddrRequestDto;
+import org.muhan.oasis.openAI.dto.in.StayRequestDto;
+import org.muhan.oasis.openAI.dto.out.StayTranslationResultDto;
 import org.muhan.oasis.openAI.service.OpenAIService;
 import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.stay.dto.in.CreateStayRequestDto;
-import org.muhan.oasis.stay.dto.out.StayCreateResponseDto;
+import org.muhan.oasis.stay.dto.out.StayResponseDto;
 import org.muhan.oasis.stay.dto.out.StayReadResponseDto;
 import org.muhan.oasis.stay.entity.*;
 import org.muhan.oasis.stay.repository.*;
@@ -45,15 +44,15 @@ public class StayServiceImpl implements StayService{
 
     @Override
     @Transactional
-    public StayCreateResponseDto registStay(CreateStayRequestDto stayRequest, Long userId) {
+    public StayResponseDto registStay(CreateStayRequestDto stayRequest, Long userId) {
 
         UserEntity user = userRepository.findByUserId(userId).orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
 
         // 영어 번역하기 or 한국어 번역하기
-        StayTranslationResult translation = openAIService.getTranslatedStay(new StayRequestDTO(stayRequest.getTitle(), stayRequest.getDescription()));
+        StayTranslationResultDto translation = openAIService.getTranslatedStay(new StayRequestDto(stayRequest.getTitle(), stayRequest.getDescription()));
 
         // 상세 주소
-        AddrTranslationResult addrDetail = openAIService.getTranslatedAddr(new AddrRequestDTO(stayRequest.getAddressDetail()));
+        AddrTranslationResultDto addrDetail = openAIService.getTranslatedAddr(new AddrRequestDto(stayRequest.getAddressDetail()));
 
         // subRegion 찾기
         Long subRegionId = stayRequest.getSubRegionId();
@@ -155,7 +154,7 @@ public class StayServiceImpl implements StayService{
 
         stay.addPhotos(photoList);
 
-        return StayCreateResponseDto.builder()
+        return StayResponseDto.builder()
                 .stayId(stay.getId()).build();
     }
 
@@ -165,6 +164,11 @@ public class StayServiceImpl implements StayService{
         StayEntity stay = stayRepository.findDetailForRead(stayId).orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY));
         List<StayFacilityEntity> facilities = stayFacilityRepository.findWithFacilityByStayId(stayId);
         return StayReadResponseDto.from(stay, facilities, language);
+    }
+
+    @Override
+    public StayResponseDto updateStay(Long stayId) {
+        return null;
     }
 
 

@@ -8,9 +8,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AddrRequestDTO {
+public class AddrRequestDto {
 
     private String detailAddress;
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
 }

@@ -10,12 +10,12 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OpenAiRequest {
+public class OpenAiRequestDto {
 
     private String model;
     private List<OpenAIMessageEntity> messages;
 
-    public OpenAiRequest(String model, List<OpenAIMessageEntity> messages) {
+    public OpenAiRequestDto(String model, List<OpenAIMessageEntity> messages) {
         this.model = model;
         this.messages = messages;
     }

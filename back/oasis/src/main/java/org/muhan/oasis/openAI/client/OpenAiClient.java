@@ -4,12 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.common.exception.BaseException;
 import org.muhan.oasis.openAI.domain.OpenAIMessageEntity;
 import org.muhan.oasis.openAI.dto.in.*;
 import org.muhan.oasis.openAI.dto.out.*;
+import org.muhan.oasis.valueobject.Language;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -28,136 +28,118 @@ public class OpenAiClient {
     @Value("${openai.chat-model}")
     private String model;
 
-    // ---- Tunables ----
-    private static final double TEMP_LOW = 0.1;
-
     // ---- System Prompts (as constants) ----
-    private static final String PROMPT_TRANSLATE_STAY = """
-            You are a strict KO↔EN detection and translation engine for a lodging platform.
+    private static final String PROMPT_TRANSLATE_STAY_TO_ENG = """
+            You are a KO→EN translator for a lodging platform.
 
-            Your tasks:
-            1) Detect the dominant language of the concatenated input fields (title + content).
-            2) Decide whether translation is required per policy.
-            3) If required, translate.
-            4) Return a SINGLE valid JSON object in the exact schema below—no extra text, no markdown, no comments.
+            Translate the following input fields to English and return ONE valid JSON object only:
 
-            Policy:
-            - detectedLocale: "ko" if Korean is clearly dominant, "en" if English is clearly dominant, otherwise "unknown".
-              * Proper nouns, numbers, URLs, and a few foreign words do NOT flip dominance.
-            - confidence: a float in [0,1], e.g., 0.92, reflecting your certainty of detectedLocale.
-            - Translation rule:
-              * If detectedLocale == "ko" → translate to English.
-              * If detectedLocale == "en" → translate to Korean.
-              * If detectedLocale == "unknown" or any input is empty → do NOT translate.
-            - wasTranslated:
-              * true only when detectedLocale ∈ {"ko","en"} and you produced the opposite-locale translation.
-              * false otherwise.
-            - targetLocale:
-              * "en" if detectedLocale == "ko"
-              * "ko" if detectedLocale == "en"
-              * null if detectedLocale == "unknown" or no translation performed.
-
-            Result mapping:
-            - If wasTranslated = true:
-              * englishVersion.title/content MUST be the English text
-                - If source was English, keep the original English (not rephrased).
-                - If source was Korean, provide the English translation.
-              * koreanVersion.title/content MUST be the Korean text
-                - If source was Korean, keep the original Korean (not rephrased).
-                - If source was English, provide the Korean translation.
-            - If wasTranslated = false:
-              * englishVersion.title/content = null
-              * koreanVersion.title/content = null
-
-            Quality rules:
-            - Preserve meaning, tone, formatting, and line breaks.
-            - Keep numbers, prices, dates, units, emojis, and line breaks intact.
-            - Do NOT add or remove information. Do NOT summarize. Do NOT localize brand names.
-            - Keep punctuation natural for the target language.
-
-            STRICT output contract:
-            Return exactly this JSON shape and nothing else, with fields in this order and no trailing commas:
             {
-              "detectedLocale": "ko" | "en" | "unknown",
-              "confidence": number,
-              "wasTranslated": boolean,
-              "targetLocale": "ko" | "en" | null,
-              "englishVersion": {
-                "title": string | null,
-                "content": string | null
-              },
-              "koreanVersion": {
-                "title": string | null,
-                "content": string | null
-              }
+              "detailAddress": string, // English (building/wing/floor/unit only)
+              "title": string,         // English
+              "content": string        // English
             }
 
-            Formatting rules:
-            - Output MUST be valid JSON only (no prose, no code fences, no comments).
-            - Escape special characters properly; preserve line breaks with "\\n".
-            - If any input field is missing, treat it as an empty string; still return the object.
-            - When inputs are empty or detectedLocale is "unknown", set wasTranslated=false, targetLocale=null, and both englishVersion/koreanVersion fields to null.
+            Rules (General for title/content):
+            - Do NOT perform language detection.
+            - Preserve meaning, tone, formatting, and line breaks.
+            - Keep numbers, prices, dates, units, emojis, and URLs as-is.
+            - Do not add or remove information. Do not summarize. Do not localize brand names.
+            - If a field is missing or empty, return an empty string "" for that field.
+
+            Rules (detailAddress: KO → EN component mapping ONLY; not a postal address):
+            - Input contains ONLY internal components: building wing/tower, floor, unit (e.g., “A동 101호”).
+            - “{X}동” → “Bldg {X}”  (e.g., “101동”→“Bldg 101”, “A동”→“Bldg A”)
+            - “{n}층” → “{n}F”;  “지하{n}층” → “B{n}F”
+            - “{n}호”, “호수 {n}” → “Unit {n}” (preserve hyphens: “1203-1호”→“Unit 1203-1”)
+            - Segment order & separators: “Bldg …, {Floor if any}, Unit …” with comma+space.
+            - Preserve all numbers/letters/dashes exactly (e.g., “A-2동”, “1203-1호”).
+            - If only one component exists (e.g., “A동” or “#804”), convert only that part.
+            - If an unrecognized token appears, keep it as-is and still convert recognized parts.
+            - ASCII for EN output. Do NOT add street/city/zip. This is NOT postal formatting.
+
+            Output constraints:
+            - Output JSON only (no prose, no code fences, no comments).
+            - Escape special characters properly; preserve line breaks with "\\\\n".
+            
+            Do not omit any keys; always return all three keys and use an empty string "" for missing fields.
+                                             
+           """;
+
+    private static final String PROMPT_TRANSLATE_STAY_TO_KOR = """
+            You are an EN→KO translator for a lodging platform.
+             
+             Translate the following input fields to Korean and return ONE valid JSON object only (no extra text, no code fences, no comments). Do not perform language detection.
+             
+             Return exactly these three keys (never omit keys):
+             {
+               "detailAddress": string,  // Korean
+               "title": string,          // Korean
+               "content": string         // Korean
+             }
+             
+             General rules (title/content):
+             - Preserve meaning, tone, formatting, and line breaks (use "\\n").
+             - Keep numbers, prices, dates, units, emojis, and URLs as-is.
+             - Do not add or remove information. Do not summarize.
+             - If a field is missing or empty, return an empty string "" for that field.
+             
+             Detail address rules (component conversion only; NOT postal formatting):
+             - Input contains ONLY internal components: building wing/tower, floor, unit (e.g., "Bldg A, 3F, Unit 101").
+             - “Building”, “Bldg”, “Bldg.” → “{…}동”  (e.g., “Bldg 3”→“3동”, “Building A-2”→“A-2동”)
+             - “{n}F” → “{n}층”;   “B{n}F” → “지하{n}층”
+             - “Unit {n}”, “Apt {n}”, “Room {n}”, “#{n}” → “{n}호” (drop leading “#”)
+             - Output order & separators: “{동?} {층?} {호?}” with single spaces, no commas.
+             - Preserve all numbers/letters/dashes exactly (e.g., “A-2”, “1203-1”).
+             - If only one component exists (e.g., “Unit 804” or “B2F”), convert only that part.
+             - Do NOT add street/city/zip.
+             
+            Output constraints:
+             - Output JSON only (no prose, no code fences, no comments).
+             - Escape special characters properly; preserve line breaks with "\\\\n".
+             
+             Do not omit any keys; always return all three keys and use an empty string "" for missing fields.
+                                                                                       
+           """;
+
+    private static final String PROMPT_TRANSLATE_REVIEW_TO_ENG = """
+            You are a KO→EN translator for user reviews in a lodging platform.
+                        
+            Translate the input field "content" from Korean to English.
+            Return ONE valid JSON object only:
+                        
+            {
+              "content": string  // English
+            }
+                        
+            Rules:
+            - Do NOT perform language detection.
+            - Preserve meaning, tone, formatting, and line breaks.
+            - Keep numbers, prices, dates, units, emojis, and URLs as-is.
+            - Do not add or remove information. Do not summarize.
+            - If the input is missing or empty, return {"content": ""}.
+            - Output JSON only (no code fences, no comments).
+                        
             """;
 
-    private static final String PROMPT_TRANSLATE_REVIEW = """
-            You are a strict KO↔EN detection and translation engine for user reviews in a lodging platform.
-
-            Your tasks:
-            1) Detect the dominant language of the input "content".
-            2) Decide whether translation is required per policy.
-            3) If required, translate.
-            4) Return a SINGLE valid JSON object in the exact schema below—no extra text, no markdown, no comments.
-
-            Policy:
-            - detectedLocale: "ko" if Korean is clearly dominant, "en" if English is clearly dominant, otherwise "unknown".
-              * Proper nouns, numbers, URLs, or a few foreign words do NOT flip dominance.
-            - confidence: a float in [0,1], e.g., 0.92, reflecting your certainty of detectedLocale.
-            - Translation rule:
-              * If detectedLocale == "ko" → targetLocale = "en" and produce English translation.
-              * If detectedLocale == "en" → targetLocale = "ko" and produce Korean translation.
-              * If detectedLocale == "unknown" or input is empty → do NOT translate.
-            - wasTranslated:
-              * true only when detectedLocale ∈ {"ko","en"} AND you produced the opposite-locale translation.
-              * false otherwise.
-
-            Result mapping:
-            - If wasTranslated = true:
-              * englishVersion.content MUST be English.
-                - If source was English, keep the original English (no rephrasing).
-                - If source was Korean, provide the English translation.
-              * koreanVersion.content MUST be Korean.
-                - If source was Korean, keep the original Korean (no rephrasing).
-                - If source was English, provide the Korean translation.
-            - If wasTranslated = false:
-              * englishVersion.content = null
-              * koreanVersion.content = null
-              * targetLocale = null
-
-            Quality rules:
-            - Preserve meaning, tone, formatting, and line breaks.
-            - Keep numbers, prices, dates, units, emojis, and line breaks intact.
-            - Do NOT add or remove information. Do NOT summarize. Do NOT localize brand names.
-            - Keep punctuation natural for the target language.
-
-            STRICT output contract:
-            Return exactly this JSON shape and nothing else, with fields in this order and no trailing commas:
+    private static final String PROMPT_TRANSLATE_REVIEW_TO_KOR = """
+            You are an EN→KO translator for user reviews in a lodging platform.
+                        
+            Translate the input field "content" from English to Korean.
+            Return ONE valid JSON object only:
+                        
             {
-              "detectedLocale": "ko" | "en" | "unknown",
-              "confidence": number,
-              "wasTranslated": boolean,
-              "targetLocale": "ko" | "en" | null,
-              "englishVersion": {
-                "content": string | null
-              },
-              "koreanVersion": {
-                "content": string | null
-              }
+              "content": string  // Korean
             }
+                        
+            Rules:
+            - Do NOT perform language detection.
+            - Preserve meaning, tone, formatting, and line breaks.
+            - Keep numbers, prices, dates, units, emojis, URLs as-is.
+            - Do not add or remove information. Do not summarize.
+            - If the input is missing or empty, return {"content": ""}.
+            - Output JSON only (no code fences, no comments).
 
-            Formatting rules:
-            - Output MUST be valid JSON only (no prose, no code fences, no comments).
-            - Escape special characters properly; preserve line breaks with "\\n".
-            - If input is missing or empty, still return the object, set wasTranslated=false, targetLocale=null, and both contents to null.
             """;
 
     private static final String PROMPT_SUMMARIZE_REVIEWS = """
@@ -213,119 +195,63 @@ public class OpenAiClient {
             - If the input array is empty, set all counts to 0, wasDeduplicated=false, and return empty strings for both summaries and empty arrays for bullets.
             """;
 
-    private static final String PROMPT_TRANSLATE_ADDR = """
-            You are a KO↔EN converter for DETAIL ADDRESSES inside a building/complex (e.g., “A동 101호”).\s
-            This field is NOT a street/city/zip; it only contains building wing/tower, floor, and unit numbers.
-                        
-            Your tasks:
-            1) Detect the dominant language of the input "detailAddress". ("ko", "en", or "unknown")
-            2) If detectedLocale is "ko", produce the EN version. If "en", produce the KO version. If "unknown" or empty, do NOT translate.
-            3) Return ONE valid JSON object in the exact schema below—no extra text, no markdown, no comments.
-                        
-            Mapping rules (KO → EN):
-            - “{X}동” → “Bldg {X}” (keep letters/numbers as is; e.g., “101동”→“Bldg 101”, “A동”→“Bldg A”)
-            - “{n}층” → “{n}F” (e.g., “3층”→“3F”)
-            - “지하{n}층” → “B{n}F” (e.g., “지하1층”→“B1F”)
-            - “{n}호”, “호수 {n}” → “Unit {n}” (keep hyphens as is, e.g., “1203-1호”→“Unit 1203-1”)
-            - Order and separators: “Bldg …, {Floor if any}, Unit …” with comma+space between segments.
-                        
-            Mapping rules (EN → KO):
-            - “Building”, “Bldg”, “Bldg.” → “{…}동” (keep letters/numbers after it; e.g., “Bldg 3”→“3동”)
-            - “{n}F” → “{n}층”; “B{n}F” → “지하{n}층”
-            - “Unit {n}”, “Apt {n}”, “Room {n}”, “#{n}” → “{n}호” (strip leading “#”)
-            - Order and separators: “{동?} {층?} {호?}” with single spaces (no commas).
-                        
-            General rules:
-            - Preserve all numbers/letters/dashes exactly (e.g., “A-2동”, “1203-1호”).
-            - Do NOT add street/city names; do NOT guess missing parts.
-            - If only one component is present (e.g., just “A동” or “#804”), translate only that part.
-            - If unrecognized tokens appear, leave them as-is but still translate recognized parts.
-            - Keep ASCII for EN output; keep standard Korean for KO output.
-            - This is NOT a postal address formatter—just component translation + minimal reordering as specified.
-                        
-            STRICT output contract (field order must match; no trailing commas):
-            {
-              "detectedLocale": "ko" | "en" | "unknown",
-              "confidence": number,
-              "wasTranslated": boolean,
-              "targetLocale": "ko" | "en" | null,
-              "englishVersion": {
-                "detailAddress": string | null
-              },
-              "koreanVersion": {
-                "detailAddress": string | null
-              }
-            }
-                        
-            Formatting rules:
-            - Output MUST be valid JSON only (no prose, no code fences, no comments).
-            - Escape special characters properly.
-            - If input is empty or detectedLocale is "unknown": set wasTranslated=false, targetLocale=null, and both englishVersion/koreanVersion.detailAddress=null.
-                        
-            """;
 
-    // ---- Public Facade Methods ----
+    public StayTranslationResultDto translateStay(StayRequestDto dto) throws JsonProcessingException {
+        String prompt = null;
+        if(dto.getLanguage().equals(Language.KOR)) prompt = PROMPT_TRANSLATE_STAY_TO_ENG;
+        else prompt = PROMPT_TRANSLATE_STAY_TO_KOR;
 
-    public StayTranslationResult translateStay(StayRequestDTO dto) throws JsonProcessingException {
-        OpenAiRequest req = buildRequest(PROMPT_TRANSLATE_STAY, dto);
-        return sendForSchema(req, StayTranslationResult.class);
+        OpenAiRequestDto req = buildRequest(prompt, dto);
+        return sendForSchema(req, StayTranslationResultDto.class);
     }
 
-    public ReviewTranslationResult translateReview(ReviewRequestDTO dto) throws JsonProcessingException {
-        OpenAiRequest req = buildRequest(PROMPT_TRANSLATE_REVIEW, dto);
-        return sendForSchema(req, ReviewTranslationResult.class);
+    public ReviewTranslationResultDto translateReview(ReviewRequestDto dto) throws JsonProcessingException {
+        String prompt = null;
+        if(dto.getLanguage().equals(Language.KOR)) prompt = PROMPT_TRANSLATE_REVIEW_TO_ENG;
+        else prompt = PROMPT_TRANSLATE_REVIEW_TO_KOR;
+
+        OpenAiRequestDto req = buildRequest(prompt, dto);
+        return sendForSchema(req, ReviewTranslationResultDto.class);
     }
 
-    public ReviewSummaryResult summarizeReviews(ReviewListRequestDTO dto) throws JsonProcessingException {
-        OpenAiRequest req = buildRequest(PROMPT_SUMMARIZE_REVIEWS, dto);
-        return sendForSchema(req, ReviewSummaryResult.class);
+    public ReviewSummaryResultDto summarizeReviews(ReviewListRequestDto dto) throws JsonProcessingException {
+        OpenAiRequestDto req = buildRequest(PROMPT_SUMMARIZE_REVIEWS, dto);
+        return sendForSchema(req, ReviewSummaryResultDto.class);
     }
-
-    public AddrTranslationResult translateAddr(AddrRequestDTO dto) throws JsonProcessingException {
-        OpenAiRequest req = buildRequest(PROMPT_TRANSLATE_ADDR, dto.toString());
-        return sendForSchema(req, AddrTranslationResult.class);
-    }
-
 
     // ---- Private Helpers ----
 
     /** 공통 OpenAI 요청 생성 */
-    private OpenAiRequest buildRequest(String systemPrompt, Object userPayload) {
+    private OpenAiRequestDto buildRequest(String systemPrompt, Object userPayload) {
         OpenAIMessageEntity systemMessage = new OpenAIMessageEntity("system", systemPrompt);
         String userJson = toJson(userPayload);
         OpenAIMessageEntity userMessage   = new OpenAIMessageEntity("user", userJson);
-        return new OpenAiRequest(model, java.util.List.of(systemMessage, userMessage));
+        return new OpenAiRequestDto(model, java.util.List.of(systemMessage, userMessage));
     }
 
-    private static final ObjectMapper MAPPER = new ObjectMapper()
-            .findAndRegisterModules()
-            .setSerializationInclusion(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL);
-
     private String toJson(Object payload) {
-        if (payload == null) {
-            throw new BaseException(BaseResponseStatus.INVALID_PARAMETER);
-        }
         try {
             return MAPPER.writeValueAsString(payload);
-        } catch (JsonProcessingException e) {
-            throw new BaseException(BaseResponseStatus.SERIALIZATION_FAIL);
-         }
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            throw new IllegalArgumentException("에러");
+        }
     }
 
     /** 공통 POST & 에러 처리 */
+    private final ObjectMapper MAPPER = new ObjectMapper();
 
-    private <T> T sendForSchema(OpenAiRequest request, Class<T> targetType) throws JsonProcessingException {
-        ResponseEntity<ChatCompletionResponse> resp =
-                restTemplate.postForEntity(apiUrl, request, ChatCompletionResponse.class);
+    private <T> T sendForSchema(OpenAiRequestDto request, Class<T> targetType) throws JsonProcessingException {
+        ResponseEntity<ChatCompletionResponseDto> resp =
+                restTemplate.postForEntity(apiUrl, request, ChatCompletionResponseDto.class);
 
-        ChatCompletionResponse body = requireOk(resp);
+        ChatCompletionResponseDto body = requireOk(resp);
 
         var first = (body.getChoices() != null && !body.getChoices().isEmpty())
                 ? body.getChoices().get(0) : null;
         String content = (first != null && first.getMessage() != null)
                 ? first.getMessage().getContent() : null;
         if (content == null || content.isBlank()) {
-            throw new BaseException(BaseResponseStatus.FAIL_OPENAI_COMMUNICATION);
+            throw new IllegalStateException("Empty completion content");
         }
 
         String json = normalizeContent(content);
@@ -334,9 +260,9 @@ public class OpenAiClient {
         return parsed;
     }
 
-    private ChatCompletionResponse requireOk(ResponseEntity<ChatCompletionResponse> resp) {
+    private ChatCompletionResponseDto requireOk(ResponseEntity<ChatCompletionResponseDto> resp) {
         if (!resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null) {
-            throw new BaseException(BaseResponseStatus.FAIL_OPENAI_COMMUNICATION);
+            throw new RuntimeException("OpenAI API 호출 실패: status=" + resp.getStatusCode());
         }
         return resp.getBody();
     }
