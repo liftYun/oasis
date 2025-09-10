@@ -2,10 +2,10 @@
 
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lang } from '@/types';
 import Marker from '@/assets/icons/marker.png';
 import Calendar from '@/assets/icons/calender.png';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useLanguage } from '@/features/language';
 
 interface Props {
   activeTab: 'region' | 'date';
@@ -13,25 +13,14 @@ interface Props {
   selectedRegion?: string | null;
 }
 
-function normalizeLang(v: unknown): Lang {
-  return v === 'eng' ? 'eng' : 'kor';
-}
-
 export function SearchTabs({ activeTab, onTabChange, selectedRegion }: Props) {
-  const [lang, setLang] = useState<Lang>('kor');
+  const { lang } = useLanguage(); // ✅ useLanguage 훅으로 교체
   const [showTooltip, setShowTooltip] = useState(false);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const raw = localStorage.getItem('app_lang');
-      setLang(normalizeLang(raw));
-    }
-  }, []);
-
-  const labels: Record<Lang, { region: string; date: string; needRegion: string }> = {
+  const labels = {
     kor: { region: '지역', date: '날짜', needRegion: '지역을 선택해주세요.' },
     eng: { region: 'Region', date: 'Date', needRegion: 'Please select a region.' },
-  };
+  } as const;
 
   const tabs = [
     { key: 'region' as const, label: labels[lang].region, icon: Marker },

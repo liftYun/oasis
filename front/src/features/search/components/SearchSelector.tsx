@@ -1,12 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Lang } from '@/types';
 import { cityLabels, regionLabels } from '@/features/search';
-
-function normalizeLang(v: unknown): Lang {
-  return v === 'eng' ? 'eng' : 'kor';
-}
+import { useLanguage } from '@/features/language';
 
 interface Props {
   selectedCity: string | null;
@@ -21,15 +18,8 @@ export function SearchSelector({
   selectedRegion,
   onSelectRegion,
 }: Props) {
-  const [lang, setLang] = useState<Lang>('kor');
+  const { lang } = useLanguage();
   const [tab, setTab] = useState<'city' | 'region'>('city');
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const raw = localStorage.getItem('app_lang');
-      setLang(normalizeLang(raw));
-    }
-  }, []);
 
   const tabLabels: Record<Lang, { city: string; region: string }> = {
     kor: { city: '도시', region: '지역' },

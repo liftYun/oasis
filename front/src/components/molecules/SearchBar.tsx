@@ -1,15 +1,10 @@
-import { useEffect, useState } from 'react';
 import { Search } from 'lucide-react';
+import { useLanguage } from '@/features/language';
 
 export default function SearchBar() {
-  const [lang, setLang] = useState('ko');
+  const { lang } = useLanguage();
 
-  useEffect(() => {
-    const storedLang = localStorage.getItem('app_lang');
-    if (storedLang) setLang(storedLang);
-  }, []);
-
-  const placeholders: Record<string, string> = {
+  const placeholders: Record<'kor' | 'eng', string> = {
     kor: '검색을 시작해보세요!',
     eng: 'Start searching!',
   };
@@ -19,7 +14,7 @@ export default function SearchBar() {
       <Search className="w-4 h-8 text-gray-500" />
       <input
         type="text"
-        placeholder={placeholders[lang] || placeholders['en']}
+        placeholder={placeholders[lang]}
         className="ml-4 w-full bg-transparent outline-none text-sm text-gray-600 placeholder-gray-500"
       />
     </div>
