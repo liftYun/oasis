@@ -39,7 +39,7 @@ export function Step2_Description() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col flex-1 gap-4">
       <h1 className="text-xl font-bold">숙소 소개글을 작성해주세요.</h1>
 
       <div className="bg-primary/10 text-primary text-xs p-2 me-auto mb-6 rounded-md">

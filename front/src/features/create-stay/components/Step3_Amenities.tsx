@@ -57,7 +57,7 @@ export function Step3_Amenities() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col flex-1 gap-6">
       <div>
         <h1 className="text-xl font-bold mb-1">숙소 편의시설을 선택해주세요.</h1>
         <p className="text-gray-400 text-sm">카테고리 별로 확인해주세요!</p>
