@@ -14,13 +14,32 @@ import { AddressSearch } from '@/features/create-stay/components/AddressSearch';
 export default function CreateStayPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { currentStep, setStep, view, setView } = useCreateStayStore();
+  const { currentStep, setStep, view, setView, reset } = useCreateStayStore();
 
   // 현재 URL의 step 파라미터만 안정적으로 추출
   const stepParam = useMemo(() => searchParams.get('step'), [searchParams]);
 
+  // 새로고침 여부 저장용 ref
+  const isReloadRef = useRef(false);
+
+  // 새로고침 감지 시: 상태 초기화 및 첫 단계로 강제 이동
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const entries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+    const isReload =
+      entries?.[0]?.type === 'reload' ||
+      // @ts-expect-error Legacy fallback
+      (performance.navigation && performance.navigation.type === 1);
+    if (isReload) {
+      isReloadRef.current = true;
+      reset();
+      router.replace('/create-stay?step=1', { scroll: false });
+    }
+  }, [reset, router]);
+
   // URL -> store: step 파라미터가 있을 때만, 값이 달라야 동기화
   useEffect(() => {
+    if (isReloadRef.current) return; // 새로고침 시 URL 파라미터 무시
     if (stepParam && !isNaN(Number(stepParam))) {
       const step = Number(stepParam);
       if (step >= 1 && step <= 4 && step !== currentStep) {
