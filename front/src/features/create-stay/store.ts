@@ -9,6 +9,7 @@ type CreateStayFormData = Partial<CreateStayInput> & {
   description?: string;
   amenities?: AmenitiesSelection;
   unavailableRange?: DateRange;
+  addressEng?: string;
 };
 
 interface CreateStayState {

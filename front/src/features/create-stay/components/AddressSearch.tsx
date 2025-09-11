@@ -15,6 +15,8 @@ export function AddressSearch() {
     setFormData({
       address: result.road_address_name || result.address_name,
       postalCode: result.zone_no,
+      // 영문 주소를 함께 저장(표시는 하지 않음, 이후 API 전송용)
+      addressEng: result.road_address_name_eng || result.address_name_eng || undefined,
     });
     setView('form');
   };
