@@ -13,6 +13,7 @@ import org.muhan.oasis.review.service.ReviewService;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,9 +28,7 @@ public class SqsAsyncServicce {
     private final ObjectMapper objectMapper;
     private final ReviewService reviewService;
     private final SseService sseService;
-
-    private final ExecutorService executor = Executors.newFixedThreadPool(10);
-
+    private final Executor threadPoolTaskExecutor;
 
     @SqsListener("${cloud.aws.sqs.queue.stay-translation-url}")
     public void listenStayTransQueue(String messageBody){
@@ -44,10 +43,10 @@ public class SqsAsyncServicce {
                             System.err.println("Translation failed due to JSON processing error: " + e.getMessage());
                             throw new RuntimeException(e);
                         }
-                    }, executor)
+                    }, threadPoolTaskExecutor)
                     .thenAcceptAsync(translationResult -> {
                         sseService.sendToClient(messageDto.id(),"stayTranslate", translationResult);
-                    }, executor)
+                    }, threadPoolTaskExecutor)
                     .exceptionally(throwable -> {
                         throw new BaseException(BaseResponseStatus.FAIL_OPENAI_COMMUNICATION);
                     });
@@ -70,12 +69,12 @@ public class SqsAsyncServicce {
                         } catch (JsonProcessingException e) {
                             throw new BaseException(BaseResponseStatus.SERIALIZATION_FAIL);
                         }
-                    }, executor)
+                    }, threadPoolTaskExecutor)
                     .thenAcceptAsync(translationResult -> {
 
-                        reviewService.updateReview(Long.getLong(messageDto.id()), translationResult);
+                        reviewService.updateReview(Long.parseLong(messageDto.id()), translationResult);
 
-                    }, executor)
+                    }, threadPoolTaskExecutor)
                     .exceptionally(throwable -> {
                         throw new BaseException(BaseResponseStatus.FAIL_OPENAI_COMMUNICATION);
                     });
@@ -98,11 +97,11 @@ public class SqsAsyncServicce {
                             System.err.println("Translation failed due to JSON processing error: " + e.getMessage());
                             throw new RuntimeException(e);
                         }
-                    }, executor) // 별도 스레드 풀에서 번역 실행
+                    }, threadPoolTaskExecutor) // 별도 스레드 풀에서 번역 실행
                     .thenAcceptAsync(translationResult -> { // 번역 완료 후 다음 작업 실행
 
 
-                    }, executor)
+                    }, threadPoolTaskExecutor)
                     .exceptionally(throwable -> {
                         throw new BaseException(BaseResponseStatus.FAIL_OPENAI_COMMUNICATION);
                     });

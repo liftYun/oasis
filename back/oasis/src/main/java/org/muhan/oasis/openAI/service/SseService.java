@@ -1,5 +1,7 @@
 package org.muhan.oasis.openAI.service;
 
+import org.muhan.oasis.common.base.BaseResponseStatus;
+import org.muhan.oasis.common.exception.BaseException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -46,7 +48,7 @@ public class SseService {
                             .data(data)
             );
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new BaseException(BaseResponseStatus.FAIL_SSE_COMMUNICATION);
         }
     }
 }
