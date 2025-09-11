@@ -160,9 +160,11 @@ public class StayController {
 */
     @PostMapping("/translate")
     public ResponseEntity<BaseResponse<Void>> translateStay(
-            @RequestBody StayRequestDto stayRequest){
+            @RequestBody StayRequestDto stayRequest
+            //@AuthenticationPrincipal CustomUserDetails userDetails
+    ){
 
-        sqsSendService.sendStayTransMessage(stayRequest);
+        sqsSendService.sendStayTransMessage(stayRequest, "유저닉네임");
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(BaseResponse.ok());

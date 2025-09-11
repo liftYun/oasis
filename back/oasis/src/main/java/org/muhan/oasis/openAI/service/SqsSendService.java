@@ -6,6 +6,7 @@ import io.awspring.cloud.sqs.operations.SqsTemplate;
 import lombok.RequiredArgsConstructor;
 import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.common.exception.BaseException;
+import org.muhan.oasis.openAI.dto.in.MessageDto;
 import org.muhan.oasis.openAI.dto.in.ReviewRequestDto;
 import org.muhan.oasis.openAI.dto.in.StayRequestDto;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,10 +29,10 @@ public class SqsSendService {
     private String reviewSummaryQueue;
 
 
-    public void sendStayTransMessage(StayRequestDto stayRequest) {
+    public void sendStayTransMessage(StayRequestDto stayRequest, String userNickname) {
         try {
-
-            String messageBody = objectMapper.writeValueAsString(stayRequest);
+            MessageDto messageDto = new MessageDto(userNickname, stayRequest);
+            String messageBody = objectMapper.writeValueAsString(messageDto);
 
             SendMessageRequest sendMsgRequest = SendMessageRequest.builder()
                     .queueUrl(stayTransQueue)
