@@ -24,7 +24,7 @@ public class S3StorageServiceImpl implements S3StorageService {
     private final S3Presigner s3Presigner;
     @Value("${cloud.aws.s3.bucket}") private String bucket;
     @Value("${cloud.aws.region}") private String region;
-    @Value("${cloud.aws.cloudfront.domain:}") private String cloudfrontDomain;
+    @Value("")
 
     @Override
     public String upload(MultipartFile file, String key, String contentType) {
@@ -38,9 +38,6 @@ public class S3StorageServiceImpl implements S3StorageService {
             s3Client.putObject(put, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
             // CloudFront를 쓰면 CloudFront URL, 아니면 S3 퍼블릭 URL
-            if (cloudfrontDomain != null && !cloudfrontDomain.isBlank()) {
-                return "https://%s/%s".formatted(cloudfrontDomain, key);
-            }
             return "https://%s.s3.amazonaws.com/%s".formatted(bucket, key);
         } catch (IOException e) {
             throw new RuntimeException("S3 업로드 실패", e);
