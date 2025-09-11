@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/atoms/Button';
 import { SegmentedTabs } from '@/components/molecules/SegmentedTabs';
 import { MultiSelectChips } from '@/components/molecules/MultiSelectChips';
@@ -15,13 +15,12 @@ export function Step3_Amenities() {
   const initialCategory: AmenityCategoryKey = 'bathroom';
   const [category, setCategory] = useState<AmenityCategoryKey>(initialCategory);
 
-  const tabs = useMemo(() => {
-    if (!data) return [] as { key: AmenityCategoryKey; label: string }[];
-    return (Object.keys(data.categoryLabels) as AmenityCategoryKey[]).map((key) => ({
-      key,
-      label: data.categoryLabels[key],
-    }));
-  }, [data]);
+  const tabs = !data
+    ? ([] as { key: AmenityCategoryKey; label: string }[])
+    : (Object.keys(data.categoryLabels) as AmenityCategoryKey[]).map((key) => ({
+        key,
+        label: data.categoryLabels[key],
+      }));
 
   const [selected, setSelected] = useState<Record<AmenityCategoryKey, string[]>>(() => {
     // 스토어에 기존 선택이 있다면 복구
@@ -37,10 +36,7 @@ export function Step3_Amenities() {
     );
   });
 
-  const currentOptions: string[] = useMemo(() => {
-    if (!data) return [];
-    return data.amenitiesByCategory[category] ?? [];
-  }, [data, category]);
+  const currentOptions: string[] = !data ? [] : (data.amenitiesByCategory[category] ?? []);
 
   const handleChangeValues = (values: string[]) => {
     setSelected((prev) => ({ ...prev, [category]: values }));

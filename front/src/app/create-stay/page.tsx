@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { ProgressBar } from '@/components/molecules/ProgressBar';
 import { ChevronLeft } from 'lucide-react';
 import { useCreateStayStore } from '@/features/create-stay/store';
@@ -16,8 +16,8 @@ export default function CreateStayPage() {
   const searchParams = useSearchParams();
   const { currentStep, setStep, view, setView, reset } = useCreateStayStore();
 
-  // 현재 URL의 step 파라미터만 안정적으로 추출
-  const stepParam = useMemo(() => searchParams.get('step'), [searchParams]);
+  // 현재 URL의 step 파라미터만 안정적으로 추출 (메모이제이션 불필요)
+  const stepParam = searchParams.get('step');
 
   // 새로고침 여부 저장용 ref
   const isReloadRef = useRef(false);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/atoms/Button';
 import CalendarSheet from '@/components/organisms/CalendarSheet';
@@ -13,7 +13,7 @@ export function Step4_Availability() {
   const { setFormData, setStep, currentStep, formData } = useCreateStayStore();
   const savedRange = (formData as any)?.unavailableRange as DateRange | undefined;
   const [range, setRange] = useState<DateRange | undefined>(savedRange);
-  const hasPicked = useMemo(() => !!range?.from && !!range?.to, [range]);
+  const hasPicked = !!range?.from && !!range?.to;
 
   const readOnlyInputClassName =
     'flex h-12 w-full cursor-pointer items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-base placeholder:text-sm placeholder:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50';

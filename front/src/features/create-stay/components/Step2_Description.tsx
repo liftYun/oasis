@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/atoms/Button';
 import { TextAreaField } from '@/components/molecules/TextAreaField';
 import { useCreateStayStore } from '@/features/create-stay/store';
@@ -11,10 +11,7 @@ export function Step2_Description() {
 
   const MAX_LEN = 1000;
   const length = description.length;
-  const isValid = useMemo(
-    () => description.trim().length > 0 && length <= MAX_LEN,
-    [description, length]
-  );
+  const isValid = description.trim().length > 0 && length <= MAX_LEN;
 
   useEffect(() => {
     if (formData.description && formData.description !== description) {
