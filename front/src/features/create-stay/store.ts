@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { CreateStayInput } from '@/features/create-stay/schema';
+import type { DateRange } from 'react-day-picker';
 import type { AmenitiesSelection } from '@/features/create-stay/constants/amenities';
 
 type CreateStayView = 'form' | 'searchAddress';
@@ -7,6 +8,7 @@ type CreateStayView = 'form' | 'searchAddress';
 type CreateStayFormData = Partial<CreateStayInput> & {
   description?: string;
   amenities?: AmenitiesSelection;
+  unavailableRange?: DateRange;
 };
 
 interface CreateStayState {

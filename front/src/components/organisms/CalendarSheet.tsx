@@ -13,8 +13,9 @@ interface CalendarSheetProps {
   open: boolean;
   onClose: () => void;
   nextDisabled?: boolean;
-  onNext?: () => void;
+  onNext?: (range: DateRange | undefined) => void;
   nextLabel?: string;
+  initialRange?: DateRange | undefined;
 }
 
 export default function CalendarSheet({
@@ -23,14 +24,20 @@ export default function CalendarSheet({
   nextDisabled = false,
   onNext,
   nextLabel = '다음',
+  initialRange,
 }: CalendarSheetProps) {
   const { lang } = useLanguage();
-  const [range, setRange] = useState<DateRange | undefined>(undefined);
+  const [range, setRange] = useState<DateRange | undefined>(initialRange);
+  const computedDisabled = nextDisabled || !range?.from || !range?.to;
   useEffect(() => {
     const onEsc = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     if (open) document.addEventListener('keydown', onEsc);
     return () => document.removeEventListener('keydown', onEsc);
   }, [open, onClose]);
+
+  useEffect(() => {
+    if (open) setRange(initialRange);
+  }, [initialRange, open]);
 
   return (
     <AnimatePresence>
@@ -90,10 +97,10 @@ export default function CalendarSheet({
             <div className="p-5">
               <Button
                 type="button"
-                onClick={onNext}
-                disabled={nextDisabled}
+                onClick={() => onNext?.(range)}
+                disabled={computedDisabled}
                 className={`w-full font-bold mb-2 ${
-                  nextDisabled
+                  computedDisabled
                     ? 'bg-gray-200 text-gray-400'
                     : 'bg-black text-white hover:bg-black active:bg-black'
                 }`}

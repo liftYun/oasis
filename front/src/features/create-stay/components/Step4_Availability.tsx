@@ -1,19 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/atoms/Button';
 import CalendarSheet from '@/components/organisms/CalendarSheet';
 import CalenderIcon from '@/assets/icons/calender.png';
+import type { DateRange } from 'react-day-picker';
+import { useCreateStayStore } from '@/features/create-stay/store';
 
 export function Step4_Availability() {
   const [open, setOpen] = useState(false);
+  const { setFormData, setStep, currentStep, formData } = useCreateStayStore();
+  const savedRange = (formData as any)?.unavailableRange as DateRange | undefined;
+  const [range, setRange] = useState<DateRange | undefined>(savedRange);
+  const hasPicked = useMemo(() => !!range?.from && !!range?.to, [range]);
 
   const readOnlyInputClassName =
     'flex h-12 w-full cursor-pointer items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-base placeholder:text-sm placeholder:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50';
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col flex-1 gap-6">
       <div>
         <h1 className="text-xl font-bold mb-1">숙소 예약 불가능 날짜를 선택해주세요.</h1>
         <p className="text-gray-400 text-sm">업로드·삭제로 예약 일정이 자동 관리됩니다.</p>
@@ -32,9 +38,11 @@ export function Step4_Availability() {
               setOpen(true);
             }
           }}
-          className={`${readOnlyInputClassName} text-gray-300 text-sm relative`}
+          className={`${readOnlyInputClassName} text-sm relative ${
+            hasPicked ? 'text-gray-900' : 'text-gray-300'
+          }`}
         >
-          예약 불가능한 날짜를 전부 선택해주세요.
+          {hasPicked ? '선택됨' : '예약 불가능한 날짜를 전부 선택해주세요.'}
           <Image
             src={CalenderIcon}
             alt="calendar"
@@ -45,7 +53,31 @@ export function Step4_Availability() {
         </div>
       </div>
 
-      <CalendarSheet open={open} onClose={() => setOpen(false)} />
+      <CalendarSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        initialRange={range}
+        onNext={(picked) => {
+          setRange(picked);
+          if (picked?.from && picked?.to) {
+            setFormData({ unavailableRange: picked } as any);
+          } else {
+            setFormData({ unavailableRange: undefined } as any);
+          }
+          // 모달만 닫음
+          setOpen(false);
+        }}
+      />
+
+      <div className="mt-auto pt-4">
+        <Button
+          type="button"
+          onClick={() => setStep(currentStep + 1)}
+          className="w-full font-bold mb-10 bg-black text-white hover:bg-black active:bg-black"
+        >
+          다음
+        </Button>
+      </div>
     </div>
   );
 }

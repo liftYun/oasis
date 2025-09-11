@@ -41,16 +41,18 @@ export function AddressSearch() {
       <div className="flex-grow overflow-y-auto">
         {addresses && addresses.length > 0
           ? addresses.map((result, index) => (
-              <div
+              <button
+                type="button"
                 key={`${result.zone_no}-${result.road_address_name || result.address_name}`}
-                className="py-3 px-1 cursor-pointer hover:bg-gray-100 rounded border-b"
+                className="w-full text-left py-3 px-1 hover:bg-gray-100 rounded border-b"
                 onClick={() => handleSelectAddress(result)}
+                aria-label={`${result.road_address_name || result.address_name} 선택`}
               >
                 <p className="text-sm font-medium">
                   {result.road_address_name || result.address_name}
                 </p>{' '}
                 <p className="text-xs text-gray-500 mt-1">[지번] {result.address_name}</p>
-              </div>
+              </button>
             ))
           : !isLoading &&
             !isError &&
