@@ -60,3 +60,11 @@ logging:
     org.hibernate.SQL: debug #?? SQL ??? ??? ??
     org.hibernate.type: trace #SQL ??? ????? ???? ?? ??
     org.muhan.oasis.web3: debug  # Web3 관련 로그
+
+
+circle:
+#  base-url: https://api-sandbox.circle.com/v1
+#  api-key: SAND_API_KEY:7e10335fa03823a39cc86ff3e576a2d2:f089f6b9ad9046adca7b537228bb89ff
+  base-url: https://api.circle.com/v1/w3s
+  api-key: TEST_API_KEY:ec7bb7f5221b5a64060ff39d8c1da625:e4509722324693297ca398b2a51c707d
+#  entity-secret: ec7eb3d2ef6ef6efbb586763a14360d12a7369e0861b4bc2b5b6d0a30cacc5c8

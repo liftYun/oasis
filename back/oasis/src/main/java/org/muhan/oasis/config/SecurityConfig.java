@@ -112,7 +112,8 @@ public class SecurityConfig {
 
                 // 테스트용 열어둔 엔드포인트
                 .requestMatchers("/api/v1/reservations/**").permitAll()
-
+                .requestMatchers("/api/v1/wallets/**").permitAll()
+                .requestMatchers("/api/v1/booking/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/v1/**").authenticated()
                 .anyRequest().authenticated()
