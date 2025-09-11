@@ -3,13 +3,19 @@ package org.muhan.oasis.review.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
+import org.muhan.oasis.common.base.BaseResponseStatus;
+import org.muhan.oasis.common.exception.BaseException;
+import org.muhan.oasis.openAI.dto.in.ReviewRequestDto;
 import org.muhan.oasis.openAI.dto.out.ReviewTranslationResultDto;
+import org.muhan.oasis.openAI.service.SqsSendService;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
 import org.muhan.oasis.review.dto.in.RegistReviewRequestDto;
 import org.muhan.oasis.review.entity.ReviewEntity;
 import org.muhan.oasis.review.repository.ReviewRepository;
+import org.muhan.oasis.review.vo.out.ReviewDetailResponseVo;
 import org.muhan.oasis.review.vo.out.ReviewResponseVo;
+import org.muhan.oasis.review.vo.out.StayReviewResponseVo;
 import org.muhan.oasis.stay.service.StayService;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
@@ -29,6 +35,7 @@ public class ReviewServiceImpl implements ReviewService{
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final StayService stayService;
+    private SqsSendService sqsSendService;
 
     @Override
     public Long registReview(Long userId, RegistReviewRequestDto registReviewRequestDto) {
@@ -71,7 +78,7 @@ public class ReviewServiceImpl implements ReviewService{
                     .originalLang(writer.getLanguage())
                     .build());
         }
-
+        sqsSendService.sendReviewTransMessage(new ReviewRequestDto(original, writer.getLanguage()), review.getReviewId());
         stayService.recalculateRating(reservation.getStay().getId(), registReviewRequestDto.getRating());
         return review.getReviewId();
     }
@@ -92,6 +99,31 @@ public class ReviewServiceImpl implements ReviewService{
         ReviewEntity review = reviewRepository.findById(reviewId).orElseThrow();
         review.addTranslation(reviewTranslationResultDto);
         return reviewId;
+    }
+
+    @Override
+    public ReviewDetailResponseVo getReviewDetail(Long userId, Long reviewId) {
+
+        ReviewEntity entity = reviewRepository.findById(reviewId)
+                        .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_REVIEW));
+
+        if(!entity.getUser().getUserId().equals(userId)) throw new BaseException(BaseResponseStatus.NO_ACCESS_AUTHORITY);
+
+        return ReviewDetailResponseVo.fromEntity(entity);
+    }
+
+    @Override
+    public List<StayReviewResponseVo> getStayReview(Long userId, Long stayId) {
+        UserEntity user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+        Language language = user.getLanguage();
+
+        List<ReviewEntity> entities =
+                reviewRepository.findAllByStayIdOrderByCreatedAtDesc(stayId);
+
+        return entities.stream()
+                .map(e -> StayReviewResponseVo.fromEntity(e, language, user.getNickname()))
+                .toList();
     }
 
     private static String defaultIfNull(String s, String dft) {

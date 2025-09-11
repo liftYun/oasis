@@ -68,4 +68,8 @@ public class ReviewEntity {
         if(originalLang.equals(Language.KOR)) this.contentEng = reviewTranslationResultDto.getContent();
         else this.content = reviewTranslationResultDto.getContent();
     }
+
+    public String getThumbnail(){
+        return this.reservation.getThumbnail();
+    }
 }

@@ -14,6 +14,7 @@ import java.util.List;
 @Builder @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class StayReadResponseDto{
+    Long stayId;
     String title;
     String description;
     String region;
@@ -24,13 +25,14 @@ public class StayReadResponseDto{
     // url, sortOrder 들어감
     List<ImageResponseDto> photos;
     // rating, 리뷰갯수, 높은별점리뷰요약, 낮은별점리뷰요약
-    StayReviewResponseDto review;
+    StayReviewSummaryResponseDto review;
     // nickname, uuid, url(프로필이미지)
     HostInfoResponseDto host;
     List<FacilityCategoryResponseDto> facilities;
 
     public static StayReadResponseDto from(StayEntity stay, List<StayFacilityEntity> facilities, Language language) {
         return StayReadResponseDto.builder()
+                .stayId(stay.getId())
                 .title(stay.title(language))
                 .description(stay.description(language))
                 .region(language == Language.KOR
@@ -43,7 +45,7 @@ public class StayReadResponseDto{
                 .maxGuest(stay.getMaxGuests())
                 .price(stay.getPrice())
                 .photos(ImageResponseDto.from(stay.getStayPhotoEntities()))
-                .review(stay.getRatingSummary()!=null ? StayReviewResponseDto.from(stay.getRatingSummary()) : null)
+                .review(stay.getRatingSummary()!=null ? StayReviewSummaryResponseDto.from(stay.getRatingSummary()) : null)
                 .host(HostInfoResponseDto.from(stay.getUser()))
                 .facilities(FacilityCategoryResponseDto.from(facilities))
                 .build();
