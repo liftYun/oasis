@@ -6,11 +6,14 @@ import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.reservation.dto.in.RegistReservationRequestDto;
 import org.muhan.oasis.reservation.service.ReservationService;
 import org.muhan.oasis.reservation.vo.in.RegistReservationRequestVo;
+import org.muhan.oasis.reservation.vo.out.ListOfReservationResponseVo;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static org.muhan.oasis.common.base.BaseResponseStatus.FAIL_REGIST_RESERVATION;
 
@@ -43,5 +46,17 @@ public class ReservationController {
         if(result.isEmpty()) return BaseResponse.error(FAIL_REGIST_RESERVATION);
 
         return BaseResponse.of(result);
+    }
+
+    @Operation(
+            summary = "예약 내역 리스트",
+            description = """
+                등록 된 예약 정보를 불러옵니다.
+                """,
+            tags = {"예약"}
+    )
+    @GetMapping("/list")
+    public BaseResponse<ListOfReservationResponseVo> listOfReservation(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        return BaseResponse.of(reservationService.getListOfReservation(customUserDetails.getUserId()));
     }
 }
