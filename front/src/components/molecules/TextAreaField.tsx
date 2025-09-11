@@ -23,10 +23,20 @@ export function TextAreaField({
     <div className="flex flex-col gap-2">
       <Label htmlFor={inputId}>{label}</Label>
       <div className="relative">
-        <Textarea id={inputId} className={className} autoResize maxHeightPx={400} {...props} />
+        <Textarea
+          id={inputId}
+          className={className}
+          autoResize
+          maxHeightPx={400}
+          maxLength={maxLength}
+          {...props}
+        />
       </div>
       <div className="-mt-1 text-right text-xs text-gray-300">
-        <span className={`${length === 0 ? '' : 'text-primary'}`}>{length}</span>/{maxLength}
+        <span className={`${length === 0 ? '' : 'text-primary'}`}>
+          {Math.min(length, maxLength)}
+        </span>
+        /{maxLength}
       </div>
     </div>
   );

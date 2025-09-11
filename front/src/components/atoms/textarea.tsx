@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { twMerge } from 'tailwind-merge';
 
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   autoResize?: boolean;
@@ -39,9 +40,9 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     };
 
     const baseClasses =
-      'w-full min-h-48 rounded-lg border border-gray-300 bg-white px-4 py-3 text-base placeholder:text-sm placeholder:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 resize-none';
+      'w-full min-h-[12rem] rounded-lg border border-gray-300 bg-white px-4 py-3 text-base placeholder:text-sm placeholder:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary resize-none';
     const paddingForCounter = withCounterPadding ? 'pr-12' : '';
-    const combinedClasses = [baseClasses, paddingForCounter, className].filter(Boolean).join(' ');
+    const combinedClasses = twMerge(baseClasses, paddingForCounter, className);
 
     return (
       <textarea ref={innerRef} className={combinedClasses} onChange={handleChange} {...props} />

@@ -21,6 +21,23 @@ export default function CreateStayPage() {
 
   // 새로고침 여부 저장용 ref
   const isReloadRef = useRef(false);
+  // 초기 마운트 시 딥링크 금지 처리 여부
+  const didInitRef = useRef(false);
+
+  // 초기 진입 시: 딥링크(step 파라미터) 무시하고 항상 step=1로 고정
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (didInitRef.current) return;
+    didInitRef.current = true;
+    if (currentStep !== 1) {
+      setStep(1);
+    }
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('step') !== '1') {
+      params.set('step', '1');
+      router.replace(`/create-stay?${params.toString()}`, { scroll: false });
+    }
+  }, [currentStep, router, setStep]);
 
   // 새로고침 감지 시: 상태 초기화 및 첫 단계로 강제 이동
   useEffect(() => {
@@ -28,7 +45,7 @@ export default function CreateStayPage() {
     const entries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
     const isReload =
       entries?.[0]?.type === 'reload' ||
-      // @ts-expect-error Legacy fallback
+      // Legacy fallback (deprecated API)
       (performance.navigation && performance.navigation.type === 1);
     if (isReload) {
       isReloadRef.current = true;
@@ -37,16 +54,7 @@ export default function CreateStayPage() {
     }
   }, [reset, router]);
 
-  // URL -> store: step 파라미터가 있을 때만, 값이 달라야 동기화
-  useEffect(() => {
-    if (isReloadRef.current) return; // 새로고침 시 URL 파라미터 무시
-    if (stepParam && !isNaN(Number(stepParam))) {
-      const step = Number(stepParam);
-      if (step >= 1 && step <= 4 && step !== currentStep) {
-        setStep(step);
-      }
-    }
-  }, [stepParam, currentStep, setStep]);
+  // 딥링크 금지: URL 변화로 스텝을 동기화하지 않음
 
   // store -> URL: 첫 렌더는 건너뛰고, 이후 currentStep이 바뀔 때만 동기화
   const didMountRef = useRef(false);

@@ -77,7 +77,13 @@ export function PriceField({
     const text = e.clipboardData.getData('text');
     const target = e.currentTarget;
     const next = sanitize(text);
-    document.execCommand('insertText', false, next);
+    const { selectionStart, selectionEnd } = target;
+    if (selectionStart != null && selectionEnd != null) {
+      target.setRangeText(next, selectionStart, selectionEnd, 'end');
+    } else {
+      target.value = next;
+    }
+    target.dispatchEvent(new Event('input', { bubbles: true }));
   };
 
   return (
@@ -91,6 +97,7 @@ export function PriceField({
       type="text"
       onKeyDown={handleKeyDown}
       onInput={handleInput}
+      onPaste={handlePaste}
       className={showCurrency ? 'pl-8' : undefined}
     >
       {showCurrency && (
