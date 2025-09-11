@@ -69,4 +69,8 @@ public class ReservationEntity {
         this.stayTitle = stayTitle;
         this.stayTitleEng = stayTitleEng;
     }
+
+    public String getThumbnail(){
+        return this.getStay().getThumbnail();
+    }
 }

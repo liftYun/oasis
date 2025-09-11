@@ -2,14 +2,13 @@ package org.muhan.oasis.review.dto.out;
 
 import lombok.Builder;
 import lombok.Getter;
-import org.muhan.oasis.valueobject.Language;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Builder
 @Getter
-public class ReviewResponseDto {
+public class ReviewDetailResponseDto {
     private Long reviewId;
 
     private String reservationId;
@@ -18,5 +17,5 @@ public class ReviewResponseDto {
 
     private LocalDateTime createdAt;
 
-    private String thumbnail;
+    private String content;
 }

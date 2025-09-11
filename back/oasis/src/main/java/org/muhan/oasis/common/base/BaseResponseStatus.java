@@ -68,6 +68,7 @@ public enum BaseResponseStatus {
 
     // 리뷰
     FAIL_REGIST_REVIEW(HttpStatus.BAD_REQUEST, false, 400, "리뷰 등록에 실패했습니다. 재확인 해주세요"),
+    NO_REVIEW(HttpStatus.NOT_FOUND, false, 404, "리뷰가 존재하지 않습니다."),
 
     // OpenAI
     SERIALIZATION_FAIL(HttpStatus.BAD_REQUEST, false, 400, "AI 요청 JSON 직렬화 실패했습니다."),

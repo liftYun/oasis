@@ -11,4 +11,6 @@ public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
     boolean existsByReservation_ReservationIdAndUser_UserId(String reservationId, Long userId);
     // 작성자 기준으로 최신순 조회
     List<ReviewEntity> findAllByUser_UserIdOrderByCreatedAtDesc(Long userId);
+
+    List<ReviewEntity> findAllByStayIdOrderByCreatedAtDesc(Long stayId);
 }
