@@ -7,6 +7,8 @@ import cameraIcon from '@/assets/icons/camera.png';
 import type { UseFormRegisterReturn } from 'react-hook-form';
 import { Button } from '@/components/atoms/Button';
 import { X } from 'lucide-react';
+import { useLanguage } from '@/features/language';
+import { createStayMessages } from '@/features/create-stay/locale';
 
 interface ImageUploaderProps {
   registration: UseFormRegisterReturn;
@@ -23,12 +25,14 @@ export function ImageUploader({
   imagePreviews,
   onRemoveImage,
 }: ImageUploaderProps) {
+  const { lang } = useLanguage();
+  const t = createStayMessages[lang];
   return (
     <div className="flex flex-col items-start gap-2">
-      <Label>숙소 사진</Label>
+      <Label>{t.form.imagesLabel}</Label>
       <div className="bg-primary/10 text-primary text-xs p-2 rounded-md">
-        <span className="text-primary font-bold">TIP</span> 첫 사진은 숙소가 잘 보이게
-        업로드해주세요.
+        <span className="text-primary font-bold">{t.form.imagesTipTitle}</span>{' '}
+        {t.form.imagesTipText}
       </div>
 
       <div className="flex flex-wrap gap-4">
@@ -36,7 +40,7 @@ export function ImageUploader({
           <div key={preview} className="relative w-40 h-40">
             <Image
               src={preview}
-              alt={`숙소 이미지 미리보기 ${index + 1}`}
+              alt={`${t.form.imagesPreviewAlt} ${index + 1}`}
               fill
               className="object-cover rounded-lg"
             />
@@ -44,7 +48,7 @@ export function ImageUploader({
               type="button"
               onClick={() => onRemoveImage(index)}
               className="absolute top-1 right-1 bg-black/50 text-white rounded-full w-6 h-6 p-1 flex items-center justify-center hover:bg-black/70"
-              aria-label="이미지 삭제"
+              aria-label={t.form.imagesDeleteAria}
             >
               <X size={16} />
             </Button>
@@ -56,7 +60,7 @@ export function ImageUploader({
           className="flex flex-col items-center justify-center w-40 h-40 rounded-lg bg-gray-100 text-gray-400 hover:bg-gray-200 transition-colors cursor-pointer"
         >
           <Image src={cameraIcon} alt="카메라 아이콘" width={30} height={30} className="mb-1" />
-          <p className="text-[11px] text-gray-300 mt-3">사진 업로드</p>
+          <p className="text-[11px] text-gray-300 mt-3">{t.form.imagesUploadCta}</p>
         </Label>
       </div>
 

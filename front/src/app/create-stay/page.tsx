@@ -10,11 +10,15 @@ import { Step2_Description } from '@/features/create-stay/components/Step2_Descr
 import { Step3_Amenities } from '@/features/create-stay/components/Step3_Amenities';
 import { Step4_Availability } from '@/features/create-stay/components/Step4_Availability';
 import { AddressSearch } from '@/features/create-stay/components/AddressSearch';
+import { useLanguage } from '@/features/language';
+import { createStayMessages } from '@/features/create-stay/locale';
 
 export default function CreateStayPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { currentStep, setStep, view, setView, reset } = useCreateStayStore();
+  const { lang } = useLanguage();
+  const t = createStayMessages[lang];
 
   // 현재 URL의 step 파라미터만 안정적으로 추출 (메모이제이션 불필요)
   const stepParam = searchParams.get('step');
@@ -113,7 +117,7 @@ export default function CreateStayPage() {
             <button type="button" onClick={handleBack} className="absolute left-0">
               <ChevronLeft />
             </button>
-            <h1 className="text-lg font-bold">주소 찾기</h1>
+            <h1 className="text-lg font-bold">{t.header.searchTitle}</h1>
           </div>
         )}
       </header>

@@ -3,6 +3,8 @@
 import { useWatch, type Control } from 'react-hook-form';
 import type { FieldError, UseFormRegisterReturn } from 'react-hook-form';
 import { FormField } from '@/components/molecules/FormField';
+import { useLanguage } from '@/features/language';
+import { createStayMessages } from '@/features/create-stay/locale';
 
 interface PriceFieldProps {
   control: Control<any>;
@@ -21,6 +23,8 @@ export function PriceField({
   id = 'price',
   placeholder = '$ 가격을 적어주세요.',
 }: PriceFieldProps) {
+  const { lang } = useLanguage();
+  const t = createStayMessages[lang];
   const value = useWatch({ control, name });
   const showCurrency = value !== undefined && value !== null && value !== ('' as any);
 
@@ -88,10 +92,10 @@ export function PriceField({
 
   return (
     <FormField
-      label="가격"
+      label={t.form.priceLabel}
       registration={registration}
       id={id}
-      placeholder={placeholder}
+      placeholder={t.form.pricePlaceholder || placeholder}
       error={error}
       inputMode="decimal"
       type="text"

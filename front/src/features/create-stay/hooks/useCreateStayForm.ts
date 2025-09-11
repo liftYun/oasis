@@ -2,10 +2,11 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  createStayInputSchema,
+  buildCreateStayInputSchema,
   type CreateStayInput,
   type CreateStayOutput,
 } from '@/features/create-stay/schema';
+import { useLanguage } from '@/features/language';
 
 interface UseCreateStayFormProps {
   onFormSubmit: (data: CreateStayOutput) => Promise<void>;
@@ -13,8 +14,9 @@ interface UseCreateStayFormProps {
 }
 
 export function useCreateStayForm({ onFormSubmit, defaultValues }: UseCreateStayFormProps) {
+  const { lang } = useLanguage();
   const form = useForm<CreateStayInput>({
-    resolver: zodResolver(createStayInputSchema),
+    resolver: zodResolver(buildCreateStayInputSchema(lang)),
     defaultValues,
     mode: 'onChange',
   });

@@ -8,6 +8,8 @@ import { ImageUploader } from '@/components/molecules/ImageUploader';
 import { Button } from '@/components/atoms/Button';
 import { AddressField } from '@/components/molecules/AddressField';
 import { PriceField } from '@/components/molecules/PriceField';
+import { useLanguage } from '@/features/language';
+import { createStayMessages } from '@/features/create-stay/locale';
 
 interface StayFormProps {
   form: UseFormReturn<CreateStayInput>;
@@ -26,6 +28,8 @@ export function StayForm({
   imagePreviews,
   onRemoveImage,
 }: StayFormProps) {
+  const { lang } = useLanguage();
+  const t = createStayMessages[lang];
   const {
     register,
     watch,
@@ -37,10 +41,10 @@ export function StayForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col flex-grow gap-6">
       <FormField
-        label="숙소 이름"
+        label={t.form.titleLabel}
         registration={register('title')}
         id="title"
-        placeholder="숙소 이름을 적어주세요."
+        placeholder={t.form.titlePlaceholder}
         maxLength={20}
         error={errors.title}
         className="pr-12"
@@ -96,7 +100,7 @@ export function StayForm({
               : 'bg-gray-200 text-gray-600 hover:bg-gray-300 active:bg-gray-300 disabled:opacity-100'
           }`}
         >
-          {isSubmitting ? '처리 중...' : '다음'}
+          {isSubmitting ? t.common.processing : t.common.next}
         </Button>
       </div>
     </form>

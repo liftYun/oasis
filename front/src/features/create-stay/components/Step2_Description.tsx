@@ -4,9 +4,13 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/atoms/Button';
 import { TextAreaField } from '@/components/molecules/TextAreaField';
 import { useCreateStayStore } from '@/features/create-stay/store';
+import { useLanguage } from '@/features/language';
+import { createStayMessages } from '@/features/create-stay/locale';
 
 export function Step2_Description() {
   const { formData, setFormData, currentStep, setStep } = useCreateStayStore();
+  const { lang } = useLanguage();
+  const t = createStayMessages[lang];
   const [description, setDescription] = useState<string>(formData.description ?? '');
 
   const MAX_LEN = 1000;
@@ -37,19 +41,18 @@ export function Step2_Description() {
 
   return (
     <div className="flex flex-col flex-1 gap-4">
-      <h1 className="text-xl font-bold">숙소 소개글을 작성해주세요.</h1>
+      <h1 className="text-xl font-bold">{t.step2.title}</h1>
 
       <div className="bg-primary/10 text-primary text-xs p-2 me-auto mb-6 rounded-md">
-        <span className="text-primary font-bold">TIP</span> 숙소만의 장점이나 특별한 포인트를
-        강조해보세요!
+        <span className="text-primary font-bold">{t.step2.tipTitle}</span> {t.step2.tipText}
       </div>
 
       <TextAreaField
-        label="숙소 소개글"
+        label={t.step2.descriptionLabel}
         id="description"
         value={description}
         onChange={handleChange}
-        placeholder="숙소 소개글을 적어주세요."
+        placeholder={t.step2.descriptionPlaceholder}
         maxLength={MAX_LEN}
         length={length}
       />
@@ -65,7 +68,7 @@ export function Step2_Description() {
               : 'bg-gray-200 text-gray-400 hover:bg-gray-200 active:bg-gray-200 disabled:opacity-100'
           }`}
         >
-          다음
+          {t.common.next}
         </Button>
       </div>
     </div>

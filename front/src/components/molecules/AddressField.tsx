@@ -4,6 +4,8 @@ import type { UseFormRegister, FieldErrors, UseFormWatch } from 'react-hook-form
 import type { CreateStayInput } from '@/features/create-stay/schema';
 import { Label } from '@/components/atoms/label';
 import { Input } from '@/components/atoms/input';
+import { useLanguage } from '@/features/language';
+import { createStayMessages } from '@/features/create-stay/locale';
 
 interface AddressFieldProps {
   register: UseFormRegister<CreateStayInput>;
@@ -13,6 +15,8 @@ interface AddressFieldProps {
 }
 
 export function AddressField({ register, errors, watch, onSearchClick }: AddressFieldProps) {
+  const { lang } = useLanguage();
+  const t = createStayMessages[lang];
   const postalCodeValue = watch('postalCode');
   const addressValue = watch('address');
 
@@ -23,20 +27,20 @@ export function AddressField({ register, errors, watch, onSearchClick }: Address
 
   return (
     <div className="flex flex-col gap-2">
-      <Label>숙소 위치</Label>
+      <Label>{t.form.addressLabel}</Label>
       <div className="flex flex-col gap-2">
         {postalCodeValue && addressValue ? (
           <>
             <Input
               {...register('postalCode')}
-              placeholder="우편번호"
+              placeholder={t.form.addressPostalCodePlaceholder}
               readOnly
               onClick={onSearchClick}
               className={`${readOnlyInputClassName} bg-gray-200`}
             />
             <Input
               {...register('address')}
-              placeholder="주소"
+              placeholder={t.form.addressAddressPlaceholder}
               readOnly
               onClick={onSearchClick}
               className={`${readOnlyInputClassName} bg-gray-200`}
@@ -56,9 +60,9 @@ export function AddressField({ register, errors, watch, onSearchClick }: Address
                   onSearchClick();
                 }
               }}
-              aria-label="주소 검색하기"
+              aria-label={t.form.addressSearchAria}
             >
-              주소 검색하기
+              {t.form.addressSearchPlaceholder}
             </div>
           </>
         )}
@@ -70,7 +74,7 @@ export function AddressField({ register, errors, watch, onSearchClick }: Address
         )}
         <Input
           {...register('addressDetail')}
-          placeholder="상세 주소"
+          placeholder={t.form.addressDetailPlaceholder}
           className={editableInputClassName}
         />
         {errors.addressDetail && (

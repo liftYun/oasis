@@ -7,10 +7,14 @@ import CalendarSheet from '@/components/organisms/CalendarSheet';
 import CalenderIcon from '@/assets/icons/calender.png';
 import type { DateRange } from 'react-day-picker';
 import { useCreateStayStore } from '@/features/create-stay/store';
+import { useLanguage } from '@/features/language';
+import { createStayMessages } from '@/features/create-stay/locale';
 
 export function Step4_Availability() {
   const [open, setOpen] = useState(false);
   const { setFormData, setStep, currentStep, formData } = useCreateStayStore();
+  const { lang } = useLanguage();
+  const t = createStayMessages[lang];
   const savedRange = (formData as any)?.unavailableRange as DateRange | undefined;
   const [range, setRange] = useState<DateRange | undefined>(savedRange);
   const hasPicked = !!range?.from && !!range?.to;
@@ -21,16 +25,16 @@ export function Step4_Availability() {
   return (
     <div className="flex flex-col flex-1 gap-6">
       <div>
-        <h1 className="text-xl font-bold mb-1">숙소 예약 불가능 날짜를 선택해주세요.</h1>
-        <p className="text-gray-400 text-sm">업로드·삭제로 예약 일정이 자동 관리됩니다.</p>
+        <h1 className="text-xl font-bold mb-1">{t.step4.title}</h1>
+        <p className="text-gray-400 text-sm">{t.step4.subtitle}</p>
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-600">예약 불가 날짜</label>
+        <label className="text-sm font-medium text-gray-600">{t.step4.unavailLabel}</label>
         <div
           role="button"
           tabIndex={0}
-          aria-label="달력 열기"
+          aria-label={t.step4.openCalendarAria}
           onClick={() => setOpen(true)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -42,7 +46,7 @@ export function Step4_Availability() {
             hasPicked ? 'text-gray-900' : 'text-gray-300'
           }`}
         >
-          {hasPicked ? '선택됨' : '예약 불가능한 날짜를 전부 선택해주세요.'}
+          {hasPicked ? t.step4.placeholderSelected : t.step4.placeholder}
           <Image
             src={CalenderIcon}
             alt="calendar"
@@ -75,7 +79,7 @@ export function Step4_Availability() {
           onClick={() => setStep(currentStep + 1)}
           className="w-full font-bold mb-10 bg-black text-white hover:bg-black active:bg-black"
         >
-          다음
+          {t.common.next}
         </Button>
       </div>
     </div>

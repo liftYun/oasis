@@ -7,6 +7,7 @@ import { DateRange, DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { ko } from 'date-fns/locale';
 import { useLanguage } from '@/features/language';
+import { createStayMessages } from '@/features/create-stay/locale';
 import { Button } from '@/components/atoms/Button';
 
 interface CalendarSheetProps {
@@ -27,6 +28,7 @@ export default function CalendarSheet({
   initialRange,
 }: CalendarSheetProps) {
   const { lang } = useLanguage();
+  const t = createStayMessages[lang];
   const [range, setRange] = useState<DateRange | undefined>(initialRange);
   const computedDisabled = nextDisabled || !range?.from || !range?.to;
   useEffect(() => {
@@ -105,7 +107,7 @@ export default function CalendarSheet({
                     : 'bg-black text-white hover:bg-black active:bg-black'
                 }`}
               >
-                {nextLabel}
+                {nextLabel || t.common.next}
               </Button>
             </div>
           </motion.div>

@@ -6,9 +6,13 @@ import { StayForm } from '@/components/organisms/StayForm';
 import { useCreateStayForm } from '@/features/create-stay/hooks/useCreateStayForm';
 import { useImageUploader } from '@/features/create-stay/hooks/useImageUploader';
 import type { CreateStayInput } from '@/features/create-stay/schema';
+import { useLanguage } from '@/features/language';
+import { createStayMessages } from '@/features/create-stay/locale';
 
 export function Step1_StayInfo() {
   const { setStep, setFormData, formData, setView } = useCreateStayStore();
+  const { lang } = useLanguage();
+  const t = createStayMessages[lang];
 
   const handleNextStep = async (data: CreateStayInput) => {
     setFormData(data);
@@ -41,7 +45,7 @@ export function Step1_StayInfo() {
 
   return (
     <>
-      <h1 className="text-xl font-bold mb-6">숙소 정보를 작성해주세요.</h1>
+      <h1 className="text-xl font-bold mb-6">{t.step1.title}</h1>
       <StayForm
         form={form}
         handleSubmit={handleSubmit}

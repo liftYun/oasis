@@ -7,10 +7,14 @@ import { MultiSelectChips } from '@/components/molecules/MultiSelectChips';
 import { useAmenitiesQuery } from '@/features/create-stay/hooks/useAmenitiesQuery';
 import type { AmenityCategoryKey } from '@/features/create-stay/constants/amenities';
 import { useCreateStayStore } from '@/features/create-stay/store';
+import { useLanguage } from '@/features/language';
+import { createStayMessages } from '@/features/create-stay/locale';
 
 export function Step3_Amenities() {
   const { data } = useAmenitiesQuery();
   const { setStep, currentStep, setFormData, formData } = useCreateStayStore();
+  const { lang } = useLanguage();
+  const t = createStayMessages[lang];
 
   const initialCategory: AmenityCategoryKey = 'bathroom';
   const [category, setCategory] = useState<AmenityCategoryKey>(initialCategory);
@@ -49,14 +53,14 @@ export function Step3_Amenities() {
   };
 
   if (!data) {
-    return <div className="text-sm text-gray-400">로딩 중...</div>;
+    return <div className="text-sm text-gray-400">{t.step3.loading}</div>;
   }
 
   return (
     <div className="flex flex-col flex-1 gap-6">
       <div>
-        <h1 className="text-xl font-bold mb-1">숙소 편의시설을 선택해주세요.</h1>
-        <p className="text-gray-400 text-sm">카테고리 별로 확인해주세요!</p>
+        <h1 className="text-xl font-bold mb-1">{t.step3.title}</h1>
+        <p className="text-gray-400 text-sm">{t.step3.subtitle}</p>
       </div>
 
       <SegmentedTabs tabs={tabs} value={category} onChange={setCategory} className="mt-2" />
@@ -73,7 +77,7 @@ export function Step3_Amenities() {
           onClick={handleNext}
           className="w-full font-bold mb-10 bg-black text-white hover:bg-black active:bg-black"
         >
-          다음
+          {t.common.next}
         </Button>
       </div>
     </div>
