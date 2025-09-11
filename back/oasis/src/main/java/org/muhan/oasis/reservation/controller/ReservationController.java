@@ -38,7 +38,7 @@ public class ReservationController {
             @RequestBody RegistReservationRequestVo vo
     ) {
         Long userId = customUserDetails.getUserId();
-        String result = reservationService.registReserVation(userId, RegistReservationRequestDto.from(userId, vo));
+        String result = reservationService.registReserVation(userId, RegistReservationRequestDto.from(vo));
 
         if(result.isEmpty()) return BaseResponse.error(FAIL_REGIST_RESERVATION);
 

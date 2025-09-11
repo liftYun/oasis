@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class RegistReservationRequestVo {
     private String reservationId;
 
-    private StayEntity stay;
+    private Long stayId;
 
     private LocalDateTime checkinDate;
 

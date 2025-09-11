@@ -1,6 +1,7 @@
 package org.muhan.oasis.s3.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +18,7 @@ import java.net.URL;
 import java.time.Duration;
 
 @Service
+@Log4j2
 @RequiredArgsConstructor
 public class S3StorageServiceImpl implements S3StorageService {
 
@@ -24,7 +26,11 @@ public class S3StorageServiceImpl implements S3StorageService {
     private final S3Presigner s3Presigner;
     @Value("${cloud.aws.s3.bucket}") private String bucket;
     @Value("${cloud.aws.region}") private String region;
-    @Value("")
+    @Value("${cloud.aws.s3.prefix.stay-img}") private String stayImgPath;
+    @Value("${cloud.aws.s3.prefix.certificate}") private String certificatePath;
+    @Value("${cloud.aws.s3.prefix.profile-img}") private String profileImgPath;
+    @Value("${cloud.aws.credentials.access-key}") private String accessKeyId;
+    @Value("${cloud.aws.credentials.secret-key}") private String secretAccessKey;
 
     @Override
     public String upload(MultipartFile file, String key, String contentType) {

@@ -16,9 +16,7 @@ import java.time.LocalDateTime;
 public class RegistReservationRequestDto {
     private String reservationId;
 
-    private Long userId;
-
-    private StayEntity stay;
+    private Long stayId;
 
     private LocalDateTime checkinDate;
 
@@ -38,11 +36,11 @@ public class RegistReservationRequestDto {
 
     private String stayTitleEng;
 
-    public static ReservationEntity to(UserEntity user, RegistReservationRequestDto dto) {
+    public static ReservationEntity to(UserEntity user, StayEntity stay, RegistReservationRequestDto dto) {
         return ReservationEntity.builder()
                 .reservationId(dto.getReservationId())
                 .user(user)
-                .stay(dto.getStay())
+                .stay(stay)
                 .checkinDate(dto.getCheckinDate())
                 .reservationDate(dto.getReservationDate())
                 .isSettlemented(dto.isSettlemented())
@@ -54,11 +52,9 @@ public class RegistReservationRequestDto {
                 .build();
     }
 
-    public static RegistReservationRequestDto from(Long userId, RegistReservationRequestVo vo) {
+    public static RegistReservationRequestDto from(RegistReservationRequestVo vo) {
         return RegistReservationRequestDto.builder()
                 .reservationId(vo.getReservationId())
-                .userId(userId)
-                .stay(vo.getStay())
                 .checkinDate(vo.getCheckinDate())
                 .reservationDate(vo.getReservationDate())
                 .isSettlemented(vo.isSettlemented())

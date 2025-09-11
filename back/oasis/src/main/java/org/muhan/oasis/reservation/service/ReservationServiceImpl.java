@@ -8,6 +8,8 @@ import org.muhan.oasis.common.exception.BaseException;
 import org.muhan.oasis.reservation.dto.in.RegistReservationRequestDto;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
+import org.muhan.oasis.stay.entity.StayEntity;
+import org.muhan.oasis.stay.repository.StayRepository;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -20,18 +22,18 @@ import static org.muhan.oasis.common.base.BaseResponseStatus.NO_EXIST_USER;
 public class ReservationServiceImpl implements ReservationService {
     private final UserRepository userRepository;
     private final ReservationRepository reservationRepository;
+    private final StayRepository stayRepository;
 
     @Override
     public String registReserVation(Long userId, RegistReservationRequestDto dto) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
 
-        ReservationEntity reservationEntity = RegistReservationRequestDto.to(user, dto);
+        StayEntity stay = stayRepository.findById(dto.getStayId())
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY));;
 
-        String result = reservationRepository.save(reservationEntity).getReservationId();
+        ReservationEntity reservationEntity = RegistReservationRequestDto.to(user, stay, dto);
 
-        if(result.isEmpty())
-
-        return result;
+        return reservationRepository.save(reservationEntity).getReservationId();
     }
 }
