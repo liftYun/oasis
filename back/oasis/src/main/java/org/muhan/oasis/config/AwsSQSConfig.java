@@ -1,5 +1,7 @@
 package org.muhan.oasis.config;
 
+import io.awspring.cloud.sqs.config.SqsMessageListenerContainerFactory;
+import io.awspring.cloud.sqs.operations.SqsTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,12 +21,21 @@ public class AwsSQSConfig {
     private String region;
 
     @Bean
-    public SqsAsyncClient sqsClient() {
+    public SqsAsyncClient sqsAsyncClient() {
         return SqsAsyncClient.builder()
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(accessKey, secretKey)
                 ))
                 .build();
+    }
+
+    @Bean
+    public SqsMessageListenerContainerFactory<Object> defaultSqsListenerContainerFactory() {
+        return SqsMessageListenerContainerFactory
+                .builder()
+                .sqsAsyncClient(sqsAsyncClient())
+                .build();
+
     }
 }

@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ReservationEntity {
     @Id
-    @Column(name = "reservation_id", length = 2083, nullable = false)
+    @Column(name = "reservation_id", length = 191, nullable = false)
     private String reservationId;
 
     @ManyToOne(fetch = FetchType.LAZY)
