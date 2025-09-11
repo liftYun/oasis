@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
-    boolean existsByReservation_IdAndUser_Id(String reservationId, Long userId);
+    boolean existsByReservation_ReservationIdAndUser_UserId(String reservationId, Long userId);
     // 작성자 기준으로 최신순 조회
-    List<ReviewEntity> findAllByUser_IdOrderByCreatedAtDesc(Long userId);
+    List<ReviewEntity> findAllByUser_UserIdOrderByCreatedAtDesc(Long userId);
 }

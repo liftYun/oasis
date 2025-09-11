@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.openAI.dto.in.StayRequestDto;
+import org.muhan.oasis.openAI.service.SqsAsyncServicce;
+import org.muhan.oasis.openAI.service.SqsSendService;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
 import org.muhan.oasis.stay.dto.in.CreateStayRequestDto;
 import org.muhan.oasis.stay.dto.out.StayResponseDto;
@@ -35,11 +37,12 @@ import static org.muhan.oasis.common.base.BaseResponseStatus.CREATED;
 public class StayController {
 
     private StayService stayService;
-    private final SqsAsyncClient sqsAsyncClient;
+    private final SqsSendService sqsSendService;
     private final ObjectMapper objectMapper;
 
 
-    @Value("${cloud.aws.sqs.queue.url}")
+
+    @Value("${cloud.aws.sqs.queue.stay-translation-url}")
     private String sqsQueueUrl;
 
 
@@ -158,24 +161,11 @@ public class StayController {
     @PostMapping("/translate")
     public ResponseEntity<BaseResponse<Void>> translateStay(
             @RequestBody StayRequestDto stayRequest){
-        try{
 
-            String messageBody = objectMapper.writeValueAsString(stayRequest);
-
-            SendMessageRequest sendMsgRequest = SendMessageRequest.builder()
-                    .queueUrl(sqsQueueUrl)
-                    .messageBody(messageBody)
-                    .build();
-
-            sqsAsyncClient.sendMessage(sendMsgRequest)
-                    .thenRun(() -> System.out.println("Message sent asynchronously."));
-
-        }
-        catch (JsonProcessingException e){}
+        sqsSendService.sendStayTransMessage(stayRequest);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(BaseResponse.ok());
-
     }
 
 

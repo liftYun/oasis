@@ -18,6 +18,7 @@ import org.muhan.oasis.valueobject.Language;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -163,6 +164,13 @@ public class StayServiceImpl implements StayService{
     @Override
     public StayResponseDto updateStay(Long stayId) {
         return null;
+    }
+
+    @Override
+    public void recalculateRating(Long stayId, BigDecimal rating) {
+        StayRatingSummaryEntity ratingSummary = stayRatingSummaryRepository.findById(stayId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY_SUMMARY));
+        ratingSummary.recalculate(rating);
     }
 
 
