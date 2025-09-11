@@ -254,8 +254,8 @@ public class UserController {
     @PutMapping("/update/cancellationPolicy")
     @PreAuthorize("hasRole('ROLE_HOST')")
     @Operation(
-            summary = "호스트 취소 정책 등록(POST)",
-            description = "호스트가 호스팅 중인 숙소의 예약 취소 정책을 등록하여 일괄적으로 적용토록 합니다."
+            summary = "호스트 취소 정책 수정(PUT)",
+            description = "호스트가 호스팅 중인 숙소의 예약 취소 정책을 수정하여 일괄적으로 적용토록 합니다."
     )
     public BaseResponse<?> updateCancellationPolicy(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,

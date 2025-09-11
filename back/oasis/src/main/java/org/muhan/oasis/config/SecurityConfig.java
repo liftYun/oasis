@@ -99,7 +99,7 @@ public class SecurityConfig {
                                 "/api/v1/health/**").permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/auth/refresh",
-                                "/api/v1/auth/logout/rToken").permitAll()
+                                "/api/v1/auth/logout").permitAll()
                         // Swagger, 공용 API
                         .requestMatchers( "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         // 토큰 보유자
