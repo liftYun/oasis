@@ -71,3 +71,16 @@ cloud:
     region: ${S3_REGION}          # 서울 리전
     s3:
       bucket: ${S3_BUCKET}      # 실제 버킷명
+    sqs:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_KEY}
+      queue:
+        stay-translation-url: ${SQS_TRANS_STAY}
+        review-translation-url: ${SQS_TRANS_REVIEW}
+        review-summary-url: ${SQS_SUMMARY_REVIEW}
+
+    openai:
+      secret-key: ${OPENAI_SECRET_KEY}
+      chat-url: https://gms.ssafy.io/gmsapi/api.openai.com/v1/chat/completions
+      chat-model: gpt-4.1-mini

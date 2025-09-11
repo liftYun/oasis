@@ -21,11 +21,11 @@ public class ReservationEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity userId;
+    private UserEntity user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stay_id", nullable = false)
-    private StayEntity stayId;
+    private StayEntity stay;
 
     @Column(name = "checkin_date", nullable = false)
     private LocalDateTime checkinDate;
@@ -55,10 +55,10 @@ public class ReservationEntity {
     @Column(name = "stay_title_eng", nullable = false)
     private String stayTitleEng;
     @Builder
-    public ReservationEntity(String reservationId, UserEntity userId, StayEntity stayId, LocalDateTime checkinDate, LocalDateTime checkoutDate, LocalDateTime reservationDate, boolean isSettlemented, boolean isReviewed, int payment, boolean isCancled, String stayTitle, String stayTitleEng) {
+    public ReservationEntity(String reservationId, UserEntity user, StayEntity stay, LocalDateTime checkinDate, LocalDateTime checkoutDate, LocalDateTime reservationDate, boolean isSettlemented, boolean isReviewed, int payment, boolean isCancled, String stayTitle, String stayTitleEng) {
         this.reservationId = reservationId;
-        this.userId = userId;
-        this.stayId = stayId;
+        this.user = user;
+        this.stay = stay;
         this.checkinDate = checkinDate;
         this.checkoutDate = checkoutDate;
         this.reservationDate = reservationDate;

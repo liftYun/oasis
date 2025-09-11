@@ -155,7 +155,7 @@ public class StayController {
                     .messageAttributes(attributes)
                     .build());
 */
-    @PostMapping
+    @PostMapping("/translate")
     public ResponseEntity<BaseResponse<Void>> translateStay(
             @RequestBody StayRequestDto stayRequest){
         try{

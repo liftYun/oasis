@@ -59,12 +59,12 @@ public class KeyServiceImpl implements KeyService {
     @Override
     public Long issueKeysForAllUsers(ShareKeyRequestDto shareKeyRequestDto) {
         // 1) 예약 조회
-        ReservationEntity reservation = reservationRepository.findById(shareKeyRequestDto.getReservationId())
+        ReservationEntity reservation = reservationRepository.findById(Long.valueOf(shareKeyRequestDto.getReservationId()))
                 .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
 
         // 2) 숙소/디바이스
         StayEntity stay = reservation.getStay();
-        DeviceEntity device = deviceRepository.findByStayId(stay.getStayId());
+        DeviceEntity device = deviceRepository.findByStayId(stay.getId());
         if (device == null) throw new IllegalStateException("해당 숙소에는 도어락이 존재하지 않습니다.");
 
         // 3) 키 생성
