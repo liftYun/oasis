@@ -42,7 +42,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public ListOfReservationResponseVo getListOfResevation(Long userId) {
+    public ListOfReservationResponseVo getListOfReservation(Long userId) {
         List<ReservationEntity> entities = reservationRepository
                 .findAllByUser_UserIdOrderByReservationDateDesc(userId);
 

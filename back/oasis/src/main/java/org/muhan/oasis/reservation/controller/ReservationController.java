@@ -57,6 +57,6 @@ public class ReservationController {
     )
     @GetMapping("/list")
     public BaseResponse<ListOfReservationResponseVo> listOfReservation(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        return BaseResponse.of(reservationService.getListOfResevation(customUserDetails.getUserId()));
+        return BaseResponse.of(reservationService.getListOfReservation(customUserDetails.getUserId()));
     }
 }

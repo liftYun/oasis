@@ -6,5 +6,5 @@ import org.muhan.oasis.reservation.vo.out.ListOfReservationResponseVo;
 public interface ReservationService {
     String registReserVation(Long userId, RegistReservationRequestDto from);
 
-    ListOfReservationResponseVo getListOfResevation(Long userId);
+    ListOfReservationResponseVo getListOfReservation(Long userId);
 }
