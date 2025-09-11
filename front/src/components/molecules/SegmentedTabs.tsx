@@ -15,18 +15,20 @@ export function SegmentedTabs<T extends string>({
   className,
 }: SegmentedTabsProps<T>) {
   return (
-    <div className={`grid grid-cols-5 gap-2 ${className ?? ''}`}>
-      {tabs.map((t) => (
-        <Chip
-          key={t.key}
-          selected={t.key === value}
-          onClick={() => onChange(t.key)}
-          className="w-full h-9"
-          variant="category"
-        >
-          {t.label}
-        </Chip>
-      ))}
+    <div className={`overflow-x-auto no-scrollbar ${className ?? ''}`}>
+      <div className="inline-flex gap-2 min-w-full">
+        {tabs.map((t) => (
+          <Chip
+            key={t.key}
+            selected={t.key === value}
+            onClick={() => onChange(t.key)}
+            className="h-9 px-3 max-w-[140px] whitespace-nowrap truncate"
+            variant="category"
+          >
+            {t.label}
+          </Chip>
+        ))}
+      </div>
     </div>
   );
 }

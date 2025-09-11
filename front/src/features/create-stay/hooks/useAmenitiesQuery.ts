@@ -3,13 +3,17 @@ import {
   AMENITIES_BY_CATEGORY,
   type AmenityCategoryKey,
   AMENITY_LABELS,
+  type AmenityOptionKey,
 } from '@/features/create-stay/constants/amenities';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
 
 export interface AmenitiesData {
   categoryLabels: Record<AmenityCategoryKey, string>;
-  amenitiesByCategory: Record<AmenityCategoryKey, string[]>;
+  // 카테고리별 옵션 ID 배열
+  amenityIdsByCategory: Record<AmenityCategoryKey, AmenityOptionKey[]>;
+  // ID -> 라벨 맵 (현재 언어)
+  amenityLabels: Record<AmenityOptionKey, string>;
 }
 
 const buildAmenities = (lang: 'kor' | 'eng'): AmenitiesData => {
@@ -22,12 +26,13 @@ const buildAmenities = (lang: 'kor' | 'eng'): AmenitiesData => {
       convenience: t.categories.convenience,
       around: t.categories.around,
     },
-    amenitiesByCategory: Object.fromEntries(
-      (Object.keys(AMENITIES_BY_CATEGORY) as AmenityCategoryKey[]).map((cat) => [
-        cat,
-        AMENITIES_BY_CATEGORY[cat].map((key) => AMENITY_LABELS[key][lang]),
+    amenityIdsByCategory: AMENITIES_BY_CATEGORY,
+    amenityLabels: Object.fromEntries(
+      (Object.keys(AMENITY_LABELS) as AmenityOptionKey[]).map((key) => [
+        key,
+        AMENITY_LABELS[key][lang],
       ])
-    ) as Record<AmenityCategoryKey, string[]>,
+    ) as Record<AmenityOptionKey, string>,
   };
 };
 

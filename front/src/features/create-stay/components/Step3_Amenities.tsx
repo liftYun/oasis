@@ -5,7 +5,10 @@ import { Button } from '@/components/atoms/Button';
 import { SegmentedTabs } from '@/components/molecules/SegmentedTabs';
 import { MultiSelectChips } from '@/components/molecules/MultiSelectChips';
 import { useAmenitiesQuery } from '@/features/create-stay/hooks/useAmenitiesQuery';
-import type { AmenityCategoryKey } from '@/features/create-stay/constants/amenities';
+import type {
+  AmenityCategoryKey,
+  AmenityOptionKey,
+} from '@/features/create-stay/constants/amenities';
 import { useCreateStayStore } from '@/features/create-stay/store';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
@@ -26,9 +29,11 @@ export function Step3_Amenities() {
         label: data.categoryLabels[key],
       }));
 
-  const [selected, setSelected] = useState<Record<AmenityCategoryKey, string[]>>(() => {
+  const [selected, setSelected] = useState<Record<AmenityCategoryKey, AmenityOptionKey[]>>(() => {
     // 스토어에 기존 선택이 있다면 복구
-    const saved = (formData as any)?.amenities as Record<AmenityCategoryKey, string[]> | undefined;
+    const saved = (formData as any)?.amenities as
+      | Record<AmenityCategoryKey, AmenityOptionKey[]>
+      | undefined;
     return (
       saved ?? {
         bathroom: [],
@@ -40,9 +45,14 @@ export function Step3_Amenities() {
     );
   });
 
-  const currentOptions: string[] = !data ? [] : (data.amenitiesByCategory[category] ?? []);
+  const currentOptions: { key: AmenityOptionKey; label: string }[] = !data
+    ? []
+    : (data.amenityIdsByCategory[category] ?? []).map((id) => ({
+        key: id,
+        label: data.amenityLabels[id],
+      }));
 
-  const handleChangeValues = (values: string[]) => {
+  const handleChangeValues = (values: AmenityOptionKey[]) => {
     setSelected((prev) => ({ ...prev, [category]: values }));
   };
 
@@ -67,8 +77,8 @@ export function Step3_Amenities() {
 
       <MultiSelectChips
         options={currentOptions}
-        values={selected[category] ?? []}
-        onChange={handleChangeValues}
+        values={(selected[category] ?? []) as string[]}
+        onChange={(vals) => handleChangeValues(vals as AmenityOptionKey[])}
       />
 
       <div className="mt-auto pt-4">
