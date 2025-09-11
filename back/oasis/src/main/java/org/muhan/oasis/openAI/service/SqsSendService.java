@@ -47,10 +47,10 @@ public class SqsSendService {
         }
     }
 
-    public void sendReviewTransMessage(ReviewRequestDto reviewRequestDto) {
+    public void sendReviewTransMessage(ReviewRequestDto reviewRequestDto, Long reviewId) {
         try {
-
-            String messageBody = objectMapper.writeValueAsString(reviewRequestDto);
+            MessageDto messageDto = new MessageDto(reviewId.toString(), reviewRequestDto);
+            String messageBody = objectMapper.writeValueAsString(messageDto);
 
             SendMessageRequest sendMsgRequest = SendMessageRequest.builder()
                     .queueUrl(reviewTransQueue)

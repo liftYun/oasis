@@ -1,6 +1,6 @@
 package org.muhan.oasis.openAI.dto.in;
 
 public record MessageDto (
-    String userNickname,
+    String id,
     Object data
 ){}

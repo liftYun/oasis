@@ -13,10 +13,9 @@ public class SseController {
 
     private final SseService sseService;
 
-    @GetMapping(value = "/sse/connect/{id}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter connect(@PathVariable String id) {
-        System.out.println("구독시작");
-        return sseService.subscribe(id);
+    @GetMapping(value = "/sse/connect/{nickname}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter connect(@PathVariable String nickname) {
+        return sseService.subscribe(nickname);
     }
 
 }

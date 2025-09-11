@@ -1,7 +1,6 @@
 package org.muhan.oasis.openAI.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import io.awspring.cloud.sqs.annotation.SqsListener;
 import lombok.RequiredArgsConstructor;
 import org.muhan.oasis.common.base.BaseResponseStatus;
@@ -47,7 +46,7 @@ public class SqsAsyncServicce {
                         }
                     }, executor)
                     .thenAcceptAsync(translationResult -> {
-                        sseService.sendToClient(messageDto.userNickname(),"stayTranslate", translationResult);
+                        sseService.sendToClient(messageDto.id(),"stayTranslate", translationResult);
                     }, executor)
                     .exceptionally(throwable -> {
                         throw new BaseException(BaseResponseStatus.FAIL_OPENAI_COMMUNICATION);
@@ -74,7 +73,7 @@ public class SqsAsyncServicce {
                     }, executor)
                     .thenAcceptAsync(translationResult -> {
 
-                        reviewService.updateReview(request.getReviewId(), translationResult);
+                        reviewService.updateReview(Long.getLong(messageDto.id()), translationResult);
 
                     }, executor)
                     .exceptionally(throwable -> {
