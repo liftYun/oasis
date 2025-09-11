@@ -1,7 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import type { StaticImageData } from 'next/image';
+import { useRouter } from 'next/navigation';
+import { TabKey, NavTabItem } from './types';
 import HomeDisable from '@/assets/icons/home-disable.png';
 import HomeEnable from '@/assets/icons/home-enable.png';
 import KeyDisable from '@/assets/icons/key-disable.png';
@@ -11,27 +12,37 @@ import ChatEnable from '@/assets/icons/chat-enable.png';
 import UserDisable from '@/assets/icons/user-disable.png';
 import UserEnable from '@/assets/icons/user-enable.png';
 
-type TabKey = 'home' | 'key' | 'chat' | 'profile';
-
-type TabItem = {
-  key: TabKey;
-  label: string;
-  activeIcon: StaticImageData;
-  inactiveIcon: StaticImageData;
-};
-
 type TabBarProps = {
   activeKey: TabKey;
-  onChange: (key: TabKey) => void;
   withSafeArea?: boolean;
 };
 
-export default function TabBar({ activeKey, onChange, withSafeArea = true }: TabBarProps) {
-  const items: TabItem[] = [
-    { key: 'home', label: '홈', activeIcon: HomeEnable, inactiveIcon: HomeDisable },
-    { key: 'key', label: '스마트키', activeIcon: KeyEnable, inactiveIcon: KeyDisable },
-    { key: 'chat', label: '채팅', activeIcon: ChatEnable, inactiveIcon: ChatDisable },
-    { key: 'profile', label: '프로필', activeIcon: UserEnable, inactiveIcon: UserDisable },
+export default function TabBar({ activeKey, withSafeArea = true }: TabBarProps) {
+  const router = useRouter();
+
+  const items: NavTabItem[] = [
+    { key: 'home', label: '홈', activeIcon: HomeEnable, inactiveIcon: HomeDisable, path: '/' },
+    {
+      key: 'smart-key',
+      label: '스마트키',
+      activeIcon: KeyEnable,
+      inactiveIcon: KeyDisable,
+      path: '/smart-key',
+    },
+    {
+      key: 'chat',
+      label: '채팅',
+      activeIcon: ChatEnable,
+      inactiveIcon: ChatDisable,
+      path: '/chat',
+    },
+    {
+      key: 'profile',
+      label: '프로필',
+      activeIcon: UserEnable,
+      inactiveIcon: UserDisable,
+      path: '/profile',
+    },
   ];
 
   return (
@@ -43,27 +54,25 @@ export default function TabBar({ activeKey, onChange, withSafeArea = true }: Tab
         } as React.CSSProperties
       }
     >
-      <div>
-        <div className="grid grid-cols-4 gap-2 px-4 pt-4 pb-[var(--safe-bottom)]">
-          {items.map((it) => {
-            const active = it.key === activeKey;
-            return (
-              <button
-                key={it.key}
-                onClick={() => onClick(it.key)}
-                className="relative flex flex-col items-center justify-center gap-2 py-1 text-xs"
-              >
-                <Image
-                  src={active ? it.activeIcon : it.inactiveIcon}
-                  alt={it.label}
-                  width={24}
-                  height={24}
-                />
-                <span className={active ? 'text-gray-600' : 'text-gray-300'}>{it.label}</span>
-              </button>
-            );
-          })}
-        </div>
+      <div className="grid grid-cols-4 gap-2 px-4 pt-4 pb-[var(--safe-bottom)]">
+        {items.map((it) => {
+          const active = it.key === activeKey;
+          return (
+            <button
+              key={it.key}
+              onClick={() => router.push(it.path as any)}
+              className="relative flex flex-col items-center justify-center gap-2 py-1 text-xs"
+            >
+              <Image
+                src={active ? it.activeIcon : it.inactiveIcon}
+                alt={it.label}
+                width={24}
+                height={24}
+              />
+              <span className={active ? 'text-gray-600' : 'text-gray-300'}>{it.label}</span>
+            </button>
+          );
+        })}
       </div>
     </nav>
   );

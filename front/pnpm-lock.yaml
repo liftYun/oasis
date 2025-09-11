@@ -48,6 +48,12 @@ importers:
         specifier: ^5.0.8
         version: 5.0.8(@types/react@18.3.24)(react@18.3.1)
     devDependencies:
+      '@babel/core':
+        specifier: ^7.28.4
+        version: 7.28.4
+      '@babel/preset-env':
+        specifier: ^7.28.3
+        version: 7.28.3(@babel/core@7.28.4)
       '@types/node':
         specifier: ^20
         version: 20.19.13
@@ -60,6 +66,9 @@ importers:
       autoprefixer:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.6)
+      babel-loader:
+        specifier: ^10.0.0
+        version: 10.0.0(@babel/core@7.28.4)(webpack@5.101.3)
       eslint:
         specifier: ^8.57.0
         version: 8.57.1
@@ -1333,6 +1342,13 @@ packages:
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
     engines: {node: '>= 0.4'}
+
+  babel-loader@10.0.0:
+    resolution: {integrity: sha512-z8jt+EdS61AMw22nSfoNJAZ0vrtmhPRVi6ghL3rCeRZI8cdNYFiV5xeV3HbE7rlZZNmGH8BVccwWt8/ED0QOHA==}
+    engines: {node: ^18.20.0 || ^20.10.0 || >=22.0.0}
+    peerDependencies:
+      '@babel/core': ^7.12.0
+      webpack: '>=5.61.0'
 
   babel-loader@8.4.1:
     resolution: {integrity: sha512-nXzRChX+Z1GoE6yWavBQg6jDslyFF3SDjl2paADuoQtQW10JqShJt62R6eJQ5m/pjJFDT8xgKIWSP85OY8eXeA==}
@@ -4712,6 +4728,12 @@ snapshots:
       - debug
 
   axobject-query@4.1.0: {}
+
+  babel-loader@10.0.0(@babel/core@7.28.4)(webpack@5.101.3):
+    dependencies:
+      '@babel/core': 7.28.4
+      find-up: 5.0.0
+      webpack: 5.101.3
 
   babel-loader@8.4.1(@babel/core@7.28.4)(webpack@5.101.3):
     dependencies:

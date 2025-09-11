@@ -8,7 +8,7 @@ export type AddInformationsRequest = {
   nickname: string;
   role: UserRole;
   language: UserLanguage;
-  profileImgKey?: string;
+  profileImage?: string | null;
 };
 
 export type AddInformationsResponse = {
