@@ -80,6 +80,10 @@ public enum BaseResponseStatus {
     // 숙소 별점 통계
     NO_STAY_SUMMARY(HttpStatus.NOT_FOUND, false, 404, "숙소요약이 존재하지 않습니다."),
 
+    // SSE
+    FAIL_SSE_COMMUNICATION(HttpStatus.SERVICE_UNAVAILABLE, false, 503, "SSE 메세지 전송에 실패했습니다."),
+
+
     // region
     NO_EXIST_SUBREGION(HttpStatus.NOT_FOUND, false, 404, "존재하지 않는 지역 정보입니다."),
     // facility

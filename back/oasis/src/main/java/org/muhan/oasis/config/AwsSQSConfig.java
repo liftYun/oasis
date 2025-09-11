@@ -5,10 +5,13 @@ import io.awspring.cloud.sqs.operations.SqsTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
+
+import java.util.concurrent.Executor;
 
 @Configuration
 public class AwsSQSConfig {
@@ -37,5 +40,16 @@ public class AwsSQSConfig {
                 .sqsAsyncClient(sqsAsyncClient())
                 .build();
 
+    }
+
+    @Bean(name = "threadPoolTaskExecutor")
+    public Executor threadPoolTaskExecutor() {
+        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        taskExecutor.setCorePoolSize(10);
+        taskExecutor.setMaxPoolSize(50);
+        taskExecutor.setQueueCapacity(100);
+        taskExecutor.setThreadNamePrefix("Async-Task-");
+        taskExecutor.initialize();
+        return taskExecutor;
     }
 }

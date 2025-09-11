@@ -3,7 +3,9 @@ package org.muhan.oasis.review.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
+import org.muhan.oasis.openAI.dto.in.ReviewRequestDto;
 import org.muhan.oasis.openAI.dto.out.ReviewTranslationResultDto;
+import org.muhan.oasis.openAI.service.SqsSendService;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
 import org.muhan.oasis.review.dto.in.RegistReviewRequestDto;
@@ -29,6 +31,7 @@ public class ReviewServiceImpl implements ReviewService{
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final StayService stayService;
+    private SqsSendService sqsSendService;
 
     @Override
     public Long registReview(Long userId, RegistReviewRequestDto registReviewRequestDto) {
@@ -71,7 +74,7 @@ public class ReviewServiceImpl implements ReviewService{
                     .originalLang(writer.getLanguage())
                     .build());
         }
-
+        sqsSendService.sendReviewTransMessage(new ReviewRequestDto(original, writer.getLanguage()), review.getReviewId());
         stayService.recalculateRating(reservation.getStay().getId(), registReviewRequestDto.getRating());
         return review.getReviewId();
     }
