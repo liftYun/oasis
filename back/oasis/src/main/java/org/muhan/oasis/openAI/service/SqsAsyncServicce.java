@@ -94,8 +94,7 @@ public class SqsAsyncServicce {
                         try {
                             return openAiClient.translateReview(request);
                         } catch (JsonProcessingException e) {
-                            System.err.println("Translation failed due to JSON processing error: " + e.getMessage());
-                            throw new RuntimeException(e);
+                            throw new BaseException(BaseResponseStatus.SERIALIZATION_FAIL);
                         }
                     }, threadPoolTaskExecutor) // 별도 스레드 풀에서 번역 실행
                     .thenAcceptAsync(translationResult -> { // 번역 완료 후 다음 작업 실행
@@ -107,7 +106,7 @@ public class SqsAsyncServicce {
                     });
 
         } catch (Exception e) {
-            System.err.println("Error processing message from SQS: " + e.getMessage());
+            throw new BaseException(BaseResponseStatus.SERIALIZATION_FAIL);
         }
     }
 
