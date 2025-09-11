@@ -119,7 +119,8 @@ public class ReviewServiceImpl implements ReviewService{
         Language language = user.getLanguage();
 
         List<ReviewEntity> entities =
-                reviewRepository.findAllByStayIdOrderByCreatedAtDesc(stayId);
+//                reviewRepository.findAllByStayIdOrderByCreatedAtDesc(stayId);
+                reviewRepository.findAllByStayIdOrderByCreatedAtDescWithJoins(stayId);
 
         return entities.stream()
                 .map(e -> StayReviewResponseVo.fromEntity(e, language, user.getNickname()))
