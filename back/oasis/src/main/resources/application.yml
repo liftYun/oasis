@@ -87,7 +87,7 @@ cloud:
         review-translation-url: ${SQS_TRANS_REVIEW}
         review-summary-url: ${SQS_SUMMARY_REVIEW}
 
-    openai:
-      secret-key: ${OPENAI_SECRET_KEY}
-      chat-url: https://gms.ssafy.io/gmsapi/api.openai.com/v1/chat/completions
-      chat-model: gpt-4.1-mini
+openai:
+  secret-key: ${OPENAI_SECRET_KEY}
+  chat-url: https://gms.ssafy.io/gmsapi/api.openai.com/v1/chat/completions
+  chat-model: gpt-4.1-mini

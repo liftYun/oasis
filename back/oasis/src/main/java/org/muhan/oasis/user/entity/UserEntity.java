@@ -47,24 +47,21 @@ public class UserEntity extends BaseEntity {
     @Column(name = "email", nullable = false, length = 255, unique = true)
     private String email;
 
-    @Column(name = "profile_key", length = 512)
+    @Column(name = "profile_key", length = 191)
     private String profileKey;
 
-    @Column(name = "profile_url", length = 2083)
+    @Column(name = "profile_url", length = 191)
     private String profileUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "language", nullable = false, length = 3)
     private Language language;
 
-    @Column(name = "certificate_key", length = 512)
+    @Column(name = "certificate_key", length = 191)
     private String certificateKey;
 
-    @Column(name = "certificate_url", length = 2083)
+    @Column(name = "certificate_url", length = 191)
     private String certificateUrl;
-
-    @OneToMany(mappedBy = "userId")
-    private List<WishEntity> wishList = new ArrayList<>();
 
     /* ---------- 양방향 연관관계들 ---------- */
 

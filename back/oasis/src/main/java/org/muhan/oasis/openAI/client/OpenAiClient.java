@@ -232,8 +232,8 @@ public class OpenAiClient {
     private String toJson(Object payload) {
         try {
             return MAPPER.writeValueAsString(payload);
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            throw new IllegalArgumentException("에러");
+        } catch (JsonProcessingException e) {
+            throw new BaseException(BaseResponseStatus.SERIALIZATION_FAIL);
         }
     }
 
@@ -251,7 +251,7 @@ public class OpenAiClient {
         String content = (first != null && first.getMessage() != null)
                 ? first.getMessage().getContent() : null;
         if (content == null || content.isBlank()) {
-            throw new IllegalStateException("Empty completion content");
+            throw new BaseException(BaseResponseStatus.OPENAI_INVALID_RESPONSE);
         }
 
         String json = normalizeContent(content);
@@ -262,7 +262,7 @@ public class OpenAiClient {
 
     private ChatCompletionResponseDto requireOk(ResponseEntity<ChatCompletionResponseDto> resp) {
         if (!resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null) {
-            throw new RuntimeException("OpenAI API 호출 실패: status=" + resp.getStatusCode());
+            throw new BaseException(BaseResponseStatus.FAIL_OPENAI_COMMUNICATION);
         }
         return resp.getBody();
     }

@@ -1,6 +1,5 @@
 package org.muhan.oasis.stay.dto.out;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.muhan.oasis.stay.entity.StayPhotoEntity;
 
@@ -15,7 +14,7 @@ public record ImageResponseDto(String url, Integer sortOrder) {
 
     public static ImageResponseDto from(StayPhotoEntity stayPhotoEntity) {
         return ImageResponseDto.builder()
-                .url(stayPhotoEntity.getUrl())
+                .url(stayPhotoEntity.getPhotoUrl())
                 .sortOrder(stayPhotoEntity.getSortOrder())
                 .build();
     }

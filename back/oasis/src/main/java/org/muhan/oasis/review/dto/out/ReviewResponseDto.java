@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.muhan.oasis.valueobject.Language;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Builder
@@ -15,7 +16,7 @@ public class ReviewResponseDto {
 
     private Long userId;
 
-    private float rating;
+    private BigDecimal rating;
 
     private LocalDateTime createdAt;
 }
