@@ -21,7 +21,7 @@ export default function TabBar({ activeKey, withSafeArea = true }: TabBarProps) 
   const router = useRouter();
 
   const items: NavTabItem[] = [
-    { key: 'home', label: '홈', activeIcon: HomeEnable, inactiveIcon: HomeDisable, path: '/' },
+    { key: 'home', label: '홈', activeIcon: HomeEnable, inactiveIcon: HomeDisable, path: '/main' },
     {
       key: 'smart-key',
       label: '스마트키',

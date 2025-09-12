@@ -12,6 +12,7 @@ export function RegisterNickname() {
   const t = registerMessages[lang];
 
   const handleNicknameConfirm = async () => {
+    toast.success('닉네임 중복 확인 완료!');
     await checkNickname();
   };
 

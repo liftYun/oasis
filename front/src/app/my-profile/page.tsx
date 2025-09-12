@@ -1,25 +1,21 @@
-import { redirect } from 'next/navigation';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import GuestProfile from '@/features/profile/GuestProfile';
-import HostProfile from '@/features/profile/HostProfile';
+'use client';
 
-export default async function Page() {
-  // 1. 로그인 세션 가져오기
-  const session = await getServerSession(authOptions);
+import { useAuthStore } from '@/stores/useAuthStores';
+import { GuestProfile } from '@/features/my-profile';
+import { HostProfile } from '@/features/my-profile';
 
-  if (!session) {
-    // 로그인 안 되어 있으면 로그인 페이지로 보내기
-    redirect('/login');
-  }
+export default function MyProfilePage() {
+  //   const { role } = useAuthStore();
 
-  // 2. 역할 가져오기 (예: session.user.role)
-  const role = session.user.role;
+  //   if (!role) {
+  //     return (
+  //       <div className="flex items-center justify-center min-h-screen">
+  //         <p className="text-gray-500">로그인 후 이용할 수 있어요.</p>
+  //       </div>
+  //     );
+  //   }
 
-  // 3. 역할에 따라 분기 렌더링
-  if (role === 'host') {
-    return <HostProfile />;
-  } else {
-    return <GuestProfile />;
-  }
+  //   return role === 'guest' ? <GuestProfile /> : <HostProfile />;
+
+  return <GuestProfile />;
 }

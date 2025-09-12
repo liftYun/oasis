@@ -6,9 +6,9 @@ export default function AppToaster() {
   return (
     <Toaster
       position="bottom-center"
-      containerStyle={{
-        marginBottom: '5.5rem',
-      }}
+      // containerStyle={{
+      //   marginBottom: '5.5rem',
+      // }}
       toastOptions={{
         style: {
           background: '#737373',
@@ -16,7 +16,7 @@ export default function AppToaster() {
           borderRadius: '8px',
           height: '50px',
           width: '100%',
-          maxWidth: '27rem',
+          maxWidth: '21.5rem',
           padding: '0 16px',
           fontSize: '1rem',
           display: 'flex',
