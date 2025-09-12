@@ -1,32 +1,35 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import toast from 'react-hot-toast';
+import { Suspense, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStores';
-import { handleLoginCallback } from '@/services/auth.api';
 
-export default function AuthCallbackPage() {
+function CallbackInner() {
+  const params = useSearchParams();
   const router = useRouter();
-  const setUser = useAuthStore((state) => state.setUser);
+  const setUser = useAuthStore((s) => s.setUser);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const { accessToken, needProfileUpdate } = await handleLoginCallback();
+    const accessToken = params.get('accessToken');
+    const needProfileUpdate = params.get('needProfileUpdate') === 'true';
+    console.log({ accessToken, needProfileUpdate });
 
-        if (accessToken) {
-          setUser({ accessToken });
-        }
+    if (accessToken) {
+      setUser({ accessToken });
+      window.history.replaceState({}, '', '/');
+      router.replace(needProfileUpdate ? '/register' : '/');
+    } else {
+      router.replace('/');
+    }
+  }, [params, router, setUser]);
 
-        if (needProfileUpdate) {
-          router.replace('/register');
-        } else {
-          router.replace('/');
-        }
-      } catch (err) {
-        toast.error('구글 로그인에 실패했어요 😢');
-      }
-    })();
-  }, []);
+  return <p>로그인 처리 중...</p>;
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={<p>로딩 중...</p>}>
+      <CallbackInner />
+    </Suspense>
+  );
 }

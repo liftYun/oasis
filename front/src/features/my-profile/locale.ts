@@ -1,0 +1,28 @@
+export const profileMessages = {
+  kor: {
+    guest: '게스트',
+    balance: '충전하기',
+    usdc: 'USDC',
+    reservation: '예약 관리',
+    reservationHistory: '예약내역 확인',
+    activity: '활동 관리',
+    wishlist: '내 관심 숙소',
+    reviews: '내가 쓴 리뷰',
+    guide: '이용 안내',
+    logout: '로그아웃',
+    secession: '회원탈퇴',
+  },
+  eng: {
+    guest: 'Guest',
+    balance: 'Charge',
+    usdc: 'USDC',
+    reservation: 'Reservation',
+    reservationHistory: 'View reservations',
+    activity: 'Activity',
+    wishlist: 'My wishlist',
+    reviews: 'My reviews',
+    guide: 'Guide',
+    logout: 'Log out',
+    secession: 'Delete account',
+  },
+} as const;

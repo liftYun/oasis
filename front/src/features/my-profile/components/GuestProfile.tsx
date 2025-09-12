@@ -6,61 +6,77 @@ import HeartPointer from '@/assets/icons/heart-pointer.png';
 import PositiveReview from '@/assets/icons/positive-review.png';
 import SignOut from '@/assets/icons/sign-out.png';
 import Secession from '@/assets/icons/secession.png';
+import Usdc from '@/assets/icons/usd-circle.png';
+import { useLanguage } from '@/features/language';
+import { profileMessages } from '@/features/my-profile';
 
 export function GuestProfile() {
+  const { lang } = useLanguage();
+  const t = profileMessages[lang];
+
   return (
-    <div className="flex flex-col items-center px-6 py-8 space-y-6">
+    <div
+      className="flex flex-col items-center px-6 py-8 space-y-6 min-h-screen overflow-y-auto"
+      style={{ paddingBottom: 'var(--safe-bottom, 110px)' }}
+    >
       <div className="flex flex-col items-center space-y-2">
         <div className="w-20 h-20 rounded-full bg-gray-200" />
         <div className="flex items-center gap-2">
+          <span className="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-600">
+            {t.guest}
+          </span>
           <h2 className="text-xl font-semibold">이민희</h2>
-          <span className="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-600">게스트</span>
         </div>
       </div>
 
-      <div className="w-full max-w-sm bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-4 shadow-sm">
+      <div
+        className="w-full max-w-sm rounded-md p-5 mb-8"
+        style={{ background: 'linear-gradient(to right, #dbeafe, #e0f2f1)' }}
+      >
+        <div className="flex items-center gap-2 mb-3">
+          <Image src={Usdc} alt="USDC Icon" width={15} height={15} />
+          <span className="text-sm text-gray-800 font-medium">{t.usdc}</span>
+        </div>
+
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs text-gray-500">USDC</p>
-            <p className="text-2xl font-bold">19.0</p>
-          </div>
-          <button className="px-3 py-2 rounded-md bg-white text-blue-600 text-sm font-medium shadow hover:bg-blue-50 transition">
-            충전하기
+          <p className="text-2xl font-bold text-gray-900">19.0</p>
+          <button className="px-4 py-1.5 rounded-full bg-white font-semibold flex items-center justify-center">
+            <span className="text-xs text-transparent bg-clip-text bg-gradient-to-r from-[#3B87F4] to-[#88D4AF]">
+              {t.balance}
+            </span>
           </button>
         </div>
       </div>
 
-      <div className="h-px w-full bg-gray-200" />
-
       <div className="w-full max-w-sm space-y-1">
-        <p className="text-sm text-gray-500 mb-2">예약 관리</p>
-        <button className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-gray-50 transition">
-          <Image src={Calendar} alt="Calendar Icon" width={22} height={22} />
-          <span className="text-gray-800 text-sm">예약내역 확인</span>
+        <p className="text-sm text-gray-500 mb-2 font-bold">{t.reservation}</p>
+        <button className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition">
+          <Image src={Calendar} alt="Calendar Icon" width={24} height={24} />
+          <span className="text-gray-800 text-sm">{t.reservationHistory}</span>
         </button>
       </div>
 
       <div className="w-full max-w-sm space-y-1">
-        <p className="text-sm text-gray-500 mb-2">활동 관리</p>
-        <button className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-gray-50 transition">
-          <Image src={HeartPointer} alt="Heart Pointer Icon" width={22} height={22} />
-          <span className="text-gray-800 text-sm">내 관심 숙소</span>
+        <p className="text-sm text-gray-500 mb-2 font-bold">{t.activity}</p>
+        <button className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition">
+          <Image src={HeartPointer} alt="Heart Pointer Icon" width={24} height={24} />
+          <span className="text-gray-800 text-sm">{t.wishlist}</span>
         </button>
-        <button className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-gray-50 transition">
-          <Image src={PositiveReview} alt="Positive Review Icon" width={22} height={22} />
-          <span className="text-gray-800 text-sm">내가 쓴 리뷰</span>
+        <button className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition">
+          <Image src={PositiveReview} alt="Positive Review Icon" width={24} height={24} />
+          <span className="text-gray-800 text-sm">{t.reviews}</span>
         </button>
       </div>
 
       <div className="w-full max-w-sm space-y-1">
-        <p className="text-sm text-gray-500 mb-2">이용 안내</p>
-        <button className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-gray-50 transition">
-          <Image src={SignOut} alt="Sign Out Icon" width={22} height={22} />
-          <span className="text-gray-800 text-sm">로그아웃</span>
+        <p className="text-sm text-gray-500 mb-2 font-bold">{t.guide}</p>
+        <button className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition">
+          <Image src={SignOut} alt="Sign Out Icon" width={24} height={24} />
+          <span className="text-gray-800 text-sm">{t.logout}</span>
         </button>
-        <button className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-gray-50 transition">
-          <Image src={Secession} alt="Secession Icon" width={22} height={22} />
-          <span className="text-gray-800 text-sm">회원탈퇴</span>
+        <button className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition">
+          <Image src={Secession} alt="Secession Icon" width={24} height={24} />
+          <span className="text-gray-800 text-sm">{t.secession}</span>
         </button>
       </div>
     </div>

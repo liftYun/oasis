@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { TabKey, NavTabItem } from './types';
+import { TabKey, NavTabItem } from '@/components/organisms/types';
 import HomeDisable from '@/assets/icons/home-disable.png';
 import HomeEnable from '@/assets/icons/home-enable.png';
 import KeyDisable from '@/assets/icons/key-disable.png';
@@ -11,6 +11,8 @@ import ChatDisable from '@/assets/icons/chat-disable.png';
 import ChatEnable from '@/assets/icons/chat-enable.png';
 import UserDisable from '@/assets/icons/user-disable.png';
 import UserEnable from '@/assets/icons/user-enable.png';
+import { useLanguage } from '@/features/language/';
+import { tabBarMessages } from '@/components/organisms/tabbar/locale';
 
 type TabBarProps = {
   activeKey: TabKey;
@@ -19,26 +21,34 @@ type TabBarProps = {
 
 export default function TabBar({ activeKey, withSafeArea = true }: TabBarProps) {
   const router = useRouter();
+  const { lang } = useLanguage();
+  const t = tabBarMessages[lang];
 
   const items: NavTabItem[] = [
-    { key: 'home', label: '홈', activeIcon: HomeEnable, inactiveIcon: HomeDisable, path: '/main' },
+    {
+      key: 'home',
+      label: t.home,
+      activeIcon: HomeEnable,
+      inactiveIcon: HomeDisable,
+      path: '/main',
+    },
     {
       key: 'smart-key',
-      label: '스마트키',
+      label: t.smartKey,
       activeIcon: KeyEnable,
       inactiveIcon: KeyDisable,
       path: '/smart-key',
     },
     {
       key: 'chat',
-      label: '채팅',
+      label: t.chat,
       activeIcon: ChatEnable,
       inactiveIcon: ChatDisable,
       path: '/chat',
     },
     {
       key: 'profile',
-      label: '프로필',
+      label: t.profile,
       activeIcon: UserEnable,
       inactiveIcon: UserDisable,
       path: '/my-profile',

@@ -17,20 +17,6 @@ export const startGoogleLogin = () => {
 };
 
 /*
- * 로그인 콜백 처리 (accessToken/needProfileUpdate 수신)
- */
-export const handleLoginCallback = async () => {
-  const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/login/oauth2/code/google`, {
-    withCredentials: true,
-  });
-
-  const accessToken = res.headers['authorization']?.split(' ')[1] ?? null;
-  const needProfileUpdate = res.data?.needProfileUpdate ?? false;
-
-  return { accessToken, needProfileUpdate };
-};
-
-/*
  * 토큰 갱신
  */
 export const refreshToken = () => http.post<{ accessToken: string }>('/api/v1/auth/refresh');
