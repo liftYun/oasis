@@ -3,9 +3,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import type { Route } from 'next';
 import StayImage from '@/assets/images/stay_example.png';
-import { ChatUserThumnail } from '@/components/atoms/ChatUserThumnail';
+import { ChatUserThumbnail } from '@/components/atoms/ChatUserThumbnail';
 
 type ChatListItemProps = {
   id: string;
@@ -16,14 +15,18 @@ type ChatListItemProps = {
 
 export function ChatListItem({ id, title, location, date }: ChatListItemProps) {
   return (
-    <Link href={`/chat/${id}` as Route} className="flex items-center gap-4 py-5 hover:bg-gray-50">
+    <Link
+      href={`/chat/${encodeURIComponent(id)}`}
+      aria-label={`Open chat: ${title}`}
+      className="flex items-center gap-4 py-5 hover:bg-gray-50"
+    >
       {/* 래퍼 분리: 아바타가 이미지 밖으로 자연스럽게 튀어나오도록 */}
       <div className="relative h-16 w-16 flex-shrink-0">
         <div className="relative h-full w-full rounded overflow-hidden bg-gray-100">
           <Image src={StayImage} alt={title} fill className="object-cover" />
         </div>
         <div className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 z-10">
-          <ChatUserThumnail size={38} />
+          <ChatUserThumbnail size={38} />
         </div>
       </div>
 

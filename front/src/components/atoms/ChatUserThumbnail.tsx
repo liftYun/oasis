@@ -11,7 +11,7 @@ type ChatUserThumbnailProps = {
   className?: string;
 };
 
-export function ChatUserThumnail({
+export function ChatUserThumbnail({
   src,
   alt = 'user',
   size = 48,
@@ -40,4 +40,4 @@ export function ChatUserThumnail({
   );
 }
 
-export default ChatUserThumnail;
+export default ChatUserThumbnail;
