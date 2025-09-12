@@ -96,6 +96,10 @@ public class SecurityConfig {
         // 3) 경로별 인가 설정
         http.authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET,
+                                "/oauth2/authorization/**",
+                                "/login/oauth2/code/**",
+                                "/api/*/redirect",
+                                "/api/*/login",
                                 "/api/v1/health/**").permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/auth/refresh",
