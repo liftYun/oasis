@@ -1,10 +1,12 @@
 package org.muhan.oasis.security.Handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.security.jwt.CustomOAuth2User;
 import org.muhan.oasis.security.jwt.CustomOidcUser;
@@ -13,6 +15,10 @@ import org.muhan.oasis.security.service.JoinService;
 import org.muhan.oasis.security.service.RefreshTokenService;
 import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.valueobject.Role;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
@@ -23,11 +29,17 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
+
+    @Value("${app.front-base-url}")
+    private String frontBaseUrl;
 
     private final JWTUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
@@ -38,7 +50,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication) throws IOException {
 
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
         Object principalObj = token.getPrincipal();
@@ -82,7 +94,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String email = user.getEmail();
         String nickname = user.getNickname();
 
-
         // ✅ 기본 Role (처음 가입 시 ROLE_GUEST 부여)
         Role role = user.getRole() != null ? user.getRole() : Role.valueOf("ROLE_GUEST");
 
@@ -96,21 +107,65 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         response.addHeader("Authorization", "Bearer " + accessToken);
 
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge((int)(jwtUtil.getRefreshExpiredMs() / 1000));
-        response.addCookie(cookie);
+//        Cookie cookie = new Cookie("refreshToken", refreshToken);
+//        cookie.setHttpOnly(true);
+//        cookie.setPath("/");
+//        cookie.setMaxAge((int)(jwtUtil.getRefreshExpiredMs() / 1000));
+//        response.addCookie(cookie);
+        String cookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)           // 로컬 HTTP 개발 시 false, 배포는 true
+                .sameSite("None")       // SPA 도메인 분리 시 필수
+                .path("/")
+                .maxAge(Duration.ofMillis(jwtUtil.getRefreshExpiredMs()))
+                .build().toString();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie);
 
-        // ✅ 추가 정보 입력이 필요한 상태라면 프론트에서 별도 요청하도록 안내
-        response.setContentType("application/json");
-        boolean need = (user.getRole() == null || user.getProfileUrl() == null);
-        response.getWriter().write("""
-        {
-          "status": "SUCCESS",
-          "needProfileUpdate": %b
+        boolean needProfileUpdate = (user.getRole() == null || user.getProfileUrl() == null);
+        String baseRedirect = needProfileUpdate ? frontBaseUrl + "/register/callback"
+                : frontBaseUrl + "/";
+
+//        String encodedEmail = URLEncoder.encode(email != null ? email : "", StandardCharsets.UTF_8);
+//        String redirectUrl = baseRedirect + (baseRedirect.contains("?") ? "&" : "?") + "email=" + encodedEmail;
+//
+//        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+//
+//        new ObjectMapper().writeValue(
+//                response.getWriter(),
+//                BaseResponse.of(
+//                        Map.of(
+//                                "needProfileUpdate", needProfileUpdate,
+//                                "redirectUrl", redirectUrl
+//                        )
+//                )
+//        );
+        String accept = request.getHeader("Accept");
+        boolean wantsJson =
+                (accept != null && accept.contains(MediaType.APPLICATION_JSON_VALUE))
+                        || "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With"))
+                        || "json".equalsIgnoreCase(request.getParameter("responseMode"));
+
+        if (!wantsJson) {
+            // 기본값: 서버 주도 리다이렉트 (팀 합의 없이도 동작)
+            response.setHeader("Cache-Control", "no-store");
+            response.setHeader("Pragma", "no-cache");
+            response.setStatus(HttpServletResponse.SC_FOUND);
+            response.setHeader("Location", baseRedirect);
+            return;
         }
-        """.formatted(need));
+
+        // JSON 모드: BaseResponse로 내려주고, 프론트가 nextUrl로 이동
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE + "; charset=UTF-8");
+        new ObjectMapper().writeValue(
+                response.getWriter(),
+                BaseResponse.of(
+                        Map.of(
+                                "needProfileUpdate", needProfileUpdate,
+                                // 의미를 명확히: 클라이언트가 사용할 URL
+                                "nextUrl", baseRedirect
+                        )
+                )
+        );
     }
 
     private static String stringOrNull(Object o) {
