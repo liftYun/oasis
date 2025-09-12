@@ -100,7 +100,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         Language language = user.getLanguage() != null ? user.getLanguage() : Language.valueOf("KOR");
 
         // ✅ Access / Refresh Token 발급
-        String accessToken = jwtUtil.createAccessToken(uuid, null, nickname, role, language);
+        String accessToken = jwtUtil.createAccessToken(uuid, email, nickname, role, language);
         String refreshToken = jwtUtil.createRefreshToken(uuid);
 
         refreshTokenService.saveToken(uuid, refreshToken);
@@ -125,18 +125,44 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String baseRedirect = needProfileUpdate ? frontBaseUrl + "/register/callback"
                 : frontBaseUrl + "/";
 
-        // email 쿼리스트링 추가 (URL 인코딩)
-        String encodedEmail = URLEncoder.encode(email != null ? email : "", StandardCharsets.UTF_8);
-        String redirectUrl = baseRedirect + (baseRedirect.contains("?") ? "&" : "?") + "email=" + encodedEmail;
+//        String encodedEmail = URLEncoder.encode(email != null ? email : "", StandardCharsets.UTF_8);
+//        String redirectUrl = baseRedirect + (baseRedirect.contains("?") ? "&" : "?") + "email=" + encodedEmail;
+//
+//        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+//
+//        new ObjectMapper().writeValue(
+//                response.getWriter(),
+//                BaseResponse.of(
+//                        Map.of(
+//                                "needProfileUpdate", needProfileUpdate,
+//                                "redirectUrl", redirectUrl
+//                        )
+//                )
+//        );
+        String accept = request.getHeader("Accept");
+        boolean wantsJson =
+                (accept != null && accept.contains(MediaType.APPLICATION_JSON_VALUE))
+                        || "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With"))
+                        || "json".equalsIgnoreCase(request.getParameter("responseMode"));
 
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        if (!wantsJson) {
+            // 기본값: 서버 주도 리다이렉트 (팀 합의 없이도 동작)
+            response.setHeader("Cache-Control", "no-store");
+            response.setHeader("Pragma", "no-cache");
+            response.setStatus(HttpServletResponse.SC_FOUND);
+            response.setHeader("Location", baseRedirect);
+            return;
+        }
 
+        // JSON 모드: BaseResponse로 내려주고, 프론트가 nextUrl로 이동
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE + "; charset=UTF-8");
         new ObjectMapper().writeValue(
                 response.getWriter(),
                 BaseResponse.of(
                         Map.of(
                                 "needProfileUpdate", needProfileUpdate,
-                                "redirectUrl", redirectUrl
+                                // 의미를 명확히: 클라이언트가 사용할 URL
+                                "nextUrl", baseRedirect
                         )
                 )
         );
