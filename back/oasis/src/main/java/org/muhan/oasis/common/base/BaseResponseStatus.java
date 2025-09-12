@@ -68,6 +68,7 @@ public enum BaseResponseStatus {
 
     // 리뷰
     FAIL_REGIST_REVIEW(HttpStatus.BAD_REQUEST, false, 400, "리뷰 등록에 실패했습니다. 재확인 해주세요"),
+    NO_REVIEW(HttpStatus.NOT_FOUND, false, 404, "리뷰가 존재하지 않습니다."),
 
     // OpenAI
     SERIALIZATION_FAIL(HttpStatus.BAD_REQUEST, false, 400, "AI 요청 JSON 직렬화 실패했습니다."),
@@ -76,6 +77,15 @@ public enum BaseResponseStatus {
 
     // 숙소
     NO_STAY(HttpStatus.NOT_FOUND, false, 404, "숙소가 존재하지 않습니다."),
+
+    // 숙소 별점 통계
+    NO_STAY_SUMMARY(HttpStatus.NOT_FOUND, false, 404, "숙소요약이 존재하지 않습니다."),
+
+    // 예약
+    FAIL_REGIST_RESERVATION(HttpStatus.BAD_REQUEST, false, 400, "예약 정보 등록에 실패했습니다."),
+
+    // SSE
+    FAIL_SSE_COMMUNICATION(HttpStatus.SERVICE_UNAVAILABLE, false, 503, "SSE 메세지 전송에 실패했습니다."),
 
     // region
     NO_EXIST_SUBREGION(HttpStatus.NOT_FOUND, false, 404, "존재하지 않는 지역 정보입니다."),

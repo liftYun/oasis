@@ -47,29 +47,26 @@ public class UserEntity extends BaseEntity {
     @Column(name = "email", nullable = false, length = 255, unique = true)
     private String email;
 
-    @Column(name = "profile_key", length = 512)
+    @Column(name = "profile_key", length = 191)
     private String profileKey;
 
-    @Column(name = "profile_url", length = 2083)
+    @Column(name = "profile_url", length = 191)
     private String profileUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "language", nullable = false, length = 3)
     private Language language;
 
-    @Column(name = "certificate_key", length = 512)
+    @Column(name = "certificate_key", length = 191)
     private String certificateKey;
 
-    @Column(name = "certificate_url", length = 2083)
+    @Column(name = "certificate_url", length = 191)
     private String certificateUrl;
-
-    @OneToMany(mappedBy = "userId")
-    private List<WishEntity> wishList = new ArrayList<>();
 
     /* ---------- 양방향 연관관계들 ---------- */
 
     // 위시리스트 (users 1 : N wishes)
-    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WishEntity> wishes = new ArrayList<>();
 
     // 내가 올린 숙소 (users 1 : N stays) -> stays.user_id
@@ -77,20 +74,20 @@ public class UserEntity extends BaseEntity {
     private List<StayEntity> stays = new ArrayList<>();
 
     // 나의 예약 (users 1 : N reservations) -> reservations.user_id (권장)
-    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReservationEntity> reservations = new ArrayList<>();
 
     // 내가 쓴 리뷰 (users 1 : N reviews) -> reviews.user_id
-    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewEntity> reviews = new ArrayList<>();
 
     // 내가 소유한(공유받은) 키 (users 1 : N key_owner)
-    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<KeyOwnerEntity> keyOwners = new ArrayList<>();
 
     // 나의 취소 정책 (users 1 : 1 cancellation_policies)
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private CancellationPolicyEntity cancellationPolicy;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<CancellationPolicyEntity> cancellationPolicy;
 
     /* ---------- 편의 메서드 ---------- */
 //    public void addWish(WishEntity wish) {

@@ -2,25 +2,28 @@ package org.muhan.oasis.user.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
-import org.muhan.oasis.security.jwt.JWTUtil;
-import org.muhan.oasis.security.service.RefreshTokenService;
+import org.muhan.oasis.security.service.CreateTokenService;
+import org.muhan.oasis.security.vo.out.TokenPair;
+import org.muhan.oasis.user.dto.in.CancellationPolicyRequestDto;
+import org.muhan.oasis.user.dto.in.UpdateCancellationPolicyRequestDto;
 import org.muhan.oasis.user.service.UserService;
+import org.muhan.oasis.user.vo.in.CancellationPolicyRequestVo;
+import org.muhan.oasis.user.vo.in.UpdateCancellationPolicyRequestVo;
 import org.muhan.oasis.user.vo.out.UserDetailsResponseVo;
 import org.muhan.oasis.user.vo.out.UserSearchResultResponseVo;
 import org.muhan.oasis.valueobject.Language;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,14 +43,12 @@ public class UserController {
 
     private final UserService userService;
     private final S3StorageService s3StorageService;
-    private final JWTUtil jwtUtil;
-    private final RefreshTokenService refreshTokenService;
+    private final CreateTokenService createTokenService;
 
-    public UserController(UserService userService, S3StorageService s3StorageService, JWTUtil jwtUtil, RefreshTokenService refreshTokenService) {
+    public UserController(UserService userService, S3StorageService s3StorageService, CreateTokenService createTokenService) {
         this.userService = userService;
         this.s3StorageService = s3StorageService;
-        this.jwtUtil = jwtUtil;
-        this.refreshTokenService = refreshTokenService;
+        this.createTokenService = createTokenService;
     }
 
     @Operation(
@@ -103,7 +104,6 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "401", description = "인증 필요")
     })
-    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/mypage")
     public BaseResponse<?> mypage(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return BaseResponse.of(UserDetailsResponseVo.from(userService.getUser(userDetails.getUserId())));
@@ -125,7 +125,6 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "이미지 MIME 아님"),
             @ApiResponse(responseCode = "401", description = "인증 필요")
     })
-    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/profileImg/upload-url")
     public BaseResponse<?> createUploadUrl(
             @Parameter(hidden = true)
@@ -172,7 +171,6 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "잘못된 key 또는 업로드 미완료"),
             @ApiResponse(responseCode = "401", description = "인증 필요")
     })
-    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/profileImg")
     public BaseResponse<?> setProfileImg(
             @Parameter(hidden = true)
@@ -203,89 +201,69 @@ public class UserController {
         return BaseResponse.of(Map.of("profileImgUrl", publicUrl));
     }
 
-    @PatchMapping("/language")
+    @PatchMapping("/updateLang/{language}")
+    @Schema(allowableValues = {"KOR","ENG"})
     @Operation(
             summary = "사용자 언어 설정 수정(PATCH)",
             description = "요청한 언어 코드로 사용자 언어를 부분 업데이트합니다. 예: language=KOR|ENG"
     )
-    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<BaseResponse<?>> updateLang(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestParam(name = "language") String languageParam,
+            @RequestParam(name = "language") String lang,
             HttpServletResponse response
     ) {
         Long userId = customUserDetails.getUserId();
+        // language parsing
+        Language language = Language.valueOf(lang);
 
-        // 1) 언어 파싱
-        final Language lang;
-        try {
-            lang = Language.valueOf(languageParam.trim().toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            log.warn("[updateLang] invalid language param. userId={}, param={}", userId, languageParam, e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(BaseResponse.error(INVALID_PARAMETER));
-        }
+        // update new Language
+        userService.updateLang(userId, language);
 
-        // 2) 부분 업데이트
-        try {
-            userService.updateLang(userId, lang);
-        } catch (jakarta.persistence.EntityNotFoundException ex) {
-            log.error("[updateLang] user not found. userId={}", userId, ex);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(BaseResponse.error(NO_EXIST_MEMBER));
-        } catch (org.springframework.dao.DataAccessException ex) {
-            log.error("[updateLang] DB access error. userId={}, lang={}", userId, lang, ex);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(BaseResponse.error(UPDATE_LANG_FAIL));
-        } catch (Exception ex) {
-            log.error("[updateLang] unexpected error. userId={}, lang={}", userId, lang, ex);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(BaseResponse.error(DISALLOWED_ACTION));
-        }
+        final String uuid = customUserDetails.getUserUuid();
 
-        // 3) 토큰 재발급 (갱신된 언어 반영)
-        try {
-            final String uuid = customUserDetails.getUserUuid();
+        // create new AT / RT
+        TokenPair tokens = createTokenService.createTokens(
+                customUserDetails.getUserUuid(),
+                customUserDetails.getUserProfileUrl(),
+                customUserDetails.getUserNickname(),
+                customUserDetails.getRole(),
+                language
+        );
 
-            // 3-1) Refresh Token 회전 + 쿠키 재설정
-            String newRefreshToken = jwtUtil.createRefreshToken(uuid);
-            refreshTokenService.saveToken(uuid, newRefreshToken);
+        return ResponseEntity.ok()
+                .header("Authorization", "Bearer " + tokens.accessToken())
+                .header(HttpHeaders.SET_COOKIE, tokens.refreshCookie().toString())
+                .body(BaseResponse.ok());
+    }
 
-            Cookie cookie = new Cookie("refreshToken", newRefreshToken);
-            cookie.setHttpOnly(true);
-            cookie.setPath("/");
-            cookie.setMaxAge((int)(jwtUtil.getRefreshExpiredMs() / 1000));
-            response.addCookie(cookie);
+    @PostMapping("/regist/cancellationPolicy")
+    @PreAuthorize("hasRole('ROLE_HOST')")
+    @Operation(
+            summary = "호스트 취소 정책 등록(POST)",
+            description = "호스트가 호스팅 중인 숙소의 예약 취소 정책을 등록하여 일괄적으로 적용토록 합니다."
+    )
+    public BaseResponse<?> registCancellationPolicy(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody CancellationPolicyRequestVo vo
+    ){
+        Long userId = customUserDetails.getUserId();
+        userService.registCancellationPolicy(userId, CancellationPolicyRequestDto.from(vo));
+        return BaseResponse.ok();
+    }
 
-            // 3-2) Access Token 재발급 (언어는 반드시 업데이트된 lang 사용)
-            String newAccessToken = jwtUtil.createAccessToken(
-                    uuid,
-                    customUserDetails.getUserProfileUrl(),
-                    customUserDetails.getUserNickname(),
-                    customUserDetails.getRole(),
-                    lang
-            );
-
-            Map<String, Object> payload = Map.of(
-                    "userId", userId,
-                    "language", lang.name(),
-                    "updated", true
-            );
-
-            return ResponseEntity.ok()
-                    .header("Authorization", "Bearer " + newAccessToken)
-                    .header("Access-Control-Expose-Headers", "Authorization")
-                    .body(BaseResponse.of(payload));
-
-        } catch (jakarta.persistence.EntityNotFoundException ex) {
-            log.error("[updateLang] user details not found for token reissue. userId={}", userId, ex);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(BaseResponse.error(UPDATE_LANG_FAIL));
-        } catch (Exception ex) {
-            log.error("[updateLang] unexpected error on token reissue. userId={}", userId, ex);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(BaseResponse.error(UPDATE_LANG_FAIL));
-        }
+    @PutMapping("/update/cancellationPolicy")
+    @PreAuthorize("hasRole('ROLE_HOST')")
+    @Operation(
+            summary = "호스트 취소 정책 수정(PUT)",
+            description = "호스트가 호스팅 중인 숙소의 예약 취소 정책을 수정하여 일괄적으로 적용토록 합니다."
+    )
+    public BaseResponse<?> updateCancellationPolicy(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody UpdateCancellationPolicyRequestVo vo
+    ){
+        Long userId = customUserDetails.getUserId();
+        userService.updateCancellationPolicy(userId, UpdateCancellationPolicyRequestDto.from(vo));
+        return BaseResponse.ok();
     }
 
 

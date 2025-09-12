@@ -1,6 +1,8 @@
 package org.muhan.oasis.stay.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,9 +10,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.muhan.oasis.common.base.BaseResponse;
+import org.muhan.oasis.openAI.dto.in.StayRequestDto;
+import org.muhan.oasis.openAI.service.SqsSendService;
+import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
 import org.muhan.oasis.stay.dto.in.CreateStayRequestDto;
-import org.muhan.oasis.stay.dto.out.StayCreateResponseDto;
+import org.muhan.oasis.stay.dto.in.ImageRequestDto;
+import org.muhan.oasis.stay.dto.in.ImageTypeListDto;
+import org.muhan.oasis.stay.dto.in.ImageTypeRequestDto;
+import org.muhan.oasis.stay.dto.out.PresignedResponseDto;
+import org.muhan.oasis.stay.dto.out.StayResponseDto;
 import org.muhan.oasis.stay.dto.out.StayReadResponseDto;
 import org.muhan.oasis.stay.service.StayService;
 import org.springframework.http.HttpStatus;
@@ -19,15 +28,24 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.net.URL;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-import static org.muhan.oasis.common.base.BaseResponseStatus.CREATED;
+import static org.muhan.oasis.common.base.BaseResponseStatus.*;
+import static org.muhan.oasis.common.base.BaseResponseStatus.NO_IMG_DATA;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/stay")
 public class StayController {
 
-    private StayService stayService;
+    private final StayService stayService;
+    private final SqsSendService sqsSendService;
+    private final ObjectMapper objectMapper;
+    private final S3StorageService s3StorageService;
 
     // 숙소 등록 + 도어락 등록
     @Operation(
@@ -52,17 +70,19 @@ public class StayController {
                             @Header(name = "Location", description = "생성된 숙소 조회 URI", schema = @Schema(type = "string"))
                     },
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = StayCreateResponseDto.class))
+                            schema = @Schema(implementation = StayResponseDto.class))
             ),
             @ApiResponse(responseCode = "400", description = "잘못된 요청(필드 검증 실패 등)"),
             @ApiResponse(responseCode = "404", description = "하위지역/취소정책 등 존재하지 않음"),
     })
     @PostMapping
     public ResponseEntity<BaseResponse<Void>> createStay(
-            CreateStayRequestDto stayRequest,
+            @RequestBody CreateStayRequestDto stayRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails){
 
-        StayCreateResponseDto stayDto = stayService.registStay(stayRequest, userDetails.getUserId());
+        // 1) 본인의 경로만 허용 (users/{userUuid}/profile/...)
+
+        StayResponseDto stayDto = stayService.registStay(stayRequest, userDetails.getUserId());
 
         URI location = URI.create("/api/v1/stay/" + stayDto.stayId());
 
@@ -81,6 +101,18 @@ public class StayController {
     }
 
     // 숙소 수정
+    /*@PutMapping("/{stayId}")
+    public ResponseEntity<BaseResponse<StayReadResponseDto>> updateStay(
+            @PathVariable Long stayId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        StayReadResponseDto stayResponse = stayService.updateStay(stayId);
+
+
+        BaseResponse<StayReadResponseDto> body = new BaseResponse<>(stayResponse);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }*/
 
     // 숙소 삭제
 
@@ -109,8 +141,86 @@ public class StayController {
                 .body(body);
     }
 
-    // 숙소 사진 업로드 (여러장)
+    // presigned url 발급
+    @PostMapping("/{stayId}/photos/upload-url")
+    public BaseResponse<?> createUploadUrl(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody ImageTypeListDto imageTypeListDto
+            ) {
+
+        List<PresignedResponseDto> result = new ArrayList<>();
+
+        for (ImageTypeRequestDto imageInfo : imageTypeListDto.imageInfos()) {
+            if (imageInfo.contentType() == null || !imageInfo.contentType().startsWith("image/")) {
+                return BaseResponse.error(NO_IMG_FORM);
+            }
+
+            String key = "stay-image/%s/%s/%s.%s".formatted(
+                    userDetails.getUserUuid(), java.util.UUID.randomUUID(), imageInfo.sortOrder(), contentTypeToExt(imageInfo.contentType())
+            );
+
+            // TTL: 10분
+            Duration ttl = Duration.ofMinutes(10);
+
+            URL uploadUrl = s3StorageService.issuePutUrl(key, imageInfo.contentType(), ttl);
+            String publicUrl = s3StorageService.toPublicUrl(key);
+
+            result.add(new PresignedResponseDto(imageInfo.sortOrder(), key, uploadUrl, publicUrl));
+
+        }
+
+        return BaseResponse.of(result);
+    }
+
 
     // 숙소 검색
+
+    //숙소 번역부터 하기
+
+    /*
+    // Java SDK 예시
+    Map<String, MessageAttributeValue> attributes = new HashMap<>();
+    attributes.put("MessageType", MessageAttributeValue.builder()
+                        .stringValue("payment")
+                        .dataType("String")
+                        .build());
+
+    sqsClient.sendMessage(SendMessageRequest.builder()
+                    .queueUrl(queueUrl)
+                    .messageBody("...메시지 본문...")
+                    .messageAttributes(attributes)
+                    .build());
+*/
+    @PostMapping("/translate")
+    public ResponseEntity<BaseResponse<Void>> translateStay(
+            @RequestBody StayRequestDto stayRequest,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+
+        sqsSendService.sendStayTransMessage(stayRequest, userDetails.getUserNickname());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(BaseResponse.ok());
+    }
+
+    private String contentTypeToExt(String contentType) {
+        if (contentType == null) return "bin";
+        String ct = contentType.toLowerCase();
+        return switch (ct) {
+            case "image/png" -> "png";
+            case "image/jpeg", "image/jpg" -> "jpg";
+            case "image/gif" -> "gif";
+            case "image/webp" -> "webp";
+            default -> {
+                int slash = ct.lastIndexOf('/');
+                if (slash >= 0 && slash < ct.length() - 1) {
+                    yield ct.substring(slash + 1); // 예: image/bmp -> bmp
+                }
+                yield "bin";
+            }
+        };
+    }
+
 
 }

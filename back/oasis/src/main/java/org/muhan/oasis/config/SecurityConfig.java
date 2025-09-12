@@ -30,6 +30,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -74,19 +75,21 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         // 1) CORS 설정
-        http.cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
-            @Override
-            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                CorsConfiguration cfg = new CorsConfiguration();
-                cfg.setAllowedOrigins(Collections.singletonList("https://i13e103.p.ssafy.io"));
-                cfg.setAllowedMethods(Collections.singletonList("*"));
-                cfg.setAllowedHeaders(Collections.singletonList("*"));
-                cfg.setExposedHeaders(Collections.singletonList("Authorization"));
-                cfg.setAllowCredentials(true);
-                cfg.setMaxAge(3600L);
-                return cfg;
-            }
+        http.cors(cors -> cors.configurationSource(request -> {
+            CorsConfiguration cfg = new CorsConfiguration();
+            // 와일드카드 패턴 사용 (Spring 6+)
+            cfg.setAllowedOriginPatterns(List.of(
+                    "https://*.stay-oasis.kr",
+                    "http://localhost:*"
+            ));
+            cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
+            cfg.setAllowedHeaders(List.of("Authorization","Content-Type","X-Requested-With"));
+            cfg.setExposedHeaders(List.of("Authorization","Set-Cookie"));
+            cfg.setAllowCredentials(true);
+            cfg.setMaxAge(3600L);
+            return cfg;
         }));
+
 
         // 2) CSRF, FormLogin, BasicAuth 비활성화
         http.csrf(csrf -> csrf.disable());
@@ -96,10 +99,14 @@ public class SecurityConfig {
         // 3) 경로별 인가 설정
         http.authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET,
+                                "/oauth2/authorization/**",
+                                "/login/oauth2/code/**",
+                                "/api/google/redirect",
+                                "/api/google/login",
                                 "/api/v1/health/**").permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/auth/refresh",
-                                "/api/v1/auth/logout/rToken").permitAll()
+                                "/api/v1/auth/logout").permitAll()
                         // Swagger, 공용 API
                         .requestMatchers( "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         // 토큰 보유자

@@ -1,16 +1,16 @@
 package org.muhan.oasis.stay.service;
 
 import lombok.RequiredArgsConstructor;
+import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.common.exception.BaseException;
-import org.muhan.oasis.openAI.dto.in.AddrRequestDTO;
-import org.muhan.oasis.openAI.dto.in.StayRequestDTO;
-import org.muhan.oasis.openAI.dto.out.AddrTranslationResult;
-import org.muhan.oasis.openAI.dto.out.StayTranslationResult;
-import org.muhan.oasis.openAI.service.OpenAIService;
+import org.muhan.oasis.openAI.dto.in.AddrRequestDto;
+import org.muhan.oasis.openAI.dto.in.StayRequestDto;
+import org.muhan.oasis.openAI.dto.out.StayTranslationResultDto;
 import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.stay.dto.in.CreateStayRequestDto;
-import org.muhan.oasis.stay.dto.out.StayCreateResponseDto;
+import org.muhan.oasis.stay.dto.in.ImageRequestDto;
+import org.muhan.oasis.stay.dto.out.StayResponseDto;
 import org.muhan.oasis.stay.dto.out.StayReadResponseDto;
 import org.muhan.oasis.stay.entity.*;
 import org.muhan.oasis.stay.repository.*;
@@ -20,18 +20,21 @@ import org.muhan.oasis.valueobject.Language;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.muhan.oasis.common.base.BaseResponseStatus.*;
+
 @Service
 @RequiredArgsConstructor
 public class StayServiceImpl implements StayService{
 
     private final UserRepository userRepository;
-    private final OpenAIService openAIService;
     private final SubRegionRepository subRegionRepository;
     private final SubRegionEngRepository subRegionEngRepository;
     private final FacilityRepository facilityRepository;
@@ -45,15 +48,9 @@ public class StayServiceImpl implements StayService{
 
     @Override
     @Transactional
-    public StayCreateResponseDto registStay(CreateStayRequestDto stayRequest, Long userId) {
+    public StayResponseDto registStay(CreateStayRequestDto stayRequest, Long userId) {
 
         UserEntity user = userRepository.findByUserId(userId).orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
-
-        // 영어 번역하기 or 한국어 번역하기
-        StayTranslationResult translation = openAIService.getTranslatedStay(new StayRequestDTO(stayRequest.getTitle(), stayRequest.getDescription()));
-
-        // 상세 주소
-        AddrTranslationResult addrDetail = openAIService.getTranslatedAddr(new AddrRequestDTO(stayRequest.getAddressDetail()));
 
         // subRegion 찾기
         Long subRegionId = stayRequest.getSubRegionId();
@@ -63,18 +60,20 @@ public class StayServiceImpl implements StayService{
         SubRegionEngEntity subRegionEng = subRegionEngRepository.findById(subRegionId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_SUBREGION));
 
-        // 취소정책 찾기
-        CancellationPolicyEntity cancellationPolicy =
-                Optional.ofNullable(user.getCancellationPolicy())
-                        .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY));
+        // 취소정책 찾기 - 이후 수정
+        Optional<CancellationPolicyEntity> optionalPolicy = Optional.ofNullable(user.getCancellationPolicy().get(0));
+
+        CancellationPolicyEntity policy = optionalPolicy.orElseThrow(
+                () -> new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY)
+        );
 
         // 숙소 이름, 설명, 가격, 주소, 우편번호, 수용인원, 썸네일, 지역으로 생성
         StayEntity stay =
                 stayRepository.save(StayEntity.builder()
-                .title(translation.getKorTitle())
-                .titleEng(translation.getEngTitle())
-                .description(translation.getKorContent())
-                .descriptionEng(translation.getEngContent())
+                .title(stayRequest.getTitle())
+                .titleEng(stayRequest.getTitleEng())
+                .description(stayRequest.getDescription())
+                .descriptionEng(stayRequest.getDescriptionEng())
                 .price(stayRequest.getPrice())
                 .addressLine(stayRequest.getAddress())
                 .addressLineEng(stayRequest.getAddressEng())
@@ -84,16 +83,16 @@ public class StayServiceImpl implements StayService{
                 .subRegionEntity(subRegion)
                 .subRegionEngEntity(subRegionEng)
                 .user(user)
-                .cancellationPolicyEntity(cancellationPolicy)
-                .addrDetail(addrDetail.getKorDetailAddr())
-                .addrDetailEng(addrDetail.getEngDetailAddr())
+                .cancellationPolicyEntity(policy)
+                .addrDetail(stayRequest.getAddressDetail())
+                .addrDetailEng(stayRequest.getAddressDetailEng())
                 .build());
 
         // 디바이스 생성
         DeviceEntity device = deviceRepository.save(
                 DeviceEntity.builder()
-                .stayName(translation.getKorTitle())
-                .stayNameEng(translation.getEngTitle())
+                .stayName(stayRequest.getTitle())
+                .stayNameEng(stayRequest.getTitleEng())
                 .stay(stay)
                 .build());
 
@@ -143,19 +142,31 @@ public class StayServiceImpl implements StayService{
         }
 
         // 사진
-        List<StayPhotoEntity> photoList = stayPhotoRepository.saveAll(
-                Optional.ofNullable(stayRequest.getImageRequestList()).orElseGet(List::of).stream()
-                        .map(dto -> {
-                            String url = s3StorageService.toPublicUrl(dto.key());
-                            return StayPhotoEntity.from(dto, stay, url);
-                        }).toList());
+        List<StayPhotoEntity> photos = new ArrayList<>();
+        for (ImageRequestDto imageRequestDto : stayRequest.getImageRequestList()) {
+            String requiredPrefix = "stay-image/" + user.getUserUuid();
+            if (imageRequestDto.key() == null || !imageRequestDto.key().startsWith(requiredPrefix)) {
+                throw new BaseException(NO_IMG_DATA);
+            }
+
+            // 2) 실제로 업로드 완료되었는지 S3 HEAD로 확인
+            if (!s3StorageService.exists(imageRequestDto.key())) {
+                throw new BaseException(NO_IMG_DATA);
+            }
+
+            // 3) 퍼블릭 URL(CloudFront or S3) 생성
+            String publicUrl = s3StorageService.toPublicUrl(imageRequestDto.key());
+            StayPhotoEntity photoEntity = StayPhotoEntity.from(imageRequestDto, stay, publicUrl);
+            photos.add(photoEntity);
+        }
+        List<StayPhotoEntity> photoList = stayPhotoRepository.saveAll(photos);
 
         stay.attachDevice(device);
         stay.attachRatingSummary(ratingSummary);
 
         stay.addPhotos(photoList);
 
-        return StayCreateResponseDto.builder()
+        return StayResponseDto.builder()
                 .stayId(stay.getId()).build();
     }
 
@@ -166,6 +177,20 @@ public class StayServiceImpl implements StayService{
         List<StayFacilityEntity> facilities = stayFacilityRepository.findWithFacilityByStayId(stayId);
         return StayReadResponseDto.from(stay, facilities, language);
     }
+
+    @Override
+    public StayResponseDto updateStay(Long stayId) {
+        return null;
+    }
+
+    @Override
+    public void recalculateRating(Long stayId, BigDecimal rating) {
+        StayRatingSummaryEntity ratingSummary = stayRatingSummaryRepository.findById(stayId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY_SUMMARY));
+        ratingSummary.recalculate(rating);
+    }
+
+
 
 
 }

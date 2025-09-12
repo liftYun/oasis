@@ -24,7 +24,6 @@ import java.util.Map;
 @Log4j2
 @RequestMapping("/api/v1/key")
 @Tag(name = "디지털 키", description = "숙소 디지털 키 발급/개폐 관련 API")
-@SecurityRequirement(name = "bearerAuth")
 public class KeyController {
     private final KeyService keyService;
 

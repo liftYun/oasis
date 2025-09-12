@@ -79,6 +79,10 @@ public class StayEntity {
         @Column(name = "address_detail_eng")
         private String addrDetailEng;
 
+        @Enumerated(EnumType.STRING)
+        @Column(name = "language", nullable = false, length = 3)
+        private Language language;
+
         @ManyToOne(fetch = FetchType.LAZY, optional = false)
         @JoinColumn(name = "sub_region_id", nullable = false)
         private SubRegionEntity subRegionEntity;

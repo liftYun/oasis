@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class ReviewListRequestDTO {
-    List<ReviewRequestDTO> reviews = new ArrayList<>();
+public class ReviewListRequestDto {
+    List<ReviewRequestDto> reviews = new ArrayList<>();
 
 }

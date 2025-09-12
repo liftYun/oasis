@@ -8,7 +8,7 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter @NoArgsConstructor
-public class ReviewSummaryResult {
+public class ReviewSummaryResultDto {
 
     @Getter @NoArgsConstructor
     public static class InputCounts {
