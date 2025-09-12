@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Plus, X } from 'lucide-react';
 import { useLanguage } from '@/features/language';
 import { registerMessages } from '@/features/register';
-import { Button } from '@/components/atoms/ButttonCorrection';
+import { Button } from '@/components/atoms/Button';
 
 type HostInfoProps = {
   onConfirm?: (file: File | null) => void;

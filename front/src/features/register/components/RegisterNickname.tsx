@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/atoms/ButttonCorrection';
+import { Button } from '@/components/atoms/Button';
 import { useLanguage } from '@/features/language';
 import { useRegisterStore, useNicknameValidation, registerMessages } from '@/features/register';
 import toast from 'react-hot-toast';

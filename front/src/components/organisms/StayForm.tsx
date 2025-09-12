@@ -4,7 +4,7 @@ import type { UseFormReturn } from 'react-hook-form';
 import { ACCEPTED_IMAGE_TYPES, type CreateStayInput } from '@/features/create-stay/schema';
 import { FormField } from '@/components/molecules/FormField';
 import { ImageUploader } from '@/components/molecules/ImageUploader';
-import { Button } from '@/components/atoms/ButttonCorrection';
+import { Button } from '@/components/atoms/Button';
 import { AddressField } from '@/components/molecules/AddressField';
 
 interface StayFormProps {
