@@ -15,7 +15,7 @@ export function Step4_Availability() {
   const { setFormData, setStep, currentStep, formData } = useCreateStayStore();
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
-  const savedRanges = (formData as any)?.unavailableRanges as DateRange[] | undefined;
+  const savedRanges = formData?.unavailableRanges;
   const [ranges, setRanges] = useState<DateRange[]>(savedRanges || []);
   const hasPicked = (ranges?.length || 0) > 0;
 
@@ -64,7 +64,7 @@ export function Step4_Availability() {
         initialRanges={ranges}
         onNext={(picked) => {
           setRanges(picked);
-          setFormData({ unavailableRanges: picked } as any);
+          setFormData({ unavailableRanges: picked });
           setOpen(false);
         }}
       />

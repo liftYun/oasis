@@ -37,7 +37,7 @@ export default function CalendarSheet(props: CalendarSheetProps) {
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
   const [range, setRange] = useState<DateRange | undefined>(
-    'initialRange' in props ? props.initialRange : undefined
+    props.mode !== 'multiRanges' ? props.initialRange : undefined
   );
   const [ranges, setRanges] = useState<DateRange[]>(
     props.mode === 'multiRanges' && props.initialRanges ? mergeDateRanges(props.initialRanges) : []
@@ -50,7 +50,7 @@ export default function CalendarSheet(props: CalendarSheetProps) {
 
   useEffect(() => {
     if (!open) return;
-    if ('initialRange' in props) setRange(props.initialRange);
+    if (props.mode !== 'multiRanges') setRange(props.initialRange);
     if (props.mode === 'multiRanges') setRanges(mergeDateRanges(props.initialRanges || []));
   }, [open, props]);
 
