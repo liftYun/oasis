@@ -1,8 +1,8 @@
 package org.muhan.oasis.stay.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,40 +11,41 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.openAI.dto.in.StayRequestDto;
-import org.muhan.oasis.openAI.service.SqsAsyncServicce;
 import org.muhan.oasis.openAI.service.SqsSendService;
+import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
 import org.muhan.oasis.stay.dto.in.CreateStayRequestDto;
+import org.muhan.oasis.stay.dto.in.ImageRequestDto;
+import org.muhan.oasis.stay.dto.in.ImageTypeListDto;
+import org.muhan.oasis.stay.dto.in.ImageTypeRequestDto;
+import org.muhan.oasis.stay.dto.out.PresignedResponseDto;
 import org.muhan.oasis.stay.dto.out.StayResponseDto;
 import org.muhan.oasis.stay.dto.out.StayReadResponseDto;
 import org.muhan.oasis.stay.service.StayService;
-import org.muhan.oasis.valueobject.MessageType;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import software.amazon.awssdk.services.sqs.SqsAsyncClient;
-import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 
 import java.net.URI;
+import java.net.URL;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-import static org.muhan.oasis.common.base.BaseResponseStatus.CREATED;
+import static org.muhan.oasis.common.base.BaseResponseStatus.*;
+import static org.muhan.oasis.common.base.BaseResponseStatus.NO_IMG_DATA;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/stay")
 public class StayController {
 
-    private StayService stayService;
+    private final StayService stayService;
     private final SqsSendService sqsSendService;
     private final ObjectMapper objectMapper;
-
-
-
-    @Value("${cloud.aws.sqs.queue.stay-translation-url}")
-    private String sqsQueueUrl;
-
+    private final S3StorageService s3StorageService;
 
     // 숙소 등록 + 도어락 등록
     @Operation(
@@ -78,6 +79,8 @@ public class StayController {
     public ResponseEntity<BaseResponse<Void>> createStay(
             @RequestBody CreateStayRequestDto stayRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails){
+
+        // 1) 본인의 경로만 허용 (users/{userUuid}/profile/...)
 
         StayResponseDto stayDto = stayService.registStay(stayRequest, userDetails.getUserId());
 
@@ -138,7 +141,38 @@ public class StayController {
                 .body(body);
     }
 
-    // 숙소 사진 업로드 (여러장)
+    // presigned url 발급
+    @PostMapping("/{stayId}/photos/upload-url")
+    public BaseResponse<?> createUploadUrl(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody ImageTypeListDto imageTypeListDto
+            ) {
+
+        List<PresignedResponseDto> result = new ArrayList<>();
+
+        for (ImageTypeRequestDto imageInfo : imageTypeListDto.imageInfos()) {
+            if (imageInfo.contentType() == null || !imageInfo.contentType().startsWith("image/")) {
+                return BaseResponse.error(NO_IMG_FORM);
+            }
+
+            String key = "stay-image/%s/%s/%s.%s".formatted(
+                    userDetails.getUserUuid(), java.util.UUID.randomUUID(), imageInfo.sortOrder(), contentTypeToExt(imageInfo.contentType())
+            );
+
+            // TTL: 10분
+            Duration ttl = Duration.ofMinutes(10);
+
+            URL uploadUrl = s3StorageService.issuePutUrl(key, imageInfo.contentType(), ttl);
+            String publicUrl = s3StorageService.toPublicUrl(key);
+
+            result.add(new PresignedResponseDto(imageInfo.sortOrder(), key, uploadUrl, publicUrl));
+
+        }
+
+        return BaseResponse.of(result);
+    }
+
 
     // 숙소 검색
 
@@ -168,6 +202,24 @@ public class StayController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(BaseResponse.ok());
+    }
+
+    private String contentTypeToExt(String contentType) {
+        if (contentType == null) return "bin";
+        String ct = contentType.toLowerCase();
+        return switch (ct) {
+            case "image/png" -> "png";
+            case "image/jpeg", "image/jpg" -> "jpg";
+            case "image/gif" -> "gif";
+            case "image/webp" -> "webp";
+            default -> {
+                int slash = ct.lastIndexOf('/');
+                if (slash >= 0 && slash < ct.length() - 1) {
+                    yield ct.substring(slash + 1); // 예: image/bmp -> bmp
+                }
+                yield "bin";
+            }
+        };
     }
 
 
