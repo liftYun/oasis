@@ -74,7 +74,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetailsResponseDto getUser(Long userId) {
-        System.out.println("UserExistService userId: " + userId);
         UserEntity user = userExistService.userExist(userId);
 
         return new UserDetailsResponseDto(
