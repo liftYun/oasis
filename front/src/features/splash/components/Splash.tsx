@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Button } from '@/components/atoms/Button';
+import { Button } from '@/components/atoms/ButttonCorrection';
 import LanguageToggle from '@/components/molecules/LanguageToggle';
 import { OnboardSlider, useSplash } from '@/features/splash';
 import Google from '@/assets/icons/google.png';

@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
-import { Button } from '@/components/atoms/Button';
+import { Button } from '@/components/atoms/ButttonCorrection';
 import { useRegisterStore, registerMessages } from '@/features/register';
 import { useLanguage } from '@/features/language';
 import PreviewUser from '@/assets/icons/preview-user.png';

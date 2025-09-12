@@ -35,7 +35,7 @@ export function GuestProfile() {
       <div className="w-full max-w-sm space-y-1">
         <p className="text-sm text-gray-500 mb-2">예약 관리</p>
         <button className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-gray-50 transition">
-          <Image src={Calendar} alt="Calendar Icon" width={18} height={18} />
+          <Image src={Calendar} alt="Calendar Icon" width={22} height={22} />
           <span className="text-gray-800 text-sm">예약내역 확인</span>
         </button>
       </div>

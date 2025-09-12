@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/features/language';
 import { registerMessages } from '@/features/register';
-import { Button } from '@/components/atoms/Button';
+import { Button } from '@/components/atoms/ButttonCorrection';
 import { BottomSheet } from '@/components/organisms/BottomSheet';
 import { DonutPercentPicker } from './DonutPercentPicker';
 import { CenterModal } from '@/components/organisms/CenterModel';
