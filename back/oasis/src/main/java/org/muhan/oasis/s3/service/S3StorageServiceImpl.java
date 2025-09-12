@@ -29,8 +29,8 @@ public class S3StorageServiceImpl implements S3StorageService {
     @Value("${cloud.aws.s3.prefix.stay-img}") private String stayImgPath;
     @Value("${cloud.aws.s3.prefix.certificate}") private String certificatePath;
     @Value("${cloud.aws.s3.prefix.profile-img}") private String profileImgPath;
-    @Value("${cloud.aws.credentials.access-key}") private String accessKeyId;
-    @Value("${cloud.aws.credentials.secret-key}") private String secretAccessKey;
+    @Value("${cloud.aws.s3.credentials.access-key}") private String accessKeyId;
+    @Value("${cloud.aws.s3.credentials.secret-key}") private String secretAccessKey;
 
     @Override
     public String upload(MultipartFile file, String key, String contentType) {

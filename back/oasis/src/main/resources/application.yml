@@ -75,9 +75,10 @@ cloud:
         stay-img: ${S3_STAY_IMG_PATH}
         certificate: ${S3_CERTIFICATE_PATH}
         profile-img: ${S3_PROFILE_IMG_PATH}
-    credentials:
-      access-key: ${S3_ACCESS_KEY_ID}
-      secret-key: ${S3_SECRET_ACCESS_KEY}
+
+      credentials:
+        access-key: ${S3_ACCESS_KEY_ID}
+        secret-key: ${S3_SECRET_ACCESS_KEY}
     sqs:
       credentials:
         access-key: ${AWS_ACCESS_KEY_ID}

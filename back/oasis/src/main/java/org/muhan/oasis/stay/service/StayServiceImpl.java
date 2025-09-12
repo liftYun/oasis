@@ -1,6 +1,7 @@
 package org.muhan.oasis.stay.service;
 
 import lombok.RequiredArgsConstructor;
+import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.common.exception.BaseException;
 import org.muhan.oasis.openAI.dto.in.AddrRequestDto;
@@ -8,6 +9,7 @@ import org.muhan.oasis.openAI.dto.in.StayRequestDto;
 import org.muhan.oasis.openAI.dto.out.StayTranslationResultDto;
 import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.stay.dto.in.CreateStayRequestDto;
+import org.muhan.oasis.stay.dto.in.ImageRequestDto;
 import org.muhan.oasis.stay.dto.out.StayResponseDto;
 import org.muhan.oasis.stay.dto.out.StayReadResponseDto;
 import org.muhan.oasis.stay.entity.*;
@@ -19,11 +21,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static org.muhan.oasis.common.base.BaseResponseStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -137,12 +142,24 @@ public class StayServiceImpl implements StayService{
         }
 
         // 사진
-        List<StayPhotoEntity> photoList = stayPhotoRepository.saveAll(
-                Optional.ofNullable(stayRequest.getImageRequestList()).orElseGet(List::of).stream()
-                        .map(dto -> {
-                            String url = s3StorageService.toPublicUrl(dto.key());
-                            return StayPhotoEntity.from(dto, stay, url);
-                        }).toList());
+        List<StayPhotoEntity> photos = new ArrayList<>();
+        for (ImageRequestDto imageRequestDto : stayRequest.getImageRequestList()) {
+            String requiredPrefix = "stay-image/" + user.getUserUuid();
+            if (imageRequestDto.key() == null || !imageRequestDto.key().startsWith(requiredPrefix)) {
+                throw new BaseException(NO_IMG_DATA);
+            }
+
+            // 2) 실제로 업로드 완료되었는지 S3 HEAD로 확인
+            if (!s3StorageService.exists(imageRequestDto.key())) {
+                throw new BaseException(NO_IMG_DATA);
+            }
+
+            // 3) 퍼블릭 URL(CloudFront or S3) 생성
+            String publicUrl = s3StorageService.toPublicUrl(imageRequestDto.key());
+            StayPhotoEntity photoEntity = StayPhotoEntity.from(imageRequestDto, stay, publicUrl);
+            photos.add(photoEntity);
+        }
+        List<StayPhotoEntity> photoList = stayPhotoRepository.saveAll(photos);
 
         stay.attachDevice(device);
         stay.attachRatingSummary(ratingSummary);
@@ -172,6 +189,8 @@ public class StayServiceImpl implements StayService{
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY_SUMMARY));
         ratingSummary.recalculate(rating);
     }
+
+
 
 
 }
