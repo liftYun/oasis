@@ -146,11 +146,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                         || "json".equalsIgnoreCase(request.getParameter("responseMode"));
 
         if (!wantsJson) {
-            // 기본값: 서버 주도 리다이렉트 (팀 합의 없이도 동작)
+            String redirectUrl = baseRedirect
+                    + "?accessToken=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8)
+                    + "&needProfileUpdate=" + needProfileUpdate;
+
             response.setHeader("Cache-Control", "no-store");
             response.setHeader("Pragma", "no-cache");
             response.setStatus(HttpServletResponse.SC_FOUND);
-            response.setHeader("Location", baseRedirect);
+            response.setHeader("Location", redirectUrl);
             return;
         }
 
