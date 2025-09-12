@@ -74,6 +74,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetailsResponseDto getUser(Long userId) {
+        System.out.println("UserExistService userId: " + userId);
         UserEntity user = userExistService.userExist(userId);
 
         return new UserDetailsResponseDto(
@@ -170,6 +171,11 @@ public class UserServiceImpl implements UserService {
 
         log.info("[updateLang] Policy created. policyId={}",
                 newPolicy.getId());
+    }
+
+    @Override
+    public Long getUserIdByUserUuid(String userUuid) {
+        return userRepository.findByUserUuid(userUuid).get().getUserId();
     }
 
     private Optional<String> extractKeyIfSameBucket(String url) {

@@ -2,12 +2,13 @@ package org.muhan.oasis.user.vo.out;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.Setter;
 import org.muhan.oasis.user.dto.out.UserDetailsResponseDto;
 import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.valueobject.Role;
 
-@Setter
+@Getter
 @AllArgsConstructor
 @Builder
 public class UserDetailsResponseVo {
