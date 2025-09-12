@@ -1,10 +1,12 @@
 package org.muhan.oasis.security.Handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.security.jwt.CustomOAuth2User;
 import org.muhan.oasis.security.jwt.CustomOidcUser;
@@ -13,6 +15,10 @@ import org.muhan.oasis.security.service.JoinService;
 import org.muhan.oasis.security.service.RefreshTokenService;
 import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.valueobject.Role;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
@@ -23,11 +29,17 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
+
+    @Value("${app.front-base-url}")
+    private String frontBaseUrl;
 
     private final JWTUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
@@ -38,7 +50,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication) throws IOException {
 
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
         Object principalObj = token.getPrincipal();
@@ -82,35 +94,52 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String email = user.getEmail();
         String nickname = user.getNickname();
 
-
         // ✅ 기본 Role (처음 가입 시 ROLE_GUEST 부여)
         Role role = user.getRole() != null ? user.getRole() : Role.valueOf("ROLE_GUEST");
 
         Language language = user.getLanguage() != null ? user.getLanguage() : Language.valueOf("KOR");
 
         // ✅ Access / Refresh Token 발급
-        String accessToken = jwtUtil.createAccessToken(uuid, email, nickname, role, language);
+        String accessToken = jwtUtil.createAccessToken(uuid, null, nickname, role, language);
         String refreshToken = jwtUtil.createRefreshToken(uuid);
 
         refreshTokenService.saveToken(uuid, refreshToken);
 
         response.addHeader("Authorization", "Bearer " + accessToken);
 
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge((int)(jwtUtil.getRefreshExpiredMs() / 1000));
-        response.addCookie(cookie);
+//        Cookie cookie = new Cookie("refreshToken", refreshToken);
+//        cookie.setHttpOnly(true);
+//        cookie.setPath("/");
+//        cookie.setMaxAge((int)(jwtUtil.getRefreshExpiredMs() / 1000));
+//        response.addCookie(cookie);
+        String cookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)           // 로컬 HTTP 개발 시 false, 배포는 true
+                .sameSite("None")       // SPA 도메인 분리 시 필수
+                .path("/")
+                .maxAge(Duration.ofMillis(jwtUtil.getRefreshExpiredMs()))
+                .build().toString();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie);
 
-        // ✅ 추가 정보 입력이 필요한 상태라면 프론트에서 별도 요청하도록 안내
-        response.setContentType("application/json");
-        boolean need = (user.getRole() == null || user.getProfileUrl() == null);
-        response.getWriter().write("""
-        {
-          "status": "SUCCESS",
-          "needProfileUpdate": %b
-        }
-        """.formatted(need));
+        boolean needProfileUpdate = (user.getRole() == null || user.getProfileUrl() == null);
+        String baseRedirect = needProfileUpdate ? frontBaseUrl + "/register/callback"
+                : frontBaseUrl + "/";
+
+        // email 쿼리스트링 추가 (URL 인코딩)
+        String encodedEmail = URLEncoder.encode(email != null ? email : "", StandardCharsets.UTF_8);
+        String redirectUrl = baseRedirect + (baseRedirect.contains("?") ? "&" : "?") + "email=" + encodedEmail;
+
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+        new ObjectMapper().writeValue(
+                response.getWriter(),
+                BaseResponse.of(
+                        Map.of(
+                                "needProfileUpdate", needProfileUpdate,
+                                "redirectUrl", redirectUrl
+                        )
+                )
+        );
     }
 
     private static String stringOrNull(Object o) {

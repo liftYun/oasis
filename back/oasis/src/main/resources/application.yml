@@ -60,7 +60,7 @@ logging:
 app:
   translate:
     timeout-ms: 3000
-
+  front-base-url: ${FRONT_BASE_URL}
 papago:
   base-url: https://papago.apigw.ntruss.com
   client-id: ${PAPAGO_CLIENT_ID}
