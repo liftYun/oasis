@@ -25,11 +25,11 @@ export function useNicknameValidation(initial = '') {
     setChecking(true);
     setServerError('');
     try {
-      console.log(nickname.trim());
       const res = await validateNickname({ nickname: nickname.trim() });
-      if (!res.success) {
-        setServerError(res.message ?? '이미 사용 중인 닉네임입니다.');
-      }
+      console.log(res);
+      // if (!res.success) {
+      //   setServerError(res.message ?? '이미 사용 중인 닉네임입니다.');
+      // }
     } catch {
       setServerError('닉네임 확인 중 오류가 발생했습니다.');
     } finally {
