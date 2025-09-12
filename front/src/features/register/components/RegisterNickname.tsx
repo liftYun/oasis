@@ -3,6 +3,7 @@
 import { Button } from '@/components/atoms/Button';
 import { useLanguage } from '@/features/language';
 import { useRegisterStore, useNicknameValidation, registerMessages } from '@/features/register';
+import toast from 'react-hot-toast';
 
 export function RegisterNickname() {
   const { setNickname: setStoreNickname, next } = useRegisterStore();
@@ -25,7 +26,6 @@ export function RegisterNickname() {
         {t.title}
       </h1>
       <p className="text-base text-gray-400 mb-8">{t.subtitle}</p>
-
       <div className="flex items-center gap-2 border-b-2 border-gray-200 focus-within:border-primary">
         <input
           value={nickname}
@@ -42,9 +42,7 @@ export function RegisterNickname() {
           {t.confirm}
         </button>
       </div>
-
       <p className="text-sm text-gray-300 mt-1">{nickname.trim().length} / 10</p>
-
       <div className="mt-auto">
         <Button variant="blue" onClick={handleFinalConfirm} className="w-full max-w-lg mx-auto">
           {t.confirm}
