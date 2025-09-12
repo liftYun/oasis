@@ -43,11 +43,11 @@ export function GuestProfile() {
       <div className="w-full max-w-sm space-y-1">
         <p className="text-sm text-gray-500 mb-2">활동 관리</p>
         <button className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-gray-50 transition">
-          <Image src={HeartPointer} alt="Heart Pointer Icon" width={18} height={18} />
+          <Image src={HeartPointer} alt="Heart Pointer Icon" width={22} height={22} />
           <span className="text-gray-800 text-sm">내 관심 숙소</span>
         </button>
         <button className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-gray-50 transition">
-          <Image src={PositiveReview} alt="Positive Review Icon" width={18} height={18} />
+          <Image src={PositiveReview} alt="Positive Review Icon" width={22} height={22} />
           <span className="text-gray-800 text-sm">내가 쓴 리뷰</span>
         </button>
       </div>
@@ -55,11 +55,11 @@ export function GuestProfile() {
       <div className="w-full max-w-sm space-y-1">
         <p className="text-sm text-gray-500 mb-2">이용 안내</p>
         <button className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-gray-50 transition">
-          <Image src={SignOut} alt="Sign Out Icon" width={18} height={18} />
+          <Image src={SignOut} alt="Sign Out Icon" width={22} height={22} />
           <span className="text-gray-800 text-sm">로그아웃</span>
         </button>
         <button className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-gray-50 transition">
-          <Image src={Secession} alt="Secession Icon" width={18} height={18} />
+          <Image src={Secession} alt="Secession Icon" width={22} height={22} />
           <span className="text-gray-800 text-sm">회원탈퇴</span>
         </button>
       </div>

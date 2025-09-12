@@ -41,7 +41,7 @@ export default function TabBar({ activeKey, withSafeArea = true }: TabBarProps) 
       label: '프로필',
       activeIcon: UserEnable,
       inactiveIcon: UserDisable,
-      path: '/profile',
+      path: '/my-profile',
     },
   ];
 
