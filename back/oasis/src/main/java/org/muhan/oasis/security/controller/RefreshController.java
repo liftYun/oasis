@@ -5,10 +5,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
+import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
 import org.muhan.oasis.security.jwt.JWTUtil;
 import org.muhan.oasis.security.service.CustomUserDetailsService;
 import org.muhan.oasis.security.service.RefreshTokenService;
+import org.muhan.oasis.security.vo.out.AccessTokenResponseVo;
 import org.muhan.oasis.valueobject.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +37,7 @@ public class RefreshController {
 
     @Operation(summary = "갱신", description = "갱신", tags = {"JWT"})
     @PostMapping("/refresh")
-    public ResponseEntity<Void> refreshToken(
+    public ResponseEntity<?> refreshToken(
             @CookieValue(name="refreshToken", required=true) String refreshToken, HttpServletResponse response) {
         System.out.println("refresh controller start");
         // 1) 서명+만료 검사
@@ -77,8 +79,14 @@ public class RefreshController {
 //        System.out.println("RefreshController username : " + userDetails.getUserNickname());
         String newAccessToken = jwtUtil.createAccessToken(uuid, userDetails.getUserProfileUrl(), userDetails.getUserNickname(), role, userDetails.getLanguage());
 
-        return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + newAccessToken)
-                .build();
+
+//        return ResponseEntity.ok()
+//                .header("Authorization", "Bearer " + newAccessToken)
+//                .build();
+        long expiresInMs = jwtUtil.getAccessExpiredMs(); // 유틸에 게터가 없다면 설정값에서 주입받아 사용
+
+        AccessTokenResponseVo body = new AccessTokenResponseVo("Bearer", newAccessToken, expiresInMs);
+
+        return ResponseEntity.ok(body);
     }
 }
