@@ -50,7 +50,7 @@ spring:
 
 jwt:
   access:
-    expired-ms: 600000    # 10?
+    expired-ms: 6048000000    # 10?
   refresh:
     expired-ms: 604800000 # 7?
 logging:
