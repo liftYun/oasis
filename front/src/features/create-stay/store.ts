@@ -8,7 +8,7 @@ type CreateStayView = 'form' | 'searchAddress';
 type CreateStayFormData = Partial<CreateStayInput> & {
   description?: string;
   amenities?: AmenitiesSelection;
-  unavailableRange?: DateRange;
+  unavailableRanges?: DateRange[];
   addressEng?: string;
 };
 

@@ -62,11 +62,7 @@ export function Step2_Description() {
           type="button"
           onClick={handleNext}
           disabled={!isValid}
-          className={`w-full font-bold mb-10 ${
-            isValid
-              ? 'bg-black text-white hover:bg-black active:bg-black'
-              : 'bg-gray-200 text-gray-400 hover:bg-gray-200 active:bg-gray-200 disabled:opacity-100'
-          }`}
+          variant={isValid ? 'blue' : 'google'}
         >
           {t.common.next}
         </Button>

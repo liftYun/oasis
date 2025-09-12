@@ -15,9 +15,9 @@ export function Step4_Availability() {
   const { setFormData, setStep, currentStep, formData } = useCreateStayStore();
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
-  const savedRange = (formData as any)?.unavailableRange as DateRange | undefined;
-  const [range, setRange] = useState<DateRange | undefined>(savedRange);
-  const hasPicked = !!range?.from && !!range?.to;
+  const savedRanges = (formData as any)?.unavailableRanges as DateRange[] | undefined;
+  const [ranges, setRanges] = useState<DateRange[]>(savedRanges || []);
+  const hasPicked = (ranges?.length || 0) > 0;
 
   const readOnlyInputClassName =
     'flex h-12 w-full cursor-pointer items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-base placeholder:text-sm placeholder:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50';
@@ -58,17 +58,13 @@ export function Step4_Availability() {
       </div>
 
       <CalendarSheet
+        mode="multiRanges"
         open={open}
         onClose={() => setOpen(false)}
-        initialRange={range}
+        initialRanges={ranges}
         onNext={(picked) => {
-          setRange(picked);
-          if (picked?.from && picked?.to) {
-            setFormData({ unavailableRange: picked } as any);
-          } else {
-            setFormData({ unavailableRange: undefined } as any);
-          }
-          // 모달만 닫음
+          setRanges(picked);
+          setFormData({ unavailableRanges: picked } as any);
           setOpen(false);
         }}
       />
@@ -77,7 +73,8 @@ export function Step4_Availability() {
         <Button
           type="button"
           onClick={() => setStep(currentStep + 1)}
-          className="w-full font-bold mb-10 bg-black text-white hover:bg-black active:bg-black"
+          variant="blue"
+          className="w-full font-bold mb-10"
         >
           {t.common.next}
         </Button>

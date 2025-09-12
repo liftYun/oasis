@@ -94,11 +94,9 @@ export function StayForm({
         <Button
           type="submit"
           disabled={!isValid || isSubmitting}
-          className={`w-full font-bold mb-10 ${
-            isValid && !isSubmitting
-              ? 'bg-black text-white hover:bg-black active:bg-black'
-              : 'bg-gray-200 text-gray-600 hover:bg-gray-300 active:bg-gray-300 disabled:opacity-100'
-          }`}
+          variant={isValid && !isSubmitting ? 'blue' : 'google'}
+          // className={`w-full font-bold mb-10 ${
+
         >
           {isSubmitting ? t.common.processing : t.common.next}
         </Button>

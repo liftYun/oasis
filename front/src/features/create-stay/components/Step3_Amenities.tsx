@@ -82,11 +82,7 @@ export function Step3_Amenities() {
       />
 
       <div className="mt-auto pt-4">
-        <Button
-          type="button"
-          onClick={handleNext}
-          className="w-full font-bold mb-10 bg-black text-white hover:bg-black active:bg-black"
-        >
+        <Button type="button" onClick={handleNext} variant="blue">
           {t.common.next}
         </Button>
       </div>

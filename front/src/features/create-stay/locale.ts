@@ -61,7 +61,7 @@ export const createStayMessages: Record<'kor' | 'eng', CreateStayTexts> = {
     },
     searchAddress: {
       headerTitle: '주소 찾기',
-      placeholder: '주소를 입력해주세요. (예: 서초대로 38)',
+      placeholder: '주소를 입력해주세요. (예: 서초대로38길 12)',
       error: '주소를 검색하는 데 실패했습니다.',
       noResults: '검색 결과가 없습니다.',
       examplesTitle: '주소 입력 예시',
@@ -146,13 +146,13 @@ export const createStayMessages: Record<'kor' | 'eng', CreateStayTexts> = {
     },
     searchAddress: {
       headerTitle: 'Find Address',
-      placeholder: 'Enter an address (e.g., Seocho-daero 38)',
+      placeholder: 'Enter an address in Korean',
       error: 'Failed to search address.',
       noResults: 'No results found.',
       examplesTitle: 'Examples',
-      exampleRoad: 'Road name + building no.: Seocho-daero 38-gil 12',
-      exampleDong: 'Dong/Eup/Myeon/Ri + lot no.: Seocho-dong 1498-5',
-      jibunLabel: 'Jibeon',
+      exampleRoad: 'Road name + building no: 서초대로38길 12',
+      exampleDong: 'Dong/Eup/Myeon/Ri + lot no: 서초동 1498-5',
+      jibunLabel: '지번',
       selectAriaSuffix: 'select',
     },
     errors: {

@@ -3,34 +3,45 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
-import { DateRange, DayPicker } from 'react-day-picker';
+import type { DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
-import { ko } from 'date-fns/locale';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
 import { Button } from '@/components/atoms/Button';
+import CalendarBase, { mergeDateRanges } from '@/components/organisms/CalendarBase';
 
-interface CalendarSheetProps {
+type SheetMode = 'singleRange' | 'multiRanges';
+
+interface CalendarSheetPropsBase {
   open: boolean;
   onClose: () => void;
-  nextDisabled?: boolean;
-  onNext?: (range: DateRange | undefined) => void;
   nextLabel?: string;
-  initialRange?: DateRange | undefined;
 }
 
-export default function CalendarSheet({
-  open,
-  onClose,
-  nextDisabled = false,
-  onNext,
-  nextLabel = '다음',
-  initialRange,
-}: CalendarSheetProps) {
+interface CalendarSheetSingleProps extends CalendarSheetPropsBase {
+  mode?: 'singleRange';
+  initialRange?: DateRange | undefined;
+  onNext?: (range: DateRange | undefined) => void;
+}
+
+interface CalendarSheetMultiProps extends CalendarSheetPropsBase {
+  mode: 'multiRanges';
+  initialRanges?: DateRange[] | undefined;
+  onNext?: (ranges: DateRange[]) => void;
+}
+
+type CalendarSheetProps = CalendarSheetSingleProps | CalendarSheetMultiProps;
+
+export default function CalendarSheet(props: CalendarSheetProps) {
+  const { open, onClose } = props;
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
-  const [range, setRange] = useState<DateRange | undefined>(initialRange);
-  const computedDisabled = nextDisabled || !range?.from || !range?.to;
+  const [range, setRange] = useState<DateRange | undefined>(
+    'initialRange' in props ? props.initialRange : undefined
+  );
+  const [ranges, setRanges] = useState<DateRange[]>(
+    props.mode === 'multiRanges' && props.initialRanges ? mergeDateRanges(props.initialRanges) : []
+  );
   useEffect(() => {
     const onEsc = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     if (open) document.addEventListener('keydown', onEsc);
@@ -38,8 +49,10 @@ export default function CalendarSheet({
   }, [open, onClose]);
 
   useEffect(() => {
-    if (open) setRange(initialRange);
-  }, [initialRange, open]);
+    if (!open) return;
+    if ('initialRange' in props) setRange(props.initialRange);
+    if (props.mode === 'multiRanges') setRanges(mergeDateRanges(props.initialRanges || []));
+  }, [open, props]);
 
   return (
     <AnimatePresence>
@@ -71,44 +84,45 @@ export default function CalendarSheet({
               </button>
             </div>
             <div className="px-5">
-              <DayPicker
-                mode="range"
-                selected={range}
-                onSelect={setRange}
-                locale={lang === 'kor' ? ko : undefined}
-                showOutsideDays
-                fixedWeeks
-                classNames={{
-                  day: 'text-gray-600',
-                  today: 'text-primary font-bold',
-                  chevron: 'fill-primary',
-                }}
-                modifiersClassNames={{
-                  range_middle: 'bg-blue-100 text-gray-600 rounded-full',
-                  range_start: 'bg-primary text-white rounded-full',
-                  range_end: 'bg-primary text-white rounded-full',
-                  selected: 'bg-primary text-gray-600',
-                }}
-                styles={{
-                  day: { margin: 0, width: '36px', height: '36px' },
-                }}
-                navLayout="around"
-                className="mx-auto flex justify-center"
-              />
+              {props.mode === 'multiRanges' ? (
+                <CalendarBase
+                  mode="multiRanges"
+                  theme="red"
+                  selected={ranges}
+                  onChange={setRanges}
+                  maxRangeDays={30}
+                  className="mx-auto flex justify-center"
+                />
+              ) : (
+                <CalendarBase
+                  mode="singleRange"
+                  theme="blue"
+                  selected={range}
+                  onChange={setRange}
+                  className="mx-auto flex justify-center"
+                />
+              )}
             </div>
             <div className="p-5">
-              <Button
-                type="button"
-                onClick={() => onNext?.(range)}
-                disabled={computedDisabled}
-                className={`w-full font-bold mb-2 ${
-                  computedDisabled
-                    ? 'bg-gray-200 text-gray-400'
-                    : 'bg-black text-white hover:bg-black active:bg-black'
-                }`}
-              >
-                {nextLabel || t.common.next}
-              </Button>
+              {props.mode === 'multiRanges' ? (
+                <Button
+                  type="button"
+                  onClick={() => props.onNext?.(ranges)}
+                  disabled={ranges.length === 0}
+                  variant={ranges.length === 0 ? 'google' : 'blue'}
+                >
+                  {props.nextLabel || t.common.next}
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={() => ('onNext' in props ? props.onNext?.(range) : undefined)}
+                  disabled={!range?.from || !range?.to}
+                  variant={!range?.from || !range?.to ? 'google' : 'blue'}
+                >
+                  {props.nextLabel || t.common.next}
+                </Button>
+              )}
             </div>
           </motion.div>
         </div>
