@@ -22,6 +22,7 @@ import org.muhan.oasis.stay.dto.out.PresignedResponseDto;
 import org.muhan.oasis.stay.dto.out.StayResponseDto;
 import org.muhan.oasis.stay.dto.out.StayReadResponseDto;
 import org.muhan.oasis.stay.service.StayService;
+import org.muhan.oasis.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -46,6 +47,7 @@ public class StayController {
     private final SqsSendService sqsSendService;
     private final ObjectMapper objectMapper;
     private final S3StorageService s3StorageService;
+    private final UserService userService;
 
     // 숙소 등록 + 도어락 등록
     @Operation(
@@ -82,7 +84,8 @@ public class StayController {
 
         // 1) 본인의 경로만 허용 (users/{userUuid}/profile/...)
 
-        StayResponseDto stayDto = stayService.registStay(stayRequest, userDetails.getUserId());
+        Long userId = userService.getUserIdByUserUuid(userDetails.getUserUuid());
+        StayResponseDto stayDto = stayService.registStay(stayRequest, userId);
 
         URI location = URI.create("/api/v1/stay/" + stayDto.stayId());
 

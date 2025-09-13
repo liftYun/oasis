@@ -15,6 +15,7 @@ import org.muhan.oasis.review.vo.out.ReviewDetailResponseVo;
 import org.muhan.oasis.review.vo.out.ReviewResponseVo;
 import org.muhan.oasis.review.vo.out.StayReviewResponseVo;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
+import org.muhan.oasis.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,9 +32,11 @@ import static org.muhan.oasis.common.base.BaseResponseStatus.CREATED;
 @RequestMapping("/api/v1/review")
 public class ReviewController {
     private final ReviewService reviewService;
+    private final UserService userService;
 
-    public ReviewController(ReviewService reviewService) {
+    public ReviewController(ReviewService reviewService, UserService userService) {
         this.reviewService = reviewService;
+        this.userService = userService;
     }
 
     @Operation(
@@ -49,7 +52,7 @@ public class ReviewController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Valid @RequestBody RegistReviewRequestVo registReviewRequestVo
     ) {
-        Long userId = customUserDetails.getUserId();
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
         Long reviewId = reviewService.registReview(userId, registReviewRequestVo.toDto());
 
         URI location = URI.create("/api/v1/review/" + reviewId);
@@ -79,7 +82,8 @@ public class ReviewController {
     public BaseResponse<List<ReviewResponseVo>> list(
             @AuthenticationPrincipal CustomUserDetails customUserDetails)
     {
-        List<ReviewResponseVo> result = reviewService.getListOfReviews(customUserDetails.getUserId());
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
+        List<ReviewResponseVo> result = reviewService.getListOfReviews(userId);
         return BaseResponse.of(result);
     }
 
@@ -105,7 +109,8 @@ public class ReviewController {
             @PathVariable Long reviewId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails)
     {
-        ReviewDetailResponseVo result = reviewService.getReviewDetail(customUserDetails.getUserId(), reviewId);
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
+        ReviewDetailResponseVo result = reviewService.getReviewDetail(userId, reviewId);
         return BaseResponse.of(result);
     }
 
@@ -130,7 +135,8 @@ public class ReviewController {
             @PathVariable Long stayId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails)
     {
-        List<StayReviewResponseVo> result = reviewService.getStayReview(customUserDetails.getUserId(), stayId);
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
+        List<StayReviewResponseVo> result = reviewService.getStayReview(userId, stayId);
         return BaseResponse.of(result);
     }
 
