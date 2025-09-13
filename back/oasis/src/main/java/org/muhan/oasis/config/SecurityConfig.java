@@ -98,6 +98,8 @@ public class SecurityConfig {
 
         // 3) 경로별 인가 설정
         http.authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(("/api/v1/wallet/**")).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 // 테스트용 토큰 발행
                                 // 배포시 삭제
