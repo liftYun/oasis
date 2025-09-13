@@ -55,8 +55,6 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public String registReserVation(Long userId, RegistReservationRequestDto dto) {
-        System.out.println("userID : " + userId);
-        System.out.println("stayId : " + dto.getStayId());
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
 
