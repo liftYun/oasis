@@ -57,7 +57,7 @@ public class ReservationController {
             tags = {"예약"}
     )
     @GetMapping("/list")
-    public BaseResponse<ListOfReservationResponseVo> listOfReservation(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    public BaseResponse<ListOfReservationResponseVo> getListOfReservation(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
         return BaseResponse.of(reservationService.getListOfReservation(userId));
     }
@@ -71,7 +71,7 @@ public class ReservationController {
     )
     @PreAuthorize("hasRole('ROLE_HOST')")
     @GetMapping("/host/{stayId}")
-    public BaseResponse<?> listOfReservedDayAfterNow(
+    public BaseResponse<?> getFutureReservedDays(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long stayId
             ) {
