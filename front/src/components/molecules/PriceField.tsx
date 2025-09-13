@@ -59,37 +59,6 @@ export function PriceField({
     }
   };
 
-  const sanitize = (raw: string) => {
-    const filtered = raw.replace(/[^\d.]/g, '');
-    const parts = filtered.split('.');
-    const intPart = parts[0];
-    if (!intPart) return '';
-    const fracPart = parts.slice(1).join('').slice(0, 2);
-    return parts.length > 1 ? `${intPart}.${fracPart}` : intPart;
-  };
-
-  const handleInput: React.FormEventHandler<HTMLInputElement> = (e) => {
-    const target = e.currentTarget;
-    const next = sanitize(target.value);
-    if (next !== target.value) {
-      target.value = next;
-    }
-  };
-
-  const handlePaste: React.ClipboardEventHandler<HTMLInputElement> = (e) => {
-    e.preventDefault();
-    const text = e.clipboardData.getData('text');
-    const target = e.currentTarget;
-    const next = sanitize(text);
-    const { selectionStart, selectionEnd } = target;
-    if (selectionStart != null && selectionEnd != null) {
-      target.setRangeText(next, selectionStart, selectionEnd, 'end');
-    } else {
-      target.value = next;
-    }
-    target.dispatchEvent(new Event('input', { bubbles: true }));
-  };
-
   return (
     <FormField
       label={t.form.priceLabel}
@@ -100,8 +69,6 @@ export function PriceField({
       inputMode="decimal"
       type="text"
       onKeyDown={handleKeyDown}
-      onInput={handleInput}
-      onPaste={handlePaste}
       className={showCurrency ? 'pl-8' : undefined}
     >
       {showCurrency && (
