@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,70 +54,97 @@ public class WalletService {
         }
     }
 
-    public Mono<InitWalletResponseVo> createAndInitializeWallet(String userId) {
-        log.info("▶️ [START] Init session with branching. userId={}", userId);
+    public InitWalletResponseVo createAndInitializeWalletSync(String userId) {
+        log.info("▶️ [START] Init session with sync processing. userId={}", userId);
 
-        // 1) ensure user (존재하면 409 → 무시)
-        return createUser(userId)
-                .onErrorResume(ex -> {
-                    // 409 등 '이미 존재' 에러를 무시하고 계속 진행
-                    log.warn("⚠️ createUser warning (may already exist): {}", ex.getMessage());
-                    return Mono.empty();
-                })
-                .then(issueUserToken(userId)) // 2) userToken 발급
-                .flatMap(tokenResp -> {
-                    final String userToken = tokenResp.getData().getUserToken();
-                    final String encryptionKey = tokenResp.getData().getEncryptionKey();
+        try {
+            // 1) ensure user (존재하면 409 → 무시하고 계속 진행)
+            try {
+                createUser(userId).block(Duration.ofSeconds(10));
+            } catch (Exception ex) {
+                log.warn("⚠️ createUser warning (may already exist): {}", ex.getMessage());
+                // 409 등 '이미 존재' 에러는 무시하고 계속 진행
+            }
 
-                    // 3) 지갑 목록 조회
-                    return listWallets(userToken).flatMap(wallets -> {
-                        if (wallets.isEmpty()) {
-                            log.info("No wallets found. Initializing user (SCA on MATIC-AMOY) ...");
+            // 2) userToken 발급
+            UserTokenResponseDto tokenResp = issueUserToken(userId).block(Duration.ofSeconds(10));
+            if (tokenResp == null || tokenResp.getData() == null) {
+                throw new RuntimeException("UserToken 발급 실패: 응답이 null입니다.");
+            }
 
-                            return initializeUser(userToken)
-                                    .doOnNext(init -> log.info("✅ /user/initialize 응답 수신: challengeId = {}", init.getData().getChallengeId()))
-                                    .map(init -> {
-                                        log.info("✅ InitWalletResponse 생성 (신규 사용자): appId={}, challengeId={}", cachedAppId, init.getData().getChallengeId());
-                                        return InitWalletResponseVo.builder()
-                                                .appId(cachedAppId)
-                                                .userToken(userToken)
-                                                .encryptionKey(encryptionKey)
-                                                .challengeId(init.getData().getChallengeId()) // 프론트에서 sdk.execute()
-                                                .build();
-                                    });
+            final String userToken = tokenResp.getData().getUserToken();
+            final String encryptionKey = tokenResp.getData().getEncryptionKey();
 
-                        } else {
-                            WalletInfoResponseDto primary = pickPrimary(wallets);
-                            return getBalances(userToken, primary.getId())
-                                    .doOnSubscribe(sub -> log.info("📡 getBalances 시작: walletId={}", primary.getId()))
-                                    .doOnNext(balances -> {
-                                        if (balances == null || balances.isEmpty()) {
-                                            log.warn("⚠️ balances 응답이 비어 있음 (혹은 null)");
-                                        } else {
-                                            log.info("✅ 잔액 조회 성공: USDC={}", balances.get("USDC"));
-                                        }
-                                    })
-                                    .map(balances -> {
-                                        log.info("✅ InitWalletResponse 생성 (기존 사용자)");
+            // 3) 지갑 목록 조회
+            List<WalletInfoResponseDto> wallets = listWallets(userToken).block(Duration.ofSeconds(10));
+            if (wallets == null) {
+                wallets = List.of(); // null 방어
+            }
 
-                                        InitWalletResponseVo resp = InitWalletResponseVo.builder()
-                                                .appId(cachedAppId)
-                                                .userToken(userToken)
-                                                .encryptionKey(encryptionKey)
-                                                .wallets(wallets)
-                                                .primaryWallet(primary)
-                                                .balances(balances)
-                                                .build();
-                                        log.info("📤 최종 InitWalletResponse 직렬화 직전: {}", resp);
-                                        return resp;
-                                    })
-                                    .onErrorResume(e -> {
-                                        log.error("❌ getBalances 중 오류 발생", e);
-                                        return Mono.error(e);
-                                    });
-                        }
-                    });
-                });
+            if (wallets.isEmpty()) {
+                log.info("No wallets found. Initializing user (SCA on MATIC-AMOY) ...");
+
+                // 신규 사용자: 초기화 실행
+                InitializeUserResponseDto initResp = initializeUser(userToken).block(Duration.ofSeconds(15));
+                if (initResp == null || initResp.getData() == null) {
+                    throw new RuntimeException("User 초기화 실패: 응답이 null입니다.");
+                }
+
+                log.info("✅ /user/initialize 응답 수신: challengeId = {}", initResp.getData().getChallengeId());
+                log.info("✅ InitWalletResponse 생성 (신규 사용자): appId={}, challengeId={}",
+                        cachedAppId, initResp.getData().getChallengeId());
+
+                return InitWalletResponseVo.builder()
+                        .appId(cachedAppId)
+                        .userToken(userToken)
+                        .encryptionKey(encryptionKey)
+                        .challengeId(initResp.getData().getChallengeId()) // 프론트에서 sdk.execute()
+                        .build();
+
+            } else {
+                // 기존 사용자: 지갑 정보 + 잔액 조회
+                WalletInfoResponseDto primary = pickPrimary(wallets);
+                log.info("🔡 getBalances 시작: walletId={}", primary.getId());
+
+                Map<String, String> balances = getBalances(userToken, primary.getId())
+                        .block(Duration.ofSeconds(10));
+
+                if (balances == null) {
+                    balances = Map.of("USDC", "0.00"); // 기본값 설정
+                    log.warn("⚠️ balances 조회 실패, 기본값으로 설정");
+                } else {
+                    log.info("✅ 잔액 조회 성공: USDC={}", balances.get("USDC"));
+                }
+
+                log.info("✅ InitWalletResponse 생성 (기존 사용자)");
+
+                InitWalletResponseVo resp = InitWalletResponseVo.builder()
+                        .appId(cachedAppId)
+                        .userToken(userToken)
+                        .encryptionKey(encryptionKey)
+                        .wallets(wallets)
+                        .primaryWallet(primary)
+                        .balances(balances)
+                        .build();
+
+                log.info("📤 최종 InitWalletResponse 생성 완료: {}", resp);
+                return resp;
+            }
+
+        } catch (Exception e) {
+            log.error("❌ createAndInitializeWalletSync 처리 중 예외 발생", e);
+
+            // 구체적인 에러 메시지 제공
+            if (e.getCause() instanceof java.util.concurrent.TimeoutException) {
+                throw new RuntimeException("Circle API 호출 시간 초과", e);
+            } else if (e.getMessage().contains("401") || e.getMessage().contains("403")) {
+                throw new RuntimeException("Circle API 인증 실패", e);
+            } else if (e.getMessage().contains("404")) {
+                throw new RuntimeException("Circle API 리소스를 찾을 수 없습니다", e);
+            } else {
+                throw new RuntimeException("지갑 초기화 처리 중 오류가 발생했습니다: " + e.getMessage(), e);
+            }
+        }
     }
 
 
@@ -229,40 +257,71 @@ public class WalletService {
 
 
 
-    public Mono<WalletSnapshotResponseDto> getWallet(String userId) {
-        // 1) userToken 발급 (항상 안전; 멱등)
-        return issueUserToken(userId)
-                .flatMap(tok -> {
-                    final String userToken = tok.getData().getUserToken();
+    public WalletSnapshotResponseDto getWalletSync(String userId) {
+        log.info("🔍 [START] Get wallet sync processing. userId={}", userId);
 
-                    // 2) 지갑 목록
-                    return listWallets(userToken).flatMap(wallets -> {
-                        if (wallets == null || wallets.isEmpty()) {
-                            // 아직 지갑이 없으면 빈 스냅샷 반환
-                            return Mono.just(
-                                    WalletSnapshotResponseDto.builder()
-                                            .primaryWallet(null)
-                                            .wallets(List.of())
-                                            .balances(Map.of())
-                                            .build()
-                            );
-                        }
+        try {
+            // 1) userToken 발급 (항상 안전; 멱등)
+            UserTokenResponseDto tokenResp = issueUserToken(userId).block(Duration.ofSeconds(10));
+            if (tokenResp == null || tokenResp.getData() == null) {
+                throw new RuntimeException("UserToken 발급 실패: 응답이 null입니다.");
+            }
 
-                        // 3) 대표 지갑 선택 + 잔액 조회
-                        WalletInfoResponseDto primary = pickPrimary(wallets);
-                        return getBalances(userToken, primary.getId())
-                                .defaultIfEmpty(Map.of())
-                                .map(balances ->
-                                        WalletSnapshotResponseDto.builder()
-                                                .primaryWallet(primary)
-                                                .wallets(wallets)
-                                                .balances(balances)
-                                                .build()
-                                );
-                    });
-                });
+            final String userToken = tokenResp.getData().getUserToken();
+
+            // 2) 지갑 목록 조회
+            List<WalletInfoResponseDto> wallets = listWallets(userToken).block(Duration.ofSeconds(10));
+            if (wallets == null) {
+                wallets = List.of(); // null 방어
+            }
+
+            if (wallets.isEmpty()) {
+                // 아직 지갑이 없으면 빈 스냅샷 반환
+                log.info("지갑이 없어서 빈 스냅샷 반환");
+                return WalletSnapshotResponseDto.builder()
+                        .primaryWallet(null)
+                        .wallets(List.of())
+                        .balances(Map.of())
+                        .build();
+            }
+
+            // 3) 대표 지갑 선택 + 잔액 조회
+            WalletInfoResponseDto primary = pickPrimary(wallets);
+            log.info("🔡 잔액 조회 시작: walletId={}", primary.getId());
+
+            Map<String, String> balances = getBalances(userToken, primary.getId())
+                    .block(Duration.ofSeconds(10));
+
+            if (balances == null) {
+                balances = Map.of("USDC", "0.00"); // 기본값
+                log.warn("잔액 조회 실패, 기본값 설정");
+            } else {
+                log.info("잔액 조회 성공: USDC={}", balances.get("USDC"));
+            }
+
+            WalletSnapshotResponseDto result = WalletSnapshotResponseDto.builder()
+                    .primaryWallet(primary)
+                    .wallets(wallets)
+                    .balances(balances)
+                    .build();
+
+            log.info("지갑 조회 완료: 지갑 {}개, 주소={}", wallets.size(), primary.getAddress());
+            return result;
+
+        } catch (Exception e) {
+            log.error("getWalletSync 처리 중 예외 발생", e);
+
+            // 구체적인 에러 메시지 제공
+            if (e.getCause() instanceof java.util.concurrent.TimeoutException) {
+                throw new RuntimeException("Circle API 호출 시간 초과", e);
+            } else if (e.getMessage().contains("401") || e.getMessage().contains("403")) {
+                throw new RuntimeException("Circle API 인증 실패", e);
+            } else if (e.getMessage().contains("404")) {
+                throw new RuntimeException("Circle API 리소스를 찾을 수 없습니다", e);
+            } else {
+                throw new RuntimeException("지갑 조회 중 오류가 발생했습니다: " + e.getMessage(), e);
+            }
+        }
     }
-
-
 
 }

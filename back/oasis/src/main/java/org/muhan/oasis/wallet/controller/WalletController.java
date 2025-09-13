@@ -41,15 +41,14 @@ public class WalletController {
             tags = {"지갑"}
     )
     @PostMapping("/init-session")
-    public Mono<BaseResponse<?>> createWallet(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-
-        if (customUserDetails == null) {
-            return Mono.just(BaseResponse.error(BaseResponseStatus.NO_ACCESS_AUTHORITY));
+    public BaseResponse<?> createWallet(@AuthenticationPrincipal CustomUserDetails user) {
+        try {
+            InitWalletResponseVo result = walletService.createAndInitializeWalletSync(user.getUserUuid());
+            return BaseResponse.of(result);
+        } catch (Exception e) {
+            log.error("지갑 초기화 실패", e);
+            return BaseResponse.error(BaseResponseStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return walletService.createAndInitializeWallet(customUserDetails.getUserUuid())
-                .map(BaseResponse::of);
     }
 
     @Operation(
@@ -60,16 +59,20 @@ public class WalletController {
             tags = {"지갑"}
     )
     @GetMapping
-    public Mono<BaseResponse<?>> getAddress(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    public BaseResponse<?> getAddress(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
         if (customUserDetails == null) {
-            return Mono.just(BaseResponse.error(BaseResponseStatus.NO_ACCESS_AUTHORITY));
+            return BaseResponse.error(BaseResponseStatus.NO_ACCESS_AUTHORITY);
         }
 
-        return walletService.getWallet(customUserDetails.getUserUuid())
-                .map(this::toVo)
-                .map(BaseResponse::of);
+        try {
+            WalletSnapshotResponseDto dto = walletService.getWalletSync(customUserDetails.getUserUuid());
+            WalletSnapshotResponseVo vo = toVo(dto);
+            return BaseResponse.of(vo);
+        } catch (Exception e) {
+            log.error("지갑 조회 실패", e);
+            return BaseResponse.error(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     private WalletSnapshotResponseVo toVo(WalletSnapshotResponseDto dto) {
