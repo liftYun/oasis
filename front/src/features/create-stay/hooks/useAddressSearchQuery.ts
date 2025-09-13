@@ -1,15 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
 import { useDebounce } from 'use-debounce';
-import { http } from '@/apis/httpClient';
 import type { AddressSearchResult } from '@/features/create-stay/types';
 
 const getAddress = async (query: string, signal?: AbortSignal) => {
   try {
-    const data = await http.get<AddressSearchResult[]>(
-      `/api/search-address?query=${encodeURIComponent(query)}`,
-      { signal }
-    );
-    return data.filter((d) => !!d.zone_no);
+    // Next.js API Route를 직접 호출 (httpClient 우회)
+    const response = await fetch(`/api/search-address?query=${encodeURIComponent(query)}`, {
+      signal,
+    });
+
+    if (!response.ok) {
+      throw new Error('주소 검색 중 오류가 발생했습니다.');
+    }
+
+    const data = await response.json();
+    return data.body.filter((d: any) => !!d.zone_no);
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
       // AbortError는 React Query에서 자동으로 처리하므로, 그대로 throw합니다.

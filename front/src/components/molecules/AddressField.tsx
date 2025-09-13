@@ -1,6 +1,7 @@
 'use client';
 
 import type { UseFormRegister, FieldErrors, UseFormWatch } from 'react-hook-form';
+import { twMerge } from 'tailwind-merge';
 import type { CreateStayInput } from '@/features/create-stay/schema';
 import { Label } from '@/components/atoms/label';
 import { Input } from '@/components/atoms/input';
@@ -20,10 +21,12 @@ export function AddressField({ register, errors, watch, onSearchClick }: Address
   const postalCodeValue = watch('postalCode');
   const addressValue = watch('address');
 
-  const readOnlyInputClassName =
-    'flex h-12 w-full cursor-pointer items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-base placeholder:text-sm placeholder:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50';
-  const editableInputClassName =
-    'flex h-12 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base placeholder:text-sm placeholder:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50';
+  // Unify styling convention: variants for additional styles, twMerge usage
+  const variants = {
+    readOnly: 'cursor-pointer',
+    readOnlyFilled: 'cursor-pointer bg-gray-200',
+    editable: '',
+  } as const;
 
   return (
     <div className="flex flex-col gap-2">
@@ -36,14 +39,14 @@ export function AddressField({ register, errors, watch, onSearchClick }: Address
               placeholder={t.form.addressPostalCodePlaceholder}
               readOnly
               onClick={onSearchClick}
-              className={`${readOnlyInputClassName} bg-gray-200`}
+              className={twMerge(variants.readOnlyFilled)}
             />
             <Input
               {...register('address')}
               placeholder={t.form.addressAddressPlaceholder}
               readOnly
               onClick={onSearchClick}
-              className={`${readOnlyInputClassName} bg-gray-200`}
+              className={twMerge(variants.readOnlyFilled)}
             />
           </>
         ) : (
@@ -51,7 +54,11 @@ export function AddressField({ register, errors, watch, onSearchClick }: Address
             {/* 초기 UI */}
             <div
               onClick={onSearchClick}
-              className={`${readOnlyInputClassName} text-gray-300 text-sm`}
+              className={twMerge(
+                'flex items-center h-12 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm placeholder:text-sm placeholder:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50',
+                variants.readOnly,
+                'text-gray-300'
+              )}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
@@ -75,7 +82,7 @@ export function AddressField({ register, errors, watch, onSearchClick }: Address
         <Input
           {...register('addressDetail')}
           placeholder={t.form.addressDetailPlaceholder}
-          className={editableInputClassName}
+          className={twMerge(variants.editable)}
         />
         {errors.addressDetail && (
           <p className="text-sm text-red-500">{errors.addressDetail.message}</p>
