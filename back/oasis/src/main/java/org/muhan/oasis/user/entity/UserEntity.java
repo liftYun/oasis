@@ -116,11 +116,11 @@ public class UserEntity extends BaseEntity {
 //    }
 
     @Builder
-    public UserEntity(String userUuid, Role role, String nickname, String email, Language language, String certificateImg) {
+    public UserEntity(String userUuid, Role role, String nickname, String profileUrl, Language language, String certificateImg) {
         this.userUuid = userUuid;
         this.role = role;
         this.nickname = nickname;
-        this.email = email;
+        this.profileUrl = profileUrl;
         this.language = language;
     }
 

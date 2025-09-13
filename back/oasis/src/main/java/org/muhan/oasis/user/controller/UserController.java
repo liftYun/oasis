@@ -106,7 +106,9 @@ public class UserController {
     })
     @GetMapping("/mypage")
     public BaseResponse<?> mypage(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return BaseResponse.of(UserDetailsResponseVo.from(userService.getUser(userDetails.getUserId())));
+        Long userId = userService.getUserIdByExactNickname(userDetails.getUserNickname());
+
+        return BaseResponse.of(UserDetailsResponseVo.from(userService.getUser(userId)));
     }
 
     @Operation(
@@ -195,8 +197,10 @@ public class UserController {
         // 3) 퍼블릭 URL(CloudFront or S3) 생성
         String publicUrl = s3StorageService.toPublicUrl(key);
 
+        Long userId = userService.getUserIdByUserUuid(userUuid);
+
         // 4) DB 반영 (기존 이미지 삭제는 userService 내부 로직에서 처리하도록 유지)
-        userService.updateProfileImageUrl(userDetails.getUserId(), publicUrl);
+        userService.updateProfileImageUrl(userId, publicUrl);
 
         return BaseResponse.of(Map.of("profileImgUrl", publicUrl));
     }
@@ -212,7 +216,7 @@ public class UserController {
             @RequestParam(name = "language") String lang,
             HttpServletResponse response
     ) {
-        Long userId = customUserDetails.getUserId();
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
         // language parsing
         Language language = Language.valueOf(lang);
 
@@ -246,7 +250,7 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody CancellationPolicyRequestVo vo
     ){
-        Long userId = customUserDetails.getUserId();
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
         userService.registCancellationPolicy(userId, CancellationPolicyRequestDto.from(vo));
         return BaseResponse.ok();
     }
@@ -261,7 +265,7 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody UpdateCancellationPolicyRequestVo vo
     ){
-        Long userId = customUserDetails.getUserId();
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
         userService.updateCancellationPolicy(userId, UpdateCancellationPolicyRequestDto.from(vo));
         return BaseResponse.ok();
     }

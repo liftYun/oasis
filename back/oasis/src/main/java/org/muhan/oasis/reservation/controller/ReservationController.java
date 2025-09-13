@@ -23,9 +23,11 @@ import static org.muhan.oasis.common.base.BaseResponseStatus.FAIL_REGIST_RESERVA
 @RequestMapping("/api/v1/reservation")
 public class ReservationController {
     private final ReservationService reservationService;
+    private final UserService userService;
 
-    public ReservationController(ReservationService reservationService) {
+    public ReservationController(ReservationService reservationService, UserService userService) {
         this.reservationService = reservationService;
+        this.userService = userService;
     }
 
     @Operation(
@@ -40,7 +42,7 @@ public class ReservationController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody RegistReservationRequestVo vo
     ) {
-        Long userId = customUserDetails.getUserId();
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
         String result = reservationService.registReserVation(userId, RegistReservationRequestDto.from(vo));
 
         if(result.isEmpty()) return BaseResponse.error(FAIL_REGIST_RESERVATION);
@@ -57,6 +59,7 @@ public class ReservationController {
     )
     @GetMapping("/list")
     public BaseResponse<ListOfReservationResponseVo> listOfReservation(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        return BaseResponse.of(reservationService.getListOfReservation(customUserDetails.getUserId()));
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
+        return BaseResponse.of(reservationService.getListOfReservation(userId));
     }
 }
