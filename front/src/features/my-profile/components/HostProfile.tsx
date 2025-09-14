@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { logout, secession } from '@/services/auth.api';
 import { CenterModal } from '@/components/organisms/CenterModel';
@@ -12,12 +13,16 @@ import Secession from '@/assets/icons/secession.png';
 import Usdc from '@/assets/icons/usd-circle.png';
 import { useLanguage } from '@/features/language';
 import { profileMessages } from '@/features/my-profile';
-import { set } from 'zod';
 
 export function HostProfile() {
   const { lang } = useLanguage();
   const t = profileMessages[lang];
   const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+  const handleProfile = () => {
+    router.push('/my-profile/detail');
+  };
 
   const handleLogout = async () => {
     try {
@@ -46,7 +51,10 @@ export function HostProfile() {
       className="flex flex-col items-center px-6 py-8 space-y-6 min-h-screen overflow-y-auto"
       style={{ paddingBottom: 'var(--safe-bottom, 110px)' }}
     >
-      <div className="flex flex-col items-center space-y-2">
+      <section
+        onClick={handleProfile}
+        className="flex flex-col items-center space-y-2 cursor-pointer"
+      >
         <div className="w-20 h-20 rounded-full bg-gray-200" />
         <div className="flex items-center gap-2">
           <span className="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-600">
@@ -54,7 +62,7 @@ export function HostProfile() {
           </span>
           <h2 className="text-xl font-semibold">이민희</h2>
         </div>
-      </div>
+      </section>
 
       <div
         className="w-full max-w-sm rounded-md p-5 mb-8"

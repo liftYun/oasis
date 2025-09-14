@@ -12,11 +12,11 @@ function CallbackInner() {
   useEffect(() => {
     const accessToken = params.get('accessToken');
     const needProfileUpdate = params.get('needProfileUpdate') === 'true';
-    console.log({ accessToken, needProfileUpdate });
+    console.log('Auth Callback - accessToken:', accessToken);
 
     if (accessToken) {
+      localStorage.setItem('accessToken', accessToken);
       setUser({ accessToken });
-      window.history.replaceState({}, '', '/');
       router.replace(needProfileUpdate ? '/register' : '/');
     } else {
       router.replace('/');

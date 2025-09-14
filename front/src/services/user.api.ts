@@ -1,50 +1,41 @@
-'use client';
+// src/apis/user.api.ts
+import { http } from '@/apis/httpClient';
+import {
+  MyProfile,
+  UploadUrlResponse,
+  UpdateProfileImageRequest,
+  UserSearchResult,
+  CancellationPolicyRequest,
+  CancellationPolicyResponse,
+} from './user.types';
 
-import { http } from '@/apis';
+/** 내 프로필 조회 */
+export const getMyProfile = () => http.get<MyProfile>('/api/v1/user/mypage');
 
-/*
- * 프로필 조회
- */
-export const getMyProfile = () => http.get('/api/v1/user/mypage');
-
-/*
- * 프로필 이미지 업로드 URL 발급
- */
+/** 프로필 이미지 업로드 URL 발급 */
 export const getProfileImageUploadUrl = () =>
-  http.get<{ uploadUrl: string; key: string }>('/api/v1/user/profileImg/upload-url');
+  http.get<UploadUrlResponse>('/api/v1/user/profileImg/upload-url');
 
-/*
- * 프로필 이미지 업로드 (S3 업로드 후 URL key 전달)
- */
-export const updateProfileImage = (body: { key: string }) =>
-  http.put('/api/v1/user/profileImg', body);
+/** 프로필 이미지 업데이트 (S3 업로드 후 key 전달) */
+export const updateProfileImage = (body: UpdateProfileImageRequest) =>
+  http.put<void>('/api/v1/user/profileImg', body);
 
-/*
- * 사용자 닉네임 조회 (오토컴플리트)
- */
+/** 닉네임 자동완성 검색 */
 export const searchUserNicknames = (query: string) =>
-  http.get<string[]>(`/api/v1/user/search?query=${encodeURIComponent(query)}`);
+  http.get<UserSearchResult[]>(`/api/v1/user/search?query=${encodeURIComponent(query)}`);
 
-/*
- * 사용자 닉네임 조회 (정확히 일치)
- */
+/** 닉네임으로 사용자 단건 조회 */
 export const getUserByNickname = (nickname: string) =>
-  http.get(`/api/v1/user/by-nickname/${encodeURIComponent(nickname)}`);
+  http.get<MyProfile>(`/api/v1/user/by-nickname/${encodeURIComponent(nickname)}`);
 
-/*
- * 취소 정책 등록
- */
-export const registCancellationPolicy = (body: any) =>
-  http.post('/api/v1/user/regist/cancellationPolicy', body);
+/** 취소 정책 등록 */
+export const registCancellationPolicy = (body: CancellationPolicyRequest) =>
+  http.post<CancellationPolicyResponse>('/api/v1/user/regist/cancellationPolicy', body);
 
-/*
- * 취소 정책 수정
- */
-export const updateCancellationPolicy = (body: any) =>
-  http.put('/api/v1/user/update/cancellationPolicy', body);
+/** 취소 정책 수정 */
+export const updateCancellationPolicy = (body: CancellationPolicyRequest) =>
+  http.put<CancellationPolicyResponse>('/api/v1/user/update/cancellationPolicy', body);
 
-/*
- * 언어 변경
- */
+/** 언어 변경 */
 export const updateLanguage = (language: string) =>
-  http.patch(`/api/v1/user/updateLang/${language}`);
+  http.patch<void>(`/api/v1/user/updateLang/${language}`);

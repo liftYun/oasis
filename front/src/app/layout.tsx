@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from 'next';
+import './globals.css';
 import { ReactQueryProvider } from '@/providers/ReactQueryProvider';
 import AppToaster from '@/components/molecules/AppToaster';
-import './globals.css';
+import { ClientLayout } from './ClientLayout';
 
 export const metadata: Metadata = {
   title: 'oasis',
@@ -18,16 +19,14 @@ export const viewport: Viewport = {
   themeColor: '#ffffff',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className="font-sans min-h-dvh">
         <AppToaster />
-        <ReactQueryProvider>{children}</ReactQueryProvider>
+        <ReactQueryProvider>
+          <ClientLayout>{children}</ClientLayout>
+        </ReactQueryProvider>
       </body>
     </html>
   );

@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { logout, secession } from '@/services/auth.api';
 import Calendar from '@/assets/icons/calendar.png';
 import HeartPointer from '@/assets/icons/heart-pointer.png';
@@ -15,6 +16,11 @@ import { profileMessages } from '@/features/my-profile';
 export function GuestProfile() {
   const { lang } = useLanguage();
   const t = profileMessages[lang];
+  const router = useRouter();
+
+  const handleProfile = () => {
+    router.push('/my-profile/detail');
+  };
 
   const handleLogout = async () => {
     try {
@@ -44,7 +50,10 @@ export function GuestProfile() {
       className="flex flex-col items-center px-6 py-8 space-y-6 min-h-screen overflow-y-auto"
       style={{ paddingBottom: 'var(--safe-bottom, 110px)' }}
     >
-      <div className="flex flex-col items-center space-y-2">
+      <section
+        onClick={handleProfile}
+        className="flex flex-col items-center space-y-2 cursor-pointer"
+      >
         <div className="w-20 h-20 rounded-full bg-gray-200" />
         <div className="flex items-center gap-2">
           <span className="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-600">
@@ -52,7 +61,7 @@ export function GuestProfile() {
           </span>
           <h2 className="text-xl font-semibold">이민희</h2>
         </div>
-      </div>
+      </section>
 
       <div
         className="w-full max-w-sm rounded-md p-5 mb-8"
