@@ -133,6 +133,10 @@ public class SecurityConfig {
                         "/oauth2/authorization" // 로그인 시작 URL prefix (공용)
                 );
 
+        http.sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+        );
+
         http.oauth2Login(oauth2 -> oauth2
                 // 로그인 시작점: /oauth2/authorization/{registrationId}
                 // 리다이렉트 수신: /login/oauth2/code/{registrationId}
@@ -141,6 +145,11 @@ public class SecurityConfig {
                 .userInfoEndpoint(ui -> ui
                         .userService(customOAuth2UserService)
                         .oidcUserService(customOidcUserService)) // OIDC (구글))
+                .authorizationEndpoint(authz -> authz
+                        .authorizationRequestRepository(
+                                new org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository()
+                        )
+                )
                 // 성공 시: JWT 발급 등
                 .successHandler(oAuth2SuccessHandler)
                 // 실패 시 처리
