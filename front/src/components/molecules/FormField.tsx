@@ -11,12 +11,20 @@ interface FormFieldProps extends InputProps {
   children?: React.ReactNode;
 }
 
-export function FormField({ label, registration, error, children, ...props }: FormFieldProps) {
+export function FormField({
+  label,
+  registration,
+  error,
+  children,
+  ...props
+}: FormFieldProps) {
+  const inputId = props.id ?? registration.name;
+
   return (
     <div className="flex flex-col gap-2">
-      <Label htmlFor={props.id}>{label}</Label>
+      <Label htmlFor={inputId}>{label}</Label>
       <div className="relative">
-        <Input {...registration} {...props} />
+        <Input id={inputId} {...props} {...registration} />
         {children}
       </div>
       {error && <p className="text-sm text-red-500">{error.message}</p>}

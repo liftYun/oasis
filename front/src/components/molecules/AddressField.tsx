@@ -1,9 +1,12 @@
 'use client';
 
 import type { UseFormRegister, FieldErrors, UseFormWatch } from 'react-hook-form';
+import { twMerge } from 'tailwind-merge';
 import type { CreateStayInput } from '@/features/create-stay/schema';
 import { Label } from '@/components/atoms/label';
 import { Input } from '@/components/atoms/input';
+import { useLanguage } from '@/features/language';
+import { createStayMessages } from '@/features/create-stay/locale';
 
 interface AddressFieldProps {
   register: UseFormRegister<CreateStayInput>;
@@ -13,56 +16,73 @@ interface AddressFieldProps {
 }
 
 export function AddressField({ register, errors, watch, onSearchClick }: AddressFieldProps) {
+  const { lang } = useLanguage();
+  const t = createStayMessages[lang];
   const postalCodeValue = watch('postalCode');
   const addressValue = watch('address');
 
-  const readOnlyInputClassName =
-    'flex h-12 w-full cursor-pointer rounded-lg border border-gray-300 bg-white px-4 py-2 text-base placeholder:text-gray-300 placeholder:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50';
-  const editableInputClassName =
-    'flex h-12 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base placeholder:text-gray-300 placeholder:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50';
+  // Unify styling convention: variants for additional styles, twMerge usage
+  const variants = {
+    readOnly: 'cursor-pointer',
+    readOnlyFilled: 'cursor-pointer bg-gray-200',
+    editable: '',
+  } as const;
 
   return (
     <div className="flex flex-col gap-2">
-      <Label>숙소 위치</Label>
+      <Label>{t.form.addressLabel}</Label>
       <div className="flex flex-col gap-2">
-        {addressValue ? (
+        {postalCodeValue && addressValue ? (
           <>
-            {/* 주소 선택 후 UI */}
             <Input
-              placeholder="우편번호"
-              value={postalCodeValue || ''}
+              {...register('postalCode')}
+              placeholder={t.form.addressPostalCodePlaceholder}
               readOnly
               onClick={onSearchClick}
-              className={readOnlyInputClassName}
+              className={twMerge(variants.readOnlyFilled)}
             />
             <Input
-              placeholder="주소"
-              value={addressValue || ''}
+              {...register('address')}
+              placeholder={t.form.addressAddressPlaceholder}
               readOnly
               onClick={onSearchClick}
-              className={readOnlyInputClassName}
+              className={twMerge(variants.readOnlyFilled)}
             />
           </>
         ) : (
           <>
             {/* 초기 UI */}
-            <Input
-              placeholder="주소 검색하기"
-              value=""
-              readOnly
+            <div
               onClick={onSearchClick}
-              className={readOnlyInputClassName}
-            />
+              className={twMerge(
+                'flex items-center h-12 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm placeholder:text-sm placeholder:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50',
+                variants.readOnly,
+                'text-gray-300'
+              )}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSearchClick();
+                }
+              }}
+              aria-label={t.form.addressSearchAria}
+            >
+              {t.form.addressSearchPlaceholder}
+            </div>
           </>
         )}
 
         {(errors.postalCode || errors.address) && (
-          <p className="text-sm text-red-500">{errors.address?.message}</p>
+          <p className="text-sm text-red-500">
+            {errors.address?.message || errors.postalCode?.message}
+          </p>
         )}
         <Input
           {...register('addressDetail')}
-          placeholder="상세 주소"
-          className={editableInputClassName}
+          placeholder={t.form.addressDetailPlaceholder}
+          className={twMerge(variants.editable)}
         />
         {errors.addressDetail && (
           <p className="text-sm text-red-500">{errors.addressDetail.message}</p>
