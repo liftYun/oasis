@@ -1,6 +1,7 @@
 export const profileMessages = {
   kor: {
     guest: '게스트',
+    host: '호스트',
     balance: '충전하기',
     usdc: 'USDC',
     reservation: '예약 관리',
@@ -11,9 +12,16 @@ export const profileMessages = {
     guide: '이용 안내',
     logout: '로그아웃',
     secession: '회원탈퇴',
+    secessionTitle: '회원 탈퇴 안내',
+    secessionDescription: '탈퇴 시 모든 정보가 삭제되며 복구할 수 없습니다. 정말 탈퇴하시겠습니까?',
+    secessionCancel: '돌아가기',
+    secessionConfirm: '탈퇴하기',
+    manageStay: '내 숙소 관리',
+    createStay: '내 숙소 등록',
   },
   eng: {
     guest: 'Guest',
+    host: 'Host',
     balance: 'Charge',
     usdc: 'USDC',
     reservation: 'Reservation',
@@ -24,5 +32,12 @@ export const profileMessages = {
     guide: 'Guide',
     logout: 'Log out',
     secession: 'Delete account',
+    secessionTitle: 'Delete Account',
+    secessionDescription:
+      'All your data will be deleted and cannot be recovered. Do you want to continue?',
+    secessionCancel: 'Go back',
+    secessionConfirm: 'Delete',
+    manageStay: 'Manage your stay',
+    createStay: 'Create a stay',
   },
 } as const;

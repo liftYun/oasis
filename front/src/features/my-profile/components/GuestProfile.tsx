@@ -1,6 +1,8 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
+import { logout, secession } from '@/services/auth.api';
 import Calendar from '@/assets/icons/calendar.png';
 import HeartPointer from '@/assets/icons/heart-pointer.png';
 import PositiveReview from '@/assets/icons/positive-review.png';
@@ -13,6 +15,29 @@ import { profileMessages } from '@/features/my-profile';
 export function GuestProfile() {
   const { lang } = useLanguage();
   const t = profileMessages[lang];
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      alert('로그아웃 되었습니다.');
+      window.location.href = '/';
+    } catch (err) {
+      console.error(err);
+      alert('로그아웃 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleSecession = async () => {
+    if (!confirm('정말 회원 탈퇴하시겠습니까?')) return;
+    try {
+      await secession();
+      alert('회원 탈퇴가 완료되었습니다.');
+      window.location.href = '/';
+    } catch (err) {
+      console.error(err);
+      alert('회원 탈퇴 중 오류가 발생했습니다.');
+    }
+  };
 
   return (
     <div
@@ -50,31 +75,46 @@ export function GuestProfile() {
 
       <div className="w-full max-w-sm space-y-1">
         <p className="text-sm text-gray-500 mb-2 font-bold">{t.reservation}</p>
-        <button className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition">
+        <Link
+          href="/my-profile/reservations"
+          className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
+        >
           <Image src={Calendar} alt="Calendar Icon" width={24} height={24} />
           <span className="text-gray-800 text-sm">{t.reservationHistory}</span>
-        </button>
+        </Link>
       </div>
 
       <div className="w-full max-w-sm space-y-1">
         <p className="text-sm text-gray-500 mb-2 font-bold">{t.activity}</p>
-        <button className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition">
+        <Link
+          href="/my-profile/favorite"
+          className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
+        >
           <Image src={HeartPointer} alt="Heart Pointer Icon" width={24} height={24} />
           <span className="text-gray-800 text-sm">{t.wishlist}</span>
-        </button>
-        <button className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition">
+        </Link>
+        <Link
+          href="/my-profile/reviews"
+          className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
+        >
           <Image src={PositiveReview} alt="Positive Review Icon" width={24} height={24} />
           <span className="text-gray-800 text-sm">{t.reviews}</span>
-        </button>
+        </Link>
       </div>
 
       <div className="w-full max-w-sm space-y-1">
         <p className="text-sm text-gray-500 mb-2 font-bold">{t.guide}</p>
-        <button className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
+        >
           <Image src={SignOut} alt="Sign Out Icon" width={24} height={24} />
           <span className="text-gray-800 text-sm">{t.logout}</span>
         </button>
-        <button className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition">
+        <button
+          onClick={handleSecession}
+          className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
+        >
           <Image src={Secession} alt="Secession Icon" width={24} height={24} />
           <span className="text-gray-800 text-sm">{t.secession}</span>
         </button>

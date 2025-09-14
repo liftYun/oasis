@@ -1,6 +1,6 @@
 'use client';
 
-import TabBar from '@/components/organisms/TabBar';
+// import TabBar from '@/components/organisms/TabBar';
 
 export default function LanguageLayout({ children }: { children: React.ReactNode }) {
   return (

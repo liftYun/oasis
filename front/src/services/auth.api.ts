@@ -1,6 +1,5 @@
 'use client';
 
-import axios from 'axios';
 import { http } from '@/apis';
 import {
   NicknameValidationPayload,
@@ -25,6 +24,11 @@ export const refreshToken = () => http.post<{ accessToken: string }>('/api/v1/au
  * 로그아웃
  */
 export const logout = () => http.post<void>('/api/v1/auth/logout');
+
+/*
+ * 회원 탈퇴
+ */
+export const secession = () => http.delete<void>('/api/v1/user/secession');
 
 /*
  * 닉네임 중복 확인
