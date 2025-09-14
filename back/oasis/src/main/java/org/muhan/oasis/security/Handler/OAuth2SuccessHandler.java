@@ -6,6 +6,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.security.jwt.CustomOAuth2User;
@@ -35,6 +36,7 @@ import java.time.Duration;
 import java.util.Map;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
@@ -124,6 +126,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         boolean needProfileUpdate = (user.getRole() == null || user.getProfileUrl() == null);
         String baseRedirect = needProfileUpdate ? frontBaseUrl + "/register/callback"
                 : frontBaseUrl + "/";
+        log.info("[OAuth2Success] uuid={}, email={}, redirect={}", uuid, email, baseRedirect);
+
 
 //        String encodedEmail = URLEncoder.encode(email != null ? email : "", StandardCharsets.UTF_8);
 //        String redirectUrl = baseRedirect + (baseRedirect.contains("?") ? "&" : "?") + "email=" + encodedEmail;
