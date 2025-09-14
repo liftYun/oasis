@@ -94,8 +94,8 @@ public class KeyController {
                 """
     )
     @GetMapping("/list")
-    public BaseResponse<ListOfKeyResponseVO> listOfKeys(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    public BaseResponse<?> listOfKeys(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
-        return BaseResponse.of()
+        return BaseResponse.ok();
     }
 }
