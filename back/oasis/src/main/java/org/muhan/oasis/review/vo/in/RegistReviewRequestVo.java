@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @Builder
 public class RegistReviewRequestVo {
     @NotNull(message = "예약 ID는 필수입니다.")
-    private Long reservationId;
+    private String reservationId;
 
     @NotNull(message = "별점은 필수입니다.")
     @DecimalMin(value = "0.5", message = "별점은 최소 0.5 이상이어야 합니다.")

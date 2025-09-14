@@ -13,15 +13,16 @@ import org.muhan.oasis.valueobject.Role;
 public class UserDetailRequestDto {
     private String uuid;
     private String nickname;
-    private String userEmail;
+    private String profileImg;
     private Role role;
     private Language language;
 
     public static UserEntity from(UserDetailRequestDto dto){
         return UserEntity.builder()
                 .userUuid(dto.uuid)
-                .email(dto.userEmail)
                 .role(dto.role)
+                .nickname(dto.nickname)
+                .profileUrl(dto.profileImg)
                 .language(dto.language)
                 .build();
     }

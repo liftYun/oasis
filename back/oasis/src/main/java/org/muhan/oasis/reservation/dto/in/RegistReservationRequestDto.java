@@ -42,6 +42,7 @@ public class RegistReservationRequestDto {
                 .user(user)
                 .stay(stay)
                 .checkinDate(dto.getCheckinDate())
+                .checkoutDate(dto.getCheckoutDate())
                 .reservationDate(dto.getReservationDate())
                 .isSettlemented(dto.isSettlemented())
                 .isReviewed(dto.isReviewed())
@@ -55,7 +56,9 @@ public class RegistReservationRequestDto {
     public static RegistReservationRequestDto from(RegistReservationRequestVo vo) {
         return RegistReservationRequestDto.builder()
                 .reservationId(vo.getReservationId())
+                .stayId(vo.getStayId())
                 .checkinDate(vo.getCheckinDate())
+                .checkoutDate(vo.getCheckoutDate())
                 .reservationDate(vo.getReservationDate())
                 .isSettlemented(vo.isSettlemented())
                 .isReviewed(vo.isReviewed())

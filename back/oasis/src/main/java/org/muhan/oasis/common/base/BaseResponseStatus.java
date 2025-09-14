@@ -83,6 +83,7 @@ public enum BaseResponseStatus {
 
     // 예약
     FAIL_REGIST_RESERVATION(HttpStatus.BAD_REQUEST, false, 400, "예약 정보 등록에 실패했습니다."),
+    NO_EXIST_RESERVATION(HttpStatus.BAD_REQUEST, false, 400, "예약 정보를 불러오는데 실패했습니다."),
 
     // SSE
     FAIL_SSE_COMMUNICATION(HttpStatus.SERVICE_UNAVAILABLE, false, 503, "SSE 메세지 전송에 실패했습니다."),

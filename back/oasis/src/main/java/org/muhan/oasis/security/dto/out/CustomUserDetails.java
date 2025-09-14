@@ -36,11 +36,7 @@ public class CustomUserDetails implements UserDetails {
         return this.userEntity;
     }
 
-    public Long getUserId() { return userEntity.getUserId(); }
-
     public String getUserUuid() { return userEntity.getUserUuid(); }
-
-    public String getUserEmail() { return  userEntity.getEmail(); }
 
     public String getUserProfileUrl() { return  userEntity.getProfileUrl(); }
 

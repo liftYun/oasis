@@ -2,12 +2,12 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import { DateRange, DayPicker } from 'react-day-picker';
+import type { DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
-import { ko } from 'date-fns/locale';
 import { differenceInDays, format } from 'date-fns';
 import Calender from '@/assets/icons/calender.png';
 import { useLanguage } from '@/features/language';
+import CalendarBase from '@/components/organisms/CalendarBase';
 
 export default function Calendar() {
   const [range, setRange] = useState<DateRange | undefined>(undefined);
@@ -39,28 +39,11 @@ export default function Calendar() {
         )}
       </div>
 
-      <DayPicker
-        mode="range"
+      <CalendarBase
+        mode="singleRange"
+        theme="blue"
         selected={range}
-        onSelect={setRange}
-        locale={lang === 'kor' ? ko : undefined}
-        showOutsideDays
-        fixedWeeks
-        classNames={{
-          day: 'text-gray-600',
-          today: 'text-primary font-bold',
-          chevron: 'fill-primary',
-        }}
-        modifiersClassNames={{
-          range_middle: 'bg-blue-100 text-gray-600 rounded-full',
-          range_start: 'bg-primary text-white rounded-full',
-          range_end: 'bg-primary text-white rounded-full',
-          selected: 'bg-primary text-gray-600',
-        }}
-        styles={{
-          day: { margin: 0, width: '36px', height: '36px' },
-        }}
-        navLayout="around"
+        onChange={setRange}
         className="mx-auto flex justify-center"
       />
     </div>

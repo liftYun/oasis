@@ -54,6 +54,7 @@ public class RefreshTokenService {
     /**
      * 로그아웃 등 필요 시 DB에서 refresh token 삭제
      */
+    @Transactional
     public void deleteToken(String uuid) {
         repository.deleteByUserUuid(uuid);
     }
