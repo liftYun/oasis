@@ -7,15 +7,16 @@ import org.muhan.oasis.reservation.dto.in.RegistReservationRequestDto;
 import org.muhan.oasis.reservation.service.ReservationService;
 import org.muhan.oasis.reservation.vo.in.RegistReservationRequestVo;
 import org.muhan.oasis.reservation.vo.out.ListOfReservationResponseVo;
+import org.muhan.oasis.reservation.vo.out.ReservationDetailsResponseVo;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
-import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.service.UserService;
+import org.muhan.oasis.valueobject.Language;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 import static org.muhan.oasis.common.base.BaseResponseStatus.FAIL_REGIST_RESERVATION;
+import static org.muhan.oasis.common.base.BaseResponseStatus.INVALID_PARAMETER;
 
 @RestController
 @ResponseBody
@@ -58,8 +59,42 @@ public class ReservationController {
             tags = {"예약"}
     )
     @GetMapping("/list")
-    public BaseResponse<ListOfReservationResponseVo> listOfReservation(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    public BaseResponse<ListOfReservationResponseVo> getListOfReservation(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
         return BaseResponse.of(reservationService.getListOfReservation(userId));
+    }
+
+    @Operation(
+            summary = "숙소 별 예약 일자 리스트",
+            description = """
+                숙소 별로 예약 된 일자를 불러옵니다.
+                """,
+            tags = {"예약"}
+    )
+    @PreAuthorize("hasRole('ROLE_HOST')")
+    @GetMapping("/host/{stayId}")
+    public BaseResponse<?> getFutureReservedDays(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long stayId
+            ) {
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
+        return BaseResponse.of(reservationService.getListOfReservedDay(userId, stayId));
+    }
+
+    @Operation(
+            summary = "예약 상세 내용 조회",
+            description = """
+                reservationId로 해당 예약에 대한 상세 내용을 불러옵니다.
+                """,
+            tags = {"예약"}
+    )
+    @GetMapping("/details/{reservationId}")
+    public BaseResponse<ReservationDetailsResponseVo> getReservationDetails(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable String reservationId
+    ){
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
+        Language language = customUserDetails.getLanguage();
+        return BaseResponse.of(ReservationDetailsResponseVo.fromDto(reservationService.getReservationDetails(userId, language, reservationId)));
     }
 }
