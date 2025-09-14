@@ -45,7 +45,7 @@ spring:
               - openid
               - profile
               - email
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: "${app.backend-base-url}/login/oauth2/code/{registrationId}"
             client-name: Google
 
 jwt:
@@ -63,6 +63,8 @@ app:
   translate:
     timeout-ms: 3000
   front-base-url: ${FRONT_BASE_URL}
+  backend-base-url: https://dev-app.stay-oasis.kr
+#  backend-base-url: http://localhost:8080 # localTest
 papago:
   base-url: https://papago.apigw.ntruss.com
   client-id: ${PAPAGO_CLIENT_ID}
