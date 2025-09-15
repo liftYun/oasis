@@ -34,7 +34,7 @@ export function RegisterRole() {
       nickname,
       role,
       language: lang,
-      profileImgKey: profileImage,
+      // profileImgKey: profileImage,
     });
   };
 

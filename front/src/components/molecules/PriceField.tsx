@@ -1,0 +1,81 @@
+'use client';
+
+import { useWatch, type Control } from 'react-hook-form';
+import type { FieldError, UseFormRegisterReturn } from 'react-hook-form';
+import { FormField } from '@/components/molecules/FormField';
+import { useLanguage } from '@/features/language';
+import { createStayMessages } from '@/features/create-stay/locale';
+
+interface PriceFieldProps {
+  control: Control<any>;
+  name: string; // e.g. 'price'
+  registration: UseFormRegisterReturn;
+  error?: FieldError;
+  id?: string;
+  placeholder?: string;
+}
+
+export function PriceField({
+  control,
+  name,
+  registration,
+  error,
+  id = 'price',
+  placeholder = '$ 가격을 적어주세요.',
+}: PriceFieldProps) {
+  const { lang } = useLanguage();
+  const t = createStayMessages[lang];
+  const value = useWatch({ control, name });
+  const showCurrency = value !== undefined && value !== null && value !== ('' as any);
+
+  const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+    const target = e.currentTarget;
+    // 허용 키: 편집/이동/제어 조합
+    const controlKeys = [
+      'Backspace',
+      'Tab',
+      'Enter',
+      'Escape',
+      'ArrowLeft',
+      'ArrowRight',
+      'Home',
+      'End',
+      'Delete',
+    ];
+    if (controlKeys.includes(e.key)) return;
+    if ((e.ctrlKey || e.metaKey) && ['a', 'c', 'v', 'x'].includes(e.key.toLowerCase())) return;
+
+    // 소수점은 1개만 허용
+    if (e.key === '.') {
+      if (target.value.includes('.')) {
+        e.preventDefault();
+      }
+      return;
+    }
+
+    // 숫자 외 입력 차단
+    if (!/\d/.test(e.key)) {
+      e.preventDefault();
+    }
+  };
+
+  return (
+    <FormField
+      label={t.form.priceLabel}
+      registration={registration}
+      id={id}
+      placeholder={t.form.pricePlaceholder || placeholder}
+      error={error}
+      inputMode="decimal"
+      type="text"
+      onKeyDown={handleKeyDown}
+      className={showCurrency ? 'pl-8' : undefined}
+    >
+      {showCurrency && (
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+          $
+        </span>
+      )}
+    </FormField>
+  );
+}

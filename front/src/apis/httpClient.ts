@@ -100,6 +100,19 @@ class HttpClient {
   }
 
   private setInterceptors() {
+    this.client.interceptors.request.use(
+      (config) => {
+        const token = isBrowser() ? localStorage.getItem('accessToken') : null;
+        // const token = accessTokenTest;
+        console.log(token);
+        if (token && config.headers) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
     this.client.interceptors.response.use(
       (res) => {
         if (process.env.NODE_ENV === 'development') {
@@ -117,7 +130,6 @@ class HttpClient {
 
         if (status === 401 && !original._retry) {
           original._retry = true;
-
           try {
             if (isRefreshing) {
               await new Promise<void>((resolve) => waiters.push(resolve));

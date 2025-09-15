@@ -22,4 +22,6 @@ public interface UserService {
     void registCancellationPolicy(Long userId, CancellationPolicyRequestDto dto);
 
     void updateCancellationPolicy(Long userId, UpdateCancellationPolicyRequestDto from);
+
+    Long getUserIdByUserUuid(String userUuid);
 }

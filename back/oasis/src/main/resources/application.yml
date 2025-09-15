@@ -1,5 +1,6 @@
 server:
   port: ${SERVER_PORT}
+  forward-headers-strategy: framework
 swagger:
   uri: "/"
 
@@ -44,12 +45,13 @@ spring:
               - openid
               - profile
               - email
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: "${app.backend-base-url}/login/oauth2/code/{registrationId}"
             client-name: Google
 
 jwt:
   access:
-    expired-ms: 600000    # 10?
+    expired-ms: 600000
+#    expired-ms: 6048000000    # for test
   refresh:
     expired-ms: 604800000 # 7?
 logging:
@@ -60,7 +62,9 @@ logging:
 app:
   translate:
     timeout-ms: 3000
-
+  front-base-url: ${FRONT_BASE_URL}
+  backend-base-url: https://dev-app.stay-oasis.kr
+#  backend-base-url: http://localhost:8080 # localTest
 papago:
   base-url: https://papago.apigw.ntruss.com
   client-id: ${PAPAGO_CLIENT_ID}
@@ -75,9 +79,10 @@ cloud:
         stay-img: ${S3_STAY_IMG_PATH}
         certificate: ${S3_CERTIFICATE_PATH}
         profile-img: ${S3_PROFILE_IMG_PATH}
-    credentials:
-      access-key: ${S3_ACCESS_KEY_ID}
-      secret-key: ${S3_SECRET_ACCESS_KEY}
+
+      credentials:
+        access-key: ${S3_ACCESS_KEY_ID}
+        secret-key: ${S3_SECRET_ACCESS_KEY}
     sqs:
       credentials:
         access-key: ${AWS_ACCESS_KEY_ID}
@@ -91,3 +96,8 @@ openai:
   secret-key: ${OPENAI_SECRET_KEY}
   chat-url: https://gms.ssafy.io/gmsapi/api.openai.com/v1/chat/completions
   chat-model: gpt-4.1-mini
+
+circle:
+  base-url: ${CIRCLE_BASE_URL}
+  api-key: ${CIRCLE_API_KEY}
+  default-fee-level: MEDIUM

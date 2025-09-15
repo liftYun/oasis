@@ -1,0 +1,26 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# 타임존
+RUN apk add --no-cache tzdata \
+  && cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime \
+  && echo "Asia/Seoul" > /etc/timezone
+
+# pnpm 사용 (corepack)
+RUN corepack enable
+
+# 종속성 설치
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+# 앱 소스
+COPY . .
+
+# Next 빌드
+# (빌드타임에 필요한 환경변수가 있으면 --build-arg로 넘기거나 .env.production 유지)
+RUN pnpm build
+
+EXPOSE 3000
+# 런타임 환경변수는 docker run -e로 주입 권장
+CMD ["pnpm", "start"]

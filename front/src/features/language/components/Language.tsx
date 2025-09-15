@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { useLanguage } from '@/features/language/hooks/useLanguage';
 import EnDark from '@/assets/icons/en-dark.png';
 import EnLight from '@/assets/icons/en-light.png';
@@ -10,11 +11,16 @@ import KoLight from '@/assets/icons/ko-light.png';
 
 export function Language() {
   const { changeLang } = useLanguage();
+  const searchParams = useSearchParams();
+  const from = searchParams.get('from') || '';
+
   const cardClass = () =>
     'group block rounded-2xl px-5 py-10 transition focus-visible:outline-none bg-gray-100 text-gray-500 hover:bg-gray-500 hover:text-white';
 
   return (
     <main className="relative flex flex-col w-full mx-0 px-6 py-10 min-h-screen">
+      {/* {from ==='myprofile' && <BackHeader />} */}
+
       <h1 className="text-2xl font-bold text-gray-500 leading-relaxed">
         사용 언어를 선택해주세요. <br /> Please select a language.
       </h1>

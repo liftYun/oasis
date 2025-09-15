@@ -13,7 +13,7 @@ import org.muhan.oasis.valueobject.Role;
 public class RegistRequestDto {
     private String uuid;
     private String nickname;
-    private String userEmail;
+    private String profileUrl;
     private Language language;
     private Role role;
 
@@ -21,7 +21,7 @@ public class RegistRequestDto {
         return UserEntity.builder()
                 .userUuid(dto.uuid)
                 .nickname(dto.nickname)
-                .email(dto.userEmail)
+                .profileUrl(dto.profileUrl)
                 .role(dto.role)
                 .language(dto.language)
                 .build();

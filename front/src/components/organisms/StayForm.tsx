@@ -1,11 +1,15 @@
 'use client';
 
 import type { UseFormReturn } from 'react-hook-form';
+import { useWatch } from 'react-hook-form';
 import { ACCEPTED_IMAGE_TYPES, type CreateStayInput } from '@/features/create-stay/schema';
 import { FormField } from '@/components/molecules/FormField';
 import { ImageUploader } from '@/components/molecules/ImageUploader';
 import { Button } from '@/components/atoms/Button';
 import { AddressField } from '@/components/molecules/AddressField';
+import { PriceField } from '@/components/molecules/PriceField';
+import { useLanguage } from '@/features/language';
+import { createStayMessages } from '@/features/create-stay/locale';
 
 interface StayFormProps {
   form: UseFormReturn<CreateStayInput>;
@@ -24,21 +28,24 @@ export function StayForm({
   imagePreviews,
   onRemoveImage,
 }: StayFormProps) {
+  const { lang } = useLanguage();
+  const t = createStayMessages[lang];
   const {
     register,
     watch,
     formState: { errors, isValid },
   } = form;
 
-  const titleValue = watch('title', '');
+  const titleValue = useWatch({ control: form.control, name: 'title' }) ?? '';
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col flex-grow gap-6">
       <FormField
-        label="숙소 이름"
+        label={t.form.titleLabel}
         registration={register('title')}
         id="title"
-        placeholder="숙소 이름을 적어주세요."
+        placeholder={t.form.titlePlaceholder}
+        maxLength={20}
         error={errors.title}
         className="pr-12"
       >
@@ -54,17 +61,24 @@ export function StayForm({
         onSearchClick={openAddressModal}
       />
 
-      <FormField
-        label="가격"
+      <PriceField
+        control={form.control}
+        name="price"
         registration={register('price', {
-          setValueAs: (value) => (value === '' ? undefined : Number(value)),
+          setValueAs: (raw) => {
+            if (raw === '' || raw == null) return undefined;
+            const str: string = String(raw);
+            // 09.00 -> 9 또는 9.00: 숫자 이외 제거 후 앞자리 0 제거, 소수점 2자리 보존
+            const match = str.match(/^(\d+)(?:\.(\d{1,2}))?$/);
+            if (!match) return Number(str); // 폴백
+            const intPart = match[1].replace(/^0+(\d)/, '$1');
+            const frac = match[2] ?? '';
+            const normalized = frac ? `${intPart}.${frac}` : intPart;
+            const num = Number(normalized);
+            return num;
+          },
         })}
-        id="price"
-        placeholder="$ 가격을 적어주세요."
         error={errors.price}
-        inputMode="numeric"
-        type="number"
-        step="0.01"
       />
 
       {/* ImageUploader는 hook과 연결될 예정 */}
@@ -80,9 +94,11 @@ export function StayForm({
         <Button
           type="submit"
           disabled={!isValid || isSubmitting}
-          className="w-full bg-gray-200 text-gray-600 font-bold hover:bg-gray-300 active:bg-gray-300 mb-10"
+          variant={isValid && !isSubmitting ? 'blue' : 'google'}
+          // className={`w-full font-bold mb-10 ${
+
         >
-          {isSubmitting ? '처리 중...' : '다음'}
+          {isSubmitting ? t.common.processing : t.common.next}
         </Button>
       </div>
     </form>
