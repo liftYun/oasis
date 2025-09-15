@@ -24,6 +24,7 @@ public class CookieUtils {
                 .secure(true) // 로컬 테스트는 false, 배포는 true
                 .sameSite("None") // 크로스 도메인에서도 전달되도록
                 .path("/")
+                .domain(".stay-oasis.kr")
                 .maxAge(maxAge)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
