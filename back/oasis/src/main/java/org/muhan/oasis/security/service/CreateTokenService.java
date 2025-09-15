@@ -8,6 +8,7 @@ import org.muhan.oasis.security.jwt.JWTUtil;
 import org.muhan.oasis.security.vo.out.TokenPair;
 import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.valueobject.Role;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +19,17 @@ public class CreateTokenService {
     private final JWTUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
 
+    @Value("${app.domain}")
+    private String cookieDomain;
+
     public TokenPair createTokens(
             String uuid,
+            String email,
             String profileUrl,
             String nickname,
             Role role,
             Language language) {
-        String accessToken = jwtUtil.createAccessToken(uuid, profileUrl, nickname, role, language);
+        String accessToken = jwtUtil.createAccessToken(uuid, email, profileUrl, nickname, role, language);
         String refreshToken = jwtUtil.createRefreshToken(uuid);
 
         refreshTokenService.saveToken(uuid, refreshToken);
@@ -34,6 +39,7 @@ public class CreateTokenService {
                 .httpOnly(true)
                 .secure(true)                // HTTPS 환경에서 권장
                 .sameSite("None")            // 크로스 사이트 필요 시
+                .domain(cookieDomain)
                 .path("/")
                 .maxAge(jwtUtil.getRefreshExpiredMs() / 1000)
                 .build();

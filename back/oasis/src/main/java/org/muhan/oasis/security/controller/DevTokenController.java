@@ -40,9 +40,17 @@ public class DevTokenController {
         return issueFixed("testHost@test.com");
     }
 
+    @Operation(summary="게스트 AT(70일)2")
+    @GetMapping("/token/host")
+    public BaseResponse<Map<String,Object>> guestToken2() {
+        return issueFixed("guest2@test.com");
+    }
+
     private BaseResponse<Map<String,Object>> issueFixed(String email) {
         UserEntity u = userRepository.findByEmail(email).orElseThrow();
-        String at = jwtUtil.createAccessToken(u.getUserUuid(), u.getEmail(), u.getNickname(),
+        String at = jwtUtil.createAccessToken(u.getUserUuid(), u.getEmail(),
+                u.getProfileUrl(),
+                u.getNickname(),
                 u.getRole() != null ? u.getRole() : Role.ROLE_GUEST,
                 u.getLanguage() != null ? u.getLanguage() : Language.KOR);
         return BaseResponse.of(Map.of("accessToken", at, "tokenType", "Bearer"));

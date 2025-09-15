@@ -39,6 +39,9 @@ public class LockService {
     @Value("${circle.default-fee-level:MEDIUM}")
     private String defaultFeeLevel;
 
+    @Value("${contract.address}")
+    private String contractAddress;
+
     public Result createLock(LockRequestDto req) {
         log.info("=== [createLock] START ===");
         log.info("Request: userId={}, stayId={}, resId={}, amountUSDC={}, feeUSDC={}, checkIn={}, checkOut={}",
@@ -94,7 +97,6 @@ public class LockService {
                 policy
         );
 
-        String contractAddr = "0x3bda11c04838493f68f688207cc0c86fc96f8b03";
         String feeLevel = StringUtils.hasText(defaultFeeLevel) ? defaultFeeLevel : "MEDIUM";
 
         try {
@@ -102,7 +104,7 @@ public class LockService {
             CircleUserApi.ContractExecChallenge ch = circle.createContractExecChallenge(
                     tokenEntry.getUserToken(),
                     clientWalletId,
-                    contractAddr,
+                    contractAddress,
                     callData,
                     feeLevel,
                     "lock:" + req.getReservationId()
@@ -125,7 +127,7 @@ public class LockService {
                 CircleUserApi.ContractExecChallenge ch2 = circle.createContractExecChallenge(
                         refreshed.getUserToken(),
                         clientWalletId,
-                        contractAddr,
+                        contractAddress,
                         callData,
                         feeLevel,
                         "lock:" + req.getReservationId()

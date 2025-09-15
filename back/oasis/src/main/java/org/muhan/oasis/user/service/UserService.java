@@ -24,4 +24,6 @@ public interface UserService {
     void updateCancellationPolicy(Long userId, UpdateCancellationPolicyRequestDto from);
 
     Long getUserIdByUserUuid(String userUuid);
+
+    String getUserEmailByUuid(String userUuid);
 }
