@@ -23,14 +23,15 @@ public class JoinService {
     // 소셜 로그인: 없으면 생성
     @Transactional
     public UserEntity registerSocialUserIfNotExist(String email, String nickname, @Nullable Language lang) {
+        System.out.println("JoinService in Email : " + email);
         return userRepository.findByEmail(email).orElseGet(() -> {
-            UserEntity u = new UserEntity(
+            Language useLang = (lang != null) ? lang : Language.KOR;
+            UserEntity u = UserEntity.ofSocial(
                     UUID.randomUUID().toString(),
-                    Role.ROLE_GUEST,
-                    safeNickname(nickname),
                     email,
-                    lang != null ? lang : Language.KOR,
-                    null
+                    safeNickname(nickname),
+                    useLang,
+                    Role.ROLE_GUEST
             );
             return userRepository.save(u);
         });

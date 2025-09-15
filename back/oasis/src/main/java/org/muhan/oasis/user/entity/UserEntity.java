@@ -123,6 +123,14 @@ public class UserEntity extends BaseEntity {
         this.profileUrl = profileUrl;
         this.language = language;
     }
-
+    public static UserEntity ofSocial(String uuid, String email, String nickname, Language lang, Role role) {
+        UserEntity u = new UserEntity(); // @NoArgsConstructor 필요
+        u.setUserUuid(uuid);
+        u.setEmail(email);
+        u.setNickname(nickname);
+        u.setLanguage(lang);
+        u.setRole(role);
+        return u;
+    }
 }
 
