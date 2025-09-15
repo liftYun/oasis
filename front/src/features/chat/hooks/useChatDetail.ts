@@ -1,19 +1,18 @@
-/* eslint-disable @typescript-eslint/consistent-type-definitions */
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
 import type { MessageItemModel } from '@/features/chat/components/MessageItem';
 
-type StayInfo = {
+interface StayInfo {
   id: string;
   title: string;
   address: string;
-};
+}
 
-export type ChatDetailData = {
+export interface ChatDetailData {
   stay: StayInfo;
   messages: MessageItemModel[];
-};
+}
 
 async function fetchChatDetail(chatId: string): Promise<ChatDetailData> {
   // TODO: 실제 API 연동
@@ -41,8 +40,7 @@ async function fetchChatDetail(chatId: string): Promise<ChatDetailData> {
       },
       {
         id: 'm3',
-        content:
-          '혹시 반려동물 동반도 가능한가요? 강아지 한 마리와 함께 가려고 합니다.',
+        content: '혹시 반려동물 동반도 가능한가요? 강아지 한 마리와 함께 가려고 합니다.',
         isMine: true,
         timestamp: '25.09.02 오전 10:02',
       },
@@ -55,8 +53,7 @@ async function fetchChatDetail(chatId: string): Promise<ChatDetailData> {
       },
       {
         id: 'm5',
-        content:
-          '알겠습니다. 예약 진행은 어떻게 하면 될까요?',
+        content: '알겠습니다. 예약 진행은 어떻게 하면 될까요?',
         isMine: true,
         timestamp: '25.09.02 오전 10:04',
       },
