@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -18,11 +19,14 @@ import org.muhan.oasis.stay.dto.in.CreateStayRequestDto;
 import org.muhan.oasis.stay.dto.in.ImageRequestDto;
 import org.muhan.oasis.stay.dto.in.ImageTypeListDto;
 import org.muhan.oasis.stay.dto.in.ImageTypeRequestDto;
-import org.muhan.oasis.stay.dto.out.PresignedResponseDto;
-import org.muhan.oasis.stay.dto.out.StayResponseDto;
-import org.muhan.oasis.stay.dto.out.StayReadResponseDto;
+import org.muhan.oasis.stay.dto.out.*;
+import org.muhan.oasis.stay.entity.RegionEngEntity;
+import org.muhan.oasis.stay.entity.RegionEntity;
+import org.muhan.oasis.stay.repository.RegionEngRepository;
+import org.muhan.oasis.stay.repository.RegionRepository;
 import org.muhan.oasis.stay.service.StayService;
 import org.muhan.oasis.user.service.UserService;
+import org.muhan.oasis.valueobject.Language;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,10 +37,9 @@ import java.net.URL;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.muhan.oasis.common.base.BaseResponseStatus.*;
-import static org.muhan.oasis.common.base.BaseResponseStatus.NO_IMG_DATA;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -45,9 +48,10 @@ public class StayController {
 
     private final StayService stayService;
     private final SqsSendService sqsSendService;
-    private final ObjectMapper objectMapper;
     private final S3StorageService s3StorageService;
     private final UserService userService;
+    private final RegionRepository regionRepository;
+    private final RegionEngRepository regionEngRepository;
 
     // 숙소 등록 + 도어락 등록
     @Operation(
@@ -195,6 +199,30 @@ public class StayController {
                     .messageAttributes(attributes)
                     .build());
 */
+    @Operation(
+            summary = "숙소 번역 요청",
+            description = "숙소(제목/본문 등) 번역 작업을 SQS 큐에 넣고 즉시 성공 응답을 반환합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "요청 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "간단 예시",
+                                    value =
+                                            "{\n" +
+                                                    "  \"httpStatus\": \"OK\",\n" +
+                                                    "  \"isSuccess\": true,\n" +
+                                                    "  \"message\": \"요청에 성공하였습니다.\",\n" +
+                                                    "  \"code\": 200,\n" +
+                                                    "  \"result\": null\n" +
+                                                    "}"
+                            )
+                    )
+            )
+    })
     @PostMapping("/translate")
     public ResponseEntity<BaseResponse<Void>> translateStay(
             @RequestBody StayRequestDto stayRequest,
@@ -205,6 +233,116 @@ public class StayController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(BaseResponse.ok());
+    }
+
+    @Operation(
+            summary = "지역 목록 조회 (사용자 언어에 맞춰 반환)",
+            description = "사용자 언어가 KOR면 한글 지역, 그 외에는 영문 지역 목록을 반환합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "조회 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "KOR 응답 예시",
+                                            value =
+                                                    "{\n" +
+                                                            "  \"httpStatus\": \"OK\",\n" +
+                                                            "  \"isSuccess\": true,\n" +
+                                                            "  \"message\": \"요청에 성공하였습니다.\",\n" +
+                                                            "  \"code\": 200,\n" +
+                                                            "  \"result\": [\n" +
+                                                            "    {\n" +
+                                                            "      \"region\": \"서울특별시\",\n" +
+                                                            "      \"subRegions\": [\n" +
+                                                            "        { \"id\": 1,  \"subName\": \"강남구\" },\n" +
+                                                            "        { \"id\": 2,  \"subName\": \"강동구\" },\n" +
+                                                            "        { \"id\": 3,  \"subName\": \"강북구\" }\n" +
+                                                            "      ]\n" +
+                                                            "    },\n" +
+                                                            "    {\n" +
+                                                            "      \"region\": \"충청남도\",\n" +
+                                                            "      \"subRegions\": [\n" +
+                                                            "        { \"id\": 108, \"subName\": \"천안시\" },\n" +
+                                                            "        { \"id\": 116, \"subName\": \"세종시\" }\n" +
+                                                            "      ]\n" +
+                                                            "    },\n" +
+                                                            "    {\n" +
+                                                            "      \"region\": \"부산광역시\",\n" +
+                                                            "      \"subRegions\": [\n" +
+                                                            "        { \"id\": 26, \"subName\": \"강서구\" },\n" +
+                                                            "        { \"id\": 31, \"subName\": \"부산진구\" },\n" +
+                                                            "        { \"id\": 40, \"subName\": \"해운대구\" }\n" +
+                                                            "      ]\n" +
+                                                            "    }\n" +
+                                                            "  ]\n" +
+                                                            "}"
+                                    ),
+                                    @ExampleObject(
+                                            name = "ENG 응답 예시",
+                                            value =
+                                                    "{\n" +
+                                                            "  \"httpStatus\": \"OK\",\n" +
+                                                            "  \"isSuccess\": true,\n" +
+                                                            "  \"message\": \"요청에 성공하였습니다.\",\n" +
+                                                            "  \"code\": 200,\n" +
+                                                            "  \"result\": [\n" +
+                                                            "    {\n" +
+                                                            "      \"region\": \"Seoul\",\n" +
+                                                            "      \"subRegions\": [\n" +
+                                                            "        { \"id\": 1,  \"subName\": \"Gangnam-gu\" },\n" +
+                                                            "        { \"id\": 2,  \"subName\": \"Gangdong-gu\" },\n" +
+                                                            "        { \"id\": 3,  \"subName\": \"Gangbuk-gu\" }\n" +
+                                                            "      ]\n" +
+                                                            "    },\n" +
+                                                            "    {\n" +
+                                                            "      \"region\": \"Chungcheongnam\",\n" +
+                                                            "      \"subRegions\": [\n" +
+                                                            "        { \"id\": 108, \"subName\": \"Cheonan-si\" },\n" +
+                                                            "        { \"id\": 116, \"subName\": \"Sejong-si\" }\n" +
+                                                            "      ]\n" +
+                                                            "    },\n" +
+                                                            "    {\n" +
+                                                            "      \"region\": \"Busan\",\n" +
+                                                            "      \"subRegions\": [\n" +
+                                                            "        { \"id\": 26, \"subName\": \"Gangseo-gu\" },\n" +
+                                                            "        { \"id\": 31, \"subName\": \"Busanjin-gu\" },\n" +
+                                                            "        { \"id\": 40, \"subName\": \"Haeundae-gu\" }\n" +
+                                                            "      ]\n" +
+                                                            "    }\n" +
+                                                            "  ]\n" +
+                                                            "}"
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "인증 필요", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @GetMapping("/region")
+    private ResponseEntity<BaseResponse<?>> getAllRegion(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+
+        if(userDetails.getLanguage().equals(Language.KOR)){
+            List<RegionEntity> regions = regionRepository.findAll();
+
+            List<RegionResponseDto> regionDtos = regions.stream().map(RegionResponseDto::from).toList();
+            BaseResponse<List<RegionResponseDto>> body = new BaseResponse<>(regionDtos);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(body);
+        }
+        else{
+            List<RegionEngEntity> regions = regionEngRepository.findAll();
+
+            List<RegionEngResponseDto> regionDtos = regions.stream().map(RegionEngResponseDto::from).toList();
+            BaseResponse<List<RegionEngResponseDto>> body = new BaseResponse<>(regionDtos);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(body);
+        }
     }
 
     private String contentTypeToExt(String contentType) {
