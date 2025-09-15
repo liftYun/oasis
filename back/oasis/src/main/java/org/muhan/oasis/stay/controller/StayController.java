@@ -3,22 +3,21 @@ package org.muhan.oasis.stay.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.openAI.dto.in.StayRequestDto;
 import org.muhan.oasis.openAI.service.SqsSendService;
 import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
-import org.muhan.oasis.stay.dto.in.CreateStayRequestDto;
-import org.muhan.oasis.stay.dto.in.ImageRequestDto;
-import org.muhan.oasis.stay.dto.in.ImageTypeListDto;
-import org.muhan.oasis.stay.dto.in.ImageTypeRequestDto;
+import org.muhan.oasis.stay.dto.in.*;
 import org.muhan.oasis.stay.dto.out.*;
 import org.muhan.oasis.stay.entity.RegionEngEntity;
 import org.muhan.oasis.stay.entity.RegionEntity;
@@ -53,7 +52,7 @@ public class StayController {
     private final RegionRepository regionRepository;
     private final RegionEngRepository regionEngRepository;
 
-    // 숙소 등록 + 도어락 등록
+
     @Operation(
             summary = "숙소 등록",
             description = """
@@ -121,7 +120,33 @@ public class StayController {
                 .body(body);
     }*/
 
-
+    @Operation(
+            summary = "숙소 삭제",
+            description = "사용자의 숙소(stay)를 삭제합니다."
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "삭제 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "성공 예시",
+                                    value = "{\n" +
+                                            "  \"httpStatus\": \"OK\",\n" +
+                                            "  \"isSuccess\": true,\n" +
+                                            "  \"message\": \"요청에 성공하였습니다.\",\n" +
+                                            "  \"code\": 200,\n" +
+                                            "  \"result\": null\n" +
+                                            "}"
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "인증 필요", content = @Content),
+            @ApiResponse(responseCode = "403", description = "권한 없음(본인 소유 아님)", content = @Content),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 숙소", content = @Content),
+    })
     @DeleteMapping("/{stayId}")
     public ResponseEntity<BaseResponse<?>> deleteStay(
             @PathVariable Long stayId,
@@ -134,7 +159,6 @@ public class StayController {
                 .body(body);
     }
 
-    // 숙소 상세글 조회
     @Operation(
             summary = "숙소 상세 조회",
             description = """
@@ -159,8 +183,69 @@ public class StayController {
                 .body(body);
     }
 
-
-    @PostMapping("/{stayId}/photos/upload-url")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(
+            summary = "숙소 이미지 업로드 URL 발급",
+            description = """
+        주어진 이미지 목록에 대해 S3 업로드용 **Pre-signed PUT URL**을 발급합니다.
+        - `contentType`은 반드시 `image/*` 여야 합니다.
+        - URL 유효기간은 10분입니다.
+        - 응답의 `key`는 업로드 완료 후 공개 URL(`publicUrl`)을 구성하는 데 사용됩니다.
+        """
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "발급 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "성공 예시",
+                                    value = "{\n" +
+                                            "  \"httpStatus\": \"OK\",\n" +
+                                            "  \"isSuccess\": true,\n" +
+                                            "  \"message\": \"요청에 성공하였습니다.\",\n" +
+                                            "  \"code\": 200,\n" +
+                                            "  \"result\": [\n" +
+                                            "    {\n" +
+                                            "      \"sortOrder\": 0,\n" +
+                                            "      \"key\": \"stay-image/2b9c...-uuid/0.jpg\",\n" +
+                                            "      \"uploadUrl\": \"https://bucket.s3.amazonaws.com/stay-image/...&X-Amz-Signature=...\",\n" +
+                                            "      \"publicUrl\": \"https://cdn.example.com/stay-image/2b9c...-uuid/0.jpg\"\n" +
+                                            "    },\n" +
+                                            "    {\n" +
+                                            "      \"sortOrder\": 1,\n" +
+                                            "      \"key\": \"stay-image/2b9c...-uuid/1.jpg\",\n" +
+                                            "      \"uploadUrl\": \"https://bucket.s3.amazonaws.com/stay-image/...\",\n" +
+                                            "      \"publicUrl\": \"https://cdn.example.com/stay-image/2b9c...-uuid/1.jpg\"\n" +
+                                            "    }\n" +
+                                            "  ]\n" +
+                                            "}"
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "이미지 형식 아님(예: contentType이 image/*가 아님)",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "NO_IMG_FORM",
+                                    value = "{\n" +
+                                            "  \"httpStatus\": \"BAD_REQUEST\",\n" +
+                                            "  \"isSuccess\": false,\n" +
+                                            "  \"message\": \"이미지 형식이 아닙니다.\",\n" +
+                                            "  \"code\": 400,\n" +
+                                            "  \"result\": null\n" +
+                                            "}"
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "인증 필요", content = @Content),
+            @ApiResponse(responseCode = "403", description = "권한 없음", content = @Content),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 숙소", content = @Content)
+    })
+    @PostMapping("/photos/upload-url")
     public BaseResponse<?> createUploadUrl(
             @Parameter(hidden = true)
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -190,9 +275,148 @@ public class StayController {
         return BaseResponse.of(result);
     }
 
+    @Operation(
+            summary = "숙소 카드 목록 (무한스크롤)",
+            description = "subRegionId/체크인·아웃으로 필터하고, lastStayId 커서로 다음 페이지를 조회합니다. 첫 페이지는 lastStayId를 생략하거나 0으로 보내세요."
+    )
+    @Parameters({
+            @Parameter(
+                    name = "lastStayId",
+                    description = "이전 응답의 마지막 stayId (첫 페이지는 생략 또는 0)",
+                    schema = @Schema(type = "integer", format = "int64", nullable = true, example = "12345")
+            ),
+            @Parameter(
+                    name = "subRegionId",
+                    description = "하위 지역 ID",
+                    schema = @Schema(type = "integer", format = "int64", example = "73")
+            ),
+            @Parameter(
+                    name = "checkIn",
+                    description = "체크인 날짜 (ISO-8601)",
+                    schema = @Schema(type = "string", format = "date", example = "2025-10-01")
+            ),
+            @Parameter(
+                    name = "checkout",
+                    description = "체크아웃 날짜 (ISO-8601, checkIn보다 이후)",
+                    schema = @Schema(type = "string", format = "date", example = "2025-10-03")
+            )
+    })
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "조회 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "성공 응답",
+                                    value = "{\n" +
+                                            "  \"httpStatus\": \"OK\",\n" +
+                                            "  \"isSuccess\": true,\n" +
+                                            "  \"message\": \"요청에 성공하였습니다.\",\n" +
+                                            "  \"code\": 200,\n" +
+                                            "  \"result\": [\n" +
+                                            "    { \"stayId\": 101, \"title\": \"강남역 5분 모던 스튜디오\", \"thumbnail\": \"stays/2025/09/15/gn-001/main.jpg\", \"rating\": 4.85, \"price\": 85000 }\n" +
+                                            "  ]\n" +
+                                            "}"
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청(날짜 범위 등)", content = @Content)
+    })
+    @GetMapping
+    public ResponseEntity<BaseResponse<?>> searchStay(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(defaultValue = "0") Long lastStayId,
+            @ModelAttribute StayQueryRequestDto stayQuery
+            ){
 
-    // 숙소 검색
+        Long cursor = (lastStayId == null || lastStayId <= 0) ? null : lastStayId;
 
+        List<StayCardDto> stays = stayService.searchStay(cursor, stayQuery, userDetails.getUserUuid());
+
+        BaseResponse<List<StayCardDto>> body = new BaseResponse<>(stays);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @Operation(
+            summary = "위시 많은 순 Top 12",
+            description = "위시 수가 많은 숙소 12개를 반환합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "조회 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "성공 응답",
+                                    value = "{\n" +
+                                            "  \"httpStatus\": \"OK\",\n" +
+                                            "  \"isSuccess\": true,\n" +
+                                            "  \"message\": \"요청에 성공하였습니다.\",\n" +
+                                            "  \"code\": 200,\n" +
+                                            "  \"result\": [\n" +
+                                            "    { \"stayId\": 40, \"title\": \"해운대 오션뷰 콘도\", \"thumbnail\": \"stays/2025/09/15/bs-004/main.jpg\", \"rating\": 4.92, \"price\": 158000, \"wishCount\": 327 }\n" +
+                                            "  ]\n" +
+                                            "}"
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "인증 필요", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @GetMapping("/rank/wish")
+    public ResponseEntity<BaseResponse<?>> searchStayByWish(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        List<StayCardByWishDto> stays = stayService.searchStayByWish(userDetails.getUserUuid());
+
+        BaseResponse<List<StayCardByWishDto>> body = new BaseResponse<>(stays);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @Operation(
+            summary = "별점 높은 순 Top 12",
+            description = "평균 평점이 높은 숙소 12개를 반환합니다. (동점 시 최신 stayId 우선)"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "조회 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "성공 응답",
+                                    value = "{\n" +
+                                            "  \"httpStatus\": \"OK\",\n" +
+                                            "  \"isSuccess\": true,\n" +
+                                            "  \"message\": \"요청에 성공하였습니다.\",\n" +
+                                            "  \"code\": 200,\n" +
+                                            "  \"result\": [\n" +
+                                            "    { \"stayId\": 128, \"title\": \"City-View Residence\", \"thumbnail\": \"stays/2025/09/15/bs-003/main.jpg\", \"rating\": 4.95, \"price\": 98000 }\n" +
+                                            "  ]\n" +
+                                            "}"
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "인증 필요", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @GetMapping("/rank/rating")
+    public ResponseEntity<BaseResponse<?>> searchStayByRating(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        List<StayCardDto> stays = stayService.searchStayByRating(userDetails.getUserUuid());
+
+        BaseResponse<List<StayCardDto>> body = new BaseResponse<>(stays);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
 
     @Operation(
             summary = "숙소 번역 요청",
