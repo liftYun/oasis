@@ -26,13 +26,6 @@ public class JoinService {
         System.out.println("JoinService in Email : " + email);
         return userRepository.findByEmail(email).orElseGet(() -> {
             Language useLang = (lang != null) ? lang : org.muhan.oasis.valueobject.Language.KOR;
-            UserEntity a = UserEntity.ofSocial(
-                    UUID.randomUUID().toString(),
-                    email,
-                    safeNickname(nickname),
-                    useLang,
-                    Role.ROLE_GUEST
-            );
             UserEntity u = new UserEntity(
                     UUID.randomUUID().toString(),
                     Role.ROLE_GUEST,
