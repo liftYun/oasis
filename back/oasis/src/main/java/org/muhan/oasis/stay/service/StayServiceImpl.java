@@ -10,6 +10,9 @@ import org.muhan.oasis.openAI.dto.out.StayTranslationResultDto;
 import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.stay.dto.in.CreateStayRequestDto;
 import org.muhan.oasis.stay.dto.in.ImageRequestDto;
+import org.muhan.oasis.stay.dto.in.StayQueryRequestDto;
+import org.muhan.oasis.stay.dto.out.StayCardByWishDto;
+import org.muhan.oasis.stay.dto.out.StayCardDto;
 import org.muhan.oasis.stay.dto.out.StayResponseDto;
 import org.muhan.oasis.stay.dto.out.StayReadResponseDto;
 import org.muhan.oasis.stay.entity.*;
@@ -17,6 +20,10 @@ import org.muhan.oasis.stay.repository.*;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.valueobject.Language;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -181,18 +188,74 @@ public class StayServiceImpl implements StayService{
     }
 
     @Override
+    @Transactional
     public StayResponseDto updateStay(Long stayId) {
         return null;
     }
 
     @Override
+    @Transactional
     public void recalculateRating(Long stayId, BigDecimal rating) {
         StayRatingSummaryEntity ratingSummary = stayRatingSummaryRepository.findById(stayId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY_SUMMARY));
         ratingSummary.recalculate(rating);
     }
 
+    @Override
+    @Transactional
+    public void deleteStay(Long stayId, String userUuid) {
+        StayEntity stay = stayRepository.findById(stayId)
+                .orElseThrow(() -> new BaseException(NO_STAY));
+
+        if(!stay.getUser().getUserUuid().equals(userUuid))
+            throw new BaseException(NO_ACCESS_AUTHORITY);
+
+        stayRepository.delete(stay);
+    }
+
+    @Override
+    public List<StayCardDto> searchStay(Long lastStayId, StayQueryRequestDto stayQuery, String userUuid) {
+        if (stayQuery.getCheckIn() != null && stayQuery.getCheckout() != null && stayQuery.getCheckIn().isBefore(stayQuery.getCheckout())) {
+            throw new BaseException(BaseResponseStatus.INVALID_PARAMETER);
+        }
+
+        UserEntity user = userRepository.findByUserUuid(userUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
 
 
+        PageRequest pr = PageRequest.of(0, 20);
+        Page<StayCardDto> page = stayRepository.fetchCardsBy(
+                lastStayId,
+                stayQuery.getSubRegionId(),
+                stayQuery.getCheckIn(),
+                stayQuery.getCheckout(),
+                user.getLanguage().getDescription(),
+                pr
+        );
 
+        return page.getContent();
+
+
+    }
+
+    @Override
+    public List<StayCardByWishDto> searchStayByWish(String userUuid) {
+
+        UserEntity user = userRepository.findByUserUuid(userUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
+        return stayRepository.findTop12ByWish(
+                user.getLanguage().getDescription()
+        );
+    }
+
+    @Override
+    public List<StayCardDto> searchStayByRating(String userUuid) {
+        UserEntity user = userRepository.findByUserUuid(userUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
+        return stayRepository.findTop12ByRating(
+                user.getLanguage().getDescription()
+        );
+    }
 }

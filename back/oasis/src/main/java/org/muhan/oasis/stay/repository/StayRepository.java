@@ -1,10 +1,14 @@
 package org.muhan.oasis.stay.repository;
 
+import org.muhan.oasis.stay.dto.out.StayCardByWishDto;
 import org.muhan.oasis.stay.dto.out.StayCardDto;
 import org.muhan.oasis.stay.dto.out.StayResponseDto;
 import org.muhan.oasis.stay.entity.CancellationPolicyEntity;
 import org.muhan.oasis.stay.entity.StayEntity;
 import org.muhan.oasis.stay.entity.StayFacilityEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,6 +16,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.net.ContentHandler;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,20 +46,91 @@ public interface StayRepository extends JpaRepository<StayEntity, Long> {
     int rebindCancellationPolicy(@Param("oldPolicy") CancellationPolicyEntity oldPolicy,
                                  @Param("newPolicy") CancellationPolicyEntity newPolicy);
 
-    @Query("""
-      select new org.muhan.oasis.stay.dto.out.StayCardDto(
-          s.id,
-          case when :lang = 'KOR' then s.title else s.titleEng end,
-          s.thumbnail,
-          rs.avgRating,        
-          s.price
-      )
-      from StayEntity s
-      left join s.ratingSummary rs
-      where s.user.userUuid =:userUuid
-      """)
-    List<StayCardDto> findCards(
-            @Param("userUuid") String userUuid,
-            @Param("lang") String lang);
+        @Query(
+                value = """
+        select new org.muhan.oasis.stay.dto.out.StayCardDto(
+            s.id,
+            case when :lang = 'KOR' then s.title else s.titleEng end,
+            s.thumbnail,
+            rs.avgRating,
+            s.price
+        )
+        from StayEntity s
+        left join s.ratingSummary rs
+        where (:lastId is null or s.id < :lastId)
+          and (:subRegionId is null
+               or s.subRegionEntity.id = :subRegionId
+               or s.subRegionEngEntity.id = :subRegionId)
+          and (
+               :checkIn is null or :checkout is null
+               or not exists (
+                    select 1
+                    from StayBlockEntity br
+                    where br.stay = s
+                      and br.startDate <= :checkout
+                      and br.endDate   >= :checkIn
+               )
+          )
+        order by s.id desc
+        """,
+                countQuery = """
+        select count(s.id)
+        from StayEntity s
+        where (:lastId is null or s.id < :lastId)
+          and (:subRegionId is null
+               or s.subRegionEntity.id = :subRegionId
+               or s.subRegionEngEntity.id = :subRegionId)
+          and (
+               :checkIn is null or :checkout is null
+               or not exists (
+                    select 1
+                    from StayBlockEntity br
+                    where br.stay = s
+                      and br.startDate <= :checkout
+                      and br.endDate   >= :checkIn
+               )
+          )
+        """
+        )
+        Page<org.muhan.oasis.stay.dto.out.StayCardDto> fetchCardsBy(
+                @Param("lastId") Long lastId,                 // 첫 요청 null
+                @Param("subRegionId") Long subRegionId,       // 선택
+                @Param("checkIn") java.time.LocalDate checkIn,
+                @Param("checkout") java.time.LocalDate checkout,
+                @Param("lang") String lang,                   // "KOR" / "ENG"
+                org.springframework.data.domain.Pageable pageable // PageRequest.of(0, size)
+        );
+
+    @Query(value = """
+        SELECT
+          s.stay_id AS stayId,
+          CASE WHEN :lang = 'KOR' THEN s.title ELSE s.title_eng END AS title,
+          s.thumbnail AS thumbnail,
+          COALESCE(rs.avg_rating, 0) AS rating,        
+          s.price AS price,
+          COUNT(w.wish_id) AS wishCount
+        FROM stays s
+        LEFT JOIN stay_rating_summary rs ON rs.stay_id = s.stay_id
+        LEFT JOIN wishes w ON w.stay_id = s.stay_id
+        GROUP BY s.stay_id, s.title, s.title_eng, rs.avg_rating, s.thumbnail, s.price
+        ORDER BY wishCount DESC, s.stay_id DESC
+        LIMIT 12
+        """, nativeQuery = true)
+    List<StayCardByWishDto> findTop12ByWish(@Param("lang") String lang);
+
+    @Query(value = """
+        SELECT
+          s.stay_id AS stayId,
+          CASE WHEN :lang = 'KOR' THEN s.title ELSE s.title_eng END AS title,
+          s.thumbnail AS thumbnail,
+          COALESCE(rs.avg_rating, 0) AS rating,   
+          s.price AS price
+        FROM stays s
+        LEFT JOIN stay_rating_summary rs ON rs.stay_id = s.stay_id
+        ORDER BY COALESCE(rs.avg_rating, 0) DESC, s.stay_id DESC
+        LIMIT 12
+        """, nativeQuery = true)
+    List<StayCardDto> findTop12ByRating(@Param("lang") String lang);
 
 }
+
