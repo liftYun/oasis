@@ -6,6 +6,7 @@ import org.muhan.oasis.security.Handler.OAuth2FailureHandler;
 import org.muhan.oasis.security.Handler.OAuth2SuccessHandler;
 import org.muhan.oasis.security.jwt.JWTFilter;
 import org.muhan.oasis.security.jwt.JWTUtil;
+import org.muhan.oasis.security.repository.HttpCookieOAuth2AuthorizationRequestRepository;
 import org.muhan.oasis.security.service.CustomOAuth2UserService;
 import org.muhan.oasis.security.service.CustomOidcUserService;
 import org.muhan.oasis.security.service.RefreshTokenService;
@@ -145,11 +146,14 @@ public class SecurityConfig {
                 .userInfoEndpoint(ui -> ui
                         .userService(customOAuth2UserService)
                         .oidcUserService(customOidcUserService)) // OIDC (구글))
-                .authorizationEndpoint(authz -> authz
-                        .authorizationRequestRepository(
-                                new org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository()
+//                .authorizationEndpoint(authz -> authz
+//                        .authorizationRequestRepository(
+//                                new org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository()
+//                        )
+//                )
+                        .authorizationEndpoint(authz -> authz
+                                .authorizationRequestRepository(new HttpCookieOAuth2AuthorizationRequestRepository())
                         )
-                )
                 // 성공 시: JWT 발급 등
                 .successHandler(oAuth2SuccessHandler)
                 // 실패 시 처리
