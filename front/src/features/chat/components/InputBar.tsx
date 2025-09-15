@@ -2,9 +2,7 @@
 
 import { useState } from 'react';
 import { SmilePlus, SendHorizontal } from 'lucide-react';
-import EmojiPicker from 'emoji-picker-react';
-import Image from 'next/image';
-import MessageSendIcon from '@/assets/icons/messega-send.png';
+import EmojiPicker, { type EmojiClickData } from 'emoji-picker-react';
 
 interface InputBarProps {
   onSend?: (text: string) => void; // UI 전용. 동작은 추후 연결
@@ -27,7 +25,7 @@ export default function InputBar({ onSend }: InputBarProps) {
     }
   };
 
-  const handleEmojiClick = (emojiData: any) => {
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
     setText((prev) => prev + emojiData.emoji);
     setShowEmojiPicker(false);
   };
@@ -66,7 +64,7 @@ export default function InputBar({ onSend }: InputBarProps) {
 
       {/* 이모지 피커 */}
       {showEmojiPicker && (
-        <div className="absolute bottom-20 left-2 right-2 z-60">
+        <div className="absolute bottom-20 left-2 right-2 z-[60]">
           <EmojiPicker
             onEmojiClick={handleEmojiClick}
             width="100%"

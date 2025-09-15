@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import type { ChatListResponse } from '@/features/chat/type';
+import type { ChatListResponse } from '@/features/chat';
 
 const DUMMY_CHATS: ChatListResponse = Array.from({ length: 5 }).map((_, i) => ({
   id: String(1000 + i),
