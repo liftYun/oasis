@@ -9,7 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Setter
 @Builder
 @NoArgsConstructor
-@Table(uniqueConstraints = @UniqueConstraint(name="uk_stay_facility", columnNames={"stay_id","facilities_id"}))
+@Table(name ="stay_facilities", uniqueConstraints = @UniqueConstraint(name="uk_stay_facility", columnNames={"stay_id","facilities_id"}))
 @EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 public class StayFacilityEntity {

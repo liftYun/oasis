@@ -10,6 +10,7 @@ import org.muhan.oasis.stay.entity.CancellationPolicyEntity;
 import org.muhan.oasis.stay.entity.StayEntity;
 import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.valueobject.Role;
+import org.muhan.oasis.wish.entity.WishEntity;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;

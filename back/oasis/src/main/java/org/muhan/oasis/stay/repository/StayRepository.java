@@ -1,5 +1,7 @@
 package org.muhan.oasis.stay.repository;
 
+import org.muhan.oasis.stay.dto.out.StayCardDto;
+import org.muhan.oasis.stay.dto.out.StayResponseDto;
 import org.muhan.oasis.stay.entity.CancellationPolicyEntity;
 import org.muhan.oasis.stay.entity.StayEntity;
 import org.muhan.oasis.stay.entity.StayFacilityEntity;
@@ -37,4 +39,18 @@ public interface StayRepository extends JpaRepository<StayEntity, Long> {
        """)
     int rebindCancellationPolicy(@Param("oldPolicy") CancellationPolicyEntity oldPolicy,
                                  @Param("newPolicy") CancellationPolicyEntity newPolicy);
+
+    @Query("""
+      select new org.muhan.oasis.stay.dto.out.StayCardDto(
+          s.id,
+          case when :lang = 'KOR' then s.title else s.titleEng end,
+          s.thumbnail,
+          rs.avgRating,         
+          s.price
+      )
+      from StayEntity s
+      left join s.ratingSummary rs
+      """)
+    List<StayCardDto> findCards(@Param("lang") String lang);
+
 }
