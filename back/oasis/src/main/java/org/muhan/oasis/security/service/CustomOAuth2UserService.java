@@ -29,7 +29,7 @@ public class CustomOAuth2UserService
                 .getRegistrationId();  // "kakao","google","naver" 등
 
         Map<String,Object> attrs = oAuth2User.getAttributes();
-        String email, nickname;
+        String email, nickname,profileUrl;
 
         switch(regId) {
             case "kakao":
@@ -37,21 +37,24 @@ public class CustomOAuth2UserService
                 email    = kakaoAcc.get("email").toString();
                 Map<String,Object> prof = (Map)kakaoAcc.get("profile");
                 nickname = prof.get("nickname").toString();
+                profileUrl = attrs.get("profile_url").toString();
                 break;
             case "naver":
                 Map<String,Object> resp = (Map)attrs.get("response");
                 email    = resp.get("email").toString();
                 nickname = resp.get("name").toString();
+                profileUrl = attrs.get("profile_url").toString();
                 break;
             default:  // google
                 email    = attrs.get("email").toString();
                 nickname = attrs.get("name").toString();
+                profileUrl = attrs.get("profile_url").toString();
                 break;
         }
 
         // 소셜로 가입만 한 상태 -> 추가적인 정보 필요.
         UserEntity user = joinService
-                .registerSocialUserIfNotExist(email, nickname, null);
+                .registerSocialUserIfNotExist(email, nickname, profileUrl, null);
 
         // CustomOAuth2User 또는 DefaultOAuth2User 반환
         return new CustomOAuth2User(user, attrs);

@@ -77,7 +77,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                     stringOrNull(attrs.get("given_name")),
                     email
             );
-            user = joinService.registerSocialUserIfNotExist(email, nickname, null);
+            String profileUrl = stringOrNull(attrs.get("profile_url"));
+            user = joinService.registerSocialUserIfNotExist(email, nickname, profileUrl, null);
 
         } else if (principalObj instanceof OAuth2User oauth) {
             // (안전망) 일반 OAuth2 — 커스텀 래핑이 안 된 경우
@@ -89,7 +90,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                     stringOrNull(attrs.get("login")),
                     email
             );
-            user = joinService.registerSocialUserIfNotExist(email, nickname, null);
+            String profileUrl = stringOrNull(attrs.get("profile_url"));
+            user = joinService.registerSocialUserIfNotExist(email, nickname, profileUrl,null);
 
         } else {
             throw new IllegalStateException("Unexpected principal type: " + principalObj.getClass());

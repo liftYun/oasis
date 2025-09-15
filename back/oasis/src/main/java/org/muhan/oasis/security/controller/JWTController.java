@@ -141,7 +141,7 @@ public class JWTController {
             UserEntity updated = joinService.completeProfile(
                     uuid,
                     vo.getNickname(),
-                    key,
+                    user.getEmail(),
                     finalProfileUrl,
                     vo.getRole(),
                     vo.getLanguage()
@@ -150,6 +150,7 @@ public class JWTController {
             // 2) AccessToken 재발급 (헤더 ONLY)
             String newAccess = jwtUtil.createAccessToken(
                     updated.getUserUuid(),
+                    updated.getEmail(),
                     updated.getProfileUrl(),
                     updated.getNickname(),
                     updated.getRole(),

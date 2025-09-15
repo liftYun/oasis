@@ -24,11 +24,12 @@ public class CreateTokenService {
 
     public TokenPair createTokens(
             String uuid,
+            String email,
             String profileUrl,
             String nickname,
             Role role,
             Language language) {
-        String accessToken = jwtUtil.createAccessToken(uuid, profileUrl, nickname, role, language);
+        String accessToken = jwtUtil.createAccessToken(uuid, email, profileUrl, nickname, role, language);
         String refreshToken = jwtUtil.createRefreshToken(uuid);
 
         refreshTokenService.saveToken(uuid, refreshToken);

@@ -78,9 +78,10 @@ public class JWTUtil {
         }
     }
 
-    public String createAccessToken(String uuid, String profileUrl, String nickname, Role role, Language language) {
+    public String createAccessToken(String uuid, String email, String profileUrl, String nickname, Role role, Language language) {
         return Jwts.builder()
                 .claim("uuid", uuid)
+                .claim("email", email)
                 .claim("profileUrl", profileUrl)
                 .claim("nickname", nickname)
                 .claim("role", role.name())

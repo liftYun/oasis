@@ -230,6 +230,7 @@ public class UserController {
         // create new AT / RT
         TokenPair tokens = createTokenService.createTokens(
                 customUserDetails.getUserUuid(),
+                customUserDetails.getEmail(),
                 customUserDetails.getUserProfileUrl(),
                 customUserDetails.getUserNickname(),
                 customUserDetails.getRole(),
