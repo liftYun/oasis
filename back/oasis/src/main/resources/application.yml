@@ -68,6 +68,7 @@ app:
   front-base-url: ${FRONT_BASE_URL}
   backend-base-url: https://dev-app.stay-oasis.kr
 #  backend-base-url: http://localhost:8080 # localTest
+  domain: .stay-oasis.kr
 papago:
   base-url: https://papago.apigw.ntruss.com
   client-id: ${PAPAGO_CLIENT_ID}

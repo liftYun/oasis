@@ -177,6 +177,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByUserUuid(userUuid).get().getUserId();
     }
 
+    @Override
+    public String getUserEmailByUuid(String userUuid) {
+        return userRepository.findByUserUuid(userUuid).get().getEmail();
+    }
+
     private Optional<String> extractKeyIfSameBucket(String url) {
         // 운영 환경에 맞게 파싱 로직 구현 (CloudFront or S3 URL → key)
         // 예: https://bucket.s3.amazonaws.com/users/1/profile/xxx.jpg → users/1/profile/xxx.jpg

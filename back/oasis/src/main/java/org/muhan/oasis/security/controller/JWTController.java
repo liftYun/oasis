@@ -159,11 +159,6 @@ public class JWTController {
 
             // 3) 바디는 표준 래퍼로 성공 응답만
             return BaseResponse.ok();
-//            long expiresInMs = jwtUtil.getAccessExpiredMs(); // 유틸에 게터가 없다면 설정값에서 주입받아 사용
-//
-//            AccessTokenResponseVo body = new AccessTokenResponseVo("Bearer", newAccess, expiresInMs);
-//            return BaseResponse.of(body);
-
         } catch (JoinService.DuplicateNicknameException e) {
             return BaseResponse.error(DUPLICATED_NICKNAME);
         } catch (IllegalArgumentException e) {
