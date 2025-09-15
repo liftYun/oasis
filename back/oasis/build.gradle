@@ -54,6 +54,13 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'it.ozimov:embedded-redis:0.7.3'
 
+    // sqs
+    implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.0.1")
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs'
+
+    // WebSocket (실시간 알림용)
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
     // AWS SDK v2 (BOM으로 버전 일원화)
     implementation platform("software.amazon.awssdk:bom:2.25.40")
     implementation "software.amazon.awssdk:s3"

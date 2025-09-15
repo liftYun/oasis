@@ -1,5 +1,6 @@
 package org.muhan.oasis.security.controller;
 
+import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,6 +14,7 @@ import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
+import org.muhan.oasis.security.vo.out.AccessTokenResponseVo;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.security.jwt.JWTUtil;
 import org.muhan.oasis.security.service.JoinService;
@@ -59,7 +61,6 @@ public class JWTController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "성공적으로 로그아웃됨")
     })
-    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/logout")
     public ResponseEntity<?> logout(
             @Parameter(hidden = true)
@@ -105,9 +106,8 @@ public class JWTController {
             @ApiResponse(responseCode = "409", description = "닉네임 중복"),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
-    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/addInformations")
-    public BaseResponse<Void> addInformations(
+    public BaseResponse<?> addInformations(
             @Parameter(hidden = true)
             @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody RegistRequestVo vo,
@@ -152,12 +152,18 @@ public class JWTController {
                     updated.getUserUuid(),
                     updated.getProfileUrl(),
                     updated.getNickname(),
-                    updated.getRole()
+                    updated.getRole(),
+                    updated.getLanguage()
             );
-            response.addHeader("Authorization", "Bearer " + newAccess);
+//            response.addHeader("Authorization", "Bearer " + newAccess);
 
             // 3) 바디는 표준 래퍼로 성공 응답만
-            return BaseResponse.ok();
+//            return BaseResponse.ok();
+
+            long expiresInMs = jwtUtil.getAccessExpiredMs(); // 유틸에 게터가 없다면 설정값에서 주입받아 사용
+
+            AccessTokenResponseVo body = new AccessTokenResponseVo("Bearer", newAccess, expiresInMs);
+            return BaseResponse.of(body);
 
         } catch (JoinService.DuplicateNicknameException e) {
             return BaseResponse.error(DUPLICATED_NICKNAME);

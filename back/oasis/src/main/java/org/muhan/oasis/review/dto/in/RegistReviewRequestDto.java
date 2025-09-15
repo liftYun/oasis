@@ -3,12 +3,14 @@ package org.muhan.oasis.review.dto.in;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Builder
 public class RegistReviewRequestDto {
-    private Long reservationId;
+    private String reservationId;
 
-    private float rating;
+    private BigDecimal rating;
 
     private String originalContent;
 }

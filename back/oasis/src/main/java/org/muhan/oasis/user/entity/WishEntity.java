@@ -18,16 +18,16 @@ public class WishEntity {
 
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "user_id", nullable = false)
-        private UserEntity userId;
+        private UserEntity user;
 
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "stay_id", nullable = false)
-        private StayEntity stayId;
+        private StayEntity stay;
 
         @Builder
-        public WishEntity(Long wishId, UserEntity userId, StayEntity stayId) {
+        public WishEntity(Long wishId, UserEntity user, StayEntity stay) {
                 this.wishId = wishId;
-                this.userId = userId;
-                this.stayId = stayId;
+                this.user = user;
+                this.stay = stay;
         }
 }

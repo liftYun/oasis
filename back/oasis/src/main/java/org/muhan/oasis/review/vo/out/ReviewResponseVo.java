@@ -4,8 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import org.muhan.oasis.review.dto.out.ReviewResponseDto;
 import org.muhan.oasis.review.entity.ReviewEntity;
-import org.muhan.oasis.valueobject.Language;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 @Getter
 @Builder
@@ -14,34 +14,34 @@ public class ReviewResponseVo {
 
     private String reservationId;
 
-    private Long userId;
-
-    private float rating;
+    private BigDecimal rating;
 
     private LocalDateTime createdAt;
 
+    private String thumbnail;
 
     public static ReviewResponseVo from(ReviewResponseDto dto) {
-        return org.muhan.oasis.review.vo.out.ReviewResponseVo.builder()
+        return ReviewResponseVo.builder()
                 .reviewId(dto.getReviewId())
                 .reservationId(dto.getReservationId())
-                .userId(dto.getUserId())
                 .rating(dto.getRating())
                 .createdAt(dto.getCreatedAt())
+                .thumbnail(dto.getThumbnail())
                 .build();
     }
 
     public static ReviewResponseVo fromEntity(ReviewEntity e) {
+
         ReviewResponseDto dto = ReviewResponseDto.builder()
                 .reviewId(e.getReviewId())
                 .reservationId(
-                        e.getReservationId() != null && e.getReservationId().getReservationId() != null
-                                ? e.getReservationId().getReservationId()
+                        e.getReservation() != null && e.getReservation().getReservationId() != null
+                                ? e.getReservation().getReservationId()
                                 : null
                 )
-                .userId(e.getUserId() != null ? e.getUserId().getUserId() : null)
                 .rating(e.getRating())
                 .createdAt(e.getCreatedAt())
+                .thumbnail(e.getThumbnail())
                 .build();
 
         return ReviewResponseVo.from(dto);

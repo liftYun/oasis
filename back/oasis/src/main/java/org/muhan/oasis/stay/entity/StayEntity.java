@@ -3,6 +3,7 @@ package org.muhan.oasis.stay.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.muhan.oasis.user.entity.UserEntity;
+import org.muhan.oasis.valueobject.Language;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -77,6 +78,10 @@ public class StayEntity {
 
         @Column(name = "address_detail_eng")
         private String addrDetailEng;
+
+        @Enumerated(EnumType.STRING)
+        @Column(name = "language", nullable = false, length = 3)
+        private Language language;
 
         @ManyToOne(fetch = FetchType.LAZY, optional = false)
         @JoinColumn(name = "sub_region_id", nullable = false)
@@ -170,5 +175,8 @@ public class StayEntity {
                 this.stayFacilities.remove(sf);
         }
 
+        public String title(Language lang)       { return lang == Language.KOR ? nvl(title, titleEng) : nvl(titleEng, title); }
+        public String description(Language lang) { return lang == Language.KOR ? nvl(description, descriptionEng) : nvl(descriptionEng, description); }
+        private static String nvl(String a, String b){ return (a != null && !a.isBlank()) ? a : b; }
 
 }
