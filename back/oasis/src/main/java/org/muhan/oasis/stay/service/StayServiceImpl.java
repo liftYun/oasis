@@ -69,24 +69,26 @@ public class StayServiceImpl implements StayService{
 
         // 숙소 이름, 설명, 가격, 주소, 우편번호, 수용인원, 썸네일, 지역으로 생성
         StayEntity stay =
-                stayRepository.save(StayEntity.builder()
-                .title(stayRequest.getTitle())
-                .titleEng(stayRequest.getTitleEng())
-                .description(stayRequest.getDescription())
-                .descriptionEng(stayRequest.getDescriptionEng())
-                .price(stayRequest.getPrice())
-                .addressLine(stayRequest.getAddress())
-                .addressLineEng(stayRequest.getAddressEng())
-                .postalCode(stayRequest.getPostalCode())
-                .maxGuests(stayRequest.getMaxGuest())
-                .thumbnail(s3StorageService.toPublicUrl(stayRequest.getThumbnail()))
-                .subRegionEntity(subRegion)
-                .subRegionEngEntity(subRegionEng)
-                .user(user)
-                .cancellationPolicyEntity(policy)
-                .addrDetail(stayRequest.getAddressDetail())
-                .addrDetailEng(stayRequest.getAddressDetailEng())
-                .build());
+                stayRepository.save(
+                        StayEntity.builder()
+                            .title(stayRequest.getTitle())
+                            .titleEng(stayRequest.getTitleEng())
+                            .description(stayRequest.getDescription())
+                            .descriptionEng(stayRequest.getDescriptionEng())
+                            .price(stayRequest.getPrice())
+                            .addressLine(stayRequest.getAddress())
+                            .addressLineEng(stayRequest.getAddressEng())
+                            .postalCode(stayRequest.getPostalCode())
+                            .maxGuests(stayRequest.getMaxGuest())
+                            .thumbnail(s3StorageService.toPublicUrl(stayRequest.getThumbnail()))
+                            .subRegionEntity(subRegion)
+                            .subRegionEngEntity(subRegionEng)
+                            .user(user)
+                            .cancellationPolicyEntity(policy)
+                            .addrDetail(stayRequest.getAddressDetail())
+                            .addrDetailEng(stayRequest.getAddressDetailEng())
+                                .language(user.getLanguage())
+                            .build());
 
         // 디바이스 생성
         DeviceEntity device = deviceRepository.save(

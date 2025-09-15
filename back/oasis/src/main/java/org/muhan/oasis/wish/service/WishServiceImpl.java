@@ -15,6 +15,8 @@ import org.muhan.oasis.wish.repository.WishRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class WishServiceImpl implements WishService{
@@ -39,5 +41,16 @@ public class WishServiceImpl implements WishService{
                         .build());
 
         return wish.getId();
+    }
+
+    @Override
+    public List<WishResponseDto> findAllByUser(String userUuid) {
+        UserEntity user = userRepository.findByUserUuid(userUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
+        List<WishEntity> wishList = wishRepository.findByUser_UserUuid(userUuid);
+
+        return wishList.stream().map(e -> WishResponseDto.from(e, user.getLanguage())).toList();
+
     }
 }

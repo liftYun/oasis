@@ -9,17 +9,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
+import org.muhan.oasis.stay.dto.out.StayCardDto;
 import org.muhan.oasis.wish.dto.in.CreateWishRequestDto;
+import org.muhan.oasis.wish.dto.out.WishResponseDto;
 import org.muhan.oasis.wish.service.WishService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 import static org.muhan.oasis.common.base.BaseResponseStatus.CREATED;
 
@@ -81,6 +81,19 @@ public class WishController {
                 .location(location)
                 .body(body);
 
+    }
+
+    @GetMapping
+    public ResponseEntity<BaseResponse<?>> getWishes(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        List<WishResponseDto> stayCardDtoList =
+                wishService.findAllByUser(userDetails.getUserUuid());
+        System.out.println(stayCardDtoList);
+        BaseResponse<List<WishResponseDto>> body = new BaseResponse<>(stayCardDtoList);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(body);
     }
 
 

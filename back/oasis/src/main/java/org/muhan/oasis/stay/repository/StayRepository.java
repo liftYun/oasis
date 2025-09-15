@@ -45,12 +45,15 @@ public interface StayRepository extends JpaRepository<StayEntity, Long> {
           s.id,
           case when :lang = 'KOR' then s.title else s.titleEng end,
           s.thumbnail,
-          rs.avgRating,         
+          rs.avgRating,        
           s.price
       )
       from StayEntity s
       left join s.ratingSummary rs
+      where s.user.userUuid =:userUuid
       """)
-    List<StayCardDto> findCards(@Param("lang") String lang);
+    List<StayCardDto> findCards(
+            @Param("userUuid") String userUuid,
+            @Param("lang") String lang);
 
 }
