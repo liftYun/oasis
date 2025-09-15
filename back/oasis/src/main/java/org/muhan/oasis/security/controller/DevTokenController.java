@@ -42,7 +42,9 @@ public class DevTokenController {
 
     private BaseResponse<Map<String,Object>> issueFixed(String email) {
         UserEntity u = userRepository.findByEmail(email).orElseThrow();
-        String at = jwtUtil.createAccessToken(u.getUserUuid(), u.getEmail(), u.getNickname(),
+        String at = jwtUtil.createAccessToken(u.getUserUuid(), u.getEmail(),
+                u.getProfileUrl(),
+                u.getNickname(),
                 u.getRole() != null ? u.getRole() : Role.ROLE_GUEST,
                 u.getLanguage() != null ? u.getLanguage() : Language.KOR);
         return BaseResponse.of(Map.of("accessToken", at, "tokenType", "Bearer"));

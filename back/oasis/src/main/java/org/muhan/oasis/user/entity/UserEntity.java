@@ -117,11 +117,12 @@ public class UserEntity extends BaseEntity {
 //    }
 
     @Builder
-    public UserEntity(String userUuid, Role role, String nickname, String profileUrl, Language language, String certificateImg) {
+    public UserEntity(String userUuid, Role role, String nickname, String profileUrl, String email, Language language, String certificateImg) {
         this.userUuid = userUuid;
         this.role = role;
         this.nickname = nickname;
         this.profileUrl = profileUrl;
+        this.email = email;
         this.language = language;
     }
     public static UserEntity ofSocial(String uuid, String email, String nickname, Language lang, Role role) {

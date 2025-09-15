@@ -77,6 +77,7 @@ public class RefreshController {
                 .collect(Collectors.joining(",")));
         TokenPair tokens = createTokenService.createTokens(
                 uuid,
+                userDetails.getEmail(),
                 userDetails.getUserProfileUrl(),
                 userDetails.getUserNickname(),
                 role,
@@ -126,6 +127,7 @@ public class RefreshController {
 
         String accessToken = jwtUtil.createAccessToken(
                 userDetails.getUserUuid(),
+                userDetails.getEmail(),
                 profileUrl,
                 userDetails.getUserNickname(),
                 role,
