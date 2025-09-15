@@ -1,6 +1,6 @@
 import { ChatDetailPage } from '@/features/chat';
 
-export default async function Page({ params }: { params: Promise<{ chatId: string }> }) {
-  const { chatId } = await params;
+export default function Page({ params }: { params: { chatId: string } }) {
+  const { chatId } = params;
   return <ChatDetailPage chatId={chatId} />;
 }

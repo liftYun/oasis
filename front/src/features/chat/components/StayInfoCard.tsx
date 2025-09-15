@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import Image, { type StaticImageData } from 'next/image';
 import { useRouter } from 'next/navigation';
 import StayImage from '@/assets/images/stay_example.png';
 import { ChatUserThumbnail } from '@/components/atoms/ChatUserThumbnail';
@@ -10,7 +10,7 @@ type StayInfo = {
   id: string;
   title: string;
   address: string;
-  thumbnailUrl?: string;
+  thumbnailUrl?: string | StaticImageData;
 };
 
 interface StayInfoCardProps {
@@ -36,7 +36,12 @@ export default function StayInfoCard({ stay }: StayInfoCardProps) {
         {/* 래퍼 분리: 아바타가 이미지 밖으로 자연스럽게 튀어나오도록 */}
         <div className="relative h-16 w-16 flex-shrink-0">
           <div className="relative h-full w-full rounded overflow-hidden bg-gray-100">
-            <Image src={StayImage} alt={stay.title} fill className="object-cover" />
+            <Image
+              src={stay.thumbnailUrl ?? StayImage}
+              alt={stay.title}
+              fill
+              className="object-cover"
+            />
           </div>
           <div className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 z-10">
             <ChatUserThumbnail size={38} />

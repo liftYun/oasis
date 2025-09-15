@@ -19,7 +19,7 @@ export default function InputBar({ onSend }: InputBarProps) {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !(e.nativeEvent as any).isComposing) {
       e.preventDefault();
       handleSend();
     }

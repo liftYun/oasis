@@ -1,11 +1,12 @@
 // 채팅 유저 썸네일 컴포넌트
 'use client';
 
-import Image from 'next/image';
+import Image, { type StaticImageData } from 'next/image';
+import type { CSSProperties } from 'react';
 import PreviewUser from '@/assets/icons/preview-user.png';
 
 type ChatUserThumbnailProps = {
-  src?: string;
+  src?: string | StaticImageData;
   alt?: string;
   size?: number; // px
   className?: string;
@@ -17,7 +18,7 @@ export function ChatUserThumbnail({
   size = 48,
   className,
 }: ChatUserThumbnailProps) {
-  const wrapperStyle: React.CSSProperties = { width: size, height: size };
+  const wrapperStyle: CSSProperties = { width: size, height: size };
 
   return (
     <div
