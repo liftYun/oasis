@@ -3,6 +3,7 @@ import './globals.css';
 import { ReactQueryProvider } from '@/providers/ReactQueryProvider';
 import AppToaster from '@/components/molecules/AppToaster';
 import { ClientLayout } from './ClientLayout';
+import InstallPrompt from '@/components/organisms/InstallPrompt';
 
 export const metadata: Metadata = {
   title: 'oasis',
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-sans min-h-dvh">
         <AppToaster />
         <ReactQueryProvider>
+          <InstallPrompt />
           <ClientLayout>{children}</ClientLayout>
         </ReactQueryProvider>
       </body>

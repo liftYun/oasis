@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getMyProfile } from '@/services/user.api';
-import { Lottie } from '@/components/atoms/Loading';
+import { Lottie } from '@/components/atoms/Lottie';
 
 interface UserProfile {
   nickname: string;

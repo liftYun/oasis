@@ -15,7 +15,7 @@ export function Search() {
   };
 
   return (
-    <main className="flex flex-col w-full h-screen bg-white px-6 py-4">
+    <main className="flex flex-col w-full min-h-screen px-6 py-4 items-stretch justify-start">
       <SearchTabs activeTab={activeTab} onTabChange={setActiveTab} selectedRegion={selectedCity} />
 
       {activeTab === 'region' && (
@@ -32,7 +32,7 @@ export function Search() {
       <div className="mt-auto mb-6">
         <Button
           variant="default"
-          className="w-full"
+          className="w-full max-w-lg mx-auto"
           onClick={handleSearch}
           disabled={!selectedCity}
         >

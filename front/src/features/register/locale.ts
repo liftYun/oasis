@@ -28,6 +28,7 @@ export const registerMessages: Record<'kor' | 'eng', RegisterTexts> = {
     moneyModalTitle: '규정 변경불가 안내',
     moneyModalDescription: '환불 규정은 스마트 컨트랙트에 기록되며, \n 이후 변경할 수 없습니다.',
     back: '돌아가기',
+    successLogin: '로그인 완료!',
   },
   eng: {
     title: 'Set a nickname \nto use in the service.',
@@ -57,5 +58,6 @@ export const registerMessages: Record<'kor' | 'eng', RegisterTexts> = {
     moneyModalDescription:
       'The refund amount is recorded in the smart contract, \n and cannot be changed later.',
     back: 'Back',
+    successLogin: 'Login completed!',
   },
 };

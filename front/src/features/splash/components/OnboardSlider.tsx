@@ -83,7 +83,7 @@ export function OnboardSlider({
     <section
       aria-roledescription="carousel"
       aria-label="Onboarding"
-      className={`relative mt-10 w-full select-none ${className}`}
+      className={`relative mt-14 w-full select-none ${className}`}
     >
       <button
         aria-label="Previous slide"
@@ -126,11 +126,11 @@ export function OnboardSlider({
               <p className="mt-2 text-gray-600 whitespace-pre-line text-center">{slide.desc}</p>
             </div>
 
-            <div className="mt-6 h-64 flex items-center justify-center">{defaultBodies[index]}</div>
+            <div className="h-64 flex items-center justify-center">{defaultBodies[index]}</div>
           </motion.div>
         </AnimatePresence>
       </div>
-      <div className="mt-8 mb-10 flex justify-center gap-2" aria-label="Slide indicators">
+      <div className="mt-14 mb-10 flex justify-center gap-2" aria-label="Slide indicators">
         {slides.map((_, i) => {
           const active = i === index;
           return (

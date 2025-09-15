@@ -10,6 +10,7 @@ import { useLanguage } from '@/features/language';
 import Guest from '@/assets/images/guest.png';
 import Host from '@/assets/images/host.png';
 import { useShallow } from 'zustand/react/shallow';
+import { Lottie } from '@/components/atoms/Lottie';
 
 export function RegisterRole() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export function RegisterRole() {
   const [email, setEmail] = useRegisterStore(useShallow((s) => [s.email, s.setEmail]));
 
   const [role, setRole] = useState<UserRole | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     if (!role) {
@@ -41,15 +43,26 @@ export function RegisterRole() {
   const cardClass = () =>
     'group relative block rounded-2xl transition focus-visible:outline-none bg-gray-100 text-gray-500 hover:bg-primary hover:text-white cursor-pointer overflow-hidden';
 
-  const goGuest = () => {
+  const goGuest = async () => {
+    setLoading(true);
     setRole('ROLE_GUEST');
+    await new Promise((res) => setTimeout(res, 1500));
     router.push('/main');
   };
 
-  const goHost = () => {
+  const goHost = async () => {
     setRole('ROLE_HOST');
     router.push('/register/host');
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <Lottie src="/lotties/success.json" className="w-20 h-20" />
+        <p className="text-base text-gray-500">{t.successLogin}</p>
+      </div>
+    );
+  }
 
   return (
     <main className="flex flex-col w-full px-6 py-10 min-h-screen">

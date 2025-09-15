@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { logout, secession } from '@/services/auth.api';
 import Calendar from '@/assets/icons/calendar.png';
-import HeartPointer from '@/assets/icons/heart-pointer.png';
+import Heart from '@/assets/icons/heart-blue.png';
 import PositiveReview from '@/assets/icons/positive-review.png';
 import SignOut from '@/assets/icons/sign-out.png';
-import Secession from '@/assets/icons/secession.png';
+// import Secession from '@/assets/icons/secession.png';
 import Usdc from '@/assets/icons/usd-circle.png';
 import { useLanguage } from '@/features/language';
 import { profileMessages } from '@/features/my-profile';
@@ -33,17 +33,17 @@ export function GuestProfile() {
     }
   };
 
-  const handleSecession = async () => {
-    if (!confirm('정말 회원 탈퇴하시겠습니까?')) return;
-    try {
-      await secession();
-      alert('회원 탈퇴가 완료되었습니다.');
-      window.location.href = '/';
-    } catch (err) {
-      console.error(err);
-      alert('회원 탈퇴 중 오류가 발생했습니다.');
-    }
-  };
+  // const handleSecession = async () => {
+  //   if (!confirm('정말 회원 탈퇴하시겠습니까?')) return;
+  //   try {
+  //     await secession();
+  //     alert('회원 탈퇴가 완료되었습니다.');
+  //     window.location.href = '/';
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert('회원 탈퇴 중 오류가 발생했습니다.');
+  //   }
+  // };
 
   return (
     <div
@@ -99,7 +99,8 @@ export function GuestProfile() {
           href="/my-profile/favorite"
           className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
         >
-          <Image src={HeartPointer} alt="Heart Pointer Icon" width={24} height={24} />
+          {/* <Image src={HeartPointer} alt="Heart Pointer Icon" width={24} height={24} /> */}
+          <Image src={Heart} alt="Heart Pointer Icon" width={24} height={24} />
           <span className="text-gray-800 text-sm">{t.wishlist}</span>
         </Link>
         <Link
@@ -120,13 +121,13 @@ export function GuestProfile() {
           <Image src={SignOut} alt="Sign Out Icon" width={24} height={24} />
           <span className="text-gray-800 text-sm">{t.logout}</span>
         </button>
-        <button
+        {/* <button
           onClick={handleSecession}
           className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
         >
           <Image src={Secession} alt="Secession Icon" width={24} height={24} />
           <span className="text-gray-800 text-sm">{t.secession}</span>
-        </button>
+        </button> */}
       </div>
     </div>
   );

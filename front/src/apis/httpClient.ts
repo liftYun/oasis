@@ -1,11 +1,11 @@
 'use client';
 
 import axios, {
-  type AxiosError,
-  type AxiosInstance,
-  type AxiosRequestConfig,
-  type AxiosResponse,
-  type InternalAxiosRequestConfig,
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
   isAxiosError,
 } from 'axios';
 
@@ -25,25 +25,6 @@ export class ApiError<T = unknown> extends Error {
 const isBrowser = () => typeof window !== 'undefined';
 const getResult = <T>(res: AxiosResponse<ApiEnvelope<T>>) => res.data.body;
 
-async function retryWithBackoff<T>(
-  fn: () => Promise<T>,
-  { retries = 2, base = 200 }: { retries?: number; base?: number } = {}
-): Promise<T> {
-  let attempt = 0;
-  while (true) {
-    try {
-      return await fn();
-    } catch (e: any) {
-      const status = e?.status ?? e?.response?.status;
-      const isNetErr = !status;
-      const is5xx = status >= 500 && status < 600;
-      if (attempt >= retries || (!isNetErr && !is5xx)) throw e;
-      await new Promise((r) => setTimeout(r, base * Math.pow(2, attempt)));
-      attempt++;
-    }
-  }
-}
-
 let isRefreshing = false;
 let refreshPromise: Promise<void> | null = null;
 const waiters: Array<() => void> = [];
@@ -54,7 +35,16 @@ async function doRefresh(client: AxiosInstance): Promise<void> {
 
   refreshPromise = (async () => {
     try {
-      await client.post('/auth/refresh', null, { withCredentials: true });
+      const res = await client.post('/auth/refresh', null, { withCredentials: true });
+      const newToken = res.headers['authorization']?.split(' ')[1];
+      if (newToken) localStorage.setItem('accessToken', newToken);
+      else throw new Error('No accessToken from refresh');
+    } catch (e) {
+      if (isBrowser()) {
+        localStorage.removeItem('accessToken');
+        window.location.href = '/';
+      }
+      throw e;
     } finally {
       isRefreshing = false;
     }
@@ -81,51 +71,37 @@ class HttpClient {
     return this.client.get<ApiEnvelope<T>>(url, config).then(getResult);
   }
   post<T>(url: string, data?: unknown, config?: AxiosRequestConfig) {
-    return retryWithBackoff(() =>
-      this.client.post<ApiEnvelope<T>>(url, data, config).then(getResult)
-    );
+    return this.client.post<ApiEnvelope<T>>(url, data, config).then(getResult);
   }
   put<T>(url: string, data?: unknown, config?: AxiosRequestConfig) {
-    return retryWithBackoff(() =>
-      this.client.put<ApiEnvelope<T>>(url, data, config).then(getResult)
-    );
+    return this.client.put<ApiEnvelope<T>>(url, data, config).then(getResult);
   }
   patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig) {
-    return retryWithBackoff(() =>
-      this.client.patch<ApiEnvelope<T>>(url, data, config).then(getResult)
-    );
+    return this.client.patch<ApiEnvelope<T>>(url, data, config).then(getResult);
   }
   delete<T>(url: string, config?: AxiosRequestConfig) {
-    return retryWithBackoff(() => this.client.delete<ApiEnvelope<T>>(url, config).then(getResult));
+    return this.client.delete<ApiEnvelope<T>>(url, config).then(getResult);
   }
 
   private setInterceptors() {
-    this.client.interceptors.request.use(
-      (config) => {
-        const token = isBrowser() ? localStorage.getItem('accessToken') : null;
-        // const token = accessTokenTest;
-        console.log(token);
+    this.client.interceptors.request.use((config) => {
+      if (isBrowser()) {
+        const token = localStorage.getItem('accessToken');
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }
-        return config;
-      },
-      (error) => Promise.reject(error)
-    );
+      }
+      return config;
+    });
 
     this.client.interceptors.response.use(
-      (res) => {
-        if (process.env.NODE_ENV === 'development') {
-          console.debug('[HTTP OK]', res.config.method?.toUpperCase(), res.config.url);
-        }
-        return res;
-      },
+      (res) => res,
       async (error: AxiosError) => {
         if (!isAxiosError(error) || !error.response) {
           return Promise.reject(new ApiError(error.message));
         }
 
-        const { status } = error.response;
+        const status = error.response.status;
         const original = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
         if (status === 401 && !original._retry) {
@@ -138,17 +114,12 @@ class HttpClient {
             }
             return this.client.request(original);
           } catch {
-            if (isBrowser()) window.location.href = '/';
+            return Promise.reject(new ApiError('인증이 만료되었습니다.', 401));
           }
         }
 
-        if (status === 500 && process.env.NODE_ENV !== 'development' && isBrowser()) {
-          window.location.href = '/error';
-        }
-
-        const data: any = (error.response as AxiosResponse)?.data;
-        const message =
-          data?.message || data?.error || error.message || '요청 처리 중 오류가 발생했습니다.';
+        const data: any = error.response.data;
+        const message = data?.message || error.message || '요청 처리 중 오류가 발생했습니다.';
         return Promise.reject(new ApiError(message, status, data));
       }
     );
