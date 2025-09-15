@@ -1,5 +1,6 @@
 package org.muhan.oasis.stay.repository;
 
+
 import org.muhan.oasis.stay.dto.out.StayCardByWishDto;
 import org.muhan.oasis.stay.dto.out.StayCardDto;
 import org.muhan.oasis.stay.dto.out.StayResponseDto;
@@ -16,9 +17,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+
 import java.net.ContentHandler;
 import java.time.LocalDate;
 import java.util.List;
+
 import java.util.Optional;
 
 @Repository
@@ -45,6 +48,7 @@ public interface StayRepository extends JpaRepository<StayEntity, Long> {
        """)
     int rebindCancellationPolicy(@Param("oldPolicy") CancellationPolicyEntity oldPolicy,
                                  @Param("newPolicy") CancellationPolicyEntity newPolicy);
+
 
         @Query(
                 value = """
@@ -132,5 +136,10 @@ public interface StayRepository extends JpaRepository<StayEntity, Long> {
         """, nativeQuery = true)
     List<StayCardDto> findTop12ByRating(@Param("lang") String lang);
 
+
+    @Query("SELECT s FROM StayEntity s " +
+            "JOIN FETCH s.cancellationPolicyEntity " +
+            "WHERE s.id = :stayId")
+    StayEntity findStayWithPolicy(@Param("stayId") Long stayId);
 }
 

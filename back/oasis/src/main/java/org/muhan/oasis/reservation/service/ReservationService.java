@@ -4,7 +4,6 @@ import org.muhan.oasis.reservation.dto.in.RegistReservationRequestDto;
 import org.muhan.oasis.reservation.dto.out.ReservationDetailsResponseDto;
 import org.muhan.oasis.reservation.vo.out.ListOfReservationResponseVo;
 import org.muhan.oasis.reservation.vo.out.ListOfReservedDayResponseVo;
-import org.muhan.oasis.reservation.vo.out.ReservationDetailsResponseVo;
 import org.muhan.oasis.valueobject.Language;
 
 public interface ReservationService {
