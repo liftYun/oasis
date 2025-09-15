@@ -42,6 +42,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     @Value("${app.front-base-url}")
     private String frontBaseUrl;
+    @Value("${app.domain}")
+    private String cookieDomain;
 
     private final JWTUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
@@ -102,18 +104,19 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         Language language = user.getLanguage() != null ? user.getLanguage() : Language.valueOf("KOR");
 
         // ✅ Access / Refresh Token 발급
-        String accessToken = jwtUtil.createAccessToken(uuid, email, nickname, role, language);
+//        String accessToken = jwtUtil.createAccessToken(uuid, email, nickname, role, language);
         String refreshToken = jwtUtil.createRefreshToken(uuid);
 
         refreshTokenService.saveToken(uuid, refreshToken);
 
-        response.addHeader("Authorization", "Bearer " + accessToken);
+//        response.addHeader("Authorization", "Bearer " + accessToken);
 
         String cookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .secure(true)           // 로컬 HTTP 개발 시 false, 배포는 true
                 .sameSite("None")       // SPA 도메인 분리 시 필수
                 .path("/")
+                .domain(cookieDomain)
                 .maxAge(Duration.ofMillis(jwtUtil.getRefreshExpiredMs()))
                 .build().toString();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie);
