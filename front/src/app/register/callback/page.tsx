@@ -1,25 +1,42 @@
 'use client';
 
 import { Suspense, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStores';
+import { http } from '@/apis/httpClient';
 
 function CallbackInner() {
-  const params = useSearchParams();
   const router = useRouter();
   const setUser = useAuthStore((s) => s.setUser);
 
   useEffect(() => {
-    const accessToken = params.get('accessToken');
-    const needProfileUpdate = params.get('needProfileUpdate') === 'true';
+    const issueToken = async () => {
+      try {
+        const res = await http.rawPost('/api/v1/auth/issue', null, {
+          withCredentials: true,
+        });
 
-    if (accessToken) {
-      setUser({ accessToken });
-      router.replace(needProfileUpdate ? '/register' : '/');
-    } else {
-      router.replace('/');
-    }
-  }, [params, router, setUser]);
+        const authHeader = res.headers['authorization'];
+        const accessToken = authHeader?.startsWith('Bearer ')
+          ? authHeader.split(' ')[1]
+          : undefined;
+
+        const { needProfileUpdate, nextUrl, nickname } = res.data;
+
+        if (accessToken) {
+          // localStorage.setItem('accessToken', accessToken);
+          setUser({ accessToken, nickname });
+          router.replace(needProfileUpdate ? '/register' : nextUrl);
+        } else {
+          router.replace('/');
+        }
+      } catch (e) {
+        router.replace('/');
+      }
+    };
+
+    issueToken();
+  }, [router, setUser]);
 
   return <p>로그인 처리 중...</p>;
 }

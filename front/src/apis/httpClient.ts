@@ -9,8 +9,6 @@ import axios, {
   isAxiosError,
 } from 'axios';
 
-type ApiEnvelope<T> = { code: number; message: string; body: T };
-
 export class ApiError<T = unknown> extends Error {
   status?: number;
   data?: T;
@@ -23,7 +21,7 @@ export class ApiError<T = unknown> extends Error {
 }
 
 const isBrowser = () => typeof window !== 'undefined';
-const getResult = <T>(res: AxiosResponse<ApiEnvelope<T>>) => res.data.body;
+const getResult = <T>(res: AxiosResponse<T>) => res.data;
 
 let isRefreshing = false;
 let refreshPromise: Promise<void> | null = null;
@@ -35,10 +33,17 @@ async function doRefresh(client: AxiosInstance): Promise<void> {
 
   refreshPromise = (async () => {
     try {
-      const res = await client.post('/auth/refresh', null, { withCredentials: true });
-      const newToken = res.headers['authorization']?.split(' ')[1];
-      if (newToken) localStorage.setItem('accessToken', newToken);
-      else throw new Error('No accessToken from refresh');
+      const res = await client.post('/api/v1/auth/refresh', null, {
+        withCredentials: true,
+      });
+      const authHeader = res.headers['authorization'];
+      const newToken = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : undefined;
+
+      if (newToken) {
+        localStorage.setItem('accessToken', newToken);
+      } else {
+        throw new Error('No accessToken from refresh');
+      }
     } catch (e) {
       if (isBrowser()) {
         localStorage.removeItem('accessToken');
@@ -67,20 +72,25 @@ class HttpClient {
     this.setInterceptors();
   }
 
+  /** 바디 파싱 없이 원본 AxiosResponse 반환 */
+  rawPost(url: string, data?: unknown, config?: AxiosRequestConfig) {
+    return this.client.post(url, data, config);
+  }
+
   get<T>(url: string, config?: AxiosRequestConfig) {
-    return this.client.get<ApiEnvelope<T>>(url, config).then(getResult);
+    return this.client.get<T>(url, config).then(getResult);
   }
   post<T>(url: string, data?: unknown, config?: AxiosRequestConfig) {
-    return this.client.post<ApiEnvelope<T>>(url, data, config).then(getResult);
+    return this.client.post<T>(url, data, config).then(getResult);
   }
   put<T>(url: string, data?: unknown, config?: AxiosRequestConfig) {
-    return this.client.put<ApiEnvelope<T>>(url, data, config).then(getResult);
+    return this.client.put<T>(url, data, config).then(getResult);
   }
   patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig) {
-    return this.client.patch<ApiEnvelope<T>>(url, data, config).then(getResult);
+    return this.client.patch<T>(url, data, config).then(getResult);
   }
   delete<T>(url: string, config?: AxiosRequestConfig) {
-    return this.client.delete<ApiEnvelope<T>>(url, config).then(getResult);
+    return this.client.delete<T>(url, config).then(getResult);
   }
 
   private setInterceptors() {
