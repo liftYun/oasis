@@ -4,6 +4,10 @@ export const mainMessages = {
     searchSubtitle: '원하는 숙소를 쉽고 빠르게 찾을 수 있어요.',
     search: '지금 검색하기',
 
+    registerTitle: '지금, 숙소를 등록해 보세요.',
+    registerSubtitle: '적은 수수료로 숙소 등록이 가능합니다.',
+    register: '숙소 등록하기',
+
     brandPrefix: '머무는 순간까지 여행이니까',
     brandTitle: 'oasis의 블록체인 예약을 이용해보세요!',
 
@@ -18,6 +22,10 @@ export const mainMessages = {
     searchTitle: 'Start your new journey now.',
     searchSubtitle: 'Find your perfect stay easily and quickly.',
     search: 'Search now',
+
+    registerTitle: 'List your stay today.',
+    registerSubtitle: 'Register your stay with low service fees.',
+    register: 'Register your stay',
 
     brandPrefix: 'Every stay is part of the journey,',
     brandTitle: 'Blockchain on oasis!',

@@ -16,7 +16,7 @@ import MainCard from '@/components/organisms/main-card/MainCard';
 import Usdc from '@/assets/icons/usd-circle.png';
 import TestRoom from '@/assets/images/test-room.jpeg';
 
-export function GuestMain() {
+export function HostMain() {
   const { lang } = useLanguage();
   const t = mainMessages[lang];
   const router = useRouter();
@@ -35,19 +35,21 @@ export function GuestMain() {
     >
       <SearchBar />
       <section className="mt-6">
-        <div className="relative w-full h-[18rem] flex flex-col items-center justify-center">
-          <Lottie src="/lotties/search.json" className="w-[90%] h-40" />
+        <div className="relative w-full h-[22rem] flex flex-col items-center justify-center">
+          <Lottie src="/lotties/register.json" className="w-[90%] h-36" />
 
           <div className="absolute top-6 inset-x-0 text-center px-6">
-            <h2 className="text-xl font-bold text-gray-600 mb-1 drop-shadow-sm">{t.searchTitle}</h2>
-            <p className="text-sm text-gray-400">{t.searchSubtitle}</p>
+            <h2 className="text-xl font-bold text-gray-600 mb-1 drop-shadow-sm">
+              {t.registerTitle}
+            </h2>
+            <p className="text-sm text-gray-400">{t.registerSubtitle}</p>
           </div>
 
           <button
-            onClick={() => router.push('/search')}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 w-full py-3 rounded-md bg-primary text-white text-sm font-semibold hover:opacity-90 transition"
+            onClick={() => router.push('/create-stay')}
+            className="absolute bottom-12 left-1/2 -translate-x-1/2 w-full py-3 rounded-md bg-primary text-white text-sm font-semibold hover:opacity-90 transition"
           >
-            {t.search}
+            {t.register}
           </button>
         </div>
       </section>
