@@ -3,7 +3,9 @@
 import { Suspense, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStores';
+import { useRegisterStore } from '@/features/register';
 import { http } from '@/apis/httpClient';
+import { Lottie } from '@/components/atoms/Lottie';
 
 function CallbackInner() {
   const router = useRouter();
@@ -24,8 +26,8 @@ function CallbackInner() {
         const { needProfileUpdate, nextUrl, nickname } = res.data;
 
         if (accessToken) {
-          // localStorage.setItem('accessToken', accessToken);
           setUser({ accessToken, nickname });
+          useRegisterStore.getState().setNickname(nickname);
           router.replace(needProfileUpdate ? '/register' : nextUrl);
         } else {
           router.replace('/');
@@ -37,13 +39,24 @@ function CallbackInner() {
 
     issueToken();
   }, [router, setUser]);
-
-  return <p>로그인 처리 중...</p>;
+  return (
+    <div className="flex flex-col items-center justify-center py-10">
+      <Lottie src="/lotties/spinner.json" className="w-20 h-20" />
+      <p className="text-sm text-gray-500 mt-2">로그인 처리 중...</p>
+    </div>
+  );
 }
 
 export default function AuthCallbackPage() {
   return (
-    <Suspense fallback={<p>로딩 중...</p>}>
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center py-10">
+          <Lottie src="/lotties/spinner.json" className="w-20 h-20" />
+          <p className="text-sm text-gray-500 mt-2">로딩 중...</p>
+        </div>
+      }
+    >
       <CallbackInner />
     </Suspense>
   );

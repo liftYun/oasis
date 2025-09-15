@@ -3,16 +3,16 @@
 import { Button } from '@/components/atoms/Button';
 import { useLanguage } from '@/features/language';
 import { useRegisterStore, useNicknameValidation, registerMessages } from '@/features/register';
-// import toast from 'react-hot-toast';
+import { useAuthStore } from '@/stores/useAuthStores';
 
 export function RegisterNickname() {
   const { setNickname: setStoreNickname, next } = useRegisterStore();
-  const { nickname, setNickname, checkNickname } = useNicknameValidation('');
+  const { nickname: savedNickname } = useAuthStore();
+  const { nickname, setNickname, checkNickname } = useNicknameValidation(savedNickname ?? '');
   const { lang } = useLanguage();
   const t = registerMessages[lang];
 
   const handleNicknameConfirm = async () => {
-    // toast.success('닉네임 중복 확인 완료!');
     await checkNickname();
   };
 
