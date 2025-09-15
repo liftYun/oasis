@@ -49,7 +49,7 @@ public class WalletController {
     public BaseResponse<?> refreshWallet(@AuthenticationPrincipal CustomUserDetails user) {
         try {
             WalletSnapshotResponseDto snapshot = walletService.getWalletSync(user.getUserUuid());
-            walletService.saveWalletIfNew(user.getUserUuid(), snapshot.getPrimaryWallet());
+            walletService.saveWalletIfNew(user.getUserUuid(), snapshot);
             return BaseResponse.of(snapshot);
         } catch (Exception e) {
             log.error("지갑 스냅샷 조회 실패", e);

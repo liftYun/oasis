@@ -1,6 +1,7 @@
 package org.muhan.oasis.wallet.service;
 
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
@@ -31,17 +32,19 @@ public class WalletService {
     private final String circleApiKey;
     private String cachedAppId; // App ID는 한번만 호출 후 캐싱
 
-    private UserRepository userRepository;
-    private WalletRepository walletRepository;
+    private final UserRepository userRepository;
+    private final WalletRepository walletRepository;
 
     public WalletService(@Value("${circle.base-url}") String baseUrl,
-                         @Value("${circle.api-key}") String apiKey) {
+                         @Value("${circle.api-key}") String apiKey, UserRepository userRepository, WalletRepository walletRepository) {
         this.circleApiKey = apiKey;
         this.webClient = WebClient.builder()
                 .baseUrl(baseUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + circleApiKey)
                 .build();
+        this.userRepository = userRepository;
+        this.walletRepository = walletRepository;
     }
 
     // 서버 시작 시 App ID를 가져와 캐싱
@@ -157,14 +160,15 @@ public class WalletService {
 
     @Transactional
     public void saveWalletIfNew(String userUuid,
-                                WalletInfoResponseDto resp) {
-        if (resp.getId() == null) {
-            return; // 아직 PIN 미설정 → DB 저장 안 함
+                                WalletSnapshotResponseDto snapshot) {
+        if (snapshot == null || snapshot.getPrimaryWallet() == null) {
+            log.info("⚠️ WalletSnapshot이 비어 있어 저장하지 않음: userUuid={}", userUuid);
+            return;
         }
 
-        String walletId = resp.getId();
-        String address = resp.getAddress();
-        String blockchain = resp.getBlockchain();
+        String walletId = snapshot.getPrimaryWallet().getId();
+        String address = snapshot.getPrimaryWallet().getAddress();
+        String blockchain = snapshot.getPrimaryWallet().getBlockchain();
 
         boolean exists = walletRepository.existsByWalletId(walletId);
         if (!exists) {

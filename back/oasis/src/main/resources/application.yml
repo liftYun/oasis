@@ -54,7 +54,7 @@ spring:
 jwt:
   access:
     expired-ms: 600000
-#    expired-ms: 6048000000    # for test
+  #    expired-ms: 6048000000    # for test
   refresh:
     expired-ms: 604800000 # 7?
 logging:
@@ -67,7 +67,7 @@ app:
     timeout-ms: 3000
   front-base-url: ${FRONT_BASE_URL}
   backend-base-url: ${BACK_BASE_URL}
-#  backend-base-url: http://localhost:8080 # localTest
+  #  backend-base-url: http://localhost:8080 # localTest
   domain: .stay-oasis.kr
 papago:
   base-url: https://papago.apigw.ntruss.com
@@ -105,6 +105,7 @@ circle:
   base-url: ${CIRCLE_BASE_URL}
   api-key: ${CIRCLE_API_KEY}
   default-fee-level: MEDIUM
+
 
 contract:
   address: ${CONTRACT_ADDRESS}
