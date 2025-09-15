@@ -21,7 +21,7 @@ public class CookieUtils {
     public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .httpOnly(true)
-                .secure(false) // 로컬 테스트는 false, 배포는 true
+                .secure(true) // 로컬 테스트는 false, 배포는 true
                 .sameSite("None") // 크로스 도메인에서도 전달되도록
                 .path("/")
                 .maxAge(maxAge)
