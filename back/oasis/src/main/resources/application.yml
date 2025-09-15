@@ -47,11 +47,14 @@ spring:
               - email
             redirect-uri: "${app.backend-base-url}/login/oauth2/code/{registrationId}"
             client-name: Google
+        provider:
+          google:
+            issuer-uri: https://accounts.google.com
 
 jwt:
   access:
     expired-ms: 600000
-#    expired-ms: 6048000000    # for test
+  #    expired-ms: 6048000000    # for test
   refresh:
     expired-ms: 604800000 # 7?
 logging:
@@ -63,8 +66,9 @@ app:
   translate:
     timeout-ms: 3000
   front-base-url: ${FRONT_BASE_URL}
-  backend-base-url: https://dev-app.stay-oasis.kr
-#  backend-base-url: http://localhost:8080 # localTest
+  backend-base-url: ${BACK_BASE_URL}
+  #  backend-base-url: http://localhost:8080 # localTest
+  domain: .stay-oasis.kr
 papago:
   base-url: https://papago.apigw.ntruss.com
   client-id: ${PAPAGO_CLIENT_ID}
@@ -101,3 +105,10 @@ circle:
   base-url: ${CIRCLE_BASE_URL}
   api-key: ${CIRCLE_API_KEY}
   default-fee-level: MEDIUM
+
+
+contract:
+  address: ${CONTRACT_ADDRESS}
+
+usdc:
+  address: ${USDC_ADDRESS}

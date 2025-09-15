@@ -10,6 +10,9 @@ import org.muhan.oasis.openAI.dto.out.StayTranslationResultDto;
 import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.stay.dto.in.CreateStayRequestDto;
 import org.muhan.oasis.stay.dto.in.ImageRequestDto;
+import org.muhan.oasis.stay.dto.in.StayQueryRequestDto;
+import org.muhan.oasis.stay.dto.out.StayCardByWishDto;
+import org.muhan.oasis.stay.dto.out.StayCardDto;
 import org.muhan.oasis.stay.dto.out.StayResponseDto;
 import org.muhan.oasis.stay.dto.out.StayReadResponseDto;
 import org.muhan.oasis.stay.entity.*;
@@ -17,6 +20,10 @@ import org.muhan.oasis.stay.repository.*;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.valueobject.Language;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,32 +68,34 @@ public class StayServiceImpl implements StayService{
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_SUBREGION));
 
         // 취소정책 찾기 - 이후 수정
-        Optional<CancellationPolicyEntity> optionalPolicy = Optional.ofNullable(user.getCancellationPolicy().get(0));
+        CancellationPolicyEntity cancellationPolicy = user.getActiveCancelPolicy();
 
-        CancellationPolicyEntity policy = optionalPolicy.orElseThrow(
-                () -> new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY)
-        );
-
+        String thumbnailUrl = null;
+        if(stayRequest.getThumbnail() != null){
+            thumbnailUrl = s3StorageService.toPublicUrl(stayRequest.getThumbnail());
+        }
         // 숙소 이름, 설명, 가격, 주소, 우편번호, 수용인원, 썸네일, 지역으로 생성
         StayEntity stay =
-                stayRepository.save(StayEntity.builder()
-                .title(stayRequest.getTitle())
-                .titleEng(stayRequest.getTitleEng())
-                .description(stayRequest.getDescription())
-                .descriptionEng(stayRequest.getDescriptionEng())
-                .price(stayRequest.getPrice())
-                .addressLine(stayRequest.getAddress())
-                .addressLineEng(stayRequest.getAddressEng())
-                .postalCode(stayRequest.getPostalCode())
-                .maxGuests(stayRequest.getMaxGuest())
-                .thumbnail(s3StorageService.toPublicUrl(stayRequest.getThumbnail()))
-                .subRegionEntity(subRegion)
-                .subRegionEngEntity(subRegionEng)
-                .user(user)
-                .cancellationPolicyEntity(policy)
-                .addrDetail(stayRequest.getAddressDetail())
-                .addrDetailEng(stayRequest.getAddressDetailEng())
-                .build());
+                stayRepository.save(
+                        StayEntity.builder()
+                            .title(stayRequest.getTitle())
+                            .titleEng(stayRequest.getTitleEng())
+                            .description(stayRequest.getDescription())
+                            .descriptionEng(stayRequest.getDescriptionEng())
+                            .price(stayRequest.getPrice())
+                            .addressLine(stayRequest.getAddress())
+                            .addressLineEng(stayRequest.getAddressEng())
+                            .postalCode(stayRequest.getPostalCode())
+                            .maxGuests(stayRequest.getMaxGuest())
+                            .thumbnail(thumbnailUrl)
+                            .subRegionEntity(subRegion)
+                            .subRegionEngEntity(subRegionEng)
+                            .user(user)
+                            .cancellationPolicyEntity(cancellationPolicy)
+                            .addrDetail(stayRequest.getAddressDetail())
+                            .addrDetailEng(stayRequest.getAddressDetailEng())
+                                .language(user.getLanguage())
+                            .build());
 
         // 디바이스 생성
         DeviceEntity device = deviceRepository.save(
@@ -179,18 +188,74 @@ public class StayServiceImpl implements StayService{
     }
 
     @Override
+    @Transactional
     public StayResponseDto updateStay(Long stayId) {
         return null;
     }
 
     @Override
+    @Transactional
     public void recalculateRating(Long stayId, BigDecimal rating) {
         StayRatingSummaryEntity ratingSummary = stayRatingSummaryRepository.findById(stayId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY_SUMMARY));
         ratingSummary.recalculate(rating);
     }
 
+    @Override
+    @Transactional
+    public void deleteStay(Long stayId, String userUuid) {
+        StayEntity stay = stayRepository.findById(stayId)
+                .orElseThrow(() -> new BaseException(NO_STAY));
+
+        if(!stay.getUser().getUserUuid().equals(userUuid))
+            throw new BaseException(NO_ACCESS_AUTHORITY);
+
+        stayRepository.delete(stay);
+    }
+
+    @Override
+    public List<StayCardDto> searchStay(Long lastStayId, StayQueryRequestDto stayQuery, String userUuid) {
+        if (stayQuery.getCheckIn() != null && stayQuery.getCheckout() != null && stayQuery.getCheckIn().isBefore(stayQuery.getCheckout())) {
+            throw new BaseException(BaseResponseStatus.INVALID_PARAMETER);
+        }
+
+        UserEntity user = userRepository.findByUserUuid(userUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
 
 
+        PageRequest pr = PageRequest.of(0, 20);
+        Page<StayCardDto> page = stayRepository.fetchCardsBy(
+                lastStayId,
+                stayQuery.getSubRegionId(),
+                stayQuery.getCheckIn(),
+                stayQuery.getCheckout(),
+                user.getLanguage().getDescription(),
+                pr
+        );
 
+        return page.getContent();
+
+
+    }
+
+    @Override
+    public List<StayCardByWishDto> searchStayByWish(String userUuid) {
+
+        UserEntity user = userRepository.findByUserUuid(userUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
+        return stayRepository.findTop12ByWish(
+                user.getLanguage().getDescription()
+        );
+    }
+
+    @Override
+    public List<StayCardDto> searchStayByRating(String userUuid) {
+        UserEntity user = userRepository.findByUserUuid(userUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
+        return stayRepository.findTop12ByRating(
+                user.getLanguage().getDescription()
+        );
+    }
 }

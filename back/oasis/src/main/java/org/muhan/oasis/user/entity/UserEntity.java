@@ -3,6 +3,8 @@ package org.muhan.oasis.user.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.muhan.oasis.common.base.BaseEntity;
+import org.muhan.oasis.common.base.BaseResponseStatus;
+import org.muhan.oasis.common.exception.BaseException;
 import org.muhan.oasis.key.entity.KeyOwnerEntity;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
 import org.muhan.oasis.review.entity.ReviewEntity;
@@ -10,6 +12,7 @@ import org.muhan.oasis.stay.entity.CancellationPolicyEntity;
 import org.muhan.oasis.stay.entity.StayEntity;
 import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.valueobject.Role;
+import org.muhan.oasis.wish.entity.WishEntity;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -116,13 +119,29 @@ public class UserEntity extends BaseEntity {
 //    }
 
     @Builder
-    public UserEntity(String userUuid, Role role, String nickname, String profileUrl, Language language, String certificateImg) {
+    public UserEntity(String userUuid, Role role, String nickname, String profileUrl, String email, Language language, String certificateImg) {
         this.userUuid = userUuid;
         this.role = role;
         this.nickname = nickname;
         this.profileUrl = profileUrl;
+        this.email = email;
         this.language = language;
     }
+    public static UserEntity ofSocial(String uuid, String email, String nickname, Language lang, Role role) {
+        UserEntity u = new UserEntity(); // @NoArgsConstructor 필요
+        u.setUserUuid(uuid);
+        u.setEmail(email);
+        u.setNickname(nickname);
+        u.setLanguage(lang);
+        u.setRole(role);
+        return u;
+    }
 
+    public CancellationPolicyEntity getActiveCancelPolicy(){
+        for (CancellationPolicyEntity cancelPolicyEntity : cancellationPolicy) {
+            if(cancelPolicyEntity.isActive()) return cancelPolicyEntity;
+        }
+        throw new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY);
+    }
 }
 

@@ -88,6 +88,9 @@ public enum BaseResponseStatus {
     // SSE
     FAIL_SSE_COMMUNICATION(HttpStatus.SERVICE_UNAVAILABLE, false, 503, "SSE 메세지 전송에 실패했습니다."),
 
+    // wish
+    NO_WISH(HttpStatus.NOT_FOUND, false, 404, "해당 관심 숙소가 존재하지 않습니다."),
+
     // region
     NO_EXIST_SUBREGION(HttpStatus.NOT_FOUND, false, 404, "존재하지 않는 지역 정보입니다."),
     // facility

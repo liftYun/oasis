@@ -1,14 +1,20 @@
 package org.muhan.oasis.wallet.service;
 
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.muhan.oasis.user.entity.UserEntity;
+import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.wallet.dto.circle.out.*;
 import org.muhan.oasis.wallet.dto.out.WalletInfoResponseDto;
+import org.muhan.oasis.wallet.entity.WalletEntity;
+import org.muhan.oasis.wallet.respository.WalletRepository;
 import org.muhan.oasis.wallet.vo.out.InitWalletResponseVo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -26,14 +32,19 @@ public class WalletService {
     private final String circleApiKey;
     private String cachedAppId; // App ID는 한번만 호출 후 캐싱
 
+    private final UserRepository userRepository;
+    private final WalletRepository walletRepository;
+
     public WalletService(@Value("${circle.base-url}") String baseUrl,
-                         @Value("${circle.api-key}") String apiKey) {
+                         @Value("${circle.api-key}") String apiKey, UserRepository userRepository, WalletRepository walletRepository) {
         this.circleApiKey = apiKey;
         this.webClient = WebClient.builder()
                 .baseUrl(baseUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + circleApiKey)
                 .build();
+        this.userRepository = userRepository;
+        this.walletRepository = walletRepository;
     }
 
     // 서버 시작 시 App ID를 가져와 캐싱
@@ -146,6 +157,38 @@ public class WalletService {
             }
         }
     }
+
+    @Transactional
+    public void saveWalletIfNew(String userUuid,
+                                WalletSnapshotResponseDto snapshot) {
+        if (snapshot == null || snapshot.getPrimaryWallet() == null) {
+            log.info("⚠️ WalletSnapshot이 비어 있어 저장하지 않음: userUuid={}", userUuid);
+            return;
+        }
+
+        String walletId = snapshot.getPrimaryWallet().getId();
+        String address = snapshot.getPrimaryWallet().getAddress();
+        String blockchain = snapshot.getPrimaryWallet().getBlockchain();
+
+        boolean exists = walletRepository.existsByWalletId(walletId);
+        if (!exists) {
+            UserEntity user = userRepository.findByUserUuid(userUuid)
+                    .orElseThrow();
+
+            // 1) 엔티티 생성
+            WalletEntity walletEntity = WalletEntity.builder()
+                    .user(user)
+                    .walletId(walletId)
+                    .address(address)
+                    .blockchain(blockchain)
+                    .build();
+
+            // 2) 저장
+            WalletEntity saved = walletRepository.save(walletEntity);
+            log.info("✅ 새 Wallet 저장 완료: userUuid={}, walletId={}, address={}", userUuid, walletId, address);
+        }
+    }
+
 
 
     private Mono<String> fetchAppId() {

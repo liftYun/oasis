@@ -2,8 +2,6 @@ package org.muhan.oasis.reservation.vo.in;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.muhan.oasis.stay.entity.StayEntity;
-import org.muhan.oasis.user.entity.UserEntity;
 
 import java.time.LocalDateTime;
 

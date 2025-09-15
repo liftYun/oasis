@@ -38,6 +38,8 @@ public class CustomUserDetails implements UserDetails {
 
     public String getUserUuid() { return userEntity.getUserUuid(); }
 
+    public String getEmail() { return userEntity.getEmail(); }
+
     public String getUserProfileUrl() { return  userEntity.getProfileUrl(); }
 
     public String getUserNickname() { return userEntity.getNickname(); }

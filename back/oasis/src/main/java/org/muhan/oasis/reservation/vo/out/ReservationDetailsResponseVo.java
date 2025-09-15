@@ -1,7 +1,10 @@
 package org.muhan.oasis.reservation.vo.out;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.muhan.oasis.reservation.dto.out.ReservationDetailsResponseDto;
 import org.muhan.oasis.stay.entity.StayRatingSummaryEntity;
 import org.muhan.oasis.valueobject.Category;

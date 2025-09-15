@@ -42,6 +42,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     @Value("${app.front-base-url}")
     private String frontBaseUrl;
+    @Value("${app.domain}")
+    private String cookieDomain;
 
     private final JWTUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
@@ -75,7 +77,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                     stringOrNull(attrs.get("given_name")),
                     email
             );
-            user = joinService.registerSocialUserIfNotExist(email, nickname, null);
+            String profileUrl = stringOrNull(attrs.get("profile_url"));
+            user = joinService.registerSocialUserIfNotExist(email, nickname, profileUrl, null);
 
         } else if (principalObj instanceof OAuth2User oauth) {
             // (안전망) 일반 OAuth2 — 커스텀 래핑이 안 된 경우
@@ -87,7 +90,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                     stringOrNull(attrs.get("login")),
                     email
             );
-            user = joinService.registerSocialUserIfNotExist(email, nickname, null);
+            String profileUrl = stringOrNull(attrs.get("profile_url"));
+            user = joinService.registerSocialUserIfNotExist(email, nickname, profileUrl,null);
 
         } else {
             throw new IllegalStateException("Unexpected principal type: " + principalObj.getClass());
@@ -102,47 +106,39 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         Language language = user.getLanguage() != null ? user.getLanguage() : Language.valueOf("KOR");
 
         // ✅ Access / Refresh Token 발급
-        String accessToken = jwtUtil.createAccessToken(uuid, email, nickname, role, language);
+//        String accessToken = jwtUtil.createAccessToken(uuid, email, nickname, role, language);
         String refreshToken = jwtUtil.createRefreshToken(uuid);
 
         refreshTokenService.saveToken(uuid, refreshToken);
 
-        response.addHeader("Authorization", "Bearer " + accessToken);
+//        response.addHeader("Authorization", "Bearer " + accessToken);
 
-//        Cookie cookie = new Cookie("refreshToken", refreshToken);
-//        cookie.setHttpOnly(true);
-//        cookie.setPath("/");
-//        cookie.setMaxAge((int)(jwtUtil.getRefreshExpiredMs() / 1000));
-//        response.addCookie(cookie);
         String cookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .secure(true)           // 로컬 HTTP 개발 시 false, 배포는 true
                 .sameSite("None")       // SPA 도메인 분리 시 필수
                 .path("/")
+                .domain(cookieDomain)
                 .maxAge(Duration.ofMillis(jwtUtil.getRefreshExpiredMs()))
                 .build().toString();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie);
+
+        ResponseCookie deleteCookie = ResponseCookie.from("OAUTH2_AUTH_REQUEST", "")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .path("/")             // 반드시 원래 path와 동일해야 함
+                .maxAge(0)             // 0으로 하면 삭제됨
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+
 
         boolean needProfileUpdate = (user.getRole() == null || user.getProfileUrl() == null);
         String baseRedirect = needProfileUpdate ? frontBaseUrl + "/register/callback"
                 : frontBaseUrl + "/";
         log.info("[OAuth2Success] uuid={}, email={}, redirect={}", uuid, email, baseRedirect);
 
-
-//        String encodedEmail = URLEncoder.encode(email != null ? email : "", StandardCharsets.UTF_8);
-//        String redirectUrl = baseRedirect + (baseRedirect.contains("?") ? "&" : "?") + "email=" + encodedEmail;
-//
-//        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-//
-//        new ObjectMapper().writeValue(
-//                response.getWriter(),
-//                BaseResponse.of(
-//                        Map.of(
-//                                "needProfileUpdate", needProfileUpdate,
-//                                "redirectUrl", redirectUrl
-//                        )
-//                )
-//        );
         String accept = request.getHeader("Accept");
         boolean wantsJson =
                 (accept != null && accept.contains(MediaType.APPLICATION_JSON_VALUE))
@@ -150,9 +146,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                         || "json".equalsIgnoreCase(request.getParameter("responseMode"));
 
         if (!wantsJson) {
-            String redirectUrl = baseRedirect
-                    + "?accessToken=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8)
-                    + "&needProfileUpdate=" + needProfileUpdate;
+            String redirectUrl = baseRedirect + (baseRedirect.contains("?") ? "&" : "?")
+                    + "needProfileUpdate=" + needProfileUpdate;
 
             response.setHeader("Cache-Control", "no-store");
             response.setHeader("Pragma", "no-cache");

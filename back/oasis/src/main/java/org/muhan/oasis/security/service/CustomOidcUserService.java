@@ -37,6 +37,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
                 stringOrNull(claims.get("given_name")),
                 email
         );
+        String profileUrl = stringOrNull(claims.get("profile_url"));
 
         // 이메일이 반드시 필요하다면 여기서 검증
         if (email == null) {
@@ -45,7 +46,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         }
 
         // 가입/조회
-        UserEntity user = joinService.registerSocialUserIfNotExist(email, name, null);
+        UserEntity user = joinService.registerSocialUserIfNotExist(email, name, profileUrl, null);
 
         // 권한/토큰/유저정보 그대로 사용
         Collection<? extends GrantedAuthority> authorities = oidcUser.getAuthorities();

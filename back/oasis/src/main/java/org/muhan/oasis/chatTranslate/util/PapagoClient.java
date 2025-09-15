@@ -14,15 +14,28 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Component
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class PapagoClient {
 
-    @Qualifier("papagoWebClient")
+//    @Qualifier("papagoWebClient")
+//    private final WebClient webClient;
+//
+//    @Value("${papago.client-id}") private String clientId;
+//    @Value("${papago.client-secret}") private String clientSecret;
+
     private final WebClient webClient;
+    private final String clientId;
+    private final String clientSecret;
 
-    @Value("${papago.client-id}") private String clientId;
-    @Value("${papago.client-secret}") private String clientSecret;
-
+    public PapagoClient(
+            @Qualifier("papagoWebClient") WebClient webClient,
+            @Value("${papago.client-id}") String clientId,
+            @Value("${papago.client-secret}") String clientSecret
+    ) {
+        this.webClient = webClient;
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+    }
     public Mono<PapagoResponse> translate(String source, String target, String text) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("source", source);

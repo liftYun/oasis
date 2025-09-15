@@ -1,7 +1,6 @@
 package org.muhan.oasis.wallet.controller;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,20 +9,13 @@ import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
 import org.muhan.oasis.wallet.dto.circle.out.WalletSnapshotResponseDto;
 import org.muhan.oasis.wallet.service.WalletService;
-import org.muhan.oasis.wallet.vo.in.InitWalletRequestVo;
 import org.muhan.oasis.wallet.vo.out.InitWalletResponseVo;
 import org.muhan.oasis.wallet.vo.out.WalletSnapshotResponseVo;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
-
-import java.util.UUID;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/wallet")
@@ -40,6 +32,7 @@ public class WalletController {
                 """,
             tags = {"지갑"}
     )
+
     @PostMapping("/init-session")
     public BaseResponse<?> createWallet(@AuthenticationPrincipal CustomUserDetails user) {
         try {
@@ -47,6 +40,19 @@ public class WalletController {
             return BaseResponse.of(result);
         } catch (Exception e) {
             log.error("지갑 초기화 실패", e);
+            return BaseResponse.error(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    //프론트에서 지갑 생성 직후 DB저장 필요
+    @GetMapping("/snapshot")
+    public BaseResponse<?> refreshWallet(@AuthenticationPrincipal CustomUserDetails user) {
+        try {
+            WalletSnapshotResponseDto snapshot = walletService.getWalletSync(user.getUserUuid());
+            walletService.saveWalletIfNew(user.getUserUuid(), snapshot);
+            return BaseResponse.of(snapshot);
+        } catch (Exception e) {
+            log.error("지갑 스냅샷 조회 실패", e);
             return BaseResponse.error(BaseResponseStatus.INTERNAL_SERVER_ERROR);
         }
     }
