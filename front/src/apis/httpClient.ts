@@ -102,10 +102,8 @@ class HttpClient {
   private setInterceptors() {
     this.client.interceptors.request.use(
       (config) => {
-        const accessTokenTest =
-          'eyJhbGciOiJIUzI1NiJ9.eyJ1dWlkIjoiZjU4MTU5NGMtOWQ4YS00ZDM2LWJlM2YtMjg2ZjM1ZTE4Y2ZkIiwicHJvZmlsZVVybCI6InRlc3RHdWVzdEB0ZXN0LmNvbSIsIm5pY2tuYW1lIjoiR1VFU1QiLCJyb2xlIjoiUk9MRV9HVUVTVCIsImxhbmd1YWdlIjoiS09SIiwiaWF0IjoxNzU3ODMwNTE1LCJleHAiOjE3NjM4Nzg1MTV9.BQCs_exjLyKLWbhRNyOKItj1Gm9ix7k43DUQ8-I3drg';
-        // const token = isBrowser() ? localStorage.getItem('accessToken') : null;
-        const token = accessTokenTest;
+        const token = isBrowser() ? localStorage.getItem('accessToken') : null;
+        // const token = accessTokenTest;
         console.log(token);
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;

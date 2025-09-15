@@ -3,7 +3,7 @@
 import { Button } from '@/components/atoms/Button';
 import { useLanguage } from '@/features/language';
 import { useRegisterStore, useNicknameValidation, registerMessages } from '@/features/register';
-import toast from 'react-hot-toast';
+// import toast from 'react-hot-toast';
 
 export function RegisterNickname() {
   const { setNickname: setStoreNickname, next } = useRegisterStore();
@@ -12,7 +12,7 @@ export function RegisterNickname() {
   const t = registerMessages[lang];
 
   const handleNicknameConfirm = async () => {
-    toast.success('닉네임 중복 확인 완료!');
+    // toast.success('닉네임 중복 확인 완료!');
     await checkNickname();
   };
 
