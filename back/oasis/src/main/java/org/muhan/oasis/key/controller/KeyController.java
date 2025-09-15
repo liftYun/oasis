@@ -105,4 +105,21 @@ public class KeyController {
                 .build();
         return BaseResponse.of(body);
     }
+
+    @Operation(
+            summary = "디지털 키 삭제",
+            description = """
+                - 사용자가 지닌 키를 삭제합니다
+                - 예약 내역에서 공유 사용자들을 확인하기 위해 단순 만료 처리합니다.
+                """
+    )
+    @PutMapping("/delete")
+    public BaseResponse<?> deleteKeyByUser(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long keyId
+    ) {
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
+
+        return BaseResponse.of(keyService.deleteKeyByUserId(userId, keyId));
+    }
 }

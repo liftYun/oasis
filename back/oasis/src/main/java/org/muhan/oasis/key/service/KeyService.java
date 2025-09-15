@@ -16,4 +16,6 @@ public interface KeyService {
     String verifyOpenPermission(Long userId, Long keyId);
 
     List<KeyResponseDto> listKeysForGuest(Long userId);
+
+    Object deleteKeyByUserId(Long userId, Long keyId);
 }

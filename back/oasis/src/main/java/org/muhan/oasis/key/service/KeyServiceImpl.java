@@ -189,6 +189,15 @@ public class KeyServiceImpl implements KeyService {
                 .toList();
     }
 
+    /**
+     * 예약 상세 내역에서 키 소유자들을 바탕으로 조회하므로
+     * 완전 삭제가 아니라 만료 처리 하여 리스트에서 사라지게 함?
+     */
+    @Override
+    public Object deleteKeyByUserId(Long userId, Long keyId) {
+        return null;
+    }
+
     private void ensureDeviceOnline(String deviceIdS) {
         String online = redis.opsForValue().get(D_ONLINE + deviceIdS);
         // 온라인 키가 없거나 1이 아니면 오프라인으로 간주
