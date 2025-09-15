@@ -5,11 +5,13 @@ import { useEffect, useRef } from 'react';
 import { ProgressBar } from '@/components/molecules/ProgressBar';
 import { ChevronLeft } from 'lucide-react';
 import { useCreateStayStore } from '@/features/create-stay/store';
-import { Step1_StayInfo } from '@/features/create-stay/components/Step1_StayInfo';
-import { Step2_Description } from '@/features/create-stay/components/Step2_Description';
-import { Step3_Amenities } from '@/features/create-stay/components/Step3_Amenities';
-import { Step4_Availability } from '@/features/create-stay/components/Step4_Availability';
-import { AddressSearch } from '@/features/create-stay/components/AddressSearch';
+import {
+  AddressSearch,
+  Step1_StayInfo,
+  Step2_Description,
+  Step3_Amenities,
+  Step4_Availability,
+} from '@/features/create-stay';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
 
