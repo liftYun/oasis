@@ -3,6 +3,8 @@ package org.muhan.oasis.security.repository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -16,14 +18,17 @@ public class CookieUtils {
                 .findFirst();
     }
 
-    public static void addCookie(HttpServletResponse response, String name,
-                                 String value, int maxAge) {
-        Cookie cookie = new Cookie(name, value);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(maxAge);
-        response.addCookie(cookie);
+    public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
+        ResponseCookie cookie = ResponseCookie.from(name, value)
+                .httpOnly(true)
+                .secure(true) // 로컬 테스트는 false, 배포는 true
+                .sameSite("None") // 크로스 도메인에서도 전달되도록
+                .path("/")
+                .maxAge(maxAge)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
+
 
     public static void deleteCookie(HttpServletRequest request,
                                     HttpServletResponse response,
