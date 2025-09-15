@@ -7,7 +7,9 @@ import org.muhan.oasis.wish.dto.out.WishResponseDto;
 import java.util.List;
 
 public interface WishService {
-    Long addWish(String userUuid, CreateWishRequestDto wishRequestDto);
+    Long addWish(String userUuid, Long stayId);
 
     List<WishResponseDto> findAllByUser(String userUuid);
+
+    void delete(String userUuid, Long wishId);
 }
