@@ -41,7 +41,7 @@ public class DevTokenController {
     }
 
     @Operation(summary="게스트 AT(70일)2")
-    @GetMapping("/token/host")
+    @GetMapping("/token/guest2")
     public BaseResponse<Map<String,Object>> guestToken2() {
         return issueFixed("guest2@test.com");
     }
