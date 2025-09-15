@@ -67,11 +67,11 @@ public class UserController {
     @GetMapping("/search")
     public BaseResponse<UserSearchResultResponseVo> search(
             @Parameter(description = "검색 키워드", required = true, example = "이도")
-            @RequestParam("q") String keyword,
+            @PathVariable("q") String keyword,
             @Parameter(description = "페이지(0-base)", example = "0")
-            @RequestParam(defaultValue = "0") int page,
+            @PathVariable("page") int page,
             @Parameter(description = "페이지 크기", example = "10")
-            @RequestParam(defaultValue = "10") int size,
+            @PathVariable("size") int size,
             @Parameter(description = "결과에서 제외할 회원 ID 목록", example = "1,2")
             @RequestParam(value = "exclude", required = false) List<Long> excludeIds
     ) {
@@ -114,12 +114,12 @@ public class UserController {
     @Operation(
             summary = "프로필 이미지 업로드 URL 발급",
             description = """
-                프로필 이미지를 S3에 직접 업로드하기 위한 **presigned URL**을 발급합니다.
-                사용 흐름:
-                1) 본 API 호출(`contentType=image/png`) → { key, uploadUrl, publicUrl } 수신
-                2) 프론트가 `PUT uploadUrl`로 S3에 업로드(`Content-Type` 일치)
-                3) 업로드 후 `PUT /api/v1/user/profileImg?key=...` 호출로 최종 반영
-                """,
+            프로필 이미지를 S3에 직접 업로드하기 위한 presigned URL을 발급합니다.
+            사용 흐름:
+            1) 본 API 호출(예: /profileImg/upload-url/image/png) → { key, uploadUrl, publicUrl } 수신
+            2) 프론트가 PUT {uploadUrl} 로 S3에 업로드(요청 헤더 Content-Type 반드시 일치)
+            3) 업로드 후 PUT /api/v1/user/profileImg?key=... 호출로 최종 반영
+            """,
             tags = {"회원"}
     )
     @ApiResponses({
@@ -127,28 +127,28 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "이미지 MIME 아님"),
             @ApiResponse(responseCode = "401", description = "인증 필요")
     })
-    @PostMapping("/profileImg/upload-url")
+    @PostMapping("/profileImg/upload-url/{type}/{subtype}")
     public BaseResponse<?> createUploadUrl(
             @Parameter(hidden = true)
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Parameter(description = "이미지 MIME 타입", required = true, example = "image/png")
-            @RequestParam("contentType") String contentType) {
+            @Parameter(description = "MIME 타입의 상위 타입 (예: image)", required = true, example = "image")
+            @PathVariable("type") String type,
+            @Parameter(description = "MIME 타입의 하위 타입 (예: png, jpeg, webp)", required = true, example = "png")
+            @PathVariable("subtype") String subtype
+    ) {
+        final String contentType = type + "/" + subtype;
 
-        if (contentType == null || !contentType.startsWith("image/")) {
-            return BaseResponse.error(NO_IMG_FORM);
+        if (!type.equalsIgnoreCase("image")) {
+            return BaseResponse.error(NO_IMG_FORM); // 프로젝트 공통 에러코드
         }
 
         String userUuid = userDetails.getUserUuid();
-
         String key = "users/%s/profile/%s.%s".formatted(
                 userUuid, java.util.UUID.randomUUID(), contentTypeToExt(contentType)
         );
 
-        // TTL: 10분
-        Duration ttl = Duration.ofMinutes(10);
-
-        URL uploadUrl = s3StorageService.issuePutUrl(key, contentType, ttl); // 유효기간 짧게(예: 5~10분)
-//        String publicUrl = "https://%s.s3.amazonaws.com/%s".formatted(bucket, key); // 또는 CloudFront
+        Duration ttl = Duration.ofMinutes(10); // Presigned URL TTL
+        URL uploadUrl = s3StorageService.issuePutUrl(key, contentType, ttl);
         String publicUrl = s3StorageService.toPublicUrl(key);
 
         return BaseResponse.of(Map.of(
@@ -161,11 +161,12 @@ public class UserController {
     @Operation(
             summary = "프로필 이미지 최종 반영",
             description = """
-                presigned URL로 업로드가 완료된 **S3 key**를 전달해 최종적으로 DB에 반영합니다.
-                - 서버는 key가 본인 경로(`users/{userUuid}/profile/..`)인지 검증
-                - S3에 객체가 실제로 존재하는지 HEAD로 검증
-                - 검증 후 publicUrl을 생성하여 DB에 저장
-                """,
+            presigned URL로 업로드가 완료된 **S3 key**를 PathVariable 로 전달해
+            최종적으로 DB에 반영합니다.
+            - 서버는 key가 본인 경로(`users/{userUuid}/profile/..`)인지 검증
+            - S3 객체가 실제로 존재하는지 HEAD로 검증
+            - 검증 후 publicUrl을 생성하여 DB에 저장
+            """,
             tags = {"회원"}
     )
     @ApiResponses({
@@ -173,37 +174,40 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "잘못된 key 또는 업로드 미완료"),
             @ApiResponse(responseCode = "401", description = "인증 필요")
     })
-    @PutMapping("/profileImg")
+    @PutMapping("/profileImg/{key:.+}")
     public BaseResponse<?> setProfileImg(
             @Parameter(hidden = true)
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Parameter(description = "presigned 업로드 후의 S3 key", required = true,
-                    example = "users/7b1f...-uuid/profile/550e8400-e29b-41d4-a716-446655440000.png")
-            @RequestParam("key") String key
+            @Parameter(
+                    description = "presigned 업로드 완료 후의 S3 key (예: users/{uuid}/profile/xxx.png)",
+                    required = true,
+                    example = "users/7b1f...-uuid/profile/550e8400-e29b-41d4-a716-446655440000.png"
+            )
+            @PathVariable("key") String key
     ) {
         final String userUuid = userDetails.getUserUuid();
 
-        // 1) 본인의 경로만 허용 (users/{userUuid}/profile/...)
+        // 1) 본인의 경로만 허용
         String requiredPrefix = "users/" + userUuid + "/profile/";
         if (key == null || !key.startsWith(requiredPrefix)) {
             return BaseResponse.error(INVALID_PARAMETER);
         }
 
-        // 2) 실제로 업로드 완료되었는지 S3 HEAD로 확인
+        // 2) 업로드 완료 여부(S3 HEAD) 검증
         if (!s3StorageService.exists(key)) {
-            return BaseResponse.error(NO_IMG_DATA); // "업로드 미완료" 등 메시지
+            return BaseResponse.error(NO_IMG_DATA);
         }
 
-        // 3) 퍼블릭 URL(CloudFront or S3) 생성
+        // 3) 퍼블릭 URL 생성
         String publicUrl = s3StorageService.toPublicUrl(key);
-
         Long userId = userService.getUserIdByUserUuid(userUuid);
 
-        // 4) DB 반영 (기존 이미지 삭제는 userService 내부 로직에서 처리하도록 유지)
+        // 4) DB 반영
         userService.updateProfileImageUrl(userId, publicUrl);
 
         return BaseResponse.of(Map.of("profileImgUrl", publicUrl));
     }
+
 
     @PatchMapping("/updateLang/{language}")
     @Schema(allowableValues = {"KOR","ENG"})
@@ -213,17 +217,15 @@ public class UserController {
     )
     public ResponseEntity<BaseResponse<?>> updateLang(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestParam(name = "language") String lang,
+            @PathVariable(name = "language") String language,
             HttpServletResponse response
     ) {
         Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
         // language parsing
-        Language language = Language.valueOf(lang);
+        Language lang = Language.valueOf(language);
 
         // update new Language
-        userService.updateLang(userId, language);
-
-        final String uuid = customUserDetails.getUserUuid();
+        userService.updateLang(userId, lang);
 
         // create new AT / RT
         TokenPair tokens = createTokenService.createTokens(
@@ -231,7 +233,7 @@ public class UserController {
                 customUserDetails.getUserProfileUrl(),
                 customUserDetails.getUserNickname(),
                 customUserDetails.getRole(),
-                language
+                lang
         );
 
         return ResponseEntity.ok()
