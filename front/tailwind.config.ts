@@ -8,8 +8,23 @@ const config: Config = {
     './src/features/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    extend: { colors, fontFamily: fonts, borderRadius, boxShadow },
+    extend: {
+      colors,
+      fontFamily: fonts,
+      borderRadius,
+      boxShadow,
+      keyframes: {
+        'bounce-x': {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '50%': { transform: 'translateX(6px)' },
+        },
+      },
+      animation: {
+        'bounce-x': 'bounce-x 1s infinite',
+      },
+    },
   },
-  plugins: [],
+  plugins: [require('tailwind-scrollbar-hide')],
 };
+
 export default config;

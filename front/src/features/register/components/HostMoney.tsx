@@ -8,6 +8,8 @@ import { Button } from '@/components/atoms/Button';
 import { BottomSheet } from '@/components/organisms/BottomSheet';
 import { DonutPercentPicker } from './DonutPercentPicker';
 import { CenterModal } from '@/components/organisms/CenterModel';
+import { useRouter } from 'next/navigation';
+import { Lottie } from '@/components/atoms/Lottie';
 
 type Rule = {
   id: string;
@@ -39,11 +41,15 @@ export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: 
   const { lang } = useLanguage();
   const t = registerMessages[lang];
   const langKey = (lang as keyof Rule['label']) ?? 'kor';
+  const router = useRouter();
+
   const [rules, setRules] = useState<Rule[]>(defaultRules);
   const [error, setError] = useState('');
   const [sheetOpen, setSheetOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
   const percentOptions = useMemo(() => Array.from({ length: 10 }, (_, i) => i * 10).reverse(), []);
   const activeRule = rules.find((r) => r.id === activeId) ?? null;
 
@@ -67,6 +73,15 @@ export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: 
     if (msg) return;
     setConfirmOpen(true);
   };
+
+  if (submitting) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <Lottie src="/lotties/success.json" className="w-20 h-20" />
+        <p className="text-sm text-gray-500">{t.successLogin}</p>
+      </div>
+    );
+  }
 
   return (
     <main className="flex flex-col w-full px-6 py-10 min-h-screen">
@@ -119,14 +134,18 @@ export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: 
         </button>
         <button
           className="h-11 rounded-md bg-gray-600 font-normal text-sm text-white hover:opacity-90"
-          onClick={() => {
+          onClick={async () => {
             setConfirmOpen(false);
+            setSubmitting(true);
             onConfirm?.(rules);
+            await new Promise((r) => setTimeout(r, 1500));
+            router.push('/main');
           }}
         >
           {t.confirm}
         </button>
       </CenterModal>
+
       <BottomSheet
         open={sheetOpen && !!activeRule}
         onClose={() => setSheetOpen(false)}

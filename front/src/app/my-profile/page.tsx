@@ -17,6 +17,6 @@ export default function MyProfilePage() {
 
   //   return role === 'guest' ? <GuestProfile /> : <HostProfile />;
 
-  // return <GuestProfile />;
-  return <HostProfile />;
+  return <GuestProfile />;
+  // return <HostProfile />;
 }

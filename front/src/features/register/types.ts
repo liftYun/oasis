@@ -27,6 +27,7 @@ export type RegisterTexts = {
   moneyModalTitle: string;
   moneyModalDescription: string;
   back: string;
+  successLogin: string;
 };
 
 export type Step = 'nickname' | 'check' | 'role' | 'done';

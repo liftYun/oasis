@@ -5,11 +5,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { logout, secession } from '@/services/auth.api';
-import { CenterModal } from '@/components/organisms/CenterModel';
+// import { CenterModal } from '@/components/organisms/CenterModel';
 import Calendar from '@/assets/icons/calendar.png';
 import CreateStay from '@/assets/icons/create-stay.png';
 import SignOut from '@/assets/icons/sign-out.png';
-import Secession from '@/assets/icons/secession.png';
+// import Secession from '@/assets/icons/secession.png';
 import Usdc from '@/assets/icons/usd-circle.png';
 import { useLanguage } from '@/features/language';
 import { profileMessages } from '@/features/my-profile';
@@ -35,16 +35,16 @@ export function HostProfile() {
     }
   };
 
-  const handleSecession = async () => {
-    try {
-      await secession();
-      alert('회원 탈퇴가 완료되었습니다.');
-      window.location.href = '/';
-    } catch (err) {
-      console.error(err);
-      alert('회원 탈퇴 중 오류가 발생했습니다.');
-    }
-  };
+  // const handleSecession = async () => {
+  //   try {
+  //     await secession();
+  //     alert('회원 탈퇴가 완료되었습니다.');
+  //     window.location.href = '/';
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert('회원 탈퇴 중 오류가 발생했습니다.');
+  //   }
+  // };
 
   return (
     <div
@@ -110,7 +110,7 @@ export function HostProfile() {
           <Image src={SignOut} alt="Sign Out Icon" width={24} height={24} />
           <span className="text-gray-800 text-sm">{t.logout}</span>
         </button>
-        <button
+        {/* <button
           onClick={() => setOpen(true)}
           className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
         >
@@ -136,7 +136,7 @@ export function HostProfile() {
           >
             {t.secessionConfirm}
           </button>
-        </CenterModal>
+        </CenterModal> */}
       </div>
     </div>
   );
