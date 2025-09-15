@@ -11,7 +11,7 @@ export default function BackHeader({ title = '검색' }: Props) {
   const router = useRouter();
 
   return (
-    <header className="flex items-center justify-between pb-6 px-2">
+    <header className="fixed left-1/2 -translate-x-1/2 top-[env(safe-area-inset-top)] w-full max-w-[480px] h-14 z-50 bg-white px-2 flex items-center justify-between">
       <button
         onClick={() => router.back()}
         className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200"

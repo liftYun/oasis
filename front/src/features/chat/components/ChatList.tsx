@@ -1,7 +1,7 @@
 // 채팅 리스트 컴포넌트
 'use client';
 
-import { ChatListItem } from '@/components/molecules/ChatListItem';
+import { ChatListItem } from '@/features/chat/components/ChatListItem';
 import type { ChatSummary } from '@/features/chat';
 
 type ChatListProps = {

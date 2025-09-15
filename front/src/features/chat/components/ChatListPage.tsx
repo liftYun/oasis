@@ -1,7 +1,7 @@
 'use client';
 
 import { useChatList } from '@/features/chat/hooks/useChatList';
-import { ChatList } from '@/components/organisms/ChatList';
+import { ChatList } from '@/features/chat/components/ChatList';
 
 export function ChatListPage() {
   const { data, isLoading } = useChatList();
