@@ -14,7 +14,7 @@ const baseStyles =
 const variants = {
   default: 'bg-gray-500 text-white hover:bg-gray-600',
   blue: 'bg-primary text-white hover:bg-blue-500',
-  google: 'bg-gray-100 text-gray-600',
+  google: 'bg-gray-100 text-gray-600 hover:bg-gray-200 h-[55px]',
 };
 
 export function Button({

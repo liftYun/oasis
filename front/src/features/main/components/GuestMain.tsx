@@ -3,7 +3,8 @@
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useLanguage } from '@/features/language';
-import { mainMessages } from '@/features/main/locale';
+import { mainMessages } from '@/features/main';
+import { Lang, MainMessagesMap } from '@/features/main/types';
 import SearchBar from '@/components/molecules/SearchBar';
 import { Lottie } from '@/components/atoms/Lottie';
 import { ChevronRight } from 'lucide-react';
@@ -18,7 +19,7 @@ import TestRoom from '@/assets/images/test-room.jpeg';
 
 export function GuestMain() {
   const { lang } = useLanguage();
-  const t = mainMessages[lang];
+  const t: MainMessagesMap[Lang] = mainMessages[lang];
   const router = useRouter();
 
   const mockRooms = [...Array(12)].map((_, i) => ({
@@ -30,7 +31,7 @@ export function GuestMain() {
 
   return (
     <main
-      className="flex flex-col w-full px-6 py-10 min-h-screen bg-white"
+      className="flex flex-col w-full px-6 py-10 min-h-screen"
       style={{ paddingBottom: 'var(--safe-bottom, 110px)' }}
     >
       <SearchBar />
@@ -45,7 +46,7 @@ export function GuestMain() {
 
           <button
             onClick={() => router.push('/search')}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 w-full py-3 rounded-md bg-primary text-white text-sm font-semibold hover:opacity-90 transition"
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 w-full py-3 rounded-md bg-primary text-white text-sm font-medium hover:opacity-90 transition"
           >
             {t.search}
           </button>

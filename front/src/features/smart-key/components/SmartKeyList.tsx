@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
 
 const cards = [
   {
@@ -38,10 +38,10 @@ const cards = [
 
 export function SmartKeyList() {
   const [windowWidth, setWindowWidth] = useState(0);
-  const x = useMotionValue(0);
   const [openCard, setOpenCard] = useState<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
+  const x = useMotionValue(0);
   const cardWidth = 350;
   const gap = 24;
 
@@ -54,26 +54,19 @@ export function SmartKeyList() {
     }
   }, []);
 
-  useEffect(() => {
-    const unsubscribe = x.on('change', (latest) => {
-      const center = window.innerWidth / 2;
-      let closestIndex = 0;
-      let closestDistance = Infinity;
+  const handleDragEnd = (_: any, info: { offset: { x: number } }) => {
+    const direction = info.offset.x < 0 ? 1 : -1;
+    let newIndex = activeIndex + direction;
 
-      cards.forEach((_, i) => {
-        const cardCenter = i * (cardWidth + gap) + cardWidth / 2 + latest;
-        const distance = Math.abs(center - cardCenter);
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestIndex = i;
-        }
-      });
+    if (newIndex < 0) newIndex = 0;
+    if (newIndex > cards.length - 1) newIndex = cards.length - 1;
 
-      setActiveIndex(closestIndex);
-    });
+    setActiveIndex(newIndex);
 
-    return () => unsubscribe();
-  }, [x]);
+    const targetX = -newIndex * (cardWidth + gap);
+    x.stop();
+    x.set(targetX);
+  };
 
   return (
     <main className="flex flex-col w-full px-0 py-10 min-h-screen bg-white">
@@ -83,54 +76,20 @@ export function SmartKeyList() {
         <motion.div
           className="flex gap-6 p-5 pt-8 cursor-grab active:cursor-grabbing"
           drag="x"
-          dragConstraints={{ left: -1500, right: 0 }}
+          dragConstraints={{
+            left: -(cards.length - 1) * (cardWidth + gap),
+            right: 0,
+          }}
           style={{ x }}
+          onDragEnd={handleDragEnd}
         >
-          {cards.map((card, i) => {
-            const scale = useTransform(x, (latest) => {
-              if (windowWidth === 0) return 1;
-              const center = windowWidth / 2;
-              const cardCenter = i * (cardWidth + gap) + cardWidth / 2 + latest;
-              const distance = Math.abs(center - cardCenter);
-              const maxDistance = cardWidth;
-              const progress = Math.min(distance / maxDistance, 1);
-              return 1 - progress * 0.15;
-            });
-
+          {cards.map((card) => {
             const isFlipped = openCard === card.id;
-            const isActive = i === activeIndex;
-
             return (
               <motion.div
                 key={card.id}
-                style={{ scale }}
                 className="relative flex-shrink-0 w-[350px] h-[430px] [perspective:1000px]"
               >
-                {openCard === null && isActive && (
-                  <AnimatePresence>
-                    <motion.div
-                      initial={{ opacity: 0, y: 4 }}
-                      animate={{ opacity: 1, y: [0, -3, 0] }}
-                      exit={{ opacity: 0, y: 4 }}
-                      transition={{
-                        duration: 0.2,
-                        y: { duration: 2, repeat: Infinity, ease: 'easeInOut' },
-                      }}
-                      className="absolute -top-8 right-0 z-10"
-                    >
-                      <div className="relative w-max rounded-sm bg-black/70 text-white text-xs font-light px-3 py-1 shadow">
-                        스마트 키를 눌러 상세 정보를 확인해보세요!
-                        <div
-                          className="absolute -bottom-1 right-4 
-                     w-0 h-0
-                     border-l-4 border-r-4 border-t-4
-                     border-l-transparent border-r-transparent border-t-black/70"
-                        />
-                      </div>
-                    </motion.div>
-                  </AnimatePresence>
-                )}
-
                 <motion.div
                   onClick={() => setOpenCard(isFlipped ? null : card.id)}
                   animate={{ rotateY: isFlipped ? 180 : 0 }}
@@ -150,23 +109,14 @@ export function SmartKeyList() {
                         <h3 className="text-lg font-semibold">{card.name}</h3>
                         <p className="text-sm text-gray-600">{card.address}</p>
                       </div>
-                      <span
-                        className="px-3 py-1 rounded-full
-                          bg-white/30 backdrop-blur-sm
-                          border border-white/40
-                          text-gray-800 text-xs shadow-sm"
-                      >
+                      <span className="px-3 py-1 rounded-full bg-white/30 backdrop-blur-sm border border-white/40 text-gray-800 text-xs shadow-sm">
                         활성
                       </span>
                     </div>
 
                     <button
                       onClick={() => console.log('문 열기 클릭')}
-                      className="w-32 h-32 mx-auto rounded-full
-                        bg-white/30 backdrop-blur-sm border border-white/40
-                        text-gray-800 text-lg font-semibold
-                        flex items-center justify-center shadow-inner
-                        hover:bg-white/50 hover:scale-105 transition"
+                      className="w-32 h-32 mx-auto rounded-full bg-white/30 backdrop-blur-sm border border-white/40 text-gray-800 text-lg font-semibold flex items-center justify-center shadow-inner hover:bg-white/50 hover:scale-105 transition"
                     >
                       문 열기
                     </button>
@@ -230,13 +180,7 @@ export function SmartKeyList() {
                         </div>
                       </div>
 
-                      <button
-                        className="mt-4 w-full py-3 rounded-md
-             bg-white/30 backdrop-blur-sm
-             border border-white/40
-             text-gray-800 text-sm font-medium
-             shadow-sm hover:bg-white/40 transition"
-                      >
+                      <button className="mt-4 w-full py-3 rounded-md bg-white/30 backdrop-blur-sm border border-white/40 text-gray-800 text-sm font-medium shadow-sm hover:bg-white/40 transition">
                         채팅 시작하기
                       </button>
                     </div>
