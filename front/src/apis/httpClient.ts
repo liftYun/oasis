@@ -8,6 +8,7 @@ import axios, {
   InternalAxiosRequestConfig,
   isAxiosError,
 } from 'axios';
+import { useAuthStore } from '@/stores/useAuthStores';
 
 export class ApiError<T = unknown> extends Error {
   status?: number;
@@ -40,13 +41,13 @@ async function doRefresh(client: AxiosInstance): Promise<void> {
       const newToken = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : undefined;
 
       if (newToken) {
-        localStorage.setItem('accessToken', newToken);
+        useAuthStore.getState().setAccessToken(newToken);
       } else {
         throw new Error('No accessToken from refresh');
       }
     } catch (e) {
       if (isBrowser()) {
-        localStorage.removeItem('accessToken');
+        useAuthStore.getState().clear();
         window.location.href = '/';
       }
       throw e;
@@ -72,7 +73,6 @@ class HttpClient {
     this.setInterceptors();
   }
 
-  /** 바디 파싱 없이 원본 AxiosResponse 반환 */
   rawPost(url: string, data?: unknown, config?: AxiosRequestConfig) {
     return this.client.post(url, data, config);
   }
@@ -96,7 +96,7 @@ class HttpClient {
   private setInterceptors() {
     this.client.interceptors.request.use((config) => {
       if (isBrowser()) {
-        const token = localStorage.getItem('accessToken');
+        const token = useAuthStore.getState().accessToken;
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }
