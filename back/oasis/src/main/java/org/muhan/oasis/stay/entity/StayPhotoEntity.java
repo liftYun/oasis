@@ -30,17 +30,17 @@ public class StayPhotoEntity {
     @Min(1)
     private int sortOrder;
 
-    @Column(name = "url", length = 2083, nullable = false)
-    private String url;
+    @Column(name = "photo_url", length = 191, nullable = false)
+    private String photoUrl;
 
-    @Column(name = "key", length = 512, nullable = false)
-    private String key;
+    @Column(name = "photo_key", length = 191, nullable = false)
+    private String photoKey;
 
     public static StayPhotoEntity from(ImageRequestDto imageRequestDto, StayEntity stay, String url){
         return StayPhotoEntity.builder()
                 .stay(stay)
-                .key(imageRequestDto.key())
-                .url(url)
+                .photoKey(imageRequestDto.key())
+                .photoUrl(url)
                 .sortOrder(imageRequestDto.sortOrder())
                 .build();
     }

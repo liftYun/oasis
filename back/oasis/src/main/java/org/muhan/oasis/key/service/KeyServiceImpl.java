@@ -11,6 +11,8 @@ import org.muhan.oasis.key.entity.KeyOwnerEntity;
 import org.muhan.oasis.key.repository.KeyOwnerRepository;
 import org.muhan.oasis.key.repository.KeyRepository;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
+import org.muhan.oasis.reservation.repository.ReservationRepository;
+import org.muhan.oasis.stay.repository.DeviceRepository;
 import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.stay.entity.DeviceEntity;
 import org.muhan.oasis.stay.entity.StayEntity;
@@ -62,7 +64,7 @@ public class KeyServiceImpl implements KeyService {
 
         // 2) 숙소/디바이스
         StayEntity stay = reservation.getStay();
-        DeviceEntity device = deviceRepository.findByStayId(stay.getStayId());
+        DeviceEntity device = deviceRepository.findByStayId(stay.getId());
         if (device == null) throw new IllegalStateException("해당 숙소에는 도어락이 존재하지 않습니다.");
 
         // 3) 키 생성

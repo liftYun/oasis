@@ -2,17 +2,28 @@ package org.muhan.oasis.user.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
+import org.muhan.oasis.security.service.CreateTokenService;
+import org.muhan.oasis.security.vo.out.TokenPair;
+import org.muhan.oasis.user.dto.in.CancellationPolicyRequestDto;
+import org.muhan.oasis.user.dto.in.UpdateCancellationPolicyRequestDto;
 import org.muhan.oasis.user.service.UserService;
+import org.muhan.oasis.user.vo.in.CancellationPolicyRequestVo;
+import org.muhan.oasis.user.vo.in.UpdateCancellationPolicyRequestVo;
 import org.muhan.oasis.user.vo.out.UserDetailsResponseVo;
 import org.muhan.oasis.user.vo.out.UserSearchResultResponseVo;
+import org.muhan.oasis.valueobject.Language;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,10 +43,12 @@ public class UserController {
 
     private final UserService userService;
     private final S3StorageService s3StorageService;
+    private final CreateTokenService createTokenService;
 
-    public UserController(UserService userService, S3StorageService s3StorageService) {
+    public UserController(UserService userService, S3StorageService s3StorageService, CreateTokenService createTokenService) {
         this.userService = userService;
         this.s3StorageService = s3StorageService;
+        this.createTokenService = createTokenService;
     }
 
     @Operation(
@@ -91,10 +104,11 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "401", description = "인증 필요")
     })
-    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/mypage")
     public BaseResponse<?> mypage(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return BaseResponse.of(UserDetailsResponseVo.from(userService.getUser(userDetails.getUserId())));
+        Long userId = userService.getUserIdByExactNickname(userDetails.getUserNickname());
+
+        return BaseResponse.of(UserDetailsResponseVo.from(userService.getUser(userId)));
     }
 
     @Operation(
@@ -113,7 +127,6 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "이미지 MIME 아님"),
             @ApiResponse(responseCode = "401", description = "인증 필요")
     })
-    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/profileImg/upload-url")
     public BaseResponse<?> createUploadUrl(
             @Parameter(hidden = true)
@@ -160,7 +173,6 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "잘못된 key 또는 업로드 미완료"),
             @ApiResponse(responseCode = "401", description = "인증 필요")
     })
-    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/profileImg")
     public BaseResponse<?> setProfileImg(
             @Parameter(hidden = true)
@@ -185,11 +197,79 @@ public class UserController {
         // 3) 퍼블릭 URL(CloudFront or S3) 생성
         String publicUrl = s3StorageService.toPublicUrl(key);
 
+        Long userId = userService.getUserIdByUserUuid(userUuid);
+
         // 4) DB 반영 (기존 이미지 삭제는 userService 내부 로직에서 처리하도록 유지)
-        userService.updateProfileImageUrl(userDetails.getUserId(), publicUrl);
+        userService.updateProfileImageUrl(userId, publicUrl);
 
         return BaseResponse.of(Map.of("profileImgUrl", publicUrl));
     }
+
+    @PatchMapping("/updateLang/{language}")
+    @Schema(allowableValues = {"KOR","ENG"})
+    @Operation(
+            summary = "사용자 언어 설정 수정(PATCH)",
+            description = "요청한 언어 코드로 사용자 언어를 부분 업데이트합니다. 예: language=KOR|ENG"
+    )
+    public ResponseEntity<BaseResponse<?>> updateLang(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestParam(name = "language") String lang,
+            HttpServletResponse response
+    ) {
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
+        // language parsing
+        Language language = Language.valueOf(lang);
+
+        // update new Language
+        userService.updateLang(userId, language);
+
+        final String uuid = customUserDetails.getUserUuid();
+
+        // create new AT / RT
+        TokenPair tokens = createTokenService.createTokens(
+                customUserDetails.getUserUuid(),
+                customUserDetails.getUserProfileUrl(),
+                customUserDetails.getUserNickname(),
+                customUserDetails.getRole(),
+                language
+        );
+
+        return ResponseEntity.ok()
+                .header("Authorization", "Bearer " + tokens.accessToken())
+                .header(HttpHeaders.SET_COOKIE, tokens.refreshCookie().toString())
+                .body(BaseResponse.ok());
+    }
+
+    @PostMapping("/regist/cancellationPolicy")
+    @PreAuthorize("hasRole('ROLE_HOST')")
+    @Operation(
+            summary = "호스트 취소 정책 등록(POST)",
+            description = "호스트가 호스팅 중인 숙소의 예약 취소 정책을 등록하여 일괄적으로 적용토록 합니다."
+    )
+    public BaseResponse<?> registCancellationPolicy(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody CancellationPolicyRequestVo vo
+    ){
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
+        userService.registCancellationPolicy(userId, CancellationPolicyRequestDto.from(vo));
+        return BaseResponse.ok();
+    }
+
+    @PutMapping("/update/cancellationPolicy")
+    @PreAuthorize("hasRole('ROLE_HOST')")
+    @Operation(
+            summary = "호스트 취소 정책 수정(PUT)",
+            description = "호스트가 호스팅 중인 숙소의 예약 취소 정책을 수정하여 일괄적으로 적용토록 합니다."
+    )
+    public BaseResponse<?> updateCancellationPolicy(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody UpdateCancellationPolicyRequestVo vo
+    ){
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
+        userService.updateCancellationPolicy(userId, UpdateCancellationPolicyRequestDto.from(vo));
+        return BaseResponse.ok();
+    }
+
 
     // 파일 확장자
     private String contentTypeToExt(String contentType) {

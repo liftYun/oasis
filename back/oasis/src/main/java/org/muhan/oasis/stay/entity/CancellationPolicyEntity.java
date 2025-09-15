@@ -21,8 +21,8 @@ public class CancellationPolicyEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
     private UserEntity user;
 
     // 전날
@@ -45,4 +45,17 @@ public class CancellationPolicyEntity {
     @Column(name = "policy4", columnDefinition = "TINYINT UNSIGNED DEFAULT 0")
     private Integer policy4;
 
+    // 활성화 여부
+    @Column(name = "active", nullable = false, columnDefinition = "TINYINT default 1")
+    private boolean active;
+
+    @Builder
+    public CancellationPolicyEntity(UserEntity user, Integer policy1, Integer policy2, Integer policy3, Integer policy4, boolean active) {
+        this.user = user;
+        this.policy1 = policy1;
+        this.policy2 = policy2;
+        this.policy3 = policy3;
+        this.policy4 = policy4;
+        this.active = active;
+    }
 }

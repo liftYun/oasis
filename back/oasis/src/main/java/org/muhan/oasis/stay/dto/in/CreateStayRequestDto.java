@@ -18,15 +18,21 @@ public class CreateStayRequestDto {
     @NotBlank
     private String title;
     @NotBlank
+    private String titleEng;
+    @NotBlank
     private String description;
+    @NotBlank
+    private String descriptionEng;
     @NotBlank
     private Integer price;
     @NotBlank
     private String address;
     @NotBlank
     private String addressEng;
-
+    @NotBlank
     private String addressDetail;
+    @NotBlank
+    private String addressDetailEng;
     @NotBlank
     private String postalCode;
     @NotBlank

@@ -1,16 +1,18 @@
 package org.muhan.oasis.user.repository;
 
 import org.muhan.oasis.user.entity.UserEntity;
+import org.muhan.oasis.valueobject.Language;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<UserEntity, Integer> {
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     Boolean existsByNickname(String username);
 
@@ -36,4 +38,13 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
             @Param("excludeIds") List<Long> excludeIds,
             Pageable pageable
     );
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+           update UserEntity u
+              set u.language = :language,
+                  u.updatedAt = CURRENT_TIMESTAMP
+            where u.userId = :userId
+           """)
+    int updateLanguageById(@Param("userId") Long userId, @Param("language") Language language);
 }

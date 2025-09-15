@@ -3,7 +3,9 @@ package org.muhan.oasis.security.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.Cookie;
 import lombok.Getter;
+import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.valueobject.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -43,19 +45,28 @@ public class JWTUtil {
     public String getUserEmail(String token) {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("userEmail", String.class);
     }
+    public String getProfileImg(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("profileImg", String.class);
+    }
 
     public String getNickname(String token) {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("nickname", String.class);
     }
 
     public Role getRole(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
 
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", Role.class);
+        String roleStr = claims.get("role", String.class); // String으로 꺼냄
+        return Role.valueOf(roleStr); // Enum으로 변환
     }
 
-    public String getLang(String token) {
+    public String getLanguage(String token) {
 
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("lang", String.class);
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("language", String.class);
     }
 
     public Boolean isExpired(String token) {
@@ -67,12 +78,13 @@ public class JWTUtil {
         }
     }
 
-    public String createAccessToken(String uuid, String profileUrl, String nickname, Role role) {
+    public String createAccessToken(String uuid, String profileUrl, String nickname, Role role, Language language) {
         return Jwts.builder()
                 .claim("uuid", uuid)
                 .claim("profileUrl", profileUrl)
                 .claim("nickname", nickname)
-                .claim("role", role)
+                .claim("role", role.name())
+                .claim("language", language.name())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + accessExpiredMs))
                 .signWith(secretKey)

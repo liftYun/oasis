@@ -13,7 +13,9 @@ import lombok.extern.log4j.Log4j2;
 import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.key.service.KeyService;
 import org.muhan.oasis.key.vo.in.ShareKeyRequestVo;
+import org.muhan.oasis.key.vo.out.ListOfKeyResponseVO;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
+import org.muhan.oasis.user.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,12 +26,13 @@ import java.util.Map;
 @Log4j2
 @RequestMapping("/api/v1/key")
 @Tag(name = "디지털 키", description = "숙소 디지털 키 발급/개폐 관련 API")
-@SecurityRequirement(name = "bearerAuth")
 public class KeyController {
     private final KeyService keyService;
+    private final UserService userService;
 
-    public KeyController(KeyService keyService) {
+    public KeyController(KeyService keyService, UserService userService) {
         this.keyService = keyService;
+        this.userService = userService;
     }
 
     @Operation(
@@ -78,8 +81,21 @@ public class KeyController {
             @Parameter(hidden = true)
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         // MQTT 발행
-        String commandId = keyService.verifyOpenPermission(customUserDetails.getUserId(), keyId);
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
+        String commandId = keyService.verifyOpenPermission(userId, keyId);
 
         return BaseResponse.of(Map.of("commandId", commandId));
+    }
+
+    @Operation(
+            summary = "디지털 키 리스트",
+            description = """
+                - 사용자가 지닌 키 리스트를 반환합니다.
+                """
+    )
+    @GetMapping("/list")
+    public BaseResponse<?> listOfKeys(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
+        return BaseResponse.ok();
     }
 }
