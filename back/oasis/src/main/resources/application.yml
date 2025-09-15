@@ -47,6 +47,9 @@ spring:
               - email
             redirect-uri: "${app.backend-base-url}/login/oauth2/code/{registrationId}"
             client-name: Google
+        provider:
+          google:
+            issuer-uri: https://accounts.google.com
 
 jwt:
   access:
