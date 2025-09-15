@@ -123,6 +123,17 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .build().toString();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie);
 
+        ResponseCookie deleteCookie = ResponseCookie.from("OAUTH2_AUTH_REQUEST", "")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .path("/")             // 반드시 원래 path와 동일해야 함
+                .maxAge(0)             // 0으로 하면 삭제됨
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+
+
         boolean needProfileUpdate = (user.getRole() == null || user.getProfileUrl() == null);
         String baseRedirect = needProfileUpdate ? frontBaseUrl + "/register/callback"
                 : frontBaseUrl + "/";
