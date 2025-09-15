@@ -6,6 +6,7 @@ import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.common.exception.BaseException;
 import org.muhan.oasis.key.dto.in.RegistKeyRequestDto;
 import org.muhan.oasis.key.dto.in.ShareKeyRequestDto;
+import org.muhan.oasis.key.dto.out.KeyResponseDto;
 import org.muhan.oasis.key.entity.KeyEntity;
 import org.muhan.oasis.key.entity.KeyOwnerEntity;
 import org.muhan.oasis.key.repository.KeyOwnerRepository;
@@ -171,6 +172,21 @@ public class KeyServiceImpl implements KeyService {
 
         // 4) 토픽 반환
         return topicFor(String.valueOf(deviceId));
+    }
+
+    /**
+     * 게스트가 보유한 '만료되지 않은' 키 목록(UPCOMING/ACTIVE)을 조회
+     * - KeyOwner → Key → Device → Stay, (+) Reservation 을 fetch join 하여 N+1 방지
+     * - DTO 매핑은 KeyResponseDto.from(...) 사용
+     */
+    @Override
+    public List<KeyResponseDto> listKeysForGuest(Long userId) {
+        LocalDateTime now = LocalDateTime.now();
+        List<KeyOwnerEntity> owners = keyOwnerRepository.findActiveKeysForGuest(userId, now);
+
+        return owners.stream()
+                .map(KeyResponseDto::from)
+                .toList();
     }
 
     private void ensureDeviceOnline(String deviceIdS) {
