@@ -1,6 +1,6 @@
 'use client';
 
-import TabBar from '@/components/organisms/TabBar';
+import TabBar from '@/components/organisms/tabbar/TabBar';
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -14,7 +14,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
       "
     >
       {children}
-      <TabBar activeKey="chat" onChange={() => {}} />
+      <TabBar activeKey="chat" />
     </div>
   );
 }
