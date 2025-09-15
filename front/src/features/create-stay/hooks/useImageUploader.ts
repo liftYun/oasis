@@ -9,7 +9,7 @@ interface UseImageUploaderProps {
 
 export function useImageUploader({ watch, setValue }: UseImageUploaderProps) {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const images = watch('images');
+  const images = watch('images') as FileList | null | undefined;
 
   useEffect(() => {
     if (images && images.length > 0) {
@@ -26,7 +26,7 @@ export function useImageUploader({ watch, setValue }: UseImageUploaderProps) {
   }, [images]);
 
   const handleRemoveImage = (indexToRemove: number) => {
-    const currentFiles = watch('images');
+    const currentFiles = watch('images') as FileList | null | undefined;
     if (!currentFiles) return;
 
     const updatedFiles = Array.from(currentFiles).filter((_, index) => index !== indexToRemove);
