@@ -3,6 +3,8 @@ package org.muhan.oasis.user.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.muhan.oasis.common.base.BaseEntity;
+import org.muhan.oasis.common.base.BaseResponseStatus;
+import org.muhan.oasis.common.exception.BaseException;
 import org.muhan.oasis.key.entity.KeyOwnerEntity;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
 import org.muhan.oasis.review.entity.ReviewEntity;
@@ -132,6 +134,13 @@ public class UserEntity extends BaseEntity {
         u.setLanguage(lang);
         u.setRole(role);
         return u;
+    }
+
+    public CancellationPolicyEntity getActiveCancelPolicy(){
+        for (CancellationPolicyEntity cancelPolicyEntity : cancellationPolicy) {
+            if(cancelPolicyEntity.isActive()) return cancelPolicyEntity;
+        }
+        throw new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY);
     }
 }
 

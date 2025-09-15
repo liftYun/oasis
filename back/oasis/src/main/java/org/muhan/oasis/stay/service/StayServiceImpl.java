@@ -68,12 +68,12 @@ public class StayServiceImpl implements StayService{
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_SUBREGION));
 
         // 취소정책 찾기 - 이후 수정
-        Optional<CancellationPolicyEntity> optionalPolicy = Optional.ofNullable(user.getCancellationPolicy().get(0));
+        CancellationPolicyEntity cancellationPolicy = user.getActiveCancelPolicy();
 
-        CancellationPolicyEntity policy = optionalPolicy.orElseThrow(
-                () -> new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY)
-        );
-
+        String thumbnailUrl = null;
+        if(stayRequest.getThumbnail() != null){
+            thumbnailUrl = s3StorageService.toPublicUrl(stayRequest.getThumbnail());
+        }
         // 숙소 이름, 설명, 가격, 주소, 우편번호, 수용인원, 썸네일, 지역으로 생성
         StayEntity stay =
                 stayRepository.save(
@@ -87,11 +87,11 @@ public class StayServiceImpl implements StayService{
                             .addressLineEng(stayRequest.getAddressEng())
                             .postalCode(stayRequest.getPostalCode())
                             .maxGuests(stayRequest.getMaxGuest())
-                            .thumbnail(s3StorageService.toPublicUrl(stayRequest.getThumbnail()))
+                            .thumbnail(thumbnailUrl)
                             .subRegionEntity(subRegion)
                             .subRegionEngEntity(subRegionEng)
                             .user(user)
-                            .cancellationPolicyEntity(policy)
+                            .cancellationPolicyEntity(cancellationPolicy)
                             .addrDetail(stayRequest.getAddressDetail())
                             .addrDetailEng(stayRequest.getAddressDetailEng())
                                 .language(user.getLanguage())
