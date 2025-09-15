@@ -2,13 +2,18 @@ package org.muhan.oasis.wallet.service;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.muhan.oasis.user.entity.UserEntity;
+import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.wallet.dto.circle.out.*;
 import org.muhan.oasis.wallet.dto.out.WalletInfoResponseDto;
+import org.muhan.oasis.wallet.entity.WalletEntity;
+import org.muhan.oasis.wallet.respository.WalletRepository;
 import org.muhan.oasis.wallet.vo.out.InitWalletResponseVo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -25,6 +30,9 @@ public class WalletService {
     private final WebClient webClient;
     private final String circleApiKey;
     private String cachedAppId; // App ID는 한번만 호출 후 캐싱
+
+    private UserRepository userRepository;
+    private WalletRepository walletRepository;
 
     public WalletService(@Value("${circle.base-url}") String baseUrl,
                          @Value("${circle.api-key}") String apiKey) {
@@ -146,6 +154,37 @@ public class WalletService {
             }
         }
     }
+
+    @Transactional
+    public void saveWalletIfNew(String userUuid,
+                                WalletInfoResponseDto resp) {
+        if (resp.getId() == null) {
+            return; // 아직 PIN 미설정 → DB 저장 안 함
+        }
+
+        String walletId = resp.getId();
+        String address = resp.getAddress();
+        String blockchain = resp.getBlockchain();
+
+        boolean exists = walletRepository.existsByWalletId(walletId);
+        if (!exists) {
+            UserEntity user = userRepository.findByUserUuid(userUuid)
+                    .orElseThrow();
+
+            // 1) 엔티티 생성
+            WalletEntity walletEntity = WalletEntity.builder()
+                    .user(user)
+                    .walletId(walletId)
+                    .address(address)
+                    .blockchain(blockchain)
+                    .build();
+
+            // 2) 저장
+            WalletEntity saved = walletRepository.save(walletEntity);
+            log.info("✅ 새 Wallet 저장 완료: userUuid={}, walletId={}, address={}", userUuid, walletId, address);
+        }
+    }
+
 
 
     private Mono<String> fetchAppId() {

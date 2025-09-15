@@ -104,3 +104,9 @@ circle:
   base-url: ${CIRCLE_BASE_URL}
   api-key: ${CIRCLE_API_KEY}
   default-fee-level: MEDIUM
+
+contract:
+  address: ${CONTRACT_ADDRESS}
+
+usdc:
+  address: ${USDC_ADDRESS}

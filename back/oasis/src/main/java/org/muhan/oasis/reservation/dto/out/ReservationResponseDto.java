@@ -3,7 +3,6 @@ package org.muhan.oasis.reservation.dto.out;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
 import org.muhan.oasis.stay.entity.StayEntity;
 

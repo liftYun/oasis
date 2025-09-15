@@ -1,18 +1,14 @@
 package org.muhan.oasis.stay.repository;
 
-import org.muhan.oasis.stay.dto.out.StayCardDto;
-import org.muhan.oasis.stay.dto.out.StayResponseDto;
 import org.muhan.oasis.stay.entity.CancellationPolicyEntity;
 import org.muhan.oasis.stay.entity.StayEntity;
-import org.muhan.oasis.stay.entity.StayFacilityEntity;
-import org.springframework.data.jpa.repository.EntityGraph;
+import org.muhan.oasis.user.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -40,20 +36,10 @@ public interface StayRepository extends JpaRepository<StayEntity, Long> {
     int rebindCancellationPolicy(@Param("oldPolicy") CancellationPolicyEntity oldPolicy,
                                  @Param("newPolicy") CancellationPolicyEntity newPolicy);
 
-    @Query("""
-      select new org.muhan.oasis.stay.dto.out.StayCardDto(
-          s.id,
-          case when :lang = 'KOR' then s.title else s.titleEng end,
-          s.thumbnail,
-          rs.avgRating,        
-          s.price
-      )
-      from StayEntity s
-      left join s.ratingSummary rs
-      where s.user.userUuid =:userUuid
-      """)
-    List<StayCardDto> findCards(
-            @Param("userUuid") String userUuid,
-            @Param("lang") String lang);
 
+
+    @Query("SELECT s FROM StayEntity s " +
+            "JOIN FETCH s.cancellationPolicyEntity " +
+            "WHERE s.id = :stayId")
+    StayEntity findStayWithPolicy(@Param("stayId") Long stayId);
 }

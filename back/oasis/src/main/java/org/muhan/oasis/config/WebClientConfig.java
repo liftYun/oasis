@@ -39,4 +39,28 @@ public class WebClientConfig {
                         .build())
                 .build();
     }
+
+    @Bean(name = "circleWebClient")
+    public WebClient circleWebClient(
+            @Value("${circle.base-url}") String baseUrl,
+            @Value("${circle.api-key}") String apiKey,
+            @Value("${app.circle.timeout-ms:5000}") long timeoutMs
+    ) {
+        HttpClient httpClient = HttpClient.create()
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) timeoutMs)
+                .responseTimeout(Duration.ofMillis(timeoutMs))
+                .doOnConnected(conn -> conn
+                        .addHandlerLast(new ReadTimeoutHandler(timeoutMs, TimeUnit.MILLISECONDS))
+                        .addHandlerLast(new WriteTimeoutHandler(timeoutMs, TimeUnit.MILLISECONDS))
+                );
+
+        return WebClient.builder()
+                .baseUrl(baseUrl)
+                .defaultHeader("Authorization", "Bearer " + apiKey) // Circle API 공통 헤더
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .exchangeStrategies(ExchangeStrategies.builder()
+                        .codecs(c -> c.defaultCodecs().maxInMemorySize(512 * 1024))
+                        .build())
+                .build();
+    }
 }

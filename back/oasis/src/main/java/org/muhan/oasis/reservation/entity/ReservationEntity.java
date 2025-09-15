@@ -1,7 +1,9 @@
 package org.muhan.oasis.reservation.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.muhan.oasis.stay.entity.StayEntity;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.springframework.data.annotation.CreatedDate;

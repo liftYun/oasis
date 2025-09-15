@@ -3,14 +3,21 @@ package org.muhan.oasis.reservation.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.log4j.Log4j2;
 import org.muhan.oasis.common.base.BaseResponse;
+import org.muhan.oasis.reservation.dto.in.ApproveRequestDto;
+import org.muhan.oasis.reservation.dto.in.LockRequestDto;
 import org.muhan.oasis.reservation.dto.in.RegistReservationRequestDto;
+import org.muhan.oasis.reservation.service.ApproveService;
+import org.muhan.oasis.reservation.service.LockService;
 import org.muhan.oasis.reservation.service.ReservationService;
 import org.muhan.oasis.reservation.vo.in.RegistReservationRequestVo;
 import org.muhan.oasis.reservation.vo.out.ListOfReservationResponseVo;
 import org.muhan.oasis.reservation.vo.out.ReservationDetailsResponseVo;
+import org.muhan.oasis.reservation.vo.out.ReservationResponseVo;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
 import org.muhan.oasis.user.service.UserService;
 import org.muhan.oasis.valueobject.Language;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +33,16 @@ public class ReservationController {
     private final ReservationService reservationService;
     private final UserService userService;
 
-    public ReservationController(ReservationService reservationService, UserService userService) {
+    private final LockService lockService;
+    private final ApproveService approveService;
+
+
+
+    public ReservationController(ReservationService reservationService, UserService userService, LockService lockService, ApproveService approveService) {
         this.reservationService = reservationService;
         this.userService = userService;
+        this.lockService = lockService;
+        this.approveService = approveService;
     }
 
     @Operation(
@@ -44,11 +58,43 @@ public class ReservationController {
             @RequestBody RegistReservationRequestVo vo
     ) {
         Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
-        String result = reservationService.registReserVation(userId, RegistReservationRequestDto.from(vo));
 
-        if(result.isEmpty()) return BaseResponse.error(FAIL_REGIST_RESERVATION);
+        // DB에 예약 등록
+        String resId  = reservationService.registReserVation(userId, RegistReservationRequestDto.from(vo));
 
-        return BaseResponse.of(result);
+        if(resId.isEmpty()) return BaseResponse.error(FAIL_REGIST_RESERVATION);
+
+        return BaseResponse.of(resId);
+    }
+
+    /**
+     * 온체인 Approve 트랜잭션 생성
+     */
+    @Operation(summary = "Approve 트랜잭션 생성", tags = {"예약"})
+    @PostMapping("/approve")
+    public BaseResponse<?> createApprove(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody RegistReservationRequestVo vo
+    ) {
+        ApproveService.Result approve = approveService.createApprove(
+                ApproveRequestDto.from(vo, customUserDetails.getUserUuid())
+        );
+        return BaseResponse.of(approve);
+    }
+
+    /**
+     * 온체인 Lock 트랜잭션 생성
+     */
+    @Operation(summary = "Lock 트랜잭션 생성", tags = {"예약"})
+    @PostMapping("/lock")
+    public BaseResponse<?> createLock(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody RegistReservationRequestVo vo
+    ) {
+        LockService.Result lock = lockService.createLock(
+                LockRequestDto.from(vo, customUserDetails.getUserUuid())
+        );
+        return BaseResponse.of(lock);
     }
 
     @Operation(
