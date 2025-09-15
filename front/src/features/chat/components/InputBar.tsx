@@ -33,7 +33,7 @@ export default function InputBar({ onSend }: InputBarProps) {
   };
 
   return (
-    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-50 bg-white">
+    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-50  py-2">
       <div className="mx-2 rounded-full border border-gray-200 bg-white px-3 pt-2 pb-[calc(env(safe-area-inset-bottom)+10px)] flex items-center gap-2">
         <button
           type="button"
@@ -44,10 +44,13 @@ export default function InputBar({ onSend }: InputBarProps) {
           <SmilePlus className="text-lg text-gray-300" />
         </button>
         <input
+          type="text"
+          inputMode="text"
+          enterKeyHint="send"
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="flex-1 min-w-0 bg-transparent outline-none text-sm px-1"
+          className="flex-1 min-w-0 bg-transparent outline-none text-base px-1"
           maxLength={500}
         />
         <button
