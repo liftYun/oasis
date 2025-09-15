@@ -181,18 +181,30 @@ public class StayServiceImpl implements StayService{
     }
 
     @Override
+    @Transactional
     public StayResponseDto updateStay(Long stayId) {
         return null;
     }
 
     @Override
+    @Transactional
     public void recalculateRating(Long stayId, BigDecimal rating) {
         StayRatingSummaryEntity ratingSummary = stayRatingSummaryRepository.findById(stayId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY_SUMMARY));
         ratingSummary.recalculate(rating);
     }
 
+    @Override
+    @Transactional
+    public void deleteStay(Long stayId, String userUuid) {
+        StayEntity stay = stayRepository.findById(stayId)
+                .orElseThrow(() -> new BaseException(NO_STAY));
 
+        if(!stay.getUser().getUserUuid().equals(userUuid))
+            throw new BaseException(NO_ACCESS_AUTHORITY);
+
+        stayRepository.delete(stay);
+    }
 
 
 }

@@ -121,7 +121,18 @@ public class StayController {
                 .body(body);
     }*/
 
-    // 숙소 삭제
+
+    @DeleteMapping("/{stayId}")
+    public ResponseEntity<BaseResponse<?>> deleteStay(
+            @PathVariable Long stayId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        stayService.deleteStay(stayId, userDetails.getUserUuid());
+        BaseResponse<Void> body = new BaseResponse<>();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
 
     // 숙소 상세글 조회
     @Operation(
@@ -148,7 +159,7 @@ public class StayController {
                 .body(body);
     }
 
-    // presigned url 발급
+
     @PostMapping("/{stayId}/photos/upload-url")
     public BaseResponse<?> createUploadUrl(
             @Parameter(hidden = true)
@@ -167,7 +178,6 @@ public class StayController {
                     userDetails.getUserUuid(), java.util.UUID.randomUUID(), imageInfo.sortOrder(), contentTypeToExt(imageInfo.contentType())
             );
 
-            // TTL: 10분
             Duration ttl = Duration.ofMinutes(10);
 
             URL uploadUrl = s3StorageService.issuePutUrl(key, imageInfo.contentType(), ttl);
@@ -183,22 +193,7 @@ public class StayController {
 
     // 숙소 검색
 
-    //숙소 번역부터 하기
 
-    /*
-    // Java SDK 예시
-    Map<String, MessageAttributeValue> attributes = new HashMap<>();
-    attributes.put("MessageType", MessageAttributeValue.builder()
-                        .stringValue("payment")
-                        .dataType("String")
-                        .build());
-
-    sqsClient.sendMessage(SendMessageRequest.builder()
-                    .queueUrl(queueUrl)
-                    .messageBody("...메시지 본문...")
-                    .messageAttributes(attributes)
-                    .build());
-*/
     @Operation(
             summary = "숙소 번역 요청",
             description = "숙소(제목/본문 등) 번역 작업을 SQS 큐에 넣고 즉시 성공 응답을 반환합니다."

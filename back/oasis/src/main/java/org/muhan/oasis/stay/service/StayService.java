@@ -16,4 +16,6 @@ public interface StayService {
     StayResponseDto updateStay(Long stayId);
 
     void recalculateRating(Long stayId, BigDecimal rating);
+
+    void deleteStay(Long stayId, String userUuid);
 }
