@@ -1,7 +1,9 @@
 package org.muhan.oasis.reservation.repository;
 
 import org.muhan.oasis.reservation.entity.ReservationEntity;
+import org.muhan.oasis.stay.dto.out.ReservedResponseDto;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -39,8 +41,8 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
 
     @Query("""
       select new org.muhan.oasis.stay.dto.out.ReservedResponseDto(
-        function('date', r.checkinDate),
-        function('date', r.checkoutDate)
+        r.checkinDate,
+        r.checkoutDate
       )
       from ReservationEntity r
       where r.stay.id = :stayId
