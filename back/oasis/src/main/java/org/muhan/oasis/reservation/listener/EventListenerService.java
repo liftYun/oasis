@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
+import org.muhan.oasis.reservation.service.ReservationUpdateService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,10 +15,12 @@ import org.web3j.abi.datatypes.Address;
 import org.web3j.abi.datatypes.Event;
 import org.web3j.abi.datatypes.generated.Bytes32;
 import org.web3j.abi.datatypes.generated.Uint256;
+import org.web3j.abi.datatypes.generated.Uint8;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.request.EthFilter;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 @Slf4j
@@ -26,7 +29,7 @@ import java.util.Optional;
 public class EventListenerService {
 
     private final Web3j web3j;
-    private final ReservationRepository reservationRepository;
+    private final ReservationUpdateService reservationUpdateService;
 
     @Value("${contract.address}")
     private String contractAddress;
@@ -39,38 +42,32 @@ public class EventListenerService {
                 contractAddress
         );
 
-        Event refundedEvent = new Event(
-                "Refunded",
-                java.util.Arrays.asList(
-                        new TypeReference<Bytes32>() {}, // resId
-                        new TypeReference<Address>() {}, // guest
-                        new TypeReference<Uint256>() {}  // total
+        Event canceledWithPolicyEvent = new Event(
+                "CanceledWithPolicy",
+                Arrays.asList(
+                        new TypeReference<Bytes32>(true) {}, // indexed resId
+                        new TypeReference<Uint8>() {},       // tier
+                        new TypeReference<Uint256>() {},     // refundToGuestAmt
+                        new TypeReference<Uint256>() {},     // payToHostAmt
+                        new TypeReference<Uint256>() {},     // refundToGuestFee
+                        new TypeReference<Uint256>() {}      // payToTreasuryFee
                 )
         );
-        String eventSignature = EventEncoder.encode(refundedEvent);
-        filter.addSingleTopic(eventSignature);
+        String canceledWithPolicySig = EventEncoder.encode(canceledWithPolicyEvent);
+        EthFilter canceledFilter = new EthFilter(
+                DefaultBlockParameterName.LATEST,
+                DefaultBlockParameterName.LATEST,
+                contractAddress
+        ).addSingleTopic(canceledWithPolicySig);
 
-        log.info("✅ Listening for 'Refunded' events...");
-
-        web3j.ethLogFlowable(filter).subscribe(eventLog -> {
-            log.info("🔔 'Refunded' event received | Block={} TxHash={}",
+        web3j.ethLogFlowable(canceledFilter).subscribe(eventLog -> {
+            log.info("🔔 'CanceledWithPolicy' event received | Block={} TxHash={}",
                     eventLog.getBlockNumber(), eventLog.getTransactionHash());
 
             String reservationIdHex = eventLog.getTopics().get(1); // indexed resId
-            handleRefundedEvent(reservationIdHex);
-
+            reservationUpdateService.markCanceled(reservationIdHex);
         }, error -> {
-            log.error("🚨 Error while listening to events: {}", error.getMessage(), error);
+            log.error("🚨 Error while listening to CanceledWithPolicy events: {}", error.getMessage(), error);
         });
-    }
-
-    @Transactional
-    public void handleRefundedEvent(String reservationId) {
-        if (reservationRepository.existsById(reservationId)) {
-            reservationRepository.markCanceled(reservationId);
-            log.info("✅ DB updated: Reservation {} marked as CANCELED", reservationId);
-        } else {
-            log.warn("⚠️ No reservation found for resId={} → DB not updated", reservationId);
-        }
     }
 }
