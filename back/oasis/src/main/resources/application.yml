@@ -106,9 +106,18 @@ circle:
   api-key: ${CIRCLE_API_KEY}
   default-fee-level: MEDIUM
 
-
 contract:
   address: ${CONTRACT_ADDRESS}
 
 usdc:
   address: ${USDC_ADDRESS}
+
+infura:
+  url: ${INFURA_URL}
+
+chain:
+  id: 80002
+
+wallet:
+  private:
+    key: ${WALLET_PRIVATE_KEY}
