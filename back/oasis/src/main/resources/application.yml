@@ -45,7 +45,7 @@ spring:
               - openid
               - profile
               - email
-            redirect-uri: "${app.backend-base-url}/api/login/oauth2/code/{registrationId}"
+            redirect-uri: "${app.backend-base-url}/login/oauth2/code/{registrationId}"
             client-name: Google
         provider:
           google:
