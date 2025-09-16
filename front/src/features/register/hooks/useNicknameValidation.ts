@@ -21,10 +21,15 @@ export function useNicknameValidation(initial = '') {
   const isValid = error === '' && !checking;
 
   const checkNickname = async () => {
+    console.log('닉네임 확인 요청');
+    const res = await validateNickname({ nickname: nickname.trim() });
+    console.log(res);
+
     if (localError) return;
     setChecking(true);
     setServerError('');
     try {
+      console.log('nickname:', nickname);
       const res = await validateNickname({ nickname: nickname.trim() });
       console.log(res);
       // if (!res.success) {
