@@ -5,6 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.ThreadContext;
 import org.muhan.oasis.security.dto.in.UserDetailRequestDto;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
 import org.muhan.oasis.valueobject.Language;
@@ -19,7 +21,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
+import java.util.UUID;
 
+@Log4j2
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
@@ -40,12 +44,12 @@ public class JWTFilter extends OncePerRequestFilter {
         this.jwtUtil = jwtUtil;
     }
 
-    // ✅ 프리플라이트 및 스킵 경로는 필터 자체를 태우지 않음
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String method = request.getMethod();
-        if ("OPTIONS".equalsIgnoreCase(method)) return true; // 프리플라이트 무조건 패스
-
+        if ("OPTIONS".equalsIgnoreCase(method)) {
+            return true;
+        }
         String path = request.getRequestURI();
         if (path == null) return true;
         for (String pre : SKIP_PREFIXES) {
@@ -59,51 +63,92 @@ public class JWTFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
 
-        final String path = request.getRequestURI();
+        long startNs = System.nanoTime();
+        String requestId = firstNonBlank(request.getHeader("X-Request-Id"), UUID.randomUUID().toString());
+        String method = safe(request.getMethod());
+        String path = safe(request.getRequestURI());
+        String origin = safe(request.getHeader("Origin"));
+        String clientIp = clientIp(request);
 
-        // 0) OAuth2 플로우/공개 리소스는 필터 스킵
-        if (shouldSkip(path)) {
-            chain.doFilter(request, response);
-            return;
-        }
+        // ==== MDC (ThreadContext) 바인딩 ====
+        ThreadContext.put("requestId", requestId);
+        ThreadContext.put("method", method);
+        ThreadContext.put("path", path);
+        ThreadContext.put("clientIp", clientIp);
+        ThreadContext.put("origin", origin);
 
-        // 1) Authorization 헤더 없거나 Bearer 아님 → 그냥 통과(익명)
-        final String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        // 2) 토큰 추출
-        final String token = authorization.substring(7).trim();
-        if (token.isEmpty()) {
-            chain.doFilter(request, response);
-            return;
-        }
+        log.info("[JWT] >>> Incoming request: {} {} | origin={} | ip={}", method, path, origin, clientIp);
 
         try {
-            // 3) 만료 검사 (만료면 401)
-            if (jwtUtil.isExpired(token)) {
-                unauthorized(response, "Access token expired");
-                return;
-            }
-
-            // 4) 이미 인증이 있으면 스킵 (예: 다른 필터/메커니즘에서 설정됨)
-            if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            // 프리플라이트/스킵 경로
+            if (shouldSkip(path)) {
+                log.debug("[JWT] Skipped by path/method. path={}, method={}", path, method);
                 chain.doFilter(request, response);
                 return;
             }
 
-            // 5) 클레임 파싱
-            String uuid = jwtUtil.getUserUuid(token);
-            String profileImg = jwtUtil.getProfileImg(token);
-            String nickname = jwtUtil.getNickname(token);
-            Role role = jwtUtil.getRole(token);
+            final String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-            // 언어는 널/이상치 안전
-            Language lang = safeLanguage(jwtUtil.getLanguage(token));
+            if (authorization == null) {
+                log.debug("[JWT] No Authorization header. Proceed as anonymous.");
+                chain.doFilter(request, response);
+                return;
+            }
+            if (!authorization.startsWith("Bearer ")) {
+                log.warn("[JWT] Authorization header present but not Bearer. valuePrefix={}", authorization.length() >= 6 ? authorization.substring(0, 6) : authorization);
+                chain.doFilter(request, response);
+                return;
+            }
 
-            // 6) UserDetails 구성
+            final String token = authorization.substring(7).trim();
+            if (token.isEmpty()) {
+                log.warn("[JWT] Bearer token is empty");
+                chain.doFilter(request, response);
+                return;
+            }
+
+            // 만료 검사
+            try {
+                if (jwtUtil.isExpired(token)) {
+                    log.info("[JWT] Access token expired");
+                    unauthorized(response, "Access token expired");
+                    return;
+                }
+            } catch (JwtException ex) {
+                // isExpired 과정에서 서명/포맷 오류가 날 수도 있으므로 분리
+                log.warn("[JWT] Token validation error during expiration check: {}", ex.getMessage());
+                unauthorized(response, "Invalid access token");
+                return;
+            }
+
+            // 이미 인증 객체가 있으면 통과
+            if (SecurityContextHolder.getContext().getAuthentication() != null) {
+                Authentication existing = SecurityContextHolder.getContext().getAuthentication();
+                log.debug("[JWT] Authentication already present. principalClass={}", existing.getPrincipal().getClass().getSimpleName());
+                chain.doFilter(request, response);
+                return;
+            }
+
+            // 최소 클레임만 파싱(민감정보 로그 금지)
+            String uuid = null;
+            Role role = null;
+            String nickname = null;
+            String profileImg = null;
+            Language lang;
+
+            try {
+                uuid = safe(jwtUtil.getUserUuid(token));
+                nickname = safe(jwtUtil.getNickname(token));
+                profileImg = safe(jwtUtil.getProfileImg(token));
+                role = jwtUtil.getRole(token);
+                lang = safeLanguage(jwtUtil.getLanguage(token));
+            } catch (JwtException | IllegalArgumentException e) {
+                log.warn("[JWT] Token parsing error: {}", e.getMessage());
+                unauthorized(response, "Invalid access token");
+                return;
+            }
+
+            // UserDetails 구성 및 SecurityContext 세팅
             UserDetailRequestDto dto = new UserDetailRequestDto();
             dto.setUuid(uuid);
             dto.setProfileImg(profileImg);
@@ -112,20 +157,28 @@ public class JWTFilter extends OncePerRequestFilter {
             dto.setLanguage(lang);
 
             CustomUserDetails principal = new CustomUserDetails(UserDetailRequestDto.from(dto));
-
-            Authentication authToken =
-                    new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
+            Authentication authToken = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authToken);
 
+            log.info("[JWT] Authentication set. userUuid={}, role={}, lang={}", uuid, role, lang);
+
             chain.doFilter(request, response);
+
         } catch (JwtException | IllegalArgumentException e) {
-            // 서명 오류, 포맷 오류 등 모든 JWT 파싱 예외는 401
+            log.error("[JWT] Unexpected JWT error: {}", e.getMessage(), e);
             unauthorized(response, "Invalid access token");
+        } catch (Exception e) {
+            log.error("[JWT] Unexpected error in filter: {}", e.getMessage(), e);
+            throw e;
+        } finally {
+            long tookMs = (System.nanoTime() - startNs) / 1_000_000;
+            log.info("[JWT] <<< Completed {} {} in {} ms", method, path, tookMs);
+            ThreadContext.clearAll(); // MDC 정리
         }
     }
 
     private boolean shouldSkip(String path) {
-        if (path == null) return true; // 방어적
+        if (path == null) return true;
         for (String pre : SKIP_PREFIXES) {
             if (path.startsWith(pre)) return true;
         }
@@ -133,7 +186,7 @@ public class JWTFilter extends OncePerRequestFilter {
     }
 
     private Language safeLanguage(String lang) {
-        if (lang == null || lang.isBlank()) return Language.KOR; // 기본값 프로젝트 규칙에 맞게
+        if (lang == null || lang.isBlank()) return Language.KOR;
         try {
             return Language.valueOf(lang);
         } catch (Exception ignore) {
@@ -142,10 +195,39 @@ public class JWTFilter extends OncePerRequestFilter {
     }
 
     private void unauthorized(HttpServletResponse res, String message) throws IOException {
+        // 로그는 위에서 기록됨. 여기서는 응답만.
         res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         res.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        res.setContentType(MediaType.TEXT_PLAIN_VALUE);
+        res.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        // 응답 본문은 간결하게 — 클라이언트가 파싱하는 기본 포맷 유지
         String body = "{\"status\":401,\"code\":\"" + message + "\",\"message\":\"Unauthorized\"}";
         res.getWriter().write(body);
+        log.info("[JWT] Responded 401: {}", message);
+    }
+
+    private String clientIp(HttpServletRequest req) {
+        String[] headers = {
+                "X-Forwarded-For",
+                "X-Real-IP",
+                "CF-Connecting-IP",
+                "X-Client-IP"
+        };
+        for (String h : headers) {
+            String v = req.getHeader(h);
+            if (v != null && !v.isBlank()) {
+                // XFF는 다중 IP일 수 있으니 첫 번째만
+                int comma = v.indexOf(',');
+                return comma > 0 ? v.substring(0, comma).trim() : v.trim();
+            }
+        }
+        return req.getRemoteAddr();
+    }
+
+    private String firstNonBlank(String a, String b) {
+        return (a != null && !a.isBlank()) ? a : b;
+    }
+
+    private String safe(String s) {
+        return s == null ? "" : s;
     }
 }
