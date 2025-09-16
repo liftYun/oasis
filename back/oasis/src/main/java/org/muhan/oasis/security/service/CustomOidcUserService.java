@@ -1,6 +1,7 @@
 package org.muhan.oasis.security.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.security.jwt.CustomOidcUser;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Service
+@Log4j2
 @RequiredArgsConstructor
 public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
 
@@ -38,6 +40,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
                 email
         );
         String profileUrl = stringOrNull(claims.get("profile_url"));
+        log.debug("CustomOidcUserService email: {}, name: {}, profileUrl: {}", email, name, profileUrl);
 
         // 이메일이 반드시 필요하다면 여기서 검증
         if (email == null) {

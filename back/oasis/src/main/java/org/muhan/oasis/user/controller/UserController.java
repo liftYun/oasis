@@ -32,6 +32,7 @@ import java.net.URL;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static org.muhan.oasis.common.base.BaseResponseStatus.*;
 
@@ -162,17 +163,20 @@ public class UserController {
     @Operation(
             summary = "프로필 이미지 최종 반영",
             description = """
-            presigned URL로 업로드가 완료된 **S3 key**를 PathVariable 로 전달해
-            최종적으로 DB에 반영합니다.
-            - 서버는 key가 본인 경로(`users/{userUuid}/profile/..`)인지 검증
-            - S3 객체가 실제로 존재하는지 HEAD로 검증
-            - 검증 후 publicUrl을 생성하여 DB에 저장
-            """,
+        presigned URL로 업로드가 완료된 S3 객체의 **파일명(uuid.ext)**만 전달하면
+        서버가 최종 key를 구성하여 DB에 반영합니다.
+        - 서버는 key가 본인 경로(`users/{userUuid}/profile/{file}`)인지 강제
+        - S3 객체가 실제로 존재하는지 HEAD로 검증
+        - 검증 후 publicUrl을 생성하여 DB에 저장
+        
+        ✅ 요청 예:
+        PUT /api/v1/user/profileImg?file=550e8400-e29b-41d4-a716-446655440000.png
+        """,
             tags = {"회원"}
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "프로필 반영 성공"),
-            @ApiResponse(responseCode = "400", description = "잘못된 key 또는 업로드 미완료"),
+            @ApiResponse(responseCode = "400", description = "잘못된 파일명 또는 업로드 미완료"),
             @ApiResponse(responseCode = "401", description = "인증 필요")
     })
     @PutMapping("/profileImg")
@@ -180,38 +184,44 @@ public class UserController {
             @Parameter(hidden = true)
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Parameter(
-                    description = "presigned 업로드 완료 후의 S3 key (예: users/{uuid}/profile/xxx.png)",
+                    description = "presigned 업로드 완료 후 S3에 존재하는 파일명(uuid.ext)만 전달",
                     required = true,
-                    example = "users/7b1f...-uuid/profile/550e8400-e29b-41d4-a716-446655440000.png"
+                    example = "550e8400-e29b-41d4-a716-446655440000.png"
             )
-            @RequestParam("key") String key
+            @RequestParam("file") String file // ← key 대신 파일명만 받음
     ) {
         final String userUuid = userDetails.getUserUuid();
 
-        if (key == null || key.isBlank() || key.contains("..")) {
+        // 0) 파일명 기초 검증 (슬래시 금지, 디렉토리 우회 금지)
+        if (file == null || file.isBlank() || file.contains("/") || file.contains("..")) {
             return BaseResponse.error(BaseResponseStatus.INVALID_PARAMETER);
         }
 
-        // 1) 본인의 경로만 허용
-        String requiredPrefix = "users/" + userUuid + "/profile/";
-        if (key == null || !key.startsWith(requiredPrefix)) {
-            return BaseResponse.error(INVALID_PARAMETER);
+        // 1) 파일명 포맷/확장자 화이트리스트 검증
+        //    - UUID.EXT 형태, 허용 확장자: png|jpg|jpeg|webp|gif|avif
+        final Pattern FILE_PATTERN = Pattern.compile(
+                "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\.(png|jpg|jpeg|webp|gif|avif)$"
+        );
+        if (!FILE_PATTERN.matcher(file).matches()) {
+            return BaseResponse.error(BaseResponseStatus.NO_IMG_FORM);
         }
 
-        // 2) 업로드 완료 여부(S3 HEAD) 검증
+        // 2) 서버에서 최종 key 구성 (본인 경로 강제)
+        String key = "users/" + userUuid + "/profile/" + file;
+
+        // 3) 업로드 완료 여부(S3 HEAD) 검증
         if (!s3StorageService.exists(key)) {
-            return BaseResponse.error(NO_IMG_DATA);
+            return BaseResponse.error(BaseResponseStatus.NO_IMG_DATA);
         }
 
-        // 3) 퍼블릭 URL 생성
+        // 4) 퍼블릭 URL 생성 및 DB 반영
         String publicUrl = s3StorageService.toPublicUrl(key);
         Long userId = userService.getUserIdByUserUuid(userUuid);
-
-        // 4) DB 반영
         userService.updateProfileImageUrl(userId, publicUrl);
 
         return BaseResponse.of(Map.of("profileImgUrl", publicUrl));
     }
+
 
 
     @PatchMapping("/updateLang/{language}")
