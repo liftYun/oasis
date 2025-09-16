@@ -67,8 +67,8 @@ app:
     timeout-ms: 3000
   front-base-url: ${FRONT_BASE_URL}
   backend-base-url: ${BACK_BASE_URL}
+  #  backend-base-url: http://localhost:8080 # localTest
   domain: .stay-oasis.kr
-#  domain: localhost
 papago:
   base-url: https://papago.apigw.ntruss.com
   client-id: ${PAPAGO_CLIENT_ID}
