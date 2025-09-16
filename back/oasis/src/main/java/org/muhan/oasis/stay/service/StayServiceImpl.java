@@ -184,7 +184,7 @@ public class StayServiceImpl implements StayService{
     public StayReadResponseDto getStayById(Long stayId, Language language) {
         StayEntity stay = stayRepository.findDetailForRead(stayId).orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY));
         List<StayFacilityEntity> facilities = stayFacilityRepository.findWithFacilityByStayId(stayId);
-        LocalDateTime cutoff = LocalDate.now(ZoneId.of("Asia/Seoul")).atStartOfDay();
+        LocalDate cutoff = LocalDate.now(ZoneId.of("Asia/Seoul"));
         List<StayBlockEntity> blcokList = stayBlockRepository.findAllByStayIdAndEndDateAfterOrderByStartDateAsc(stayId, cutoff);
         List<ReservedResponseDto> reservedList = reservationRepository.findAllReservedByStayId(stayId);
         return StayReadResponseDto.from(stay, facilities, language, blcokList, reservedList);
