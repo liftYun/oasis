@@ -121,7 +121,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .path("/")
                 .maxAge(Duration.ofMillis(jwtUtil.getRefreshExpiredMs()))
                 .build().toString();
-        response.setHeader(HttpHeaders.SET_COOKIE, cookie);
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie);
 
         ResponseCookie deleteCookie = ResponseCookie.from("OAUTH2_AUTH_REQUEST", "")
                 .httpOnly(true)
@@ -132,7 +132,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .maxAge(0)             // 0으로 하면 삭제됨
                 .build();
 
-        response.setHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
 
 
         boolean needProfileUpdate = (user.getRole() == null || user.getProfileUrl() == null);
