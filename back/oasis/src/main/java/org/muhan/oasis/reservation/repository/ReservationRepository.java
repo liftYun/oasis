@@ -1,6 +1,7 @@
 package org.muhan.oasis.reservation.repository;
 
 import org.muhan.oasis.reservation.entity.ReservationEntity;
+import org.muhan.oasis.stay.dto.out.ReservedResponseDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -43,4 +44,25 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
     @Transactional
     @Query("update ReservationEntity r set r.isSettlemented = true where r.reservationId = :resId")
     int markSettled(String resId);
+
+    @Query("""
+      select new org.muhan.oasis.stay.dto.out.ReservedResponseDto(
+        r.checkinDate,
+        r.checkoutDate
+      )
+      from ReservationEntity r
+      where r.stay.id = :stayId
+      order by r.checkinDate
+    """)
+    List<ReservedResponseDto> findAllReservedByStayId(@Param("stayId") Long stayId);
+
+    @Query("""
+      select count(r) > 0 from ReservationEntity r
+      where r.stay.id = :stayId
+        and r.checkinDate < :end
+        and r.checkoutDate   > :start
+    """)
+    boolean existsConfirmedOverlap(@Param("stayId") Long stayId,
+                                   @Param("start") LocalDateTime start,
+                                   @Param("end") LocalDateTime end);
 }
