@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class CancelReservationVo {
+public class CancelReservationResponseVo {
     private String challengeId;
 }

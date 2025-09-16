@@ -13,7 +13,7 @@ import org.muhan.oasis.reservation.dto.out.ReservationResponseDto;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
 import org.muhan.oasis.reservation.repository.ReservationPeriodRow;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
-import org.muhan.oasis.reservation.vo.out.CancelReservationVo;
+import org.muhan.oasis.reservation.vo.out.CancelReservationResponseVo;
 import org.muhan.oasis.reservation.vo.out.ListOfReservationResponseVo;
 import org.muhan.oasis.reservation.vo.out.ListOfReservedDayResponseVo;
 import org.muhan.oasis.reservation.vo.out.ReservedDayResponseVo;
@@ -29,11 +29,9 @@ import org.muhan.oasis.valueobject.Category;
 import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.wallet.entity.WalletEntity;
 import org.muhan.oasis.wallet.respository.WalletRepository;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.generated.Bytes32;
@@ -273,7 +271,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     @Transactional
-    public CancelReservationVo cancelReservation(String userUUID, String resId) {
+    public CancelReservationResponseVo cancelReservation(String userUUID, String resId, UUID idempotencyKey) {
 
         CircleUserTokenCache.Entry tokenEntry = circle.ensureUserToken(userUUID);
 
@@ -305,13 +303,14 @@ public class ReservationServiceImpl implements ReservationService {
                 walletId,      // walletId
                 contractAddress,             // NomadBooking 컨트랙트 주소
                 callData,                // 인코딩된 cancelWithPolicy(resId)
-                tokenEntry.getUserToken()
+                tokenEntry.getUserToken(),
+                idempotencyKey
         );
 
         log.info("[cancelWithPolicy] challengeId={}", challengeId);
 
         // 6) 호환 응답 (reactive)
-        return new CancelReservationVo(challengeId);
+        return new CancelReservationResponseVo(challengeId);
     }
 
 }
