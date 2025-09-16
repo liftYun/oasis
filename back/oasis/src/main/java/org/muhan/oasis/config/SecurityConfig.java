@@ -99,12 +99,13 @@ public class SecurityConfig {
 
         // 3) 경로별 인가 설정
         http.authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 // 테스트용 토큰 발행
                                 // 배포시 삭제
                                 "/api/v1/dev/**",
                                 "/api/oauth2/authorization/**",
-                                "/login/oauth2/code/**",
+                                "/api/login/oauth2/code/**",
                                 "/api/google/redirect",
                                 "/api/google/login",
                                 "/api/v1/health/**").permitAll()
@@ -141,7 +142,12 @@ public class SecurityConfig {
         http.oauth2Login(oauth2 -> oauth2
                 // 로그인 시작점: /oauth2/authorization/{registrationId}
                 // 리다이렉트 수신: /login/oauth2/code/{registrationId}
-                .redirectionEndpoint(redir -> redir.baseUri("/login/oauth2/code/*"))
+                        .authorizationEndpoint(authz -> authz
+                                .authorizationRequestResolver(resolver)
+                                .authorizationRequestRepository(new HttpCookieOAuth2AuthorizationRequestRepository())
+                        )
+                .redirectionEndpoint(redir -> redir.baseUri("/api/login/oauth2/code/*"))
+
                 // 소셜별 사용자 정보 처리: 커스텀 OAuth2UserService (구글/네이버/카카오 모두 처리)
                 .userInfoEndpoint(ui -> ui
                         .userService(customOAuth2UserService)
@@ -151,9 +157,6 @@ public class SecurityConfig {
 //                                new org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository()
 //                        )
 //                )
-                        .authorizationEndpoint(authz -> authz
-                                .authorizationRequestRepository(new HttpCookieOAuth2AuthorizationRequestRepository())
-                        )
                 // 성공 시: JWT 발급 등
                 .successHandler(oAuth2SuccessHandler)
                 // 실패 시 처리
