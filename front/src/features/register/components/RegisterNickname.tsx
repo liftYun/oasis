@@ -52,7 +52,9 @@ export function RegisterNickname() {
           {t.confirm}
         </button>
       </div>
-      <p className="text-sm text-gray-300 mt-1">{nickname.trim().length} / 10</p>
+      <p className="text-sm text-gray-300 mt-1">
+        <span className="text-primary">{nickname.trim().length}</span> / 10
+      </p>
       <div className="mt-auto">
         <Button variant="blue" onClick={handleFinalConfirm} className="w-full max-w-lg mx-auto">
           {t.confirm}

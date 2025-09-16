@@ -14,7 +14,7 @@ function CallbackInner() {
   useEffect(() => {
     const issueToken = async () => {
       try {
-        const res = await http.rawPost('/v1/auth/issue', null, {
+        const res = await http.rawPost('/api/v1/auth/issue', null, {
           withCredentials: true,
         });
 
