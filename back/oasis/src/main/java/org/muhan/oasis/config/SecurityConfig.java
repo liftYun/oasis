@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -29,6 +30,7 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Collections;
 import java.util.List;
@@ -62,6 +64,30 @@ public class SecurityConfig {
         this.customOidcUserService = customOidcUserService;
     }
 
+    // CORS 단일 설정 (Security가 사용)
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration cfg = new CorsConfiguration();
+        cfg.setAllowCredentials(true);
+
+        // ✨ 패턴 사용 (서브도메인/동적 Origin 대응)
+        cfg.setAllowedOriginPatterns(List.of(
+                "https://*.stay-oasis.kr",
+                "http://localhost:3000",
+                "http://localhost:*"
+        ));
+
+        cfg.setAllowedMethods(List.of("*"));   // GET,POST,PUT,PATCH,DELETE,OPTIONS 등
+        cfg.setAllowedHeaders(List.of("*"));   // Authorization, Content-Type, Sec-Fetch-* 등 모두
+        cfg.setExposedHeaders(List.of("Authorization", "Set-Cookie"));
+        cfg.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", cfg);
+        return source;
+    }
+
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
@@ -76,20 +102,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         // 1) CORS 설정
-        http.cors(cors -> cors.configurationSource(request -> {
-            CorsConfiguration cfg = new CorsConfiguration();
-            // 와일드카드 패턴 사용 (Spring 6+)
-            cfg.setAllowedOriginPatterns(List.of(
-                    "https://*.stay-oasis.kr",
-                    "http://localhost:*"
-            ));
-            cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
-            cfg.setAllowedHeaders(List.of("Authorization","Content-Type","X-Requested-With"));
-            cfg.setExposedHeaders(List.of("Authorization","Set-Cookie"));
-            cfg.setAllowCredentials(true);
-            cfg.setMaxAge(3600L);
-            return cfg;
-        }));
+        http.cors(Customizer.withDefaults());
 
 
         // 2) CSRF, FormLogin, BasicAuth 비활성화
@@ -135,9 +148,9 @@ public class SecurityConfig {
                         "/api/oauth2/authorization" // 로그인 시작 URL prefix (공용)
                 );
 
-        http.sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-        );
+//        http.sessionManagement(session ->
+//                session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+//        );
 
         http.oauth2Login(oauth2 -> oauth2
                 // 로그인 시작점: /oauth2/authorization/{registrationId}
