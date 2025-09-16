@@ -5,3 +5,4 @@ export { Detail } from '@/features/my-profile/components/Detail';
 export { Reservations } from '@/features/my-profile/components/Reservations';
 export { Favorite } from '@/features/my-profile/components/Favorite';
 export { Reviews } from '@/features/my-profile/components/Reviews';
+export { ReviewBottomSheet } from '@/features/my-profile/components/ReviewBottomSheet';

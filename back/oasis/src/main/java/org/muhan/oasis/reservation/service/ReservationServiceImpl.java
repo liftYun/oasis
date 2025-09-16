@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.common.exception.BaseException;
+import org.muhan.oasis.external.circle.CircleUserApi;
+import org.muhan.oasis.external.circle.CircleUserTokenCache;
 import org.muhan.oasis.key.repository.KeyOwnerRepository;
 import org.muhan.oasis.reservation.dto.in.RegistReservationRequestDto;
 import org.muhan.oasis.reservation.dto.out.ReservationDetailsResponseDto;
@@ -11,6 +13,7 @@ import org.muhan.oasis.reservation.dto.out.ReservationResponseDto;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
 import org.muhan.oasis.reservation.repository.ReservationPeriodRow;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
+import org.muhan.oasis.reservation.vo.out.CancelReservationVo;
 import org.muhan.oasis.reservation.vo.out.ListOfReservationResponseVo;
 import org.muhan.oasis.reservation.vo.out.ListOfReservedDayResponseVo;
 import org.muhan.oasis.reservation.vo.out.ReservedDayResponseVo;
@@ -24,16 +27,21 @@ import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.valueobject.Category;
 import org.muhan.oasis.valueobject.Language;
+import org.muhan.oasis.wallet.entity.WalletEntity;
+import org.muhan.oasis.wallet.respository.WalletRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.web3j.abi.FunctionEncoder;
+import org.web3j.abi.datatypes.Function;
+import org.web3j.abi.datatypes.generated.Bytes32;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.muhan.oasis.common.base.BaseResponseStatus.*;
@@ -47,6 +55,13 @@ public class ReservationServiceImpl implements ReservationService {
     private final StayRepository stayRepository;
     private final KeyOwnerRepository keyOwnerRepository;
     private final StayRatingSummaryRepository summaryRepository;
+    private final WalletRepository walletRepository;
+    private final CancelReservationTxService cancelReservationTxService;
+    private final CircleUserApi circle;
+
+    @Value("${contract.address}")
+    private String contractAddress;
+
 
     @Override
     public String registReserVation(Long userId, RegistReservationRequestDto dto) {
@@ -254,6 +269,49 @@ public class ReservationServiceImpl implements ReservationService {
         return facility != null
                 && facility.getNameEng() != null
                 && !facility.getNameEng().isBlank();
+    }
+
+    @Override
+    @Transactional
+    public CancelReservationVo cancelReservation(String userUUID, String resId) {
+
+        CircleUserTokenCache.Entry tokenEntry = circle.ensureUserToken(userUUID);
+
+        UserEntity user = userRepository.findByUserUuid(userUUID)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 UUID 입니다."));
+        WalletEntity wallet = walletRepository.findByUser(user);
+        String walletId = wallet.getWalletId();
+
+        // callData 인코딩: cancelWithPolicy(bytes32 resId)
+        Bytes32 resIdArg = new Bytes32(
+                org.web3j.utils.Numeric.hexStringToByteArray(resId) // DB에서 가져온 "0x...." 문자열
+        );
+
+        Function fn = new Function(
+                "cancelWithPolicy",
+                Arrays.asList(resIdArg),
+                Collections.emptyList()
+        );
+
+        String callData = FunctionEncoder.encode(fn);
+
+        // 로깅 (디버깅에 충분하도록)
+        log.info("[cancelWithPolicy] resId={}, toContract={}", resId, contractAddress);
+        log.debug("[cancelWithPolicy] callData(length={}): {}", callData != null ? callData.length() : 0, callData);
+
+        // 5) Challenge 생성
+        String challengeId = cancelReservationTxService.createCancelTx(
+                userUUID,
+                walletId,      // walletId
+                contractAddress,             // NomadBooking 컨트랙트 주소
+                callData,                // 인코딩된 cancelWithPolicy(resId)
+                tokenEntry.getUserToken()
+        );
+
+        log.info("[cancelWithPolicy] challengeId={}", challengeId);
+
+        // 6) 호환 응답 (reactive)
+        return new CancelReservationVo(challengeId);
     }
 
 }

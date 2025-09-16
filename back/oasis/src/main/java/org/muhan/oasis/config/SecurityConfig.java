@@ -123,6 +123,7 @@ public class SecurityConfig {
                                 "/api/google/login",
                                 "/api/v1/health/**").permitAll()
                         .requestMatchers(HttpMethod.POST,
+                                "/api/v1/auth/issue",
                                 "/api/v1/auth/refresh",
                                 "/api/v1/auth/logout").permitAll()
                         // Swagger, 공용 API

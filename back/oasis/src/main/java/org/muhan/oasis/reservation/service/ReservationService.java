@@ -2,6 +2,7 @@ package org.muhan.oasis.reservation.service;
 
 import org.muhan.oasis.reservation.dto.in.RegistReservationRequestDto;
 import org.muhan.oasis.reservation.dto.out.ReservationDetailsResponseDto;
+import org.muhan.oasis.reservation.vo.out.CancelReservationVo;
 import org.muhan.oasis.reservation.vo.out.ListOfReservationResponseVo;
 import org.muhan.oasis.reservation.vo.out.ListOfReservedDayResponseVo;
 import org.muhan.oasis.valueobject.Language;
@@ -14,4 +15,6 @@ public interface ReservationService {
     ListOfReservedDayResponseVo getListOfReservedDay(Long userId, Long stayId);
 
     ReservationDetailsResponseDto getReservationDetails(Long userId, Language language, String reservationId);
+
+    CancelReservationVo cancelReservation(String userId, String resId);
 }

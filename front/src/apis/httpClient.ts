@@ -95,11 +95,14 @@ class HttpClient {
 
   private setInterceptors() {
     this.client.interceptors.request.use((config) => {
-      if (isBrowser()) {
-        const token = useAuthStore.getState().accessToken;
-        if (token && config.headers) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
+      const token = useAuthStore.getState().accessToken;
+
+      const isPublic =
+        config.url?.startsWith('/api/v1/auth/issue') ||
+        config.url?.startsWith('/api/v1/auth/refresh');
+
+      if (!isPublic && token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
       return config;
     });
