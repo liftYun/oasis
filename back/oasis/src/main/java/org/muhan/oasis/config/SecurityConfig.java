@@ -77,8 +77,8 @@ public class SecurityConfig {
                 "http://localhost:*"
         ));
 
-        cfg.setAllowedMethods(List.of("*"));   // GET,POST,PUT,PATCH,DELETE,OPTIONS 등
-        cfg.setAllowedHeaders(List.of("*"));   // Authorization, Content-Type, Sec-Fetch-* 등 모두
+        cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
+        cfg.setAllowedHeaders(List.of("Authorization","Content-Type","Accept","Origin","X-Requested-With"));
         cfg.setExposedHeaders(List.of("Authorization", "Set-Cookie"));
         cfg.setMaxAge(3600L);
 
