@@ -117,22 +117,22 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .httpOnly(true)
                 .secure(true)           // 로컬 HTTP 개발 시 false, 배포는 true
                 .sameSite("None")       // SPA 도메인 분리 시 필수
-                .path("/")
                 .domain(cookieDomain)
+                .path("/")
                 .maxAge(Duration.ofMillis(jwtUtil.getRefreshExpiredMs()))
                 .build().toString();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie);
+        response.setHeader(HttpHeaders.SET_COOKIE, cookie);
 
         ResponseCookie deleteCookie = ResponseCookie.from("OAUTH2_AUTH_REQUEST", "")
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")
+                .domain(cookieDomain)
                 .path("/")
-                .domain(cookieDomain)// 반드시 원래 path와 동일해야 함
                 .maxAge(0)             // 0으로 하면 삭제됨
                 .build();
 
-        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+        response.setHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
 
 
         boolean needProfileUpdate = (user.getRole() == null || user.getProfileUrl() == null);
