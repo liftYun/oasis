@@ -131,6 +131,8 @@ public class SecurityConfig {
                         "/api/v1/auth/refresh",
                         "/api/v1/auth/issue",
                         "/api/v1/auth/logout").permitAll()
+                .requestMatchers(HttpMethod.PUT,
+                        "/api/v1/user/profileImg/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/v1/**").authenticated()
                 .anyRequest().authenticated()

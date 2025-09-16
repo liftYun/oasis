@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import org.muhan.oasis.common.base.BaseResponse;
+import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
 import org.muhan.oasis.security.service.CreateTokenService;
@@ -174,7 +175,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "잘못된 key 또는 업로드 미완료"),
             @ApiResponse(responseCode = "401", description = "인증 필요")
     })
-    @PutMapping("/profileImg/{key:.+}")
+    @PutMapping("/profileImg")
     public BaseResponse<?> setProfileImg(
             @Parameter(hidden = true)
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -183,9 +184,13 @@ public class UserController {
                     required = true,
                     example = "users/7b1f...-uuid/profile/550e8400-e29b-41d4-a716-446655440000.png"
             )
-            @PathVariable("key") String key
+            @RequestParam("key") String key
     ) {
         final String userUuid = userDetails.getUserUuid();
+
+        if (key == null || key.isBlank() || key.contains("..")) {
+            return BaseResponse.error(BaseResponseStatus.INVALID_PARAMETER);
+        }
 
         // 1) 본인의 경로만 허용
         String requiredPrefix = "users/" + userUuid + "/profile/";
