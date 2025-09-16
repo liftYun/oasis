@@ -26,8 +26,8 @@ public class JWTFilter extends OncePerRequestFilter {
 
     // 필터를 무조건 통과시킬 경로 prefix (OAuth2 콜백 등)
     private static final Set<String> SKIP_PREFIXES = Set.of(
-            "/oauth2/authorization",
-            "/login/oauth2/code",
+            "/api/oauth2/authorization",
+            "/api/login/oauth2/code",
             "/swagger-ui",
             "/v3/api-docs",
             "/api/v1/health"
