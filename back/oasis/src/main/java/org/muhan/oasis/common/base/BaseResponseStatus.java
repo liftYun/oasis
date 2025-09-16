@@ -95,7 +95,11 @@ public enum BaseResponseStatus {
     NO_EXIST_SUBREGION(HttpStatus.NOT_FOUND, false, 404, "존재하지 않는 지역 정보입니다."),
     // facility
     NO_EXIST_FACILITY(HttpStatus.NOT_FOUND, false, 404, "존재하지 않는 편의시설 정보입니다."),
-    NO_EXIST_CANCELLATION_POLICY(HttpStatus.NOT_FOUND, false, 404, "취소 정책이 존재하지 않습니다.");
+    NO_EXIST_CANCELLATION_POLICY(HttpStatus.NOT_FOUND, false, 404, "취소 정책이 존재하지 않습니다."),
+    DUP_PHOTO_KEYS(HttpStatus.BAD_REQUEST, false, 400, "이미지 키가 중복되어 있습니다."),
+    DUP_PHOTO_SORT_ORDER(HttpStatus.BAD_REQUEST, false, 400, "이미지 순서가 중복되어 있습니다."),
+    BLOCK_OVERLAP_RESERVATION(HttpStatus.BAD_REQUEST, false, 400, "예약 불가능 날짜로 선택할 수 없습니다."),
+    INVALID_BLOCK_RANGE(HttpStatus.BAD_REQUEST, false, 400, "시작 날짜가 끝 날짜보다 이전이어야 합니다.");
     private final HttpStatusCode httpStatusCode;
     private final boolean isSuccess;
     private final int code;
