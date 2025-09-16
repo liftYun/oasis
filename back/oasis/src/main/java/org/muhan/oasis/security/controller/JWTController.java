@@ -156,7 +156,7 @@ public class JWTController {
                     updated.getRole(),
                     updated.getLanguage()
             );
-            response.addHeader("Authorization", "Bearer " + newAccess);
+            response.setHeader("Authorization", "Bearer " + newAccess);
 
             // 3) 바디는 표준 래퍼로 성공 응답만
             return BaseResponse.ok();

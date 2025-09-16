@@ -84,7 +84,7 @@ public class RefreshController {
                 userDetails.getLanguage()
         );
 
-        response.addHeader(HttpHeaders.SET_COOKIE, tokens.refreshCookie().toString());
+        response.setHeader(HttpHeaders.SET_COOKIE, tokens.refreshCookie().toString());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokens.accessToken())

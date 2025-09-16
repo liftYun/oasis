@@ -28,7 +28,7 @@ public class CookieUtils {
 //                .domain("localhost")
                 .maxAge(maxAge)
                 .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
 
