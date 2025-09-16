@@ -9,8 +9,9 @@ import org.muhan.oasis.reservation.dto.in.RegistReservationRequestDto;
 import org.muhan.oasis.reservation.service.ApproveService;
 import org.muhan.oasis.reservation.service.LockService;
 import org.muhan.oasis.reservation.service.ReservationService;
+import org.muhan.oasis.reservation.vo.in.CancelReservationRequestVo;
 import org.muhan.oasis.reservation.vo.in.RegistReservationRequestVo;
-import org.muhan.oasis.reservation.vo.out.CancelReservationVo;
+import org.muhan.oasis.reservation.vo.out.CancelReservationResponseVo;
 import org.muhan.oasis.reservation.vo.out.ListOfReservationResponseVo;
 import org.muhan.oasis.reservation.vo.out.ReservationDetailsResponseVo;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
@@ -149,11 +150,12 @@ public class ReservationController {
             tags = {"예약"}
     )
     @PostMapping("/cancel/{reservationId}")
-    public BaseResponse<CancelReservationVo> cancelReservation(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable String reservationId) {
+    public BaseResponse<CancelReservationResponseVo> cancelReservation(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable String reservationId,
+                                                                       @RequestBody CancelReservationRequestVo vo) {
         String challengeId = reservationService.cancelReservation(
-                customUserDetails.getUserUuid(), reservationId
+                customUserDetails.getUserUuid(), reservationId, vo.getIdempotencyKey()
         ).getChallengeId();
 
-        return BaseResponse.of(new CancelReservationVo(challengeId));
+        return BaseResponse.of(new CancelReservationResponseVo(challengeId));
     }
 }

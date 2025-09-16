@@ -19,13 +19,14 @@ public class CancelReservationTxService {
 
     private final @Qualifier("circleWebClient") WebClient circleWebClient;
 
-    public String createCancelTx(String userId, String walletId, String contractAddress, String callData, String userToken) {
+    public String createCancelTx(String userId, String walletId, String contractAddress,
+                                 String callData, String userToken, UUID idempotencyKey) {
         // 요청 Body 구성 (명확히 타입 지정)
         Map<String, Object> body = new HashMap<>();
         body.put("walletId", walletId);
         body.put("contractAddress", contractAddress);
         body.put("callData", callData);
-        body.put("idempotencyKey", UUID.randomUUID().toString());
+        body.put("idempotencyKey", idempotencyKey.toString());
         body.put("feeLevel", "MEDIUM");
 
         log.info("[CancelReservationTxService] userId={}, walletId={}, contract={}, callData={}",
