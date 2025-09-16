@@ -26,15 +26,30 @@ public class JWTFilter extends OncePerRequestFilter {
 
     // 필터를 무조건 통과시킬 경로 prefix (OAuth2 콜백 등)
     private static final Set<String> SKIP_PREFIXES = Set.of(
-            "/oauth2/authorization",
-            "/login/oauth2/code",
+            "/api/oauth2/authorization",
+            "/api/login/oauth2/code",
             "/swagger-ui",
             "/v3/api-docs",
-            "/api/v1/health"
+            "/api/v1/health",
+            "/error"
     );
 
     public JWTFilter(JWTUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
+    }
+
+    // ✅ 프리플라이트 및 스킵 경로는 필터 자체를 태우지 않음
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String method = request.getMethod();
+        if ("OPTIONS".equalsIgnoreCase(method)) return true; // 프리플라이트 무조건 패스
+
+        String path = request.getRequestURI();
+        if (path == null) return true;
+        for (String pre : SKIP_PREFIXES) {
+            if (path.startsWith(pre)) return true;
+        }
+        return false;
     }
 
     @Override
@@ -128,6 +143,7 @@ public class JWTFilter extends OncePerRequestFilter {
         res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         res.setCharacterEncoding(StandardCharsets.UTF_8.name());
         res.setContentType(MediaType.TEXT_PLAIN_VALUE);
+        String body = "{\"status\":401,\"code\":\"" + message + "\",\"message\":\"Unauthorized\"}";
         res.getWriter().write(message);
     }
 }
