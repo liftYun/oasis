@@ -117,8 +117,8 @@ public class SecurityConfig {
                                 // 테스트용 토큰 발행
                                 // 배포시 삭제
                                 "/api/v1/dev/**",
-                                "/api/oauth2/authorization/**",
-                                "/api/login/oauth2/code/**",
+                                "/oauth2/authorization/**",
+                                "/login/oauth2/code/**",
                                 "/api/google/redirect",
                                 "/api/google/login",
                                 "/api/v1/health/**").permitAll()
@@ -145,7 +145,7 @@ public class SecurityConfig {
         OAuth2AuthorizationRequestResolver resolver =
                 new DefaultOAuth2AuthorizationRequestResolver(
                         clientRegistrationRepository,
-                        "/api/oauth2/authorization" // 로그인 시작 URL prefix (공용)
+                        "/oauth2/authorization" // 로그인 시작 URL prefix (공용)
                 );
 
 //        http.sessionManagement(session ->
@@ -159,7 +159,7 @@ public class SecurityConfig {
                                 .authorizationRequestResolver(resolver)
                                 .authorizationRequestRepository(new HttpCookieOAuth2AuthorizationRequestRepository())
                         )
-                .redirectionEndpoint(redir -> redir.baseUri("/api/login/oauth2/code/*"))
+                .redirectionEndpoint(redir -> redir.baseUri("/login/oauth2/code/*"))
 
                 // 소셜별 사용자 정보 처리: 커스텀 OAuth2UserService (구글/네이버/카카오 모두 처리)
                 .userInfoEndpoint(ui -> ui
