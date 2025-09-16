@@ -8,7 +8,6 @@ interface BackHeaderContentProps {
   className?: string;
 }
 
-// 순수 UI 컴포넌트 (레이아웃 책임 없음)
 export function BackHeaderContent({ title = '검색', className }: BackHeaderContentProps) {
   const router = useRouter();
 
@@ -19,7 +18,7 @@ export function BackHeaderContent({ title = '검색', className }: BackHeaderCon
         className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200"
         aria-label="back"
       >
-        <ChevronLeft className="w-8 h-8 text-gray-500" />
+        <ChevronLeft className="w-7 h-7 text-gray-500" />
       </button>
 
       <h1 className="flex-1 text-center text-base font-semibold text-gray-600 -ml-8">{title}</h1>
@@ -29,16 +28,14 @@ export function BackHeaderContent({ title = '검색', className }: BackHeaderCon
   );
 }
 
-// 레이아웃 래퍼 컴포넌트
 function FixedHeaderLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="fixed left-1/2 -translate-x-1/2 top-[env(safe-area-inset-top)] w-full max-w-[480px] z-50">
+    <div className="fixed left-1/2 -translate-x-1/2 top-[env(safe-area-inset-top)] w-full max-w-[480px] z-40">
       {children}
     </div>
   );
 }
 
-// 기존 API 호환성을 위한 래핑된 컴포넌트 (기존 import 경로 유지)
 interface Props {
   title?: string;
 }

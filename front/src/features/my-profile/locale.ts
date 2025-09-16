@@ -18,6 +18,9 @@ export const profileMessages = {
     secessionConfirm: '탈퇴하기',
     manageStay: '내 숙소 관리',
     createStay: '내 숙소 등록',
+    writeReview: '리뷰 작성하기',
+    writeReviewDescription: '리뷰를 작성하고 다른 사용자들과 경험을 공유해보세요!',
+    uploadReview: '리뷰 등록하기',
   },
   eng: {
     guest: 'Guest',
@@ -39,5 +42,8 @@ export const profileMessages = {
     secessionConfirm: 'Delete',
     manageStay: 'Manage your stay',
     createStay: 'Create a stay',
+    writeReview: 'Write a review',
+    writeReviewDescription: 'Share your experience with other travelers!',
+    uploadReview: 'Upload review',
   },
 } as const;
