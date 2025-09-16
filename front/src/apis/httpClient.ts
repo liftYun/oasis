@@ -97,6 +97,7 @@ class HttpClient {
     this.client.interceptors.request.use((config) => {
       if (isBrowser()) {
         const token = useAuthStore.getState().accessToken;
+        console.log(token);
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }

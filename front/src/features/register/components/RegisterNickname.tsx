@@ -4,6 +4,7 @@ import { Button } from '@/components/atoms/Button';
 import { useLanguage } from '@/features/language';
 import { useRegisterStore, useNicknameValidation, registerMessages } from '@/features/register';
 import { useAuthStore } from '@/stores/useAuthStores';
+import { useEffect } from 'react';
 
 export function RegisterNickname() {
   const { setNickname: setStoreNickname, next } = useRegisterStore();
@@ -11,6 +12,7 @@ export function RegisterNickname() {
   const { nickname, setNickname, checkNickname } = useNicknameValidation(savedNickname ?? '');
   const { lang } = useLanguage();
   const t = registerMessages[lang];
+  const setUser = useAuthStore((s) => s.setUser);
 
   const handleNicknameConfirm = async () => {
     await checkNickname();
@@ -20,6 +22,13 @@ export function RegisterNickname() {
     setStoreNickname(nickname.trim());
     next();
   };
+
+  useEffect(() => {
+    const accessToken =
+      'eyJhbGciOiJIUzI1NiJ9.eyJ1dWlkIjoiZjU4MTU5NGMtOWQ4YS00ZDM2LWJlM2YtMjg2ZjM1ZTE4Y2ZkIiwicHJvZmlsZVVybCI6InRlc3RHdWVzdEB0ZXN0LmNvbSIsIm5pY2tuYW1lIjoiR1VFU1QiLCJyb2xlIjoiUk9MRV9HVUVTVCIsImxhbmd1YWdlIjoiS09SIiwiaWF0IjoxNzU3ODMwNTE1LCJleHAiOjE3NjM4Nzg1MTV9.BQCs_exjLyKLWbhRNyOKItj1Gm9ix7k43DUQ8-I3drg';
+    // console.log(accessToken);
+    setUser({ accessToken });
+  }, [savedNickname]);
 
   return (
     <main className="flex flex-col w-full px-6 py-10 min-h-screen">
