@@ -29,7 +29,6 @@ import java.math.BigInteger;
 public class LockService {
 
     private final CircleUserApi circle;
-    private final CircleUserTokenCache cache;
     private final StayRepository stayRepository;
     private final CancellationPolicyRepository cancellationPolicyRepository;
     private final WalletRepository walletRepository;
