@@ -146,7 +146,7 @@ public class UserController {
 
         String userUuid = userDetails.getUserUuid();
         String key = "users/%s/profile/%s.%s".formatted(
-                userUuid, java.util.UUID.randomUUID(), contentTypeToExt(contentType)
+                userUuid, userDetails.getUserNickname(), contentTypeToExt(contentType)
         );
 
         Duration ttl = Duration.ofMinutes(10); // Presigned URL TTL
