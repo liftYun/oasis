@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.log4j.Log4j2;
 import org.muhan.oasis.common.base.BaseResponse;
+import org.muhan.oasis.key.dto.out.KeyResponseDto;
 import org.muhan.oasis.key.service.KeyService;
 import org.muhan.oasis.key.vo.in.ShareKeyRequestVo;
 import org.muhan.oasis.key.vo.out.ListOfKeyResponseVO;
@@ -19,6 +20,7 @@ import org.muhan.oasis.user.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -96,6 +98,11 @@ public class KeyController {
     @GetMapping("/list")
     public BaseResponse<?> listOfKeys(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
-        return BaseResponse.ok();
+
+        List<KeyResponseDto> items = keyService.listKeysForGuest(userId);
+        ListOfKeyResponseVO body = ListOfKeyResponseVO.builder()
+                .listOfKeys(items)
+                .build();
+        return BaseResponse.of(body);
     }
 }
