@@ -32,4 +32,12 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
     @Modifying
     @Query("UPDATE ReservationEntity r SET r.isCancled = true WHERE r.reservationId = :reservationId")
     void markCanceled(@Param("reservationId") String reservationId);
+    // ✅ 정산 안 된 예약 전체 조회
+    List<ReservationEntity> findByIsSettlementedFalseAndCheckoutDateBefore(LocalDateTime now);
+
+
+    // ✅ 특정 예약 정산 처리 (settlement = true 업데이트)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("update ReservationEntity r set r.isSettlemented = true where r.reservationId = :resId")
+    int markSettled(String resId);
 }

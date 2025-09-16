@@ -52,11 +52,11 @@ public class EventListenerService {
 
         log.info("✅ Listening for 'Refunded' events...");
 
-        web3j.ethLogFlowable(filter).subscribe(log -> {
+        web3j.ethLogFlowable(filter).subscribe(eventLog -> {
             log.info("🔔 'Refunded' event received | Block={} TxHash={}",
-                    log.getBlockNumber(), log.getTransactionHash());
+                    eventLog.getBlockNumber(), eventLog.getTransactionHash());
 
-            String reservationIdHex = log.getTopics().get(1); // indexed resId
+            String reservationIdHex = eventLog.getTopics().get(1); // indexed resId
             handleRefundedEvent(reservationIdHex);
 
         }, error -> {
