@@ -144,6 +144,6 @@ public class JWTFilter extends OncePerRequestFilter {
         res.setCharacterEncoding(StandardCharsets.UTF_8.name());
         res.setContentType(MediaType.TEXT_PLAIN_VALUE);
         String body = "{\"status\":401,\"code\":\"" + message + "\",\"message\":\"Unauthorized\"}";
-        res.getWriter().write(message);
+        res.getWriter().write(body);
     }
 }
