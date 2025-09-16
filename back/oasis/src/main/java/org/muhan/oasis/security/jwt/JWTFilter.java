@@ -28,6 +28,8 @@ public class JWTFilter extends OncePerRequestFilter {
     private static final Set<String> SKIP_PREFIXES = Set.of(
             "/api/oauth2/authorization",
             "/api/login/oauth2/code",
+            "/api/v1/auth/refresh",
+            "/api/v1/auth/issue",
             "/swagger-ui",
             "/v3/api-docs",
             "/api/v1/health",
