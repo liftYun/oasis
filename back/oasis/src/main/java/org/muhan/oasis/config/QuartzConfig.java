@@ -22,14 +22,9 @@ public class QuartzConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(settlementJobDetail)
                 .withIdentity("settlementTrigger")
-//                .withSchedule(
-//                        CronScheduleBuilder.dailyAtHourAndMinute(10, 0)
-//                                .inTimeZone(java.util.TimeZone.getTimeZone("Asia/Seoul"))
-//                )
                 .withSchedule(
-                        SimpleScheduleBuilder.simpleSchedule()
-                                .withIntervalInMinutes(5) // 5분마다 실행
-                                .repeatForever()
+                        CronScheduleBuilder.dailyAtHourAndMinute(10, 0)
+                                .inTimeZone(java.util.TimeZone.getTimeZone("Asia/Seoul"))
                 )
                 .build();
     }
