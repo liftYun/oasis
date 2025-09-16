@@ -147,7 +147,8 @@ public class RefreshController {
                 "needProfileUpdate", needProfileUpdate,
                 "nextUrl", needProfileUpdate ? "/register" : "/",
                 "email", userDetails.getEmail(),
-                "nickname", userDetails.getUserNickname()
+                "nickname", userDetails.getUserNickname(),
+                "profileUrl", profileUrl
         );
 
         return ResponseEntity.ok()
