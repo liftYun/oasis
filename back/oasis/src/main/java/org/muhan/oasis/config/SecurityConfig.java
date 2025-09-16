@@ -131,7 +131,7 @@ public class SecurityConfig {
         OAuth2AuthorizationRequestResolver resolver =
                 new DefaultOAuth2AuthorizationRequestResolver(
                         clientRegistrationRepository,
-                        "/oauth2/authorization" // 로그인 시작 URL prefix (공용)
+                        "/api/oauth2/authorization" // 로그인 시작 URL prefix (공용)
                 );
 
         http.sessionManagement(session ->

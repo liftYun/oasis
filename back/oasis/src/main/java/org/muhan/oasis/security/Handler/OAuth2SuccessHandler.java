@@ -127,7 +127,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")
-                .path("/")             // 반드시 원래 path와 동일해야 함
+                .path("/")
+                .domain(cookieDomain)// 반드시 원래 path와 동일해야 함
                 .maxAge(0)             // 0으로 하면 삭제됨
                 .build();
 
