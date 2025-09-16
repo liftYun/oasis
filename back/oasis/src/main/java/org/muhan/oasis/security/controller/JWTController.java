@@ -187,6 +187,7 @@ public class JWTController {
     public BaseResponse<?> existsByNicname(
             @Parameter(description = "중복 여부 확인할 닉네임", required = true, example = "muhan")
             @PathVariable("nickname") String nickname) {
+        log.debug("JWT Controller existsByNicname nickname: " + nickname);
         return joinService.existsByNickname(nickname)
                 ? BaseResponse.error(DUPLICATED_NICKNAME)
                 : BaseResponse.ok();
