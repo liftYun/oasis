@@ -13,5 +13,5 @@ public interface StayBlockRepository extends JpaRepository<StayBlockEntity, Long
     List<StayBlockEntity> findAllByStayIdAndEndDateAfterOrderByStartDateAsc(
             Long stay_id, LocalDate endDate);
 
-    void deleteByStayId(Long stayIdzsz);
+    void deleteByStayId(Long stayId);
 }
