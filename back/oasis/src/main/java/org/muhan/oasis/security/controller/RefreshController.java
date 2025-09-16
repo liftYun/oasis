@@ -146,6 +146,7 @@ public class RefreshController {
         Map<String, Object> payload = Map.of(
                 "needProfileUpdate", needProfileUpdate,
                 "nextUrl", needProfileUpdate ? "/register" : "/",
+                "email", userDetails.getEmail(),
                 "nickname", userDetails.getUserNickname()
         );
 
