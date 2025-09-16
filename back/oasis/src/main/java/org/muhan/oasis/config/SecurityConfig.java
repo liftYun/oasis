@@ -121,7 +121,6 @@ public class SecurityConfig {
                                 "/login/oauth2/code/**",
                                 "/api/google/redirect",
                                 "/api/google/login",
-                                "/api/v1/auth/existByNickname/**",
                                 "/api/v1/health/**").permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/auth/refresh",
