@@ -108,7 +108,8 @@ public class SecurityConfig {
         log.info("[SECURITY] Building SecurityFilterChain...");
 
         // 1) CORS
-        http.cors(Customizer.withDefaults());
+//        http.cors(Customizer.withDefaults());
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
         log.debug("[SECURITY] CORS enabled");
 
         // 2) CSRF, FormLogin, BasicAuth 비활성화
