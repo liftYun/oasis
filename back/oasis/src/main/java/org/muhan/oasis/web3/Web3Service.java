@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.web3j.abi.FunctionEncoder;
+import org.web3j.abi.TypeReference;
+import org.web3j.abi.datatypes.Bool;
 import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.generated.Bytes32;
 import org.web3j.protocol.Web3j;
@@ -18,6 +20,7 @@ import org.web3j.tx.response.PollingTransactionReceiptProcessor;
 import org.web3j.tx.response.TransactionReceiptProcessor;
 import org.web3j.utils.Numeric;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
@@ -72,4 +75,22 @@ public class Web3Service {
         }
         return receipt.getTransactionHash();
     }
+
+
+    public boolean canRelease(String resIdHex) throws IOException {
+        Function fn = new Function(
+                "canRelease",
+                List.of(new Bytes32(Numeric.hexStringToByteArray(resIdHex))),
+                List.of(new TypeReference<Bool>() {})
+        );
+        String data = FunctionEncoder.encode(fn);
+
+        EthCall call = web3j.ethCall(
+                Transaction.createEthCallTransaction(txManager.getFromAddress(), contractAddress, data),
+                DefaultBlockParameterName.LATEST
+        ).send();
+
+        return Boolean.parseBoolean(call.getValue());
+    }
+
 }

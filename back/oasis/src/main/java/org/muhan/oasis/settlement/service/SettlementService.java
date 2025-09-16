@@ -1,6 +1,7 @@
 package org.muhan.oasis.settlement.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
 import org.muhan.oasis.web3.Web3Service;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 // 정산 서비스
 public class SettlementService {
     private final ReservationRepository reservationRepository;
@@ -21,22 +23,30 @@ public class SettlementService {
     public void processSettlement() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         // 1) DB에서 settle 안 된 예약들 조회
-        List<ReservationEntity> unsettled = reservationRepository.findByIsSettlementedFalseAndCheckoutDateBefore(now);
+        List<ReservationEntity> unsettled =
+                reservationRepository.findByIsSettlementedFalseAndCheckoutDateBefore(now);
 
         for (ReservationEntity r : unsettled) {
             try {
+
+                //정산 가능 여부 확인 -> 컨트랙트 수정 필요
+//                if (!web3.canRelease(r.getReservationId())) {
+//                    log.info("⚠️ Skip settlement for resId={} (not releasable on-chain)", r.getReservationId());
+//                    continue;
+//                }
+
                 // 2) 온체인 release
-                String receipt = web3.releaseAndWait(r.getReservationId());
+                String txHash  = web3.releaseAndWait(r.getReservationId());
 
                 // 3) DB 상태 업데이트
                 reservationRepository.markSettled(r.getReservationId());
 
                 // 선택: 로그 저장
-                System.out.println("Settlement success for resId=" + r.getReservationId() + " tx=" + receipt);
+                log.info("✅ Settlement success for resId={} tx={}", r.getReservationId(), txHash);
 
             } catch (Exception e) {
                 // 실패했을 경우 로깅 (DB 상태는 그대로 두고 다음 주기에 재시도)
-                System.err.println("Settlement failed for resId=" + r.getReservationId() + " : " + e.getMessage());
+                log.warn("❌ Settlement failed for resId={} reason={}", r.getReservationId(), e.getMessage());
             }
         }
     }
