@@ -15,7 +15,7 @@ interface ChatDetailPageProps {
   chatId: string;
 }
 
-const TEST_SENDER_ID = 456; // 테스트용 내 사용자 ID
+const TEST_SENDER_ID = 123; // 테스트용 내 사용자 ID
 
 export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
   const isTest = chatId === 'test';
