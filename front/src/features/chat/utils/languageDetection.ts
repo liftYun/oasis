@@ -42,15 +42,24 @@ export function detectLanguage(text: string): DetectedLanguage {
   if (!trimmed) return 'unknown';
 
   const scores = analyzeLanguageComposition(trimmed);
-  if (scores.total < 3) return 'unknown';
+  const koreanCount = scores.korean;
+  const englishCount = scores.english;
 
-  const koreanRatio = scores.korean / scores.total;
-  const englishRatio = scores.english / scores.total;
-  const otherRatio = scores.other / scores.total;
+  // 한글만 포함
+  if (koreanCount > 0 && englishCount === 0) {
+    return 'ko';
+  }
 
-  if (otherRatio >= 0.5) return 'unknown';
-  if (koreanRatio >= 0.3 && koreanRatio > englishRatio) return 'ko';
-  if (englishRatio >= 0.3 && englishRatio > koreanRatio) return 'en';
+  // 영어만 포함
+  if (englishCount > 0 && koreanCount === 0) {
+    return 'en';
+  }
+
+  // 둘 다 포함된 경우 더 많은 쪽으로 판단
+  if (koreanCount > englishCount) return 'ko';
+  if (englishCount > koreanCount) return 'en';
+
+  // 한글/영어가 모두 없거나 개수가 같은 경우
   return 'unknown';
 }
 
