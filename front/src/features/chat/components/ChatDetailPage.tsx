@@ -5,11 +5,13 @@ import StayInfoCard from '@/features/chat/components/StayInfoCard';
 import MessageItem, { type MessageItemModel } from '@/features/chat/components/MessageItem';
 import InputBar from '@/features/chat/components/InputBar';
 import { useChatDetail, type ChatDetailData } from '@/features/chat/hooks/useChatDetail';
+import { notifyFirebaseUnavailable } from '@/features/chat/api/toastHelpers';
 import {
   ensureTestChat,
   subscribeTestChat,
   sendTestMessage,
 } from '@/features/chat/api/chat.firestore';
+import { getFirebaseInitError } from '@/lib/firebase/client';
 
 interface ChatDetailPageProps {
   chatId: string;
@@ -19,6 +21,7 @@ const TEST_SENDER_ID = 123; // 테스트용 내 사용자 ID
 
 export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
   const isTest = chatId === 'test';
+  const initError = getFirebaseInitError();
 
   // 기존 더미/실제 API 훅 (테스트가 아닐 때 사용)
   const { data, isLoading } = useChatDetail(chatId);
@@ -79,6 +82,13 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
     return () => unsubscribe?.();
   }, [isTest]);
 
+  useEffect(() => {
+    if (!isTest) return;
+    if (initError || testError) {
+      notifyFirebaseUnavailable();
+    }
+  }, [isTest, initError, testError]);
+
   const displayData = isTest ? testData : data;
   const loading = isTest ? isTestLoading : isLoading;
 
@@ -109,20 +119,9 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
     return <main className="flex flex-col w-full min-h-screen bg-white" />;
   }
 
-  if (isTest && testError) {
-    return (
-      <main className="flex flex-col w-full min-h-screen bg-white">
-        <section className="px-4 pt-6">
-          <div className="rounded-lg bg-red-50 text-red-600 p-4 text-sm">
-            Firestore 권한 오류: {testError}
-          </div>
-          <p className="mt-2 text-xs text-gray-400">
-            Firebase 콘솔 &gt; Firestore Database &gt; Rules에서 개발 중에는 임시로 읽기/쓰기 허용을
-            설정하세요.
-          </p>
-        </section>
-      </main>
-    );
+  // 오류 시: 빈 화면만 표시 (토스트는 상단 effect에서 한 번만 노출)
+  if (isTest && (initError || testError)) {
+    return <main className="flex flex-col w-full min-h-screen bg-white" />;
   }
 
   if (!displayData) {

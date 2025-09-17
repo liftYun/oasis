@@ -1,6 +1,6 @@
 'use client';
 
-import { db } from '@/lib/firebase/client';
+import { getDb } from '@/lib/firebase/client';
 import {
   addDoc,
   collection,
@@ -43,8 +43,15 @@ export function subscribeTestChat(
     stay: { id: string; title: string; address: string; thumbnailUrl?: string };
     messages: Array<{ id: string; content: string; senderId: number; createdAtMs: number }>;
   }) => void,
-  onError?: (error: unknown) => void,
+  onError?: (error: unknown) => void
 ) {
+  const db = getDb();
+  if (!db) {
+    const err = new Error('Firestore is not configured');
+    onError?.(err);
+    return () => {};
+  }
+
   const roomRef = doc(db, 'chats', 'test');
   const msgsRef = collection(db, 'chats', 'test', 'messages');
 
@@ -69,7 +76,7 @@ export function subscribeTestChat(
     },
     (err) => {
       onError?.(err);
-    },
+    }
   );
 
   return () => unsubMsgs();
@@ -77,17 +84,27 @@ export function subscribeTestChat(
 
 export async function sendTestMessage(senderId: number, content: string) {
   try {
+    const db = getDb();
+    if (!db) {
+      return;
+    }
     const msgsRef = collection(db, 'chats', 'test', 'messages');
     await addDoc(msgsRef, { senderId, content, createdAt: serverTimestamp() });
-    await updateDoc(doc(db, 'chats', 'test'), { lastMessage: content, updatedAt: serverTimestamp() });
+    await updateDoc(doc(db, 'chats', 'test'), {
+      lastMessage: content,
+      updatedAt: serverTimestamp(),
+    });
   } catch (error) {
     console.error('Failed to send test message:', error);
-    throw error;
   }
 }
 
 // 필요 시 테스트 채팅방을 생성/초기화
 export async function ensureTestChat() {
+  const db = getDb();
+  if (!db) {
+    return;
+  }
   const ref = doc(db, 'chats', 'test');
   const snap = await getDoc(ref);
   if (!snap.exists()) {
