@@ -7,7 +7,11 @@ export interface NicknameValidationPayload {
 }
 
 export interface NicknameValidationResponse {
-  exist: boolean;
+  httpStatus: string;
+  isSuccess: boolean;
+  message: string;
+  code: number;
+  result: unknown;
 }
 
 // 첫 로그인 후 추가 정보 등록
