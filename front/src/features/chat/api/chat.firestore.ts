@@ -2,16 +2,15 @@
 
 import { getDb } from '@/lib/firebase/client';
 import {
-  addDoc,
   collection,
   doc,
   getDoc,
   onSnapshot,
   orderBy,
   query,
+  runTransaction,
   serverTimestamp,
   setDoc,
-  updateDoc,
 } from 'firebase/firestore';
 
 // 타입 정의로 any 제거
@@ -55,14 +54,28 @@ export function subscribeTestChat(
   const roomRef = doc(db, 'chats', 'test');
   const msgsRef = collection(db, 'chats', 'test', 'messages');
 
+  let currentStay = DEFAULT_TEST_STAY;
+  let currentMessages: Array<{
+    id: string;
+    content: string;
+    senderId: number;
+    createdAtMs: number;
+  }> = [];
+
+  const unsubRoom = onSnapshot(
+    roomRef,
+    (snap) => {
+      const rawRoom = snap.data() as FirestoreRoom | undefined;
+      currentStay = rawRoom?.stay ?? DEFAULT_TEST_STAY;
+      cb({ stay: currentStay, messages: currentMessages });
+    },
+    onError
+  );
+
   const unsubMsgs = onSnapshot(
     query(msgsRef, orderBy('createdAt', 'asc')),
-    async (snap) => {
-      const roomSnap = await getDoc(roomRef);
-      const rawRoom = roomSnap.data() as FirestoreRoom | undefined;
-      const r: FirestoreRoom = rawRoom ?? { stay: DEFAULT_TEST_STAY };
-
-      const messages = snap.docs.map((d) => {
+    (snap) => {
+      currentMessages = snap.docs.map((d) => {
         const m = d.data() as FirestoreMessage;
         const ms = m.createdAt?.toDate ? m.createdAt.toDate().getTime() : Date.now();
         return {
@@ -72,30 +85,39 @@ export function subscribeTestChat(
           createdAtMs: ms,
         };
       });
-      cb({ stay: r.stay, messages });
+      cb({ stay: currentStay, messages: currentMessages });
     },
-    (err) => {
-      onError?.(err);
-    }
+    onError
   );
 
-  return () => unsubMsgs();
+  return () => {
+    unsubRoom();
+    unsubMsgs();
+  };
 }
 
 export async function sendTestMessage(senderId: number, content: string) {
+  const db = getDb();
+  if (!db) {
+    throw new Error('Firestore is not configured');
+  }
   try {
-    const db = getDb();
-    if (!db) {
-      return;
-    }
     const msgsRef = collection(db, 'chats', 'test', 'messages');
-    await addDoc(msgsRef, { senderId, content, createdAt: serverTimestamp() });
-    await updateDoc(doc(db, 'chats', 'test'), {
-      lastMessage: content,
-      updatedAt: serverTimestamp(),
+    await runTransaction(db, async (transaction) => {
+      const newMsgRef = doc(msgsRef);
+      transaction.set(newMsgRef, { senderId, content, createdAt: serverTimestamp() });
+      transaction.set(
+        doc(db, 'chats', 'test'),
+        {
+          lastMessage: content,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
     });
   } catch (error) {
     console.error('Failed to send test message:', error);
+    throw error;
   }
 }
 
