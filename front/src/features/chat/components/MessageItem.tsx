@@ -2,6 +2,8 @@
 
 import Image from 'next/image';
 import TranslateIcon from '@/assets/icons/translate.png';
+import { useLanguage } from '@/features/language';
+import { chatMessages } from '@/features/chat/locale';
 
 export type MessageItemModel = {
   id: string;
@@ -16,6 +18,8 @@ interface MessageItemProps {
 }
 
 export default function MessageItem({ message, onClickTranslate }: MessageItemProps) {
+  const { lang } = useLanguage();
+  const t = chatMessages[lang];
   const bubbleBase = 'max-w-[78%] px-5 py-4 rounded-2xl text-sm leading-relaxed shadow-sm';
   const bubbleClass = message.isMine
     ? `${bubbleBase} bg-black text-white rounded-br-md`
@@ -39,9 +43,9 @@ export default function MessageItem({ message, onClickTranslate }: MessageItemPr
             type="button"
             onClick={() => onClickTranslate?.(message.id)}
             className="ml-2 mt-auto mb-2 p-1 rounded hover:bg-gray-100 active:bg-gray-200"
-            aria-label="translate-message"
+            aria-label={t.seeMore}
           >
-            <Image src={TranslateIcon} alt="translate" width={22} height={22} />
+            <Image src={TranslateIcon} alt={t.seeMore} width={22} height={22} />
           </button>
         )}
       </div>

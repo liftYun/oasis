@@ -12,6 +12,8 @@ import {
   sendTestMessage,
 } from '@/features/chat/api/chat.firestore';
 import { getFirebaseInitError } from '@/lib/firebase/client';
+import { useLanguage } from '@/features/language';
+import { chatMessages } from '@/features/chat/locale';
 
 interface ChatDetailPageProps {
   chatId: string;
@@ -22,6 +24,8 @@ const TEST_SENDER_ID = 123; // 테스트용 내 사용자 ID
 export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
   const isTest = chatId === 'test';
   const initError = getFirebaseInitError();
+  const { lang } = useLanguage();
+  const t = chatMessages[lang];
 
   // 기존 더미/실제 API 훅 (테스트가 아닐 때 사용)
   const { data, isLoading } = useChatDetail(chatId);
@@ -53,10 +57,13 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
               const showTime = lastMinuteKey !== minuteKey;
               if (showTime) lastMinuteKey = minuteKey;
 
-              const period = hour24 < 12 ? '오전' : '오후';
+              const period = hour24 < 12 ? t.am : t.pm;
               const hour12Raw = hour24 % 12;
               const hour12 = String(hour12Raw === 0 ? 12 : hour12Raw).padStart(2, '0');
-              const timeText = `${y}.${mo}.${d} ${period} ${hour12}:${mm}`;
+              const timeText =
+                lang === 'kor'
+                  ? `${y}.${mo}.${d} ${period} ${hour12}:${mm}`
+                  : `${mo}/${d}/${y} ${period} ${hour12}:${mm}`;
 
               return {
                 id: m.id,
@@ -85,9 +92,9 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
   useEffect(() => {
     if (!isTest) return;
     if (initError || testError) {
-      notifyFirebaseUnavailable();
+      notifyFirebaseUnavailable(lang);
     }
-  }, [isTest, initError, testError]);
+  }, [isTest, initError, testError, lang]);
 
   const displayData = isTest ? testData : data;
   const loading = isTest ? isTestLoading : isLoading;

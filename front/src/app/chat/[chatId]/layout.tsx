@@ -1,9 +1,14 @@
+'use client';
 import BackHeader from '@/components/molecules/BackHeader';
+import { useLanguage } from '@/features/language';
+import { chatMessages } from '@/features/chat/locale';
 
 export default function ChatRoomLayout({ children }: { children: React.ReactNode }) {
+  const { lang } = useLanguage();
+  const t = chatMessages[lang];
   return (
     <>
-      <BackHeader title="채팅" />
+      <BackHeader title={t.titleChat} />
       <div className="pt-14 bg-white min-h-dvh overflow-y-auto">{children}</div>
     </>
   );
