@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { logout, secession } from '@/services/auth.api';
+import { logout } from '@/services/auth.api';
 // import { CenterModal } from '@/components/organisms/CenterModel';
 import Calendar from '@/assets/icons/calendar.png';
 import CreateStay from '@/assets/icons/create-stay.png';

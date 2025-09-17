@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { logout, secession } from '@/services/auth.api';
+import { logout } from '@/services/auth.api';
 import Calendar from '@/assets/icons/calendar.png';
 import Heart from '@/assets/icons/heart-blue.png';
 import PositiveReview from '@/assets/icons/positive-review.png';
