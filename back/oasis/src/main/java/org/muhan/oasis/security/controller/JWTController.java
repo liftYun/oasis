@@ -141,7 +141,6 @@ public class JWTController {
             UserEntity updated = joinService.completeProfile(
                     uuid,
                     vo.getNickname(),
-                    user.getEmail(),
                     finalProfileUrl,
                     vo.getRole(),
                     vo.getLanguage()
