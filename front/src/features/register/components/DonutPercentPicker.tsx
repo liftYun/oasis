@@ -17,7 +17,7 @@ export function DonutPercentPicker({
 }: DonutPercentPickerProps) {
   const radius = size / 2 - 20;
   const circumference = 2 * Math.PI * radius;
-  const pct = Math.max(0, Math.min(100, value));
+  const pct = Math.max(0, Math.min(95, value));
   const offset = circumference * (1 - pct / 100);
 
   const center = size / 2;
@@ -40,7 +40,7 @@ export function DonutPercentPicker({
     if (angle < 0) angle += 2 * Math.PI;
     const raw = (angle / (2 * Math.PI)) * 100;
     const snapped = Math.round(raw / step) * step;
-    onChange(Math.max(0, Math.min(100, snapped)));
+    onChange(Math.max(0, Math.min(95, snapped)));
   };
 
   const onPointerDown = (e: React.PointerEvent) => {
@@ -65,12 +65,12 @@ export function DonutPercentPicker({
         height={size}
         role="slider"
         aria-valuemin={0}
-        aria-valuemax={100}
+        aria-valuemax={95}
         aria-valuenow={pct}
         tabIndex={0}
         className="touch-none select-none"
         onKeyDown={(e) => {
-          if (e.key === 'ArrowRight' || e.key === 'ArrowUp') onChange(Math.min(100, pct + step));
+          if (e.key === 'ArrowRight' || e.key === 'ArrowUp') onChange(Math.min(95, pct + step));
           if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') onChange(Math.max(0, pct - step));
         }}
         onPointerDown={onPointerDown}

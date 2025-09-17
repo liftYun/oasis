@@ -27,4 +27,4 @@ export const validateNickname = ({ nickname }: NicknameValidationPayload) =>
 
 // 첫 로그인 후 추가 정보 등록
 export const addInformations = (body: AddInformationsRequest) =>
-  http.put<AddInformationsResponse>('/api/v1/user/addInformations', body);
+  http.put<AddInformationsResponse>('/api/v1/auth/addInformations', body);

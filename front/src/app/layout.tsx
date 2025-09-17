@@ -4,6 +4,7 @@ import { ReactQueryProvider } from '@/providers/ReactQueryProvider';
 import AppToaster from '@/components/molecules/AppToaster';
 import { ClientLayout } from './ClientLayout';
 import InstallPrompt from '@/components/organisms/InstallPrompt';
+import AuthBootstrap from './_components/AuthBootstrap';
 
 export const metadata: Metadata = {
   title: 'oasis',
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AppToaster />
         <ReactQueryProvider>
           <InstallPrompt />
+          <AuthBootstrap />
           <ClientLayout>{children}</ClientLayout>
         </ReactQueryProvider>
       </body>

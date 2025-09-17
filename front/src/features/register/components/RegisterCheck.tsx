@@ -8,6 +8,7 @@ import { useRegisterStore, registerMessages } from '@/features/register';
 import { useLanguage } from '@/features/language';
 import PreviewUser from '@/assets/icons/preview-user.png';
 import { getPresignedUrl, finalizeProfileImage } from '@/services/user.api';
+import { toast } from 'react-hot-toast';
 
 export function RegisterCheck() {
   const {
@@ -28,15 +29,14 @@ export function RegisterCheck() {
   const onSelectFile: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    if (!f.type.startsWith('image/')) {
-      alert('이미지 파일만 업로드할 수 있어요.');
+    const allowed = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/avif'];
+    if (!allowed.includes(f.type)) {
+      toast.error(t.errorImage);
       return;
     }
-    // File 객체를 상태에 저장
     setStoreProfileUrl(f);
   };
 
-  // 미리보기 갱신
   useEffect(() => {
     if (!profileUrl) {
       setPreview(null);
@@ -49,7 +49,9 @@ export function RegisterCheck() {
       return () => URL.revokeObjectURL(url);
     }
 
-    setPreview(profileUrl);
+    if (typeof profileUrl === 'string') {
+      setPreview(profileUrl);
+    }
   }, [profileUrl]);
 
   const handleFinalConfirm = async () => {
@@ -82,8 +84,7 @@ export function RegisterCheck() {
       // 5. 다음 단계 이동
       next();
     } catch (e) {
-      console.error(e);
-      alert('프로필 이미지 업로드 중 오류가 발생했습니다.');
+      toast.error(t.errorProfile);
     } finally {
       setLoading(false);
     }

@@ -66,7 +66,7 @@ class HttpClient {
   constructor(config?: AxiosRequestConfig) {
     this.client = axios.create({
       baseURL: process.env.NEXT_PUBLIC_API_URL,
-      withCredentials: true,
+      // withCredentials: true,
       timeout: 8000,
       ...config,
     });

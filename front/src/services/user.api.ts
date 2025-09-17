@@ -9,7 +9,7 @@ import {
 } from './user.types';
 
 // 내 프로필 조회
-export const getMyProfile = () => http.get<MyProfile>('/api/v1/user/mypage');
+export const getMyProfile = () => http.get<{ result: MyProfile }>('/api/v1/user/mypage');
 
 // 프로필 이미지 업로드 URL 발급
 export const getPresignedUrl = (type: string, subtype: string) => {
@@ -41,4 +41,4 @@ export const updateCancellationPolicy = (body: CancellationPolicyRequest) =>
 
 // 언어 변경
 export const updateLanguage = (language: string) =>
-  http.patch<void>(`/api/v1/user/updateLang/${language}`);
+  http.put<void>(`/api/v1/user/updateLang/${language}`);

@@ -3,8 +3,8 @@ export interface MyProfile {
   id: number;
   nickname: string;
   email: string;
-  profileImageUrl?: string;
-  role: 'guest' | 'host';
+  profileUrl: string;
+  role: 'ROLE_GUEST' | 'ROLE_HOST';
   language: string;
   createdAt: string;
 }
@@ -38,8 +38,10 @@ export interface UserSearchResult {
 
 // 취소 정책 등록/수정
 export interface CancellationPolicyRequest {
-  daysBefore: number;
-  refundRate: number;
+  policy1: number; // 1~2일 전
+  policy2: number; // 3~5일 전
+  policy3: number; // 5~6일 전
+  policy4: number; // 7일 전
 }
 
 export interface CancellationPolicyResponse {

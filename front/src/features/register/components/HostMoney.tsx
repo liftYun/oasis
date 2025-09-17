@@ -10,6 +10,9 @@ import { DonutPercentPicker } from './DonutPercentPicker';
 import { CenterModal } from '@/components/organisms/CenterModel';
 import { useRouter } from 'next/navigation';
 import { Lottie } from '@/components/atoms/Lottie';
+import { registCancellationPolicy } from '@/services/user.api';
+import { CancellationPolicyRequest } from '@/services/user.types';
+import { toast } from 'react-hot-toast';
 
 type Rule = {
   id: string;
@@ -25,16 +28,10 @@ type HostMoneyProps = {
 };
 
 const DEFAULT_RULES: Rule[] = [
-  { id: 'd10', daysBefore: 10, value: 100, label: { kor: '10일전', eng: '10 days before' } },
-  { id: 'd7', daysBefore: 7, value: 100, label: { kor: '7일전', eng: '7 days before' } },
-  { id: 'd5', daysBefore: 5, value: 70, label: { kor: '5일전', eng: '5 days before' } },
-  { id: 'd3', daysBefore: 3, value: 50, label: { kor: '3일전', eng: '3 days before' } },
-  {
-    id: 'd1',
-    daysBefore: 1,
-    value: 10,
-    label: { kor: '당일·1일전', eng: 'Same day · 1 day before' },
-  },
+  { id: 'd7', daysBefore: 7, value: 80, label: { kor: '7일 전', eng: '7 days before' } },
+  { id: 'd5', daysBefore: 5, value: 60, label: { kor: '5~6일 전', eng: '5~6 days before' } },
+  { id: 'd3', daysBefore: 3, value: 40, label: { kor: '3~5일 전', eng: '3~5 days before' } },
+  { id: 'd1', daysBefore: 1, value: 20, label: { kor: '1~2일 전', eng: '1~2 days before' } },
 ];
 
 export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: HostMoneyProps) {
@@ -42,7 +39,6 @@ export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: 
   const t = registerMessages[lang];
   const langKey = (lang as keyof Rule['label']) ?? 'kor';
   const router = useRouter();
-
   const [rules, setRules] = useState<Rule[]>(defaultRules);
   const [error, setError] = useState('');
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -50,7 +46,13 @@ export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const percentOptions = useMemo(() => Array.from({ length: 10 }, (_, i) => i * 10).reverse(), []);
+  const percentOptions = useMemo(
+    () =>
+      Array.from({ length: 10 }, (_, i) => i * 10)
+        .filter((v) => v <= 95)
+        .reverse(),
+    []
+  );
   const activeRule = rules.find((r) => r.id === activeId) ?? null;
 
   const setValue = (id: string, next: number) => {
@@ -61,17 +63,35 @@ export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: 
     const sorted = [...arr].sort((a, b) => b.daysBefore - a.daysBefore);
     for (let i = 1; i < sorted.length; i++) {
       if (sorted[i].value > sorted[i - 1].value) {
-        return `${sorted[i].label[langKey]} 환불률이 이전 단계보다 높아요.`;
+        const korMsg = `${sorted[i].label.kor} 환불률이 이전 단계보다 높아요.`;
+        const engMsg = `${sorted[i].label.eng} must be lower than previous.`;
+        toast.error(langKey === 'kor' ? korMsg : engMsg);
+        return false;
       }
     }
-    return '';
+    return true;
   };
 
-  const handleSubmit = () => {
-    const msg = validate(rules);
-    setError(msg);
-    if (msg) return;
-    setConfirmOpen(true);
+  const handleSubmit = async () => {
+    const ok = validate(rules);
+    if (!ok) return;
+
+    const body: CancellationPolicyRequest = {
+      policy1: rules.find((r) => r.daysBefore <= 2)?.value ?? 0,
+      policy2: rules.find((r) => r.daysBefore >= 3 && r.daysBefore <= 5)?.value ?? 0,
+      policy3: rules.find((r) => r.daysBefore >= 5 && r.daysBefore <= 6)?.value ?? 0,
+      policy4: rules.find((r) => r.daysBefore >= 7)?.value ?? 0,
+    };
+
+    try {
+      console.log(body);
+      const res = await registCancellationPolicy(body);
+      console.log(res);
+      toast.success(langKey === 'kor' ? '취소 정책이 등록되었어요.' : 'Policy saved.');
+      setConfirmOpen(true);
+    } catch (err) {
+      toast.error(langKey === 'kor' ? '등록 중 오류가 발생했어요.' : 'Failed to save policy.');
+    }
   };
 
   if (submitting) {
@@ -159,6 +179,11 @@ export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: 
               step={5}
               size={200}
             />
+
+            <p className="text-sm text-gray-400 -mt-2">
+              {langKey === 'kor' ? '최대 95%까지 설정할 수 있어요.' : 'Up to 95% allowed.'}
+            </p>
+
             <div className="grid grid-cols-5 gap-2 w-full pb-5">
               {percentOptions.map((p) => (
                 <button
@@ -172,6 +197,7 @@ export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: 
                 </button>
               ))}
             </div>
+
             <Button variant="default" className="w-full" onClick={() => setSheetOpen(false)}>
               {t.confirm}
             </Button>
