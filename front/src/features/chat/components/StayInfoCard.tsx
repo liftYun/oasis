@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import StayImage from '@/assets/images/stay_example.png';
 import { ChatUserThumbnail } from '@/components/atoms/ChatUserThumbnail';
 import ZoomIn from '@/assets/icons/zoom-in.png';
+import { useLanguage } from '@/features/language';
+import { chatMessages } from '@/features/chat/locale';
 
 type StayInfo = {
   id: string;
@@ -19,6 +21,8 @@ interface StayInfoCardProps {
 
 export default function StayInfoCard({ stay }: StayInfoCardProps) {
   const router = useRouter();
+  const { lang } = useLanguage();
+  const t = chatMessages[lang];
 
   const goDetail = () => {
     // 추후 실제 숙소 상세 경로로 연결 예정
@@ -53,8 +57,8 @@ export default function StayInfoCard({ stay }: StayInfoCardProps) {
           <p className=" truncate text-sm text-gray-400">{stay.address}</p>
 
           <div className="mt-2 text-xs text-gray-500 inline-flex items-center gap-2">
-            <Image src={ZoomIn} alt="자세히 보기" width={14} height={14} />
-            <span>자세히 보기</span>
+            <Image src={ZoomIn} alt={t.seeMore} width={14} height={14} />
+            <span>{t.seeMore}</span>
           </div>
         </div>
       </div>

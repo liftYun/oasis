@@ -65,3 +65,8 @@ logs
 # bun / turbo / other build tools
 .turbo
 .bun
+
+# PWA generated files
+public/sw.js
+public/workbox-*.js
+public/fallback-*.js
