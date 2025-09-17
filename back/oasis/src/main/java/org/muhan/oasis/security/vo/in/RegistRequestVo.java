@@ -21,6 +21,6 @@ public class RegistRequestVo {
     private String role;
 
     // 선택: ko/en 등 화이트리스트 권장
-    @Pattern(regexp = "KOR|ENG", message = "지원하지 않는 언어 코드입니다.")
+    @Pattern(regexp = "KOR|ENG|kor|eng", message = "지원하지 않는 언어 코드입니다.")
     private String language;
 }
