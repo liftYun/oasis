@@ -224,7 +224,7 @@ public class UserController {
 
 
 
-    @PatchMapping("/updateLang/{language}")
+    @PutMapping("/updateLang/{language}")
     @Schema(allowableValues = {"KOR","ENG","kor","eng"})
     @Operation(
             summary = "사용자 언어 설정 수정(PATCH)",
@@ -237,7 +237,9 @@ public class UserController {
     ) {
         Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
         // language parsing
+        log.info("update language user nickname:{}, lang(before upper):{}", customUserDetails.getUserNickname(), language);
         Language lang = Language.valueOf(language.toUpperCase());
+        log.info("update language user nickname:{}, lang(after upper):{}", customUserDetails.getUserNickname(), language);
 
         // update new Language
         userService.updateLang(userId, lang);
