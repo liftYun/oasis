@@ -7,7 +7,7 @@ export type MessageItemModel = {
   id: string;
   content: string;
   isMine: boolean; // true: 내 메시지, false: 상대 메시지
-  timestamp: string; // 이미 포맷된 표시용 텍스트
+  timestamp?: string; // 표시용 텍스트(같은 분에서는 첫 메시지만 세팅)
 };
 
 interface MessageItemProps {
@@ -23,11 +23,13 @@ export default function MessageItem({ message, onClickTranslate }: MessageItemPr
 
   return (
     <div className="mb-6">
-      <div
-        className={`mb-2 text-[10px] text-gray-300 ${message.isMine ? 'text-right pr-4' : 'text-left pl-4'}`}
-      >
-        {message.timestamp}
-      </div>
+      {message.timestamp && (
+        <div
+          className={`mb-2 text-[10px] text-gray-300 ${message.isMine ? 'text-right pr-4' : 'text-left pl-4'}`}
+        >
+          {message.timestamp}
+        </div>
+      )}
 
       <div className={`flex ${message.isMine ? 'justify-end' : 'justify-start'}`}>
         <div className={bubbleClass}>{message.content}</div>

@@ -3,13 +3,22 @@
 import { useQuery } from '@tanstack/react-query';
 import type { ChatListResponse } from '@/features/chat';
 
-const DUMMY_CHATS: ChatListResponse = Array.from({ length: 5 }).map((_, i) => ({
-  id: String(1000 + i),
-  title: '광안 바이브',
-  location: '부산광역시 수영구',
-  thumbnailUrl: '/images/stay_example.png',
-  lastDate: '25.09.02',
-}));
+const DUMMY_CHATS: ChatListResponse = [
+  {
+    id: 'test', // 테스트 방으로 연결
+    title: '광안 바이브',
+    location: '부산광역시 수영구',
+    thumbnailUrl: '/images/stay_example.png',
+    lastDate: '25.09.02',
+  },
+  ...Array.from({ length: 4 }).map((_, i) => ({
+    id: String(1001 + i),
+    title: '광안 바이브',
+    location: '부산광역시 수영구',
+    thumbnailUrl: '/images/stay_example.png',
+    lastDate: '25.09.02',
+  })),
+];
 
 async function fetchChatList(): Promise<ChatListResponse> {
   // TODO: 실제 API 연동 시 교체
