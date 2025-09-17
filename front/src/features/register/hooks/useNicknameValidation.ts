@@ -1,3 +1,5 @@
+'use client';
+
 import { useMemo, useState } from 'react';
 import { validateNickname } from '@/services/auth.api';
 import { toast } from 'react-hot-toast';

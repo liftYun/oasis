@@ -100,8 +100,17 @@ export function RegisterCheck() {
 
       <div className="relative mx-auto">
         <div
+          role="button"
+          tabIndex={0}
+          aria-label="프로필 이미지 업로드"
           onClick={() => inputRef.current?.click()}
-          className="relative h-24 w-24 rounded-full mb-8 bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center cursor-pointer group"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              inputRef.current?.click();
+            }
+          }}
+          className="relative h-24 w-24 rounded-full mb-8 bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center cursor-pointer group focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {hasPreview ? (
             <img src={preview!} alt="Profile preview" className="h-full w-full object-cover" />

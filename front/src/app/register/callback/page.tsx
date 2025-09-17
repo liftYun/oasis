@@ -37,7 +37,7 @@ function CallbackInner() {
           const next = (searchParams.get('next') ?? '/main') as string;
           router.replace(next as any);
         } else {
-          router.replace('/main');
+          router.replace('/');
         }
       } catch (e) {
         router.replace('/');
