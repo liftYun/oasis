@@ -50,9 +50,6 @@ public class UserEntity extends BaseEntity {
     @Column(name = "email", nullable = false, length = 255, unique = true)
     private String email;
 
-    @Column(name = "profile_key", length = 191)
-    private String profileKey;
-
     @Column(name = "profile_url", length = 191)
     private String profileUrl;
 

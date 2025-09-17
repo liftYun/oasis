@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 @Service
@@ -44,21 +45,13 @@ public class ApproveService {
             throw new IllegalArgumentException("userId is required");
         }
 
-        if (!StringUtils.hasText(req.getAmountUSDC())) {
-            throw new IllegalArgumentException("amountUSDC is required");
-        }
-
-        if (!StringUtils.hasText(req.getFeeUSDC())) {
-            throw new IllegalArgumentException("feeUSDC is required");
-        }
-
 
         UserEntity user = userRepository.findByUserUuid(req.getUserUUID())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 UUID 입니다."));
         WalletEntity wallet = walletRepository.findByUser(user);
         String walletId = wallet.getWalletId();
-        BigInteger amount = new BigInteger(req.getAmountUSDC().trim());
-        BigInteger fee    = new BigInteger(req.getFeeUSDC().trim());
+        BigInteger amount = req.getAmountUSDC().multiply(BigDecimal.TEN.pow(6)).toBigIntegerExact();
+        BigInteger fee    = req.getFeeUSDC().multiply(BigDecimal.TEN.pow(6)).toBigIntegerExact();
         BigInteger totalUSDC  = amount.add(fee);
         log.debug("Parsed amount={}, fee={}, totalUSDC={}", amount, fee, totalUSDC);
 
@@ -68,7 +61,7 @@ public class ApproveService {
         log.info(">>> contractAddress(spender)={}",
                 contractAddress);
 
-        String callData = CallDataEncoder.encodeApprove(contractAddress, req.getAmountUSDC(), req.getFeeUSDC());
+        String callData = CallDataEncoder.encodeApprove(contractAddress, totalUSDC);
 
         log.debug("Encoded approve callData={}", callData);
         String feeLevel = StringUtils.hasText(defaultFeeLevel) ? defaultFeeLevel : "MEDIUM";

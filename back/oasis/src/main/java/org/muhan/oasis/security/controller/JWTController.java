@@ -94,8 +94,7 @@ public class JWTController {
                 {
                   "nickname": "도윤",
                   "role": "ROLE_GUEST",
-                  "language": "kor",
-                  "profileImgKey": "users/7b1f.../profile/550e8400-...png"
+                  "language": "KOR",
                 }
                 """,
             tags = {"회원"}
@@ -118,33 +117,12 @@ public class JWTController {
         String key = null;
 
         try {
-            // 0) 프로필 이미지 결정
-            if (vo.getProfileImgKey() != null && !vo.getProfileImgKey().isBlank()) {
-                key = vo.getProfileImgKey();
-                String requiredPrefix = "users/" + uuid + "/profile/";
-                if (!key.startsWith(requiredPrefix)) {
-                    return BaseResponse.error(INVALID_PARAMETER);
-                }
-                if (!s3StorageService.exists(key)) {
-                    return BaseResponse.error(NO_IMG_DATA); // 업로드 미완료
-                }
-                finalProfileUrl = s3StorageService.toPublicUrl(key);
-
-            } else if (vo.getProfileImgUrl() != null && !vo.getProfileImgUrl().isBlank()) {
-                String url = vo.getProfileImgUrl();
-                if (!isAllowedPublicUrl(url)) {
-                    return BaseResponse.error(INVALID_PARAMETER);
-                }
-                finalProfileUrl = url;
-            } // else: 기본이미지 정책에 따라 null 허용
             // 1) DB 업데이트
             UserEntity updated = joinService.completeProfile(
                     uuid,
                     vo.getNickname(),
-                    user.getEmail(),
-                    finalProfileUrl,
                     vo.getRole(),
-                    vo.getLanguage()
+                    vo.getLanguage().toUpperCase()
             );
 
             // 2) AccessToken 재발급 (헤더 ONLY)
