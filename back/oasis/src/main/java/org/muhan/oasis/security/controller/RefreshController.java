@@ -84,7 +84,7 @@ public class RefreshController {
                 userDetails.getLanguage()
         );
 
-        response.addHeader(HttpHeaders.SET_COOKIE, tokens.refreshCookie().toString());
+        response.setHeader(HttpHeaders.SET_COOKIE, tokens.refreshCookie().toString());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokens.accessToken())
@@ -146,7 +146,9 @@ public class RefreshController {
         Map<String, Object> payload = Map.of(
                 "needProfileUpdate", needProfileUpdate,
                 "nextUrl", needProfileUpdate ? "/register" : "/",
-                "nickname", userDetails.getUserNickname()
+                "email", userDetails.getEmail(),
+                "nickname", userDetails.getUserNickname(),
+                "profileUrl", profileUrl
         );
 
         return ResponseEntity.ok()

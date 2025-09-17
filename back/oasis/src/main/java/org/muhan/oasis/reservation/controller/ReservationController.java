@@ -9,21 +9,19 @@ import org.muhan.oasis.reservation.dto.in.RegistReservationRequestDto;
 import org.muhan.oasis.reservation.service.ApproveService;
 import org.muhan.oasis.reservation.service.LockService;
 import org.muhan.oasis.reservation.service.ReservationService;
+import org.muhan.oasis.reservation.vo.in.CancelReservationRequestVo;
 import org.muhan.oasis.reservation.vo.in.RegistReservationRequestVo;
+import org.muhan.oasis.reservation.vo.out.CancelReservationResponseVo;
 import org.muhan.oasis.reservation.vo.out.ListOfReservationResponseVo;
 import org.muhan.oasis.reservation.vo.out.ReservationDetailsResponseVo;
-import org.muhan.oasis.reservation.vo.out.ReservationResponseVo;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
 import org.muhan.oasis.user.service.UserService;
 import org.muhan.oasis.valueobject.Language;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import static org.muhan.oasis.common.base.BaseResponseStatus.FAIL_REGIST_RESERVATION;
-import static org.muhan.oasis.common.base.BaseResponseStatus.INVALID_PARAMETER;
 
 @RestController
 @ResponseBody
@@ -142,5 +140,22 @@ public class ReservationController {
         Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
         Language language = customUserDetails.getLanguage();
         return BaseResponse.of(ReservationDetailsResponseVo.fromDto(reservationService.getReservationDetails(userId, language, reservationId)));
+    }
+
+    @Operation(
+            summary = "예약 취소",
+            description = """
+                reservationId로 해당 예약을 취소합니다.
+                """,
+            tags = {"예약"}
+    )
+    @PostMapping("/cancel/{reservationId}")
+    public BaseResponse<CancelReservationResponseVo> cancelReservation(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable String reservationId,
+                                                                       @RequestBody CancelReservationRequestVo vo) {
+        String challengeId = reservationService.cancelReservation(
+                customUserDetails.getUserUuid(), reservationId, vo.getIdempotencyKey()
+        ).getChallengeId();
+
+        return BaseResponse.of(new CancelReservationResponseVo(challengeId));
     }
 }

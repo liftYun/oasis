@@ -18,7 +18,7 @@ export function RegisterRole() {
   const t = registerMessages[lang];
 
   const [profileImage, setProfileImage] = useRegisterStore(
-    useShallow((s) => [s.profileImage, s.setProfileImage])
+    useShallow((s) => [s.profileUrl, s.setProfileUrl])
   );
   const [nickname, setNickname] = useRegisterStore(useShallow((s) => [s.nickname, s.setNickname]));
   const [email, setEmail] = useRegisterStore(useShallow((s) => [s.email, s.setEmail]));

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.muhan.oasis.stay.entity.CancellationPolicyEntity;
+import org.muhan.oasis.stay.entity.StayBlockEntity;
 import org.muhan.oasis.stay.entity.StayEntity;
 import org.muhan.oasis.stay.entity.StayFacilityEntity;
 import org.muhan.oasis.valueobject.Language;
@@ -29,8 +31,16 @@ public class StayReadResponseDto{
     // nickname, uuid, url(프로필이미지)
     HostInfoResponseDto host;
     List<FacilityCategoryResponseDto> facilities;
+    // 취소정책
+    List<StayBlockResponseDto> cancellations;
+    List<ReservedResponseDto> reservedDate;
 
-    public static StayReadResponseDto from(StayEntity stay, List<StayFacilityEntity> facilities, Language language) {
+    public static StayReadResponseDto from(
+            StayEntity stay,
+            List<StayFacilityEntity> facilities,
+            Language language,
+            List<StayBlockEntity> blockList,
+            List<ReservedResponseDto> reservedList) {
         return StayReadResponseDto.builder()
                 .stayId(stay.getId())
                 .title(stay.title(language))
@@ -48,6 +58,8 @@ public class StayReadResponseDto{
                 .review(stay.getRatingSummary()!=null ? StayReviewSummaryResponseDto.from(stay.getRatingSummary()) : null)
                 .host(HostInfoResponseDto.from(stay.getUser()))
                 .facilities(FacilityCategoryResponseDto.from(facilities))
+                .cancellations(StayBlockResponseDto.from(blockList))
+                .reservedDate(reservedList)
                 .build();
     }
 

@@ -67,8 +67,8 @@ app:
     timeout-ms: 3000
   front-base-url: ${FRONT_BASE_URL}
   backend-base-url: ${BACK_BASE_URL}
-  #  backend-base-url: http://localhost:8080 # localTest
   domain: .stay-oasis.kr
+#  domain: localhost
 papago:
   base-url: https://papago.apigw.ntruss.com
   client-id: ${PAPAGO_CLIENT_ID}
@@ -106,9 +106,18 @@ circle:
   api-key: ${CIRCLE_API_KEY}
   default-fee-level: MEDIUM
 
-
 contract:
   address: ${CONTRACT_ADDRESS}
 
 usdc:
   address: ${USDC_ADDRESS}
+
+infura:
+  url: ${INFURA_URL}
+
+chain:
+  id: 80002
+
+wallet:
+  private:
+    key: ${WALLET_PRIVATE_KEY}

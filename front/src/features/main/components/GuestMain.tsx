@@ -16,18 +16,87 @@ import PositiveReview from '@/assets/icons/positive-review.png';
 import MainCard from '@/components/organisms/main-card/MainCard';
 import Usdc from '@/assets/icons/usd-circle.png';
 import TestRoom from '@/assets/images/test-room.jpeg';
+import { useEffect, useRef, useState } from 'react';
+
+function ScrollableRoomList({ rooms }: { rooms: typeof mockRooms }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showArrow, setShowArrow] = useState(false);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      const { scrollLeft } = el;
+
+      const isAtStart = scrollLeft < 5;
+
+      setShowArrow(isAtStart);
+    };
+
+    el.addEventListener('scroll', handleScroll);
+    handleScroll();
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <div
+      className="overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing relative"
+      ref={scrollRef}
+    >
+      <div className="flex gap-4 w-max px-1">
+        {rooms.map((room, i) => (
+          <div key={i} className="flex-shrink-0 w-40">
+            <div className="relative w-40 h-40 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
+              <Image src={room.image} alt={room.name} fill className="object-cover" />
+              <Image
+                src={HeartDefault}
+                alt="heart"
+                width={28}
+                height={28}
+                className="absolute top-2 right-2 opacity-70"
+              />
+              <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-yellow/70 px-2 py-1 rounded-full">
+                <Image src={Star} alt="star" width={14} height={14} className="opacity-60" />
+                <span className="text-xs text-gray-600 font-medium">{room.rating}</span>
+              </div>
+            </div>
+
+            <p className="mt-3 mx-1 text-sm text-gray-700 font-semibold truncate text-left">
+              {room.name}
+            </p>
+            <div className="flex items-center gap-1.5 mx-1 mt-1">
+              <Image src={Usdc} alt="usdc" width={16} height={16} className="shrink-0" />
+              <p className="text-sm text-gray-600 font-medium truncate">{room.price}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div
+        className={`pointer-events-none absolute top-1/2 -translate-y-1/2 right-3 transition-opacity duration-300 ${
+          showArrow ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/50 text-primary shadow-md animate-bounce-x">
+          <ChevronRight size={20} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const mockRooms = [...Array(12)].map((_, i) => ({
+  name: `숙소 ${i + 1}`,
+  price: '125,000 원',
+  rating: '4.8',
+  image: TestRoom,
+}));
 
 export function GuestMain() {
   const { lang } = useLanguage();
   const t: MainMessagesMap[Lang] = mainMessages[lang];
   const router = useRouter();
-
-  const mockRooms = [...Array(12)].map((_, i) => ({
-    name: `숙소 ${i + 1}`,
-    price: '125,000 원',
-    rating: '4.8',
-    image: TestRoom,
-  }));
 
   return (
     <main
@@ -35,6 +104,7 @@ export function GuestMain() {
       style={{ paddingBottom: 'var(--safe-bottom, 110px)' }}
     >
       <SearchBar />
+
       <section className="mt-6">
         <div className="relative w-full h-[18rem] flex flex-col items-center justify-center">
           <Lottie src="/lotties/search.json" className="w-[90%] h-40" />
@@ -61,43 +131,7 @@ export function GuestMain() {
             <p className="text-sm text-gray-400">{t.likedSubtitle}</p>
           </div>
         </div>
-
-        <div className="overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing relative">
-          <div className="flex gap-4 w-max px-1">
-            {mockRooms.map((room, i) => (
-              <div key={i} className="flex-shrink-0 w-40">
-                <div className="relative w-40 h-40 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
-                  <Image src={room.image} alt={room.name} fill className="object-cover" />
-                  <Image
-                    src={HeartDefault}
-                    alt="heart"
-                    width={28}
-                    height={28}
-                    className="absolute top-2 right-2 opacity-70"
-                  />
-                  <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-yellow/70 px-2 py-1 rounded-full">
-                    <Image src={Star} alt="star" width={14} height={14} className="opacity-60" />
-                    <span className="text-xs text-gray-600 font-medium">{room.rating}</span>
-                  </div>
-                </div>
-
-                <p className="mt-3 mx-1 text-sm text-gray-700 font-semibold truncate text-left">
-                  {room.name}
-                </p>
-                <div className="flex items-center gap-1.5 mx-1 mt-1">
-                  <Image src={Usdc} alt="usdc" width={16} height={16} className="shrink-0" />
-                  <p className="text-sm text-gray-600 font-medium truncate">{room.price}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="pointer-events-none absolute top-0 right-0 h-full w-16 bg-gradient-to-l from-white to-transparent" />
-          <ChevronRight
-            size={32}
-            className="pointer-events-none absolute top-1/2 -translate-y-1/2 right-3 text-primary animate-bounce-x"
-          />
-        </div>
+        <ScrollableRoomList rooms={mockRooms} />
       </section>
 
       <section className="mt-20 mb-10 relative">
@@ -108,44 +142,7 @@ export function GuestMain() {
             <p className="text-sm text-gray-400">{t.favoriteSubtitle}</p>
           </div>
         </div>
-
-        <div className="overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing relative">
-          <div className="flex gap-4 w-max px-1">
-            {mockRooms.map((room, i) => (
-              <div key={i} className="flex-shrink-0 w-40">
-                <div className="relative w-40 h-40 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
-                  <Image src={room.image} alt={room.name} fill className="object-cover" />
-                  <Image
-                    src={HeartDefault}
-                    alt="heart"
-                    width={28}
-                    height={28}
-                    className="absolute top-2 right-2 opacity-70"
-                  />
-                  <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-yellow/70 px-2 py-1 rounded-full">
-                    <Image src={Star} alt="star" width={14} height={14} className="opacity-60" />
-                    <span className="text-xs text-gray-600 font-medium">{room.rating}</span>
-                  </div>
-                </div>
-
-                <p className="mt-3 mx-1 text-sm text-gray-700 font-semibold truncate text-left">
-                  {room.name}
-                </p>
-
-                <div className="flex items-center gap-1 mx-1 mt-1">
-                  <Image src={Usdc} alt="usdc" width={16} height={16} className="shrink-0" />
-                  <p className="text-sm text-gray-600 font-medium truncate">{room.price}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="pointer-events-none absolute top-0 right-0 h-full w-16 bg-gradient-to-l from-white to-transparent" />
-          <ChevronRight
-            size={32}
-            className="pointer-events-none absolute top-1/2 -translate-y-1/2 right-3 text-primary animate-bounce-x"
-          />
-        </div>
+        <ScrollableRoomList rooms={mockRooms} />
       </section>
 
       <div className="-mx-6 w-screen h-3 bg-gray-100 my-8" />

@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+
 @Service
 @Log4j2
 @RequiredArgsConstructor
@@ -41,7 +43,7 @@ public class CreateTokenService {
                 .sameSite("None")            // 크로스 사이트 필요 시
                 .domain(cookieDomain)
                 .path("/")
-                .maxAge(jwtUtil.getRefreshExpiredMs() / 1000)
+                .maxAge(Duration.ofMillis(jwtUtil.getRefreshExpiredMs()))
                 .build();
 
         return new TokenPair(accessToken, refreshCookie);

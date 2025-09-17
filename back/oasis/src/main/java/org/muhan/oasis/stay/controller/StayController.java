@@ -1,6 +1,5 @@
 package org.muhan.oasis.stay.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -87,8 +86,8 @@ public class StayController {
 
         // 1) 본인의 경로만 허용 (users/{userUuid}/profile/...)
 
-        Long userId = userService.getUserIdByUserUuid(userDetails.getUserUuid());
-        StayResponseDto stayDto = stayService.registStay(stayRequest, userId);
+        String userUuid = userDetails.getUserUuid();
+        StayResponseDto stayDto = stayService.registStay(stayRequest, userUuid);
 
         URI location = URI.create("/api/v1/stay/" + stayDto.stayId());
 
@@ -107,18 +106,18 @@ public class StayController {
     }
 
     // 숙소 수정
-    /*@PutMapping("/{stayId}")
+    @PutMapping("/{stayId}")
     public ResponseEntity<BaseResponse<StayReadResponseDto>> updateStay(
             @PathVariable Long stayId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody UpdateStayRequestDto stayRequest
     ){
-        StayReadResponseDto stayResponse = stayService.updateStay(stayId);
-
+        StayReadResponseDto stayResponse = stayService.updateStay(stayId, stayRequest, userDetails.getUserUuid());
 
         BaseResponse<StayReadResponseDto> body = new BaseResponse<>(stayResponse);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
-    }*/
+    }
 
     @Operation(
             summary = "숙소 삭제",
