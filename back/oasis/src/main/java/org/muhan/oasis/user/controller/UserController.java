@@ -200,7 +200,7 @@ public class UserController {
         // 1) 파일명 포맷/확장자 화이트리스트 검증
         //    - UUID.EXT 형태, 허용 확장자: png|jpg|jpeg|webp|gif|avif
         final Pattern FILE_PATTERN = Pattern.compile(
-                "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\.(png|jpg|jpeg|webp|gif|avif)$"
+                "^[\\p{L}\\p{N}_-]*[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\.(png|jpg|jpeg|webp|gif|avif)$"
         );
         if (!FILE_PATTERN.matcher(file).matches()) {
             return BaseResponse.error(BaseResponseStatus.NO_IMG_FORM);
