@@ -122,7 +122,7 @@ public class JWTController {
                     uuid,
                     vo.getNickname(),
                     vo.getRole(),
-                    vo.getLanguage()
+                    vo.getLanguage().toUpperCase()
             );
 
             // 2) AccessToken 재발급 (헤더 ONLY)
