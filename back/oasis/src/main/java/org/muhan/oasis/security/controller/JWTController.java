@@ -95,7 +95,6 @@ public class JWTController {
                   "nickname": "도윤",
                   "role": "ROLE_GUEST",
                   "language": "kor",
-                  "profileImgKey": "users/7b1f.../profile/550e8400-...png"
                 }
                 """,
             tags = {"회원"}
@@ -122,7 +121,6 @@ public class JWTController {
             UserEntity updated = joinService.completeProfile(
                     uuid,
                     vo.getNickname(),
-                    finalProfileUrl,
                     vo.getRole(),
                     vo.getLanguage()
             );
