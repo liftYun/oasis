@@ -73,7 +73,6 @@ function ScrollableRoomList({ rooms }: { rooms: typeof mockRooms }) {
         ))}
       </div>
 
-      {/* 오른쪽 화살표 */}
       <div
         className={`pointer-events-none absolute top-1/2 -translate-y-1/2 right-3 transition-opacity duration-300 ${
           showArrow ? 'opacity-100' : 'opacity-0'

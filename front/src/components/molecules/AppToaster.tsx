@@ -18,7 +18,7 @@ export default function AppToaster() {
           width: '100%',
           maxWidth: '21.5rem',
           padding: '0 16px',
-          fontSize: '1rem',
+          fontSize: '0.9rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

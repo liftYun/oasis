@@ -6,6 +6,7 @@ export type RegisterTexts = {
   nicknamePlaceholder: string;
   nicknameGuide: string;
   confirm: string;
+  confirmIng: string;
   errorEmpty: string;
   errorLength: string;
   checkTitle: string;
@@ -28,6 +29,10 @@ export type RegisterTexts = {
   moneyModalDescription: string;
   back: string;
   successLogin: string;
+  errorPattern: string;
+  errorDuplicate: string;
+  errorCheckFail: string;
+  successNickname: string;
 };
 
 export type Step = 'nickname' | 'check' | 'role' | 'done';

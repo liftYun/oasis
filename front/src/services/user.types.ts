@@ -11,13 +11,22 @@ export interface MyProfile {
 
 // 프로필 이미지 업로드 URL 발급
 export interface UploadUrlResponse {
-  uploadUrl: string;
-  key: string;
+  status: number;
+  message: string;
+  result: {
+    uploadUrl: string;
+    publicUrl: string;
+    key: string;
+  };
 }
 
 // 프로필 이미지 업데이트 요청
-export interface UpdateProfileImageRequest {
-  key: string;
+export interface FinalizeResponse {
+  status: number;
+  message: string;
+  result: {
+    profileImgUrl: string;
+  };
 }
 
 // 닉네임 검색 결과

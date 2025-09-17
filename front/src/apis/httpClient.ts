@@ -96,7 +96,6 @@ class HttpClient {
   private setInterceptors() {
     this.client.interceptors.request.use((config) => {
       const token = useAuthStore.getState().accessToken;
-
       const isPublic =
         config.url?.startsWith('/api/v1/auth/issue') ||
         config.url?.startsWith('/api/v1/auth/refresh');

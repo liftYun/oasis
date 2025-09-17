@@ -2,7 +2,7 @@ import { type ButtonHTMLAttributes } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'default' | 'blue' | 'google';
+  variant?: 'default' | 'blue' | 'blueLight' | 'google';
   fullWidth?: boolean;
 }
 
@@ -14,6 +14,7 @@ const baseStyles =
 const variants = {
   default: 'bg-gray-500 text-white hover:bg-gray-600',
   blue: 'bg-primary text-white hover:bg-blue-500',
+  blueLight: 'bg-primary/40 text-white',
   google: 'bg-gray-100 text-gray-600 hover:bg-gray-200 h-[55px]',
 };
 
