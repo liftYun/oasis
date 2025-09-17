@@ -2,6 +2,7 @@ package org.muhan.oasis.user.repository;
 
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.valueobject.Language;
+import org.muhan.oasis.valueobject.Role;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -47,4 +48,17 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
             where u.userId = :userId
            """)
     int updateLanguageById(@Param("userId") Long userId, @Param("language") Language language);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+        update UserEntity u
+           set u.nickname = :nickname,
+               u.language = :language,
+               u.role     = :role
+         where u.userId = :userId
+    """)
+    void updateUserById(@Param("userId") Long userId,
+                          @Param("nickname") String nickname,
+                          @Param("language") Language language,
+                          @Param("role") Role role);
 }

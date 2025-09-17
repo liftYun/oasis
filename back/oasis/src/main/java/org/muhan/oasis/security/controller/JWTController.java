@@ -94,7 +94,7 @@ public class JWTController {
                 {
                   "nickname": "도윤",
                   "role": "ROLE_GUEST",
-                  "language": "kor",
+                  "language": "KOR",
                 }
                 """,
             tags = {"회원"}
