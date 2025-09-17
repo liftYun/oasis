@@ -21,6 +21,7 @@ import org.web3j.abi.datatypes.StaticStruct;
 import org.web3j.abi.datatypes.generated.Uint16;
 import org.web3j.abi.datatypes.generated.Uint32;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 @Service
@@ -67,6 +68,9 @@ public class LockService {
         if (!StringUtils.hasText(hostWalletAddress) || !hostWalletAddress.startsWith("0x") || hostWalletAddress.length() != 42)
             throw new IllegalArgumentException("host must be 0x-prefixed EVM address");
 
+        BigInteger amount = req.getAmountUSDC().multiply(BigDecimal.TEN.pow(6)).toBigIntegerExact();
+        BigInteger fee    = req.getFeeUSDC().multiply(BigDecimal.TEN.pow(6)).toBigIntegerExact();
+
         StaticStruct policy = new StaticStruct(
                 new Uint32(BigInteger.valueOf(604800)),  // before1: 7일
                 new Uint32(BigInteger.valueOf(432000)),  // before2: 5일
@@ -89,8 +93,8 @@ public class LockService {
         String callData = CallDataEncoder.encodeLock(
                 req.getReservationId(),
                 hostWalletAddress,
-                req.getAmountUSDC(),
-                req.getFeeUSDC(),
+                amount,
+                fee,
                 req.getCheckIn(),
                 req.getCheckOut(),
                 policy
@@ -149,47 +153,17 @@ public class LockService {
 
     private static void validateInputs(LockRequestDto req) {
         if (!StringUtils.hasText(req.getUserUUID())) throw new IllegalArgumentException("userId is required");
-//        if (!StringUtils.hasText(req.getWalletId())) throw new IllegalArgumentException("walletId is required");
 
         if (!StringUtils.hasText(req.getReservationId()) || !isHex32(req.getReservationId()))
             throw new IllegalArgumentException("resId must be 0x + 32-byte hex string");
-        if (!StringUtils.hasText(req.getAmountUSDC())) throw new IllegalArgumentException("amountUSDC is required");
-        if (!StringUtils.hasText(req.getFeeUSDC())) throw new IllegalArgumentException("feeUSDC is required");
         if (req.getCheckIn() <= 0 || req.getCheckOut() <= 0 || req.getCheckIn() >= req.getCheckOut())
             throw new IllegalArgumentException("checkIn/checkOut are invalid");
-//        if (req.getPolicy() == null) throw new IllegalArgumentException("policy is required");
-//
-//        PolicySnap p = req.getPolicy();
-//        int[] bps = new int[] {
-//                p.getAmtPct1(), p.getAmtPct2(), p.getAmtPct3(), p.getAmtPct4(), p.getAmtPct5(),
-//                p.getFeePct1(), p.getFeePct2(), p.getFeePct3(), p.getFeePct4(), p.getFeePct5()
-//        };
-//        for (int v : bps) if (v < 0 || v > 10_000) throw new IllegalArgumentException("policy bps out of range");
     }
 
     private static boolean isHex32(String hex) {
         String h = hex.startsWith("0x") ? hex.substring(2) : hex;
         return h.length() == 64 && h.matches("^[0-9a-fA-F]+$");
     }
-
-//    private static EncodedPolicy toEncodedPolicy(PolicySnap p) {
-//        EncodedPolicy ep = new EncodedPolicy();
-//        ep.setBefore1(p.getBefore1());
-//        ep.setBefore2(p.getBefore2());
-//        ep.setBefore3(p.getBefore3());
-//        ep.setBefore4(p.getBefore4());
-//        ep.setAmtPct1(p.getAmtPct1());
-//        ep.setAmtPct2(p.getAmtPct2());
-//        ep.setAmtPct3(p.getAmtPct3());
-//        ep.setAmtPct4(p.getAmtPct4());
-//        ep.setAmtPct5(p.getAmtPct5());
-//        ep.setFeePct1(p.getFeePct1());
-//        ep.setFeePct2(p.getFeePct2());
-//        ep.setFeePct3(p.getFeePct3());
-//        ep.setFeePct4(p.getFeePct4());
-//        ep.setFeePct5(p.getFeePct5());
-//        return ep;
-//    }
 
     private static boolean shouldRefreshUserToken(CircleUserApi.CircleApiException ex) {
         if (ex.status != 403) return false;
