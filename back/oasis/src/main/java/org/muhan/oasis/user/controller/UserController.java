@@ -224,7 +224,7 @@ public class UserController {
 
 
 
-    @PutMapping("/updateLang/{language}")
+    @PatchMapping("/updateLang/{language}")
     @Schema(allowableValues = {"KOR","ENG","kor","eng"})
     @Operation(
             summary = "사용자 언어 설정 수정(PATCH)",

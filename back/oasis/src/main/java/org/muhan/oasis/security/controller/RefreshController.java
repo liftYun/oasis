@@ -149,7 +149,8 @@ public class RefreshController {
                 "uuid", uuid,
                 "email", userDetails.getEmail(),
                 "nickname", userDetails.getUserNickname(),
-                "profileUrl", profileUrl
+                "profileUrl", profileUrl,
+                "role", role
         );
 
         return ResponseEntity.ok()
