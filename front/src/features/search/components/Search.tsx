@@ -29,10 +29,8 @@ export function Search() {
 
       const params = {
         lastStayId: 0,
-        stayQuery, // ✅ 서버가 요구하는 형식
+        stayQuery,
       };
-
-      console.log('📦 요청 파라미터', params);
 
       const { result } = await searchStays(params);
       setStays(result ?? []);
@@ -61,10 +59,11 @@ export function Search() {
 
       <div className="mt-auto mb-6">
         <Button
-          variant="default"
+          variant={
+            selectedSubRegionId && selectedRange?.from && selectedRange?.to ? 'blue' : 'blueLight'
+          }
           className="w-full max-w-lg mx-auto"
           onClick={handleSearch}
-          // disabled={!selectedSubRegionId || !selectedRange?.from || !selectedRange?.to}
         >
           검색
         </Button>
