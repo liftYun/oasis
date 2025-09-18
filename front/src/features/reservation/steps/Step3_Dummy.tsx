@@ -42,25 +42,23 @@ export function Step3_Dummy() {
           <p className="text-2xl font-bold text-gray-900">{dummy.balance.toFixed(1)}</p>
           <button className="px-4 py-1.5 rounded-full bg-white font-semibold flex items-center justify-center">
             <span className="text-xs text-transparent bg-clip-text bg-gradient-to-r from-[#3B87F4] to-[#88D4AF]">
-              {lang === 'kor' ? '충전하기' : 'Top up'}
+              {t.step3.topUp}
             </span>
           </button>
         </div>
       </div>
       <div className="-mx-6 h-3 bg-gray-100 my-4" />
       <section className="w-full max-w-sm">
-        <h3 className="text-base font-semibold mb-3">
-          {lang === 'kor' ? '숙소 결제 금액' : 'Payment Summary'}
-        </h3>
+        <h3 className="text-base font-semibold mb-3">{t.step3.summaryTitle}</h3>
         <div className="rounded-md border border-gray-100 overflow-hidden font-bold">
           <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
-            <span className="text-sm text-gray-600">{lang === 'kor' ? '숙박 일자' : 'Nights'}</span>
+            <span className="text-sm text-gray-600">{t.step3.labels.nights}</span>
             <span className="text-sm text-gray-900">
               {dummy.nights}박 x ${dummy.pricePerNight.toFixed(2)}
             </span>
           </div>
           <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
-            <span className="text-sm text-gray-600">{lang === 'kor' ? '수수료' : 'Fee'}</span>
+            <span className="text-sm text-gray-600">{t.step3.labels.fee}</span>
             <span className="text-sm text-gray-900">$ {dummy.fee.toFixed(0)}</span>
           </div>
           <div className="flex items-center justify-end px-4 py-3 bg-gray-900 text-white">
@@ -69,26 +67,12 @@ export function Step3_Dummy() {
         </div>
       </section>
       <section className="w-full mt-4 max-w-sm">
-        <h3 className="text-base font-semibold mb-3">
-          {lang === 'kor' ? '결제 유의사항' : 'Payment Notes'}
-        </h3>
+        <h3 className="text-base font-semibold mb-3">{t.step3.notesTitle}</h3>
         <div className="rounded-md border border-gray-100 bg-gray-50 p-4 text-[13px] leading-6 text-gray-700 font-bold">
           <ol className="list-decimal pl-5 space-y-1">
-            <li>
-              모든 결제는{' '}
-              <span className="text-primary font-semibold">블록체인 스마트컨트랙트</span>로 안전하게
-              처리됩니다.
-            </li>
-            <li>예약 및 결제 내역은 블록체인에 기록되어 위·변조가 불가능합니다.</li>
-            <li>취소 및 환불은 숙소 정책 및 스마트컨트랙트 규정에 따릅니다.</li>
-            <li>결제 시 네트워크 수수료(Gas Fee)가 추가로 발생할 수 있습니다.</li>
-            <li>결제 전 반드시 지갑 잔액을 확인해주세요.</li>
-            <li>
-              결제 완료 시 예약이 <span className="text-primary font-semibold">자동 확정</span>
-              되며 별도의 승인 절차가 필요하지 않습니다.
-            </li>
-            <li>거래 내역은 영구적으로 기록되어 언제든 조회·검증 가능합니다.</li>
-            <li>네트워크 혼잡 시 결제 처리에 일시적 지연이 발생할 수 있습니다.</li>
+            {t.step3.notes.map((note, idx) => (
+              <li key={idx}>{note}</li>
+            ))}
           </ol>
         </div>
       </section>
