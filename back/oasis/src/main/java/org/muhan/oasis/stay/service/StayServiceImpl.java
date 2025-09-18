@@ -469,4 +469,14 @@ public class StayServiceImpl implements StayService{
                 user.getLanguage().getDescription()
         );
     }
+
+    @Override
+    public List<StayChatResponseDto> getStays(List<StayChatRequestDto> stayChatListDto, String userUuid) {
+        UserEntity user = userRepository.findByUserUuid(userUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
+        List<Long> list = stayChatListDto.stream().map(StayChatRequestDto::stayId).toList();
+
+        return stayRepository.findChatInfo(user.getLanguage().getDescription(), list);
+    }
 }
