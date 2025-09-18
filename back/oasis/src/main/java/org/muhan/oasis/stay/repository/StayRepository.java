@@ -147,14 +147,14 @@ public interface StayRepository extends JpaRepository<StayEntity, Long> {
     @Query("""
       select new org.muhan.oasis.stay.dto.out.StayChatResponseDto(
         s.id,
-        case when :language = org.muhan.oasis.valueobject.Language.KOR
+        case when :language = 'KOR'
              then s.addressLine else s.addressLineEng end,
         s.thumbnail
       )
       from StayEntity s
       where s.id in :ids
     """)
-    List<StayChatResponseDto> findChatInfo(@Param("language") Language language,
+    List<StayChatResponseDto> findChatInfo(@Param("language") String language,
                                            @Param("ids") List<Long> ids);
 }
 

@@ -477,6 +477,6 @@ public class StayServiceImpl implements StayService{
 
         List<Long> list = stayChatListDto.stream().map(StayChatRequestDto::stayId).toList();
 
-        return stayRepository.findChatInfo(user.getLanguage(), list);
+        return stayRepository.findChatInfo(user.getLanguage().getDescription(), list);
     }
 }
