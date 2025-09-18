@@ -16,13 +16,20 @@ export const reservationMessages = {
       successMessage: '스마트 키 등록이 완료되었습니다.',
       failMessage: '닉네임을 찾을 수 없습니다.',
       promo: [
-        { title: '스마트 키는 한번 등록하면\n변경할 수 없습니다.', caption: '안전하게 보관되며, 이후 수정·삭제 불가능' },
-        { title: '하나의 키로\n여러 이용자가 공유할 수 있습니다!', caption: '스마트 컨트랙트 기반 검증' },
+        {
+          title: '스마트 키는 한번 등록하면\n변경할 수 없습니다.',
+          caption: '안전하게 보관되며, 이후 수정·삭제 불가능',
+        },
+        {
+          title: '하나의 키로\n여러 이용자가 공유할 수 있습니다!',
+          caption: '스마트 컨트랙트 기반 검증',
+        },
       ],
     },
     step3: {
-      title: '결제 확인 (더미)',
-      submit: '예약 요청',
+      title: '결제 사항 검토',
+      description: '보유 잔액과 유의사항을 반드시 확인해주세요!',
+      submit: '예약하기',
     },
   },
   eng: {
@@ -40,11 +47,21 @@ export const reservationMessages = {
       successMessage: 'Smart key registration completed.',
       failMessage: 'Nickname not found.',
       promo: [
-        { title: 'Once registered,\nthe smart key cannot be changed.', caption: 'Safely stored; editing/deletion is not allowed' },
-        { title: 'One key can be shared\namong multiple users!', caption: 'Verified by smart contracts' },
+        {
+          title: 'Once registered,\nthe smart key cannot be changed.',
+          caption: 'Safely stored; editing/deletion is not allowed',
+        },
+        {
+          title: 'One key can be shared\namong multiple users!',
+          caption: 'Verified by smart contracts',
+        },
       ],
     },
-    step3: { title: 'Payment (dummy)', submit: 'Request' },
+    step3: {
+      title: 'Payment Review',
+      description: 'Please check your balance and notes carefully!',
+      submit: 'Book',
+    },
   },
 } as const;
 
