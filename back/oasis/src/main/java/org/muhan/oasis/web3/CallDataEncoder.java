@@ -40,18 +40,14 @@ public final class CallDataEncoder {
         private int feePct5;
     }
 
-    public static String encodeApprove(String spender, String amountUSDC, String feeUSDC) {
-        log.info(">>> encodeApprove called. spender={}, amountUSDC={}, feeUSDC={}", spender, amountUSDC, feeUSDC);
+    public static String encodeApprove(String spender, BigInteger totalUSDC) {
+        log.info(">>> encodeApprove called. spender={}, totalUSDC={}", spender, totalUSDC);
 
-
-        BigInteger amount = new BigInteger(amountUSDC);
-        BigInteger fee = new BigInteger(feeUSDC);
-        BigInteger total  = amount.add(fee);
 
         Address spenderAddr = new Address(spender);
-        Uint256 value = new Uint256(total);
+        Uint256 value = new Uint256(totalUSDC);
 
-        log.debug("Parsed approve params: amount={}, fee={}, total={}", amount, fee, total);
+        log.debug("Parsed approve params: total={}", totalUSDC);
 
         Function f = new Function(
                 "approve",
@@ -68,8 +64,8 @@ public final class CallDataEncoder {
     public static String encodeLock(
             String resId32Hex,
             String host,
-            String amountUSDC,
-            String feeUSDC,
+            BigInteger amountUSDC,
+            BigInteger feeUSDC,
             long checkIn,
             long checkOut,
             StaticStruct policy
@@ -81,8 +77,8 @@ public final class CallDataEncoder {
         Address hostAddr = new Address(host);
 
 
-        Uint256 amount = new Uint256(new BigInteger(amountUSDC));
-        Uint256 fee    = new Uint256(new BigInteger(feeUSDC));
+        Uint256 amount = new Uint256(amountUSDC);
+        Uint256 fee    = new Uint256(feeUSDC);
         Uint64 in64    = new Uint64(BigInteger.valueOf(checkIn));
         Uint64 out64   = new Uint64(BigInteger.valueOf(checkOut));
 

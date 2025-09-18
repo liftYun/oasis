@@ -1,9 +1,9 @@
 package org.muhan.oasis.stay.dto.out;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record ReservedResponseDto(
-        LocalDate checkIn,
-        LocalDate checkOut
+        LocalDateTime checkIn,
+        LocalDateTime checkOut
 ) {
 }

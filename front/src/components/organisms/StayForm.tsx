@@ -18,6 +18,7 @@ interface StayFormProps {
   isSubmitting?: boolean;
   imagePreviews: string[];
   onRemoveImage: (index: number) => void;
+  onReorder?: (newOrder: string[]) => void;
 }
 
 export function StayForm({
@@ -27,6 +28,7 @@ export function StayForm({
   isSubmitting,
   imagePreviews,
   onRemoveImage,
+  onReorder,
 }: StayFormProps) {
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
@@ -39,10 +41,12 @@ export function StayForm({
   const titleValue = useWatch({ control: form.control, name: 'title' }) ?? '';
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col flex-grow gap-6">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       <FormField
         label={t.form.titleLabel}
-        registration={register('title')}
+        registration={register('title', {
+          required: '숙소 이름을 입력해주세요.',
+        })}
         id="title"
         placeholder={t.form.titlePlaceholder}
         maxLength={20}
@@ -65,38 +69,37 @@ export function StayForm({
         control={form.control}
         name="price"
         registration={register('price', {
+          required: '가격을 입력해주세요.',
           setValueAs: (raw) => {
             if (raw === '' || raw == null) return undefined;
             const str: string = String(raw);
-            // 09.00 -> 9 또는 9.00: 숫자 이외 제거 후 앞자리 0 제거, 소수점 2자리 보존
             const match = str.match(/^(\d+)(?:\.(\d{1,2}))?$/);
-            if (!match) return Number(str); // 폴백
+            if (!match) return Number(str);
             const intPart = match[1].replace(/^0+(\d)/, '$1');
             const frac = match[2] ?? '';
             const normalized = frac ? `${intPart}.${frac}` : intPart;
-            const num = Number(normalized);
-            return num;
+            return Number(normalized);
           },
         })}
         error={errors.price}
       />
 
-      {/* ImageUploader는 hook과 연결될 예정 */}
       <ImageUploader
-        registration={register('images')}
+        registration={register('images', {
+          validate: (value) => (value && value.length > 0) || '최소 1장의 이미지를 업로드해주세요.',
+        })}
         error={errors.images}
         accept={ACCEPTED_IMAGE_TYPES.join(',')}
         imagePreviews={imagePreviews}
         onRemoveImage={onRemoveImage}
+        onReorder={(newOrder) => form.setValue('images', newOrder)}
       />
 
-      <div className="mt-auto pt-4">
+      <div className="mt-auto mb-6">
         <Button
           type="submit"
           disabled={!isValid || isSubmitting}
-          variant={isValid && !isSubmitting ? 'blue' : 'google'}
-          // className={`w-full font-bold mb-10 ${
-
+          variant={isValid && !isSubmitting ? 'blue' : 'blueLight'}
         >
           {isSubmitting ? t.common.processing : t.common.next}
         </Button>

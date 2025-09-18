@@ -1,39 +1,35 @@
 package org.muhan.oasis.security.Handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.muhan.oasis.common.base.BaseResponse;
-import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.security.jwt.CustomOAuth2User;
 import org.muhan.oasis.security.jwt.CustomOidcUser;
 import org.muhan.oasis.security.jwt.JWTUtil;
 import org.muhan.oasis.security.service.JoinService;
 import org.muhan.oasis.security.service.RefreshTokenService;
+import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.valueobject.Role;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 @Slf4j
@@ -49,137 +45,182 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final RefreshTokenService refreshTokenService;
     private final JoinService joinService;
 
-    private final HttpSessionOAuth2AuthorizationRequestRepository authReqRepo =
-            new HttpSessionOAuth2AuthorizationRequestRepository();
-
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
 
-        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
-        Object principalObj = token.getPrincipal();
+        final long startNs = System.nanoTime();
+        String requestId = firstNonBlank(request.getHeader("X-Request-Id"), UUID.randomUUID().toString());
+        bindMdc(request, requestId);
+        log.info("[OAUTH2:SUCCESS] >>> start | clientIp={}, regId={}",
+                clientIp(request),
+                (authentication instanceof OAuth2AuthenticationToken t ? t.getAuthorizedClientRegistrationId() : "N/A"));
 
-        UserEntity user;
-        if (principalObj instanceof CustomOAuth2User p) {
-            // 카카오/네이버 등 기존 커스텀 OAuth2
-            user = p.getUser();
+        try {
+            OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
+            Object principalObj = token.getPrincipal();
 
-        } else if (principalObj instanceof CustomOidcUser p) {
-            // 구글(OIDC) — oidcUserService에서 감싼 커스텀 OIDC
-            user = p.getUser();
+            // === 사용자 식별/등록 ===
+            UserEntity user;
+            if (principalObj instanceof CustomOAuth2User p) {
+                user = p.getUser();
+                log.debug("[OAUTH2:SUCCESS] principal=CustomOAuth2User, provider={}", token.getAuthorizedClientRegistrationId());
 
-        } else if (principalObj instanceof OidcUser oidc) {
-            // (안전망) 만약 커스텀 OIDC가 아닌 DefaultOidcUser가 들어온 경우
-            Map<String, Object> attrs = oidc.getAttributes();
-            String email = stringOrNull(attrs.get("email"));
-            String nickname = firstNonBlank(
-                    stringOrNull(attrs.get("name")),
-                    stringOrNull(attrs.get("given_name")),
-                    email
-            );
-            String profileUrl = stringOrNull(attrs.get("profile_url"));
-            user = joinService.registerSocialUserIfNotExist(email, nickname, profileUrl, null);
+            } else if (principalObj instanceof CustomOidcUser p) {
+                user = p.getUser();
+                log.debug("[OAUTH2:SUCCESS] principal=CustomOidcUser, provider={}", token.getAuthorizedClientRegistrationId());
 
-        } else if (principalObj instanceof OAuth2User oauth) {
-            // (안전망) 일반 OAuth2 — 커스텀 래핑이 안 된 경우
-            Map<String, Object> attrs = oauth.getAttributes();
-            String email = stringOrNull(attrs.get("email"));
-            String nickname = firstNonBlank(
-                    stringOrNull(attrs.get("name")),
-                    stringOrNull(attrs.get("nickname")),
-                    stringOrNull(attrs.get("login")),
-                    email
-            );
-            String profileUrl = stringOrNull(attrs.get("profile_url"));
-            user = joinService.registerSocialUserIfNotExist(email, nickname, profileUrl,null);
+            } else if (principalObj instanceof OidcUser oidc) {
+                Map<String, Object> attrs = oidc.getAttributes();
+                String email = stringOrNull(attrs.get("email"));
+                String nickname = firstNonBlank(
+                        stringOrNull(attrs.get("name")),
+                        stringOrNull(attrs.get("given_name")),
+                        email
+                );
+                String profileUrl = stringOrNull(attrs.get("profile_url"));
+                user = joinService.registerSocialUserIfNotExist(email, nickname, profileUrl, null);
+                log.info("[OAUTH2:SUCCESS] fallback OIDC user registeredOrLoaded | email={}", safe(email));
 
-        } else {
-            throw new IllegalStateException("Unexpected principal type: " + principalObj.getClass());
-        }
-        String uuid = user.getUserUuid();
-        String email = user.getEmail();
-        String nickname = user.getNickname();
+            } else if (principalObj instanceof OAuth2User oauth) {
+                Map<String, Object> attrs = oauth.getAttributes();
+                String email = stringOrNull(attrs.get("email"));
+                String nickname = firstNonBlank(
+                        stringOrNull(attrs.get("name")),
+                        stringOrNull(attrs.get("nickname")),
+                        stringOrNull(attrs.get("login")),
+                        email
+                );
+                String profileUrl = stringOrNull(attrs.get("profile_url"));
+                user = joinService.registerSocialUserIfNotExist(email, nickname, profileUrl, null);
+                log.info("[OAUTH2:SUCCESS] fallback OAuth2 user registeredOrLoaded | email={}", safe(email));
 
-        // ✅ 기본 Role (처음 가입 시 ROLE_GUEST 부여)
-        Role role = user.getRole() != null ? user.getRole() : Role.valueOf("ROLE_GUEST");
+            } else {
+                log.error("[OAUTH2:SUCCESS] Unexpected principal type: {}", principalObj.getClass());
+                throw new IllegalStateException("Unexpected principal type: " + principalObj.getClass());
+            }
 
-        Language language = user.getLanguage() != null ? user.getLanguage() : Language.valueOf("KOR");
+            // === 토큰/쿠키 세팅 ===
+            String uuid = user.getUserUuid();
+            String email = user.getEmail();
+            String nickname = user.getNickname();
 
-        // ✅ Access / Refresh Token 발급
-//        String accessToken = jwtUtil.createAccessToken(uuid, email, nickname, role, language);
-        String refreshToken = jwtUtil.createRefreshToken(uuid);
+            Role role = (user.getRole() != null ? user.getRole() : Role.valueOf("ROLE_GUEST"));
+            Language language = (user.getLanguage() != null ? user.getLanguage() : Language.KOR);
 
-        refreshTokenService.saveToken(uuid, refreshToken);
+            // AccessToken은 프런트 플로우에 따라 발급 시점 조절 (현재 미사용)
+            // String accessToken = jwtUtil.createAccessToken(uuid, email, nickname, role, language);
 
-//        response.addHeader("Authorization", "Bearer " + accessToken);
+            String refreshToken = jwtUtil.createRefreshToken(uuid);
+            refreshTokenService.saveToken(uuid, refreshToken);
+            log.info("[OAUTH2:SUCCESS] tokens issued | uuid={}, role={}, lang={}, rtTtlMs={}",
+                    uuid, role, language, jwtUtil.getRefreshExpiredMs());
 
-        String cookie = ResponseCookie.from("refreshToken", refreshToken)
-                .httpOnly(true)
-                .secure(true)           // 로컬 HTTP 개발 시 false, 배포는 true
-                .sameSite("None")       // SPA 도메인 분리 시 필수
-                .path("/")
-                .domain(cookieDomain)
-                .maxAge(Duration.ofMillis(jwtUtil.getRefreshExpiredMs()))
-                .build().toString();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie);
+            String rtCookie = ResponseCookie.from("refreshToken", refreshToken)
+                    .httpOnly(true)
+                    .secure(true)              // 로컬 HTTP 개발이면 false로
+                    .sameSite("None")
+                    .domain(cookieDomain)
+                    .path("/")
+                    .maxAge(Duration.ofMillis(jwtUtil.getRefreshExpiredMs()))
+                    .build().toString();
+            response.addHeader(HttpHeaders.SET_COOKIE, rtCookie);
+            log.debug("[OAUTH2:SUCCESS] refreshToken cookie set | domain={}, path=/, sameSite=None, secure=true", cookieDomain);
 
-        ResponseCookie deleteCookie = ResponseCookie.from("OAUTH2_AUTH_REQUEST", "")
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
-                .path("/")
-                .domain(cookieDomain)// 반드시 원래 path와 동일해야 함
-                .maxAge(0)             // 0으로 하면 삭제됨
-                .build();
+            // OAuth2 요청 쿠키 정리 (클라이언트/서버 저장소 모두 운용 시 충돌 방지)
+            ResponseCookie deleteCookie = ResponseCookie.from("OAUTH2_AUTH_REQUEST", "")
+                    .httpOnly(true)
+                    .secure(true)
+                    .sameSite("None")
+                    .domain(cookieDomain)
+                    .path("/")
+                    .maxAge(0)
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+            log.debug("[OAUTH2:SUCCESS] cleanup cookie issued: OAUTH2_AUTH_REQUEST");
 
-        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+            boolean needProfileUpdate = (user.getRole() == null || user.getProfileUrl() == null);
+            String baseRedirect = frontBaseUrl + "/register/callback";
+            log.info("[OAUTH2:SUCCESS] user ready | uuid={}, email={}, needProfileUpdate={}, next={}",
+                    uuid, safe(email), needProfileUpdate, baseRedirect);
 
-
-        boolean needProfileUpdate = (user.getRole() == null || user.getProfileUrl() == null);
-        String baseRedirect = needProfileUpdate ? frontBaseUrl + "/register/callback"
-                : frontBaseUrl + "/";
-        log.info("[OAuth2Success] uuid={}, email={}, redirect={}", uuid, email, baseRedirect);
-
-        String accept = request.getHeader("Accept");
-        boolean wantsJson =
-                (accept != null && accept.contains(MediaType.APPLICATION_JSON_VALUE))
-                        || "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With"))
-                        || "json".equalsIgnoreCase(request.getParameter("responseMode"));
-
-        if (!wantsJson) {
-            String redirectUrl = baseRedirect + (baseRedirect.contains("?") ? "&" : "?")
-                    + "needProfileUpdate=" + needProfileUpdate;
+            boolean wantsJson =
+                    acceptsJson(request) ||
+                            "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With")) ||
+                            "json".equalsIgnoreCase(request.getParameter("responseMode"));
 
             response.setHeader("Cache-Control", "no-store");
             response.setHeader("Pragma", "no-cache");
-            response.setStatus(HttpServletResponse.SC_FOUND);
-            response.setHeader("Location", redirectUrl);
-            return;
-        }
 
-        // JSON 모드: BaseResponse로 내려주고, 프론트가 nextUrl로 이동
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE + "; charset=UTF-8");
-        new ObjectMapper().writeValue(
-                response.getWriter(),
-                BaseResponse.of(
-                        Map.of(
-                                "needProfileUpdate", needProfileUpdate,
-                                // 의미를 명확히: 클라이언트가 사용할 URL
-                                "nextUrl", baseRedirect
-                        )
-                )
-        );
+            if (!wantsJson) {
+                String redirectUrl = baseRedirect + (baseRedirect.contains("?") ? "&" : "?")
+                        + "needProfileUpdate=" + needProfileUpdate;
+                response.setStatus(HttpServletResponse.SC_FOUND);
+                response.setHeader("Location", redirectUrl);
+                log.info("[OAUTH2:SUCCESS] <<< redirect 302 to {}", redirectUrl);
+                return;
+            }
+
+            // JSON 모드
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE + "; charset=UTF-8");
+            new ObjectMapper().writeValue(
+                    response.getWriter(),
+                    BaseResponse.of(
+                            Map.of(
+                                    "needProfileUpdate", needProfileUpdate,
+                                    "nextUrl", baseRedirect
+                            )
+                    )
+            );
+            log.info("[OAUTH2:SUCCESS] <<< JSON 200 | nextUrl={}", baseRedirect);
+
+        } catch (Exception e) {
+            log.error("[OAUTH2:SUCCESS] handler error: {}", e.getMessage(), e);
+            // 실패 시, 프론트가 기대하는 방식으로 최소한의 안내 (여기선 500 JSON)
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            new ObjectMapper().writeValue(response.getWriter(),
+                    Map.of("status", 500, "message", "OAuth2 success handler failed"));
+        } finally {
+            long tookMs = (System.nanoTime() - startNs) / 1_000_000;
+            log.info("[OAUTH2:SUCCESS] done in {} ms", tookMs);
+            MDC.clear();
+        }
+    }
+
+    private boolean acceptsJson(HttpServletRequest request) {
+        String accept = request.getHeader(HttpHeaders.ACCEPT);
+        return accept != null && accept.contains(MediaType.APPLICATION_JSON_VALUE);
     }
 
     private static String stringOrNull(Object o) {
-        return o == null ? null : String.valueOf(o);
+        return (o == null ? null : String.valueOf(o));
     }
 
-    @SafeVarargs
     private static String firstNonBlank(String... vals) {
-        for (String v : vals) {
-            if (v != null && !v.isBlank()) return v;
-        }
+        for (String v : vals) if (v != null && !v.isBlank()) return v;
         return null;
+    }
+
+    private String safe(String s) { return (s == null ? "" : s); }
+
+    private void bindMdc(HttpServletRequest req, String requestId) {
+        MDC.put("requestId", requestId);
+        MDC.put("method", safe(req.getMethod()));
+        MDC.put("path", safe(req.getRequestURI()));
+        MDC.put("clientIp", clientIp(req));
+        MDC.put("origin", safe(req.getHeader("Origin")));
+    }
+
+    private String clientIp(HttpServletRequest req) {
+        String[] headers = {"X-Forwarded-For","X-Real-IP","CF-Connecting-IP","X-Client-IP"};
+        for (String h : headers) {
+            String v = req.getHeader(h);
+            if (v != null && !v.isBlank()) {
+                int comma = v.indexOf(',');
+                return comma > 0 ? v.substring(0, comma).trim() : v.trim();
+            }
+        }
+        return req.getRemoteAddr();
     }
 }

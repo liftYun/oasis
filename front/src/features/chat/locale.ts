@@ -1,0 +1,34 @@
+export const chatMessages = {
+  kor: {
+    titleChat: '채팅',
+    loading: '불러오는 중...',
+    ariaOpenChat: '채팅 열기',
+    inputPlaceholder: '메시지 입력',
+    ariaOpenEmoji: '이모지 열기',
+    ariaSend: '메시지 전송',
+    seeMore: '자세히 보기',
+    toastUnavailable: '채팅 기능을 사용할 수 없어요. 잠시 후 다시 시도해주세요.',
+    toastSendFail: '메시지 전송에 실패했어요. 잠시 후 다시 시도해주세요.',
+    am: '오전',
+    pm: '오후',
+    emptyTitle: '메시지가 없습니다.',
+    emptySubtitle: '첫 메시지를 보내 대화를 시작해 보세요.',
+  },
+  eng: {
+    titleChat: 'Chat',
+    loading: 'Loading...',
+    ariaOpenChat: 'Open chat',
+    inputPlaceholder: 'Type a message',
+    ariaOpenEmoji: 'Open emoji picker',
+    ariaSend: 'Send message',
+    seeMore: 'See more',
+    toastUnavailable: 'Chat is unavailable. Please try again later.',
+    toastSendFail: 'Failed to send message. Please try again.',
+    am: 'AM',
+    pm: 'PM',
+    emptyTitle: 'No messages yet.',
+    emptySubtitle: 'Send the first message to start the conversation.',
+  },
+} as const;
+
+export type ChatMessages = typeof chatMessages;

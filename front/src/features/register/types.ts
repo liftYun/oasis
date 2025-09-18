@@ -1,4 +1,4 @@
-export type Lang = 'ko' | 'en';
+export type Lang = 'kor' | 'eng';
 
 export type RegisterTexts = {
   title: string;
@@ -6,6 +6,7 @@ export type RegisterTexts = {
   nicknamePlaceholder: string;
   nicknameGuide: string;
   confirm: string;
+  confirmIng: string;
   errorEmpty: string;
   errorLength: string;
   checkTitle: string;
@@ -28,6 +29,14 @@ export type RegisterTexts = {
   moneyModalDescription: string;
   back: string;
   successLogin: string;
+  errorPattern: string;
+  errorDuplicate: string;
+  errorCheckFail: string;
+  successNickname: string;
+  errorImage: string;
+  errorPdf: string;
+  limtedPdf: string;
+  errorProfile: string;
 };
 
 export type Step = 'nickname' | 'check' | 'role' | 'done';

@@ -33,6 +33,14 @@ body {
   overflow-x: hidden;
 }
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; 
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;  
+}
+
 @font-face {
   font-family: 'Pretendard';
   src: url('/fonts/Pretendard-Light.woff2') format('woff2');

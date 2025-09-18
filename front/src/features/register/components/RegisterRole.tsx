@@ -17,12 +17,7 @@ export function RegisterRole() {
   const { lang } = useLanguage();
   const t = registerMessages[lang];
 
-  const [profileImage, setProfileImage] = useRegisterStore(
-    useShallow((s) => [s.profileImage, s.setProfileImage])
-  );
   const [nickname, setNickname] = useRegisterStore(useShallow((s) => [s.nickname, s.setNickname]));
-  const [email, setEmail] = useRegisterStore(useShallow((s) => [s.email, s.setEmail]));
-
   const [role, setRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -36,7 +31,6 @@ export function RegisterRole() {
       nickname,
       role,
       language: lang,
-      // profileImgKey: profileImage,
     });
   };
 
@@ -44,15 +38,38 @@ export function RegisterRole() {
     'group relative block rounded-2xl transition focus-visible:outline-none bg-gray-100 text-gray-500 hover:bg-primary hover:text-white cursor-pointer overflow-hidden';
 
   const goGuest = async () => {
-    setLoading(true);
-    setRole('ROLE_GUEST');
-    await new Promise((res) => setTimeout(res, 1500));
-    router.push('/main');
+    try {
+      setLoading(true);
+      setRole('ROLE_GUEST');
+
+      await addInformations({
+        nickname,
+        role: 'ROLE_GUEST',
+        language: lang,
+      });
+
+      router.push('/main');
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const goHost = async () => {
-    setRole('ROLE_HOST');
-    router.push('/register/host');
+    try {
+      setRole('ROLE_HOST');
+
+      await addInformations({
+        nickname,
+        role: 'ROLE_HOST',
+        language: lang,
+      });
+
+      router.push('/register/host');
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   if (loading) {

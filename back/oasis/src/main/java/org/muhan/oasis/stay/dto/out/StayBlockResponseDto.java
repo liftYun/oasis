@@ -17,7 +17,7 @@ public record StayBlockResponseDto(
     public static StayBlockResponseDto from(StayBlockEntity block){
         return new StayBlockResponseDto(
                 block.getStartDate(),
-                block.getStartDate()
+                block.getEndDate()
         );
     }
 }

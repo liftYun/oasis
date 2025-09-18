@@ -11,5 +11,4 @@ import java.util.List;
 public interface StayPhotoRepository extends JpaRepository<StayPhotoEntity, Long> {
     List<StayPhotoEntity> findAllByStay(StayEntity stay);
 
-    void deleteByPhotoKeys(List<String> keysToDelete);
 }

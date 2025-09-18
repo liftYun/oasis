@@ -14,7 +14,7 @@ export function Splash({ lang }: { lang: 'ko' | 'en' }) {
       <LanguageToggle label={t.tooltip} />
       <OnboardSlider slides={slides} autoPlayMs={3000} loop />
 
-      <div className="mt-auto pb-6">
+      <div className="mt-auto">
         <Button variant="google" onClick={handleGoogleLogin} className="w-full max-w-lg mx-auto">
           <Image src={Google} alt="Google" width={18} height={18} className="mr-2" />
           {t.login}

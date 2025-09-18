@@ -1,3 +1,6 @@
+import { logout } from '@/services/auth.api';
+import { email } from 'zod';
+
 export const profileMessages = {
   kor: {
     guest: '게스트',
@@ -11,6 +14,7 @@ export const profileMessages = {
     reviews: '내가 쓴 리뷰',
     guide: '이용 안내',
     logout: '로그아웃',
+    logoutDescription: '계정을 안전하게 로그아웃 합니다.',
     secession: '회원탈퇴',
     secessionTitle: '회원 탈퇴 안내',
     secessionDescription: '탈퇴 시 모든 정보가 삭제되며 복구할 수 없습니다. 정말 탈퇴하시겠습니까?',
@@ -18,6 +22,19 @@ export const profileMessages = {
     secessionConfirm: '탈퇴하기',
     manageStay: '내 숙소 관리',
     createStay: '내 숙소 등록',
+    writeReview: '리뷰 작성하기',
+    writeReviewDescription: '리뷰를 작성하고 다른 사용자들과 경험을 공유해보세요!',
+    uploadReview: '리뷰 등록하기',
+    profileError: '프로필 정보를 불러오는 중 오류 발생',
+    loading: '로딩 중...',
+    logoutSuccess: '로그아웃 되었습니다.',
+    logoutFail: '로그아웃 중 오류가 발생했습니다.',
+    detail: '기본정보',
+    nickname: '닉네임',
+    email: '이메일 주소',
+    role: '권한',
+    edit: '수정',
+    language: '사용 언어',
   },
   eng: {
     guest: 'Guest',
@@ -31,6 +48,7 @@ export const profileMessages = {
     reviews: 'My reviews',
     guide: 'Guide',
     logout: 'Log out',
+    logoutDescription: 'Keep your account secure by logging out.',
     secession: 'Delete account',
     secessionTitle: 'Delete Account',
     secessionDescription:
@@ -39,5 +57,18 @@ export const profileMessages = {
     secessionConfirm: 'Delete',
     manageStay: 'Manage your stay',
     createStay: 'Create a stay',
+    writeReview: 'Write a review',
+    writeReviewDescription: 'Share your experience with other travelers!',
+    uploadReview: 'Upload review',
+    profileError: 'Error loading profile',
+    loading: 'Loading...',
+    logoutSuccess: 'Logged out successfully.',
+    logoutFail: 'Error logging out.',
+    detail: 'Basic information',
+    nickname: 'Nickname',
+    email: 'Email address',
+    role: 'Role',
+    edit: 'Edit',
+    language: 'Use Language',
   },
 } as const;

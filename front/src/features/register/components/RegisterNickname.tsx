@@ -8,15 +8,19 @@ import { useAuthStore } from '@/stores/useAuthStores';
 export function RegisterNickname() {
   const { setNickname: setStoreNickname, next } = useRegisterStore();
   const { nickname: savedNickname } = useAuthStore();
-  const { nickname, setNickname, checkNickname } = useNicknameValidation(savedNickname ?? '');
+  const { nickname, setNickname, checkNickname, isValid, checking } = useNicknameValidation(
+    savedNickname ?? ''
+  );
   const { lang } = useLanguage();
   const t = registerMessages[lang];
+  const setUser = useAuthStore((s) => s.setUser);
 
   const handleNicknameConfirm = async () => {
     await checkNickname();
   };
 
   const handleFinalConfirm = () => {
+    if (!isValid) return;
     setStoreNickname(nickname.trim());
     next();
   };
@@ -27,6 +31,7 @@ export function RegisterNickname() {
         {t.title}
       </h1>
       <p className="text-base text-gray-400 mb-8">{t.subtitle}</p>
+
       <div className="flex items-center gap-2 border-b-2 border-gray-200 focus-within:border-primary">
         <input
           value={nickname}
@@ -37,15 +42,29 @@ export function RegisterNickname() {
         />
         <button
           type="button"
-          className="text-sm text-gray-500 px-4 py-[6px] mb-2 rounded-sm bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+          disabled={checking}
+          className={`text-sm px-4 py-[6px] mb-2 rounded-sm ${
+            isValid
+              ? 'bg-primary text-white'
+              : 'bg-gray-200 text-gray-500 hover:bg-gray-300 disabled:opacity-50'
+          }`}
           onClick={handleNicknameConfirm}
         >
-          {t.confirm}
+          {checking ? t.confirmIng : t.confirm}
         </button>
       </div>
-      <p className="text-sm text-gray-300 mt-1">{nickname.trim().length} / 10</p>
+
+      <p className="text-sm text-gray-300 mt-1">
+        <span className="text-primary">{nickname.trim().length}</span> / 10
+      </p>
+
       <div className="mt-auto">
-        <Button variant="blue" onClick={handleFinalConfirm} className="w-full max-w-lg mx-auto">
+        <Button
+          variant={isValid ? 'blue' : 'blueLight'}
+          disabled={!isValid}
+          onClick={handleFinalConfirm}
+          className="w-full max-w-lg mx-auto"
+        >
           {t.confirm}
         </Button>
       </div>

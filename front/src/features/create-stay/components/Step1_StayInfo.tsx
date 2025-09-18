@@ -8,6 +8,7 @@ import { useImageUploader } from '@/features/create-stay/hooks/useImageUploader'
 import type { CreateStayInput } from '@/features/create-stay/schema';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
+import BackHeader from '@/components/molecules/BackHeader';
 
 export function Step1_StayInfo() {
   const { setStep, setFormData, formData, setView } = useCreateStayStore();
@@ -35,7 +36,7 @@ export function Step1_StayInfo() {
     }
   }, [formData.address, formData.postalCode, setValue]);
 
-  const { imagePreviews, handleRemoveImage } = useImageUploader({ watch, setValue });
+  const { imagePreviews, handleRemoveImage, handleReorder } = useImageUploader({ watch, setValue });
 
   const handleSearchAddress = () => {
     // 현재 폼 데이터를 스토어에 저장하고 뷰 전환
@@ -44,8 +45,9 @@ export function Step1_StayInfo() {
   };
 
   return (
-    <>
-      <h1 className="text-xl font-bold mb-6">{t.step1.title}</h1>
+    <div className="max-w-md flex flex-col w-full min-h-screen p-4">
+      <BackHeader title={t.createStay} />
+      <h1 className="text-xl font-bold mb-6 pt-2">{t.step1.title}</h1>
       <StayForm
         form={form}
         handleSubmit={handleSubmit}
@@ -53,7 +55,8 @@ export function Step1_StayInfo() {
         imagePreviews={imagePreviews}
         onRemoveImage={handleRemoveImage}
         isSubmitting={form.formState.isSubmitting}
+        onReorder={handleReorder}
       />
-    </>
+    </div>
   );
 }

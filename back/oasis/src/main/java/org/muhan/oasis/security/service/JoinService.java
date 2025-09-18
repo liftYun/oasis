@@ -2,6 +2,7 @@ package org.muhan.oasis.security.service;
 
 import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.valueobject.Language;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class JoinService {
 
@@ -48,27 +50,22 @@ public class JoinService {
     }
 
     @Transactional
-    public UserEntity completeProfile(String uuid, String nickname, String profileKey, String profileImgUrl, String role, String language) {
+    public UserEntity completeProfile(String uuid, String nickname, String role, String language) {
         UserEntity user = userRepository.findByUserUuid(uuid)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        // 닉네임이 변경되는 경우 중복 확인
-        if (!nickname.equals(user.getNickname())
-                && userRepository.existsByNickname(nickname)) {
-            throw new DuplicateNicknameException("이미 사용 중인 닉네임입니다.");
-        }
 
         user.setNickname(nickname);
-        if (profileImgUrl != null) user.setProfileUrl(profileImgUrl);
-        if (language != null) user.setLanguage(Language.valueOf(language));
+        if (language == null) language = user.getLanguage().toString();
 
-        // 역할 변경 (최초 가입 시 ROLE_GUEST였다가 ROLE_HOST로 승급하는 케이스)
-        if (role != null) {
-            // Enum 변환 예: Role.valueOf("ROLE_HOST")
-            user.setRole(user.getRole());
-        }
+        if (role == null) role = user.getRole().toString();
+        else role = role.toUpperCase();
 
-        return userRepository.save(user);
+        log.info("[JoinService] completeProfile userId : {},nickname : {},role : {},language : {}",user.getUserId() ,nickname,role,language);
+
+        userRepository.updateUserById(user.getUserId(), nickname, Language.valueOf(language), Role.valueOf(role));
+
+        return userRepository.findByUserId(user.getUserId()).orElseThrow();
     }
 
     public static class DuplicateNicknameException extends RuntimeException {

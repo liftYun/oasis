@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStores';
 import { useRegisterStore } from '@/features/register';
 import { http } from '@/apis/httpClient';
@@ -9,6 +9,7 @@ import { Lottie } from '@/components/atoms/Lottie';
 
 function CallbackInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const setUser = useAuthStore((s) => s.setUser);
 
   useEffect(() => {
@@ -22,13 +23,18 @@ function CallbackInner() {
         const accessToken = authHeader?.startsWith('Bearer ')
           ? authHeader.split(' ')[1]
           : undefined;
+        const { needProfileUpdate, nickname, email, profileUrl, uuid, role } = res.data;
 
-        const { needProfileUpdate, nextUrl, nickname } = res.data;
-
+        console.log('accessToken', accessToken);
+        console.log(res.data);
         if (accessToken) {
-          setUser({ accessToken, nickname });
+          setUser({ accessToken, nickname, email, profileUrl, uuid, role });
           useRegisterStore.getState().setNickname(nickname);
-          router.replace(needProfileUpdate ? '/register' : nextUrl);
+          useRegisterStore.getState().setEmail(email);
+          useRegisterStore.getState().setProfileUrl(profileUrl);
+          // const next = needProfileUpdate ? '/language' : '/main';
+          const next = '/language';
+          router.replace(next);
         } else {
           router.replace('/');
         }
@@ -38,7 +44,8 @@ function CallbackInner() {
     };
 
     issueToken();
-  }, [router, setUser]);
+  }, [router, searchParams, setUser]);
+
   return (
     <div className="flex flex-col items-center justify-center py-10">
       <Lottie src="/lotties/spinner.json" className="w-20 h-20" />
