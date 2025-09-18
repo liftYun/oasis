@@ -53,10 +53,12 @@ export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: 
         .reverse(),
     []
   );
-  const activeRule = rules.find((r) => r.id === activeId) ?? null;
+
+  const getRule = (id: string) => rules.find((r) => r.id === id)!;
 
   const setValue = (id: string, next: number) => {
-    setRules((prev) => prev.map((r) => (r.id === id ? { ...r, value: next } : r)));
+    const clamp95 = (v: number) => Math.max(0, Math.min(95, v));
+    setRules((prev) => prev.map((r) => (r.id === id ? { ...r, value: clamp95(next) } : r)));
   };
 
   const validate = (arr: Rule[]) => {
@@ -77,14 +79,13 @@ export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: 
     if (!ok) return;
 
     const body: CancellationPolicyRequest = {
-      policy1: rules.find((r) => r.daysBefore <= 2)?.value ?? 0,
-      policy2: rules.find((r) => r.daysBefore >= 3 && r.daysBefore <= 5)?.value ?? 0,
-      policy3: rules.find((r) => r.daysBefore >= 5 && r.daysBefore <= 6)?.value ?? 0,
-      policy4: rules.find((r) => r.daysBefore >= 7)?.value ?? 0,
+      policy1: rules.find((r) => r.id === 'd1')?.value ?? 0, // 1~2일 전
+      policy2: rules.find((r) => r.id === 'd3')?.value ?? 0, // 3~5일 전
+      policy3: rules.find((r) => r.id === 'd5')?.value ?? 0, // 5~6일 전
+      policy4: rules.find((r) => r.id === 'd7')?.value ?? 0, // 7일 전
     };
 
     try {
-      console.log(body);
       const res = await registCancellationPolicy(body);
       console.log(res);
       toast.success(langKey === 'kor' ? '취소 정책이 등록되었어요.' : 'Policy saved.');
@@ -109,6 +110,7 @@ export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: 
         {t.moneyTitle}
       </h1>
       <p className="text-base text-gray-400 mb-8 whitespace-pre-line">{t.moneySubTitle}</p>
+
       <ul className="space-y-4 mt-6 mb-14">
         {rules
           .sort((a, b) => b.daysBefore - a.daysBefore)
@@ -127,13 +129,14 @@ export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: 
                 }}
                 className="group inline-flex items-center gap-2 rounded-xl px-3 py-2 text-lg font-semibold text-gray-900 hover:bg-gray-50"
               >
-                {r.value}%
-                <ChevronDown />
+                {r.value}% <ChevronDown />
               </button>
             </li>
           ))}
       </ul>
+
       {error && <p className="mt-3 text-sm text-red-500">{error}</p>}
+
       <div className="mt-auto pt-6">
         <Button variant="default" onClick={handleSubmit} className="w-full" disabled={loading}>
           {t.confirm}
@@ -167,15 +170,15 @@ export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: 
       </CenterModal>
 
       <BottomSheet
-        open={sheetOpen && !!activeRule}
+        open={sheetOpen && !!activeId}
         onClose={() => setSheetOpen(false)}
-        title={activeRule?.label[langKey]}
+        title={activeId ? getRule(activeId).label[langKey] : ''}
       >
-        {activeRule && (
+        {activeId && (
           <div className="flex flex-col items-center gap-6">
             <DonutPercentPicker
-              value={activeRule.value}
-              onChange={(v) => setValue(activeRule.id, v)}
+              value={getRule(activeId).value}
+              onChange={(v) => setValue(activeId, v)}
               step={5}
               size={200}
             />
@@ -188,9 +191,9 @@ export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: 
               {percentOptions.map((p) => (
                 <button
                   key={p}
-                  onClick={() => setValue(activeRule.id, p)}
-                  className={`rounded-lg border border-gray-100 px-2 py-1.5 text-sm font-medium text-gray-600 ${
-                    p === activeRule.value ? 'bg-gray-100' : 'border-gray-100'
+                  onClick={() => setValue(activeId, p)}
+                  className={`rounded-lg border px-2 py-1.5 text-sm font-medium text-gray-600 ${
+                    p === getRule(activeId).value ? 'bg-gray-100' : 'border-gray-100'
                   }`}
                 >
                   {p}%

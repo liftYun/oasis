@@ -15,7 +15,7 @@ export default function AuthBootstrap() {
   const setInitialized = useAuthStore((s) => s.setInitialized);
 
   useEffect(() => {
-    const skipPaths = ['/splash', '/register'];
+    const skipPaths = ['/', '/splash', '/register'];
     if (skipPaths.some((p) => pathname.startsWith(p))) return;
 
     (async () => {

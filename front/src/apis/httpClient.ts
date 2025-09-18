@@ -66,7 +66,7 @@ class HttpClient {
   constructor(config?: AxiosRequestConfig) {
     this.client = axios.create({
       baseURL: process.env.NEXT_PUBLIC_API_URL,
-      // withCredentials: true,
+      withCredentials: true,
       timeout: 8000,
       ...config,
     });
@@ -96,6 +96,7 @@ class HttpClient {
   private setInterceptors() {
     this.client.interceptors.request.use((config) => {
       const token = useAuthStore.getState().accessToken;
+      console.log(token);
       const isPublic =
         config.url?.startsWith('/api/v1/auth/issue') ||
         config.url?.startsWith('/api/v1/auth/refresh');

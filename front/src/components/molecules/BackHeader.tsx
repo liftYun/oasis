@@ -21,7 +21,9 @@ export function BackHeaderContent({ title = '검색', className }: BackHeaderCon
         <ChevronLeft className="w-7 h-7 text-gray-500" />
       </button>
 
-      <h1 className="flex-1 text-center text-base font-semibold text-gray-600 -ml-8">{title}</h1>
+      <h1 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-gray-600">
+        {title}
+      </h1>
 
       <div className="w-7" />
     </header>
