@@ -96,7 +96,7 @@ class HttpClient {
   private setInterceptors() {
     this.client.interceptors.request.use((config) => {
       const token = useAuthStore.getState().accessToken;
-      console.log(token);
+
       const isPublic =
         config.url?.startsWith('/api/v1/auth/issue') ||
         config.url?.startsWith('/api/v1/auth/refresh');
@@ -125,6 +125,13 @@ class HttpClient {
             } else {
               await doRefresh(this.client);
             }
+
+            const newToken = useAuthStore.getState().accessToken;
+
+            if (newToken && original.headers) {
+              (original.headers as any).set?.('Authorization', `Bearer ${newToken}`);
+            }
+
             return this.client.request(original);
           } catch {
             return Promise.reject(new ApiError('인증이 만료되었습니다.', 401));
