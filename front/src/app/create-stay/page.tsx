@@ -100,17 +100,23 @@ export default function CreateStayPage() {
 
   return (
     <StepFlowProvider value={stepFlowValue}>
-      <>
+      <main className="flex flex-col flex-1 bg-white">
         <BackHeader title={view === 'searchAddress' ? t.header.searchTitle : t.createStay} />
         {view === 'form' && (
-          <ProgressBar
-            totalSteps={4}
-            currentStep={currentStep}
-            className="pt-20 max-w-md mx-auto p-4"
-          />
+          <div className="fixed left-1/2 -translate-x-1/2 top-[calc(env(safe-area-inset-top)+56px)] w-full max-w-[480px] z-[60] bg-white">
+            <ProgressBar
+              totalSteps={4}
+              currentStep={currentStep}
+              className="max-w-md mx-auto p-4"
+            />
+          </div>
         )}
-        {view === 'form' ? renderStep() : <AddressSearch />}
-      </>
+        <div
+          className={`flex flex-col flex-grow ${view === 'form' ? 'pt-[120px]' : ''} px-2 sm:px-4`}
+        >
+          {view === 'form' ? renderStep() : <AddressSearch />}
+        </div>
+      </main>
     </StepFlowProvider>
   );
 }
