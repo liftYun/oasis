@@ -13,7 +13,7 @@ export function BackHeaderContent({ title = '검색', className, onBack }: BackH
   const router = useRouter();
 
   return (
-    <header className={`h-14 bg-white px-2 flex items-center justify-between ${className || ''}`}>
+    <header className={`relative z-0 h-14 bg-white px-2 flex items-center justify-between`}>
       <button
         onClick={() => (onBack ? onBack() : router.back())}
         className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200"

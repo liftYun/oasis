@@ -9,7 +9,9 @@ export default function LanguageLayout({ children }: { children: React.ReactNode
   return (
     <>
       <BackHeader title={lang === 'kor' ? '검색' : 'Search'} />
-      <section className="flex-1 flex items-center justify-center">{children}</section>
+      <section className="flex-1 flex items-center justify-center overflow-y-auto scrollbar-hide ">
+        {children}
+      </section>
     </>
   );
 }

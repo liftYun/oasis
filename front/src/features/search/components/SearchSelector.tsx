@@ -1,15 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Lang } from '@/types';
-import { cityLabels, regionLabels } from '@/features/search';
 import { useLanguage } from '@/features/language';
+import { fetchRegions } from '@/services/stay.api';
+import { RegionDto } from '@/services/stay.types';
 
 interface Props {
   selectedCity: string | null;
   onSelectCity: (city: string) => void;
   selectedRegion: string | null;
-  onSelectRegion: (region: string) => void;
+  onSelectRegion: (regionName: string, regionId: number) => void;
 }
 
 export function SearchSelector({
@@ -20,18 +21,32 @@ export function SearchSelector({
 }: Props) {
   const { lang } = useLanguage();
   const [tab, setTab] = useState<'city' | 'region'>('city');
+  const [regions, setRegions] = useState<RegionDto[]>([]);
+  const city = regions.find((r) => r.region === selectedCity);
 
   const tabLabels: Record<Lang, { city: string; region: string }> = {
     kor: { city: '도시', region: '지역' },
     eng: { city: 'City', region: 'Region' },
   };
 
-  const currentRegions =
-    selectedCity && regionLabels[lang][selectedCity] ? regionLabels[lang][selectedCity] : [];
+  useEffect(() => {
+    const loadRegions = async () => {
+      try {
+        const data = await fetchRegions();
+        setRegions(data.result ?? []);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    loadRegions();
+  }, []);
+
+  const currentRegions: string[] =
+    regions.find((r) => r.region === selectedCity)?.subRegions.map((s) => s.subName) ?? [];
 
   return (
-    <div className="bg-white rounded-xl shadow-[0_0_10px_rgba(0,0,0,0.1)] p-6 mt-10">
-      <div className="flex gap-4 mt-2 mb-6 ml-4">
+    <div className="bg-white rounded-xl shadow-[0_0_10px_rgba(0,0,0,0.1)] p-6 my-10">
+      <div className="flex gap-4 mt-2 mb-10 ml-4">
         <button
           onClick={() => setTab('city')}
           className={`px-4 py-1.5 text-sm rounded-full ${
@@ -52,32 +67,35 @@ export function SearchSelector({
       </div>
 
       {tab === 'city' && (
-        <div className="grid grid-cols-3 gap-8 text-sm mb-6">
-          {cityLabels[lang].map((city) => (
+        <div className="grid grid-cols-2 gap-8 text-sm mb-6">
+          {regions.map((r) => (
             <button
-              key={city}
-              onClick={() => onSelectCity(city)}
+              key={r.region}
+              onClick={() => {
+                onSelectCity(r.region);
+                setTab('region');
+              }}
               className={`${
-                selectedCity === city ? 'text-primary font-semibold' : 'text-gray-400'
+                selectedCity === r.region ? 'text-primary font-semibold' : 'text-gray-400'
               }`}
             >
-              {city}
+              {r.region}
             </button>
           ))}
         </div>
       )}
 
       {tab === 'region' && selectedCity && (
-        <div className="grid grid-cols-3 gap-6 text-sm mb-6">
-          {currentRegions.map((region) => (
+        <div className="grid grid-cols-2 gap-6 text-sm my-6">
+          {city?.subRegions.map((sr) => (
             <button
-              key={region}
-              onClick={() => onSelectRegion(region)}
+              key={sr.id}
+              onClick={() => onSelectRegion(sr.subName, sr.id)}
               className={`${
-                selectedRegion === region ? 'text-primary font-semibold' : 'text-gray-400'
+                selectedRegion === sr.subName ? 'text-primary font-semibold' : 'text-gray-400'
               }`}
             >
-              {region}
+              {sr.subName}
             </button>
           ))}
         </div>
