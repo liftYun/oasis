@@ -36,8 +36,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
-    @Value("${app.front-base-url}")
-    private String frontBaseUrl;
+//    @Value("${app.front-base-url}")
+//    private String frontBaseUrl;
+    private final String frontBaseUrl = "http://localhost:3000";
     @Value("${app.domain}")
     private String cookieDomain;
 
