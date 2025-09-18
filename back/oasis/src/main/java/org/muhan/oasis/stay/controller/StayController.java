@@ -563,6 +563,17 @@ public class StayController {
         }
     }
 
+    @GetMapping("/chatList")
+    public ResponseEntity<BaseResponse<?>> getChatStays(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody List<StayChatRequestDto> stayChatListDto
+    ){
+        List<StayChatResponseDto> chatResponseDto = stayService.getStays(stayChatListDto, userDetails.getUserUuid());
+        BaseResponse<List<StayChatResponseDto>> body = new BaseResponse<>(chatResponseDto);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
     private String contentTypeToExt(String contentType) {
         if (contentType == null) return "bin";
         String ct = contentType.toLowerCase();
