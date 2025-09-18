@@ -91,8 +91,15 @@ export function StayForm({
         error={errors.images}
         accept={ACCEPTED_IMAGE_TYPES.join(',')}
         imagePreviews={imagePreviews}
-        onRemoveImage={onRemoveImage}
-        onReorder={(newOrder) => form.setValue('images', newOrder)}
+        onRemoveImage={(index) => {
+          onRemoveImage(index);
+          const newImages = imagePreviews.filter((_, i) => i !== index);
+          form.setValue('images', newImages, { shouldValidate: true });
+        }}
+        onReorder={(newOrder) => {
+          onReorder?.(newOrder);
+          form.setValue('images', newOrder, { shouldValidate: true });
+        }}
       />
 
       <div className="mt-auto mb-6">

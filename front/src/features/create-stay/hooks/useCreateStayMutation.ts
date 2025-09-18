@@ -1,12 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { createStay } from '@/services/stayService';
 
 export function useCreateStayMutation() {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: createStay,
     onSuccess: (data) => {
       console.log('숙소 생성 성공:', data);
       // 성공 시 다음 페이지로 이동하거나, 사용자에게 성공 피드백을 보여줍니다.

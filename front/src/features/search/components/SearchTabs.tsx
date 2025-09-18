@@ -11,8 +11,10 @@ interface Props {
   activeTab: 'region' | 'date';
   onTabChange: (tab: 'region' | 'date') => void;
   selectedRegion?: string | null;
+  checkIn?: Date | null;
+  checkOut?: Date | null;
+  onDateChange?: (checkIn: Date | null, checkOut: Date | null) => void;
 }
-
 export function SearchTabs({ activeTab, onTabChange, selectedRegion }: Props) {
   const { lang } = useLanguage();
   const [showTooltip, setShowTooltip] = useState(false);

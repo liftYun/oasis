@@ -1,17 +1,53 @@
 'use client';
 
 import { http } from '@/apis/httpClient';
+import {
+  CreateStayRequest,
+  UpdateStayRequest,
+  StayDetailResponse,
+  PresignedRequest,
+  PresignedResponse,
+  StayCardByWishDto,
+  SubRegionDto,
+  RegionDto,
+  BaseResponse,
+  StayCardDto,
+} from './stay.types';
 
-export interface StayDetailResponse {
-  id: number;
-  title: string;
-  location: string;
-  pricePerNight: number;
-  guestCount: number;
-  description: string;
-  latitude: number;
-  longitude: number;
-  images: string[];
-}
+// 숙소 등록
+export const createStay = (body: CreateStayRequest) => http.post('/api/v1/stay', body);
 
-export const getStayDetail = (id: number) => http.get<StayDetailResponse>(`/api/v1/stay/${id}`);
+// 숙소 수정
+export const updateStay = (stayId: number, body: UpdateStayRequest) =>
+  http.put(`/api/v1/stay/${stayId}`, body);
+
+// 숙소 삭제
+export const deleteStay = (stayId: number) => http.delete(`/api/v1/stay/${stayId}`);
+
+// 숙소 상세 조회
+export const getStayDetail = (stayId: number) =>
+  http.get<StayDetailResponse>(`/api/v1/stay/${stayId}`);
+
+// 사진 업로드 URL 발급
+export const getPresignedUrls = (imageInfos: PresignedRequest[]) =>
+  http.post<PresignedResponse[]>('/api/v1/stay/photos/upload-url', { imageInfos });
+
+// 숙소 번역
+export const translateStay = (stayId: number, targetLang: string) =>
+  http.post(`/api/v1/stay/translate`, { stayId, targetLang });
+
+// 숙소 검색
+export const searchStays = (params?: Record<string, any>) => {
+  return http.get<BaseResponse<StayCardDto[]>>('/api/v1/stay', { params });
+};
+
+// 숙소 검색 (관심많은 순)
+export const searchStaysByWish = () => http.get('/api/v1/stay/rank/wish');
+
+// 숙소 검색 (평점 높은 순)
+export const searchStaysByRating = () => http.get('/api/v1/stay/rating');
+
+// 지역 조회
+export const fetchRegions = () => {
+  return http.get<BaseResponse<RegionDto[]>>('/api/v1/stay/region');
+};
