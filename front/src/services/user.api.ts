@@ -41,4 +41,4 @@ export const updateCancellationPolicy = (body: CancellationPolicyRequest) =>
 
 // 언어 변경
 export const updateLanguage = (language: string) =>
-  http.put<void>(`/api/v1/user/updateLang/${language}`);
+  http.patch<void>(`/api/v1/user/updateLang/${language}`);

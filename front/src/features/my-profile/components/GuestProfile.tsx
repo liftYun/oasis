@@ -92,7 +92,7 @@ export function GuestProfile() {
           )}
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-600">
-              {profile?.role === 'host' ? t.host : t.guest}
+              {profile?.role === 'ROLE_HOST' ? t.host : t.guest}
             </span>
             <h2 className="text-xl font-semibold">{profile?.nickname ?? '...'}</h2>
           </div>

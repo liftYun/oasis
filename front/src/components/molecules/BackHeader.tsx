@@ -6,15 +6,16 @@ import { ChevronLeft } from 'lucide-react';
 interface BackHeaderContentProps {
   title?: string;
   className?: string;
+  onBack?: () => void;
 }
 
-export function BackHeaderContent({ title = '검색', className }: BackHeaderContentProps) {
+export function BackHeaderContent({ title = '검색', className, onBack }: BackHeaderContentProps) {
   const router = useRouter();
 
   return (
     <header className={`h-14 bg-white px-2 flex items-center justify-between ${className || ''}`}>
       <button
-        onClick={() => router.back()}
+        onClick={() => (onBack ? onBack() : router.back())}
         className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200"
         aria-label="back"
       >
@@ -40,12 +41,13 @@ function FixedHeaderLayout({ children }: { children: React.ReactNode }) {
 
 interface Props {
   title?: string;
+  onBack?: () => void;
 }
 
-export default function BackHeader({ title = '검색' }: Props) {
+export default function BackHeader({ title = '검색', onBack }: Props) {
   return (
     <FixedHeaderLayout>
-      <BackHeaderContent title={title} />
+      <BackHeaderContent title={title} onBack={onBack} />
     </FixedHeaderLayout>
   );
 }
