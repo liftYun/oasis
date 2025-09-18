@@ -24,15 +24,19 @@ export function buildReservationSchema(lang: 'kor' | 'eng') {
 
   // DateRange를 안전하게 검증
   const dateRangeSchema = z
-    .object({ from: z.date(), to: z.date() })
-    .refine((v) => v.from <= v.to, { message: messages[lang].invalid })
-    .refine((v) => differenceInDays(v.to, v.from) >= 1, { message: messages[lang].min })
-    .refine((v) => differenceInDays(v.to, v.from) <= 29, { message: messages[lang].max });
+    .object({
+      from: z.date().optional(),
+      to: z.date().optional(),
+    })
+    .refine((v) => v.from !== undefined && v.to !== undefined, {
+      message: messages[lang].required,
+    })
+    .refine((v) => v.from! <= v.to!, { message: messages[lang].invalid })
+    .refine((v) => differenceInDays(v.to!, v.from!) >= 1, { message: messages[lang].min })
+    .refine((v) => differenceInDays(v.to!, v.from!) <= 29, { message: messages[lang].max });
 
   return z.object({
-    dateRange: z.optional(dateRangeSchema).refine((v) => v !== undefined, {
-      message: messages[lang].required,
-    }),
+    dateRange: dateRangeSchema.optional(),
   });
 }
 

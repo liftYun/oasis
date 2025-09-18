@@ -6,6 +6,7 @@ import {
   type ReservationValidated,
 } from '@/features/reservation/schema';
 import { useLanguage } from '@/features/language';
+import type { Resolver } from 'react-hook-form';
 
 interface UseReservationFormProps {
   defaultValues?: Partial<ReservationInput>;
@@ -16,7 +17,7 @@ export function useReservationForm({ defaultValues, onSubmit }: UseReservationFo
   const { lang } = useLanguage();
 
   const form = useForm<ReservationInput>({
-    resolver: zodResolver(buildReservationSchema(lang)),
+    resolver: zodResolver(buildReservationSchema(lang)) as Resolver<ReservationInput>,
     defaultValues,
     mode: 'onChange',
   });
