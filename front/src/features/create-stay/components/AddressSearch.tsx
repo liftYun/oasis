@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Input } from '@/components/atoms/input';
 import type { AddressSearchResult } from '@/features/create-stay/types';
 import { useCreateStayStore } from '@/features/create-stay/store';
 import { useAddressSearchQuery } from '../hooks/useAddressSearchQuery';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
+import BackHeader from '@/components/molecules/BackHeader';
 
 export function AddressSearch() {
   const { setFormData, setView } = useCreateStayStore();
@@ -14,6 +16,8 @@ export function AddressSearch() {
   const { addresses, isLoading, isError, error } = useAddressSearchQuery(keyword);
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
+  const router = useRouter();
+  const { currentStep, setStep } = useCreateStayStore();
 
   const handleSelectAddress = (result: AddressSearchResult) => {
     setFormData({
@@ -25,9 +29,18 @@ export function AddressSearch() {
     setView('form');
   };
 
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setStep(currentStep - 1);
+    } else {
+      router.refresh();
+    }
+  };
+
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex gap-2 mb-4">
+    <div className="max-w-md flex flex-col w-full min-h-screen p-4">
+      <BackHeader title={t.header.searchTitle} onBack={handleBack} />
+      <div className="flex gap-2 pt-16 mb-4">
         <Input
           type="text"
           value={keyword}
@@ -71,8 +84,8 @@ export function AddressSearch() {
             )}
         {!keyword && (
           <div className="text-sm text-gray-500 pt-4">
-            <p className="font-bold mb-2">{t.searchAddress.examplesTitle}</p>
-            <ul>
+            <p className="font-bold mb-3">{t.searchAddress.examplesTitle}</p>
+            <ul className="space-y-1">
               <li>{t.searchAddress.exampleRoad}</li>
               <li>{t.searchAddress.exampleDong}</li>
             </ul>

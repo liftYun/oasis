@@ -21,10 +21,9 @@ export function AddressField({ register, errors, watch, onSearchClick }: Address
   const postalCodeValue = watch('postalCode');
   const addressValue = watch('address');
 
-  // Unify styling convention: variants for additional styles, twMerge usage
   const variants = {
     readOnly: 'cursor-pointer',
-    readOnlyFilled: 'cursor-pointer bg-gray-200',
+    readOnlyFilled: 'cursor-pointer bg-gray-100 text-gray-400',
     editable: '',
   } as const;
 
@@ -51,11 +50,10 @@ export function AddressField({ register, errors, watch, onSearchClick }: Address
           </>
         ) : (
           <>
-            {/* 초기 UI */}
             <div
               onClick={onSearchClick}
               className={twMerge(
-                'flex items-center h-12 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm placeholder:text-sm placeholder:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50',
+                'flex items-center h-12 w-full rounded-md border border-gray-200 bg-white px-4 py-2 text-sm placeholder:text-sm placeholder:text-gray-300 focus-visible:outline-none focus-visible:border-1 focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-50',
                 variants.readOnly,
                 'text-gray-300'
               )}

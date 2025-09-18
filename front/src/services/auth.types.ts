@@ -19,8 +19,6 @@ export interface AddInformationsRequest {
   nickname: string;
   role: UserRole;
   language: UserLanguage;
-  profileImageUrl?: string;
-  marketingAgree?: boolean;
 }
 
 export interface AddInformationsResponse {

@@ -16,7 +16,6 @@ export default function AppToaster() {
           borderRadius: '8px',
           height: '50px',
           width: '100%',
-          maxWidth: '21.5rem',
           padding: '0 16px',
           fontSize: '0.9rem',
           display: 'flex',
