@@ -25,20 +25,18 @@ export function Step1_Dates() {
       setDateRange(r);
       return;
     }
-    // 포함 일수 기준 제약: 최소 2일(=1박), 최대 30일(=29박)
-    const inclusiveDays = differenceInDays(r.to, r.from) + 1;
+    // 박수 기준 제약: 최소 1박, 최대 29박 (= 최대 30일)
+    const nightsCount = differenceInDays(r.to, r.from);
     let final = r;
-    if (inclusiveDays < 2) {
+    if (nightsCount < 1) {
       final = { from: r.from, to: addDays(r.from, 1) };
-    } else if (inclusiveDays > 30) {
+    } else if (nightsCount > 29) {
       final = { from: r.from, to: addDays(r.from, 29) };
     }
     setDateRange(final);
   };
 
-  const canNext = Boolean(
-    dateRange?.from && dateRange?.to && differenceInDays(dateRange.to, dateRange.from) >= 1
-  );
+  const canNext = Boolean(dateRange?.from && dateRange?.to && nights >= 1);
 
   const handleDayClick = (date: Date) => {
     if (!dateRange?.from || !dateRange?.to) return;
