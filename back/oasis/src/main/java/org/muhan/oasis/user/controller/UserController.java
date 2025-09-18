@@ -224,7 +224,7 @@ public class UserController {
 
 
 
-    @PatchMapping("/updateLang/{language}")
+    @PutMapping("/updateLang/{language}")
     @Schema(allowableValues = {"KOR","ENG","kor","eng"})
     @Operation(
             summary = "사용자 언어 설정 수정(PATCH)",
@@ -232,8 +232,7 @@ public class UserController {
     )
     public ResponseEntity<BaseResponse<?>> updateLang(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable(name = "language") String language,
-            HttpServletResponse response
+            @PathVariable(name = "language") String language
     ) {
         Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
         // language parsing
