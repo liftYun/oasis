@@ -11,6 +11,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.UUID;
+
 @Slf4j
 @Getter
 @Setter
@@ -50,7 +52,12 @@ public class MqttConfig {
     }
 
     @Bean
-    public MqttAsyncClient mqttAsyncClient() throws Exception {
-        return new MqttAsyncClient((ssl ? "ssl" : "tcp") + "://" + host + ":" + port, clientId);
+    public MqttAsyncClient mqttAsyncClient(MqttClientPersistence persistence) throws Exception {
+        String uri = (ssl ? "ssl" : "tcp") + "://" + host + ":" + port;
+        String id = (clientId == null || clientId.isBlank())
+                ? "oasis-api-publisher-" + UUID.randomUUID()
+                : clientId;
+        // !!! MemoryPersistence를 명시적으로 넘긴다 !!!
+        return new MqttAsyncClient(uri, id, persistence);
     }
 }
