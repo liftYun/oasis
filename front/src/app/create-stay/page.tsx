@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { ProgressBar } from '@/components/molecules/ProgressBar';
+import BackHeader from '@/components/molecules/BackHeader';
 import { useCreateStayStore } from '@/features/create-stay/store';
 import {
   AddressSearch,
@@ -13,6 +14,7 @@ import {
 } from '@/features/create-stay';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
+import { StepFlowProvider } from '@/features/common/step-flow/StepFlowContext';
 
 export default function CreateStayPage() {
   const router = useRouter();
@@ -66,15 +68,7 @@ export default function CreateStayPage() {
     }
   }, [currentStep, router]);
 
-  const handleBack = () => {
-    if (view === 'searchAddress') {
-      setView('form');
-    } else if (currentStep > 1) {
-      setStep(currentStep - 1);
-    } else {
-      router.push('/');
-    }
-  };
+  const canGoPrev = view === 'searchAddress' || currentStep > 1;
 
   const renderStep = () => {
     switch (currentStep) {
@@ -92,15 +86,30 @@ export default function CreateStayPage() {
   };
 
   return (
-    <>
-      {view === 'form' && (
-        <ProgressBar
-          totalSteps={4}
-          currentStep={currentStep}
-          className="pt-20 max-w-md mx-auto p-4"
-        />
-      )}
-      {view === 'form' ? renderStep() : <AddressSearch />}
-    </>
+    <StepFlowProvider
+      value={{
+        currentStep,
+        canGoPrev,
+        goPrevStep: () => {
+          if (view === 'searchAddress') {
+            setView('form');
+          } else if (currentStep > 1) {
+            setStep(currentStep - 1);
+          }
+        },
+      }}
+    >
+      <>
+        <BackHeader title={view === 'searchAddress' ? t.header.searchTitle : t.createStay} />
+        {view === 'form' && (
+          <ProgressBar
+            totalSteps={4}
+            currentStep={currentStep}
+            className="pt-20 max-w-md mx-auto p-4"
+          />
+        )}
+        {view === 'form' ? renderStep() : <AddressSearch />}
+      </>
+    </StepFlowProvider>
   );
 }
