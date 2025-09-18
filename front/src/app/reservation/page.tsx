@@ -26,12 +26,12 @@ export default function ReservationPage() {
   };
 
   return (
-    <main className="flex flex-col flex-1 bg-white my-5 pt-14">
+    <main className="flex flex-col flex-1 bg-white">
       <BackHeader title={t.header.title} />
-      <div className="px-2 mt-4">
-        <ProgressBar totalSteps={3} currentStep={step} />
+      <div className="fixed left-1/2 -translate-x-1/2 top-[calc(env(safe-area-inset-top)+56px)] w-full max-w-[480px] z-[60] bg-white">
+        <ProgressBar totalSteps={3} currentStep={step} className="max-w-md mx-auto p-4" />
       </div>
-      <div className="flex flex-col flex-grow mt-6">{renderStep()}</div>
+      <div className="flex flex-col flex-grow pt-[120px] px-2 sm:px-4">{renderStep()}</div>
     </main>
   );
 }
