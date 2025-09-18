@@ -2,10 +2,7 @@ package org.muhan.oasis.mqtt.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 import org.muhan.oasis.config.MqttConfig;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +21,15 @@ public class MqttPublisherService {
     private void connectIfNeeded() {
         try {
             if (client.isConnected()) return;
+
             IMqttToken token = client.connect(options);
             token.waitForCompletion(TimeUnit.SECONDS.toMillis(10));
+
+            // 오프라인 버퍼링 비활성화(제어 명령 즉시 실패 철학)
+            DisconnectedBufferOptions buf = new DisconnectedBufferOptions();
+            buf.setBufferEnabled(false);
+            client.setBufferOpts(buf);
+
             log.info("[MQTT] Connected to broker. clientId={}", client.getClientId());
         } catch (Exception e) {
             throw new RuntimeException("MQTT 연결 실패: " + e.getMessage(), e);
