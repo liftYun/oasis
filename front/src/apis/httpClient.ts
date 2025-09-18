@@ -73,6 +73,10 @@ class HttpClient {
     this.setInterceptors();
   }
 
+  rawPost(url: string, data?: unknown, config?: AxiosRequestConfig) {
+    return this.client.post(url, data, config);
+  }
+
   get<T>(url: string, config?: AxiosRequestConfig) {
     return this.client.get<T>(url, config).then(getResult);
   }
