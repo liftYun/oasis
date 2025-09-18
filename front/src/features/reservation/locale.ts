@@ -7,7 +7,7 @@ export const reservationMessages = {
       datePlaceholder: '날짜를 선택하세요',
       next: '다음',
       nights: (n: number) => `${n}박`,
-      guide: '체크인/체크아웃 날짜를 선택해주세요. (최소 2박, 최대 30박)',
+      guide: '체크인/체크아웃 날짜를 선택해주세요. (최소 1박, 최대 29박)',
     },
     step2: {
       title: '게스트 정보 입력 (더미)',
@@ -38,7 +38,7 @@ export const reservationMessages = {
       datePlaceholder: 'Select dates',
       next: 'Next',
       nights: (n: number) => `${n} nights`,
-      guide: 'Choose check-in/check-out. (min 2 nights, max 30)',
+      guide: 'Choose check-in/check-out. (min 1 night, max 29 nights)',
     },
     step2: {
       title: 'Guest info (dummy)',

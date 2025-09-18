@@ -8,7 +8,6 @@ export interface UserItem {
 
 interface Props {
   user: UserItem;
-  onClick?: (user: UserItem) => void;
 }
 
 export default function UserCard({ user }: Props) {
