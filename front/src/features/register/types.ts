@@ -1,4 +1,4 @@
-export type Lang = 'ko' | 'en';
+export type Lang = 'kor' | 'eng';
 
 export type RegisterTexts = {
   title: string;
@@ -33,6 +33,10 @@ export type RegisterTexts = {
   errorDuplicate: string;
   errorCheckFail: string;
   successNickname: string;
+  errorImage: string;
+  errorPdf: string;
+  limtedPdf: string;
+  errorProfile: string;
 };
 
 export type Step = 'nickname' | 'check' | 'role' | 'done';

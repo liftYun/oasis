@@ -86,7 +86,7 @@ export default function CalendarBase(props: CalendarBaseProps) {
   const { lang } = useLanguage();
 
   const theme = props.theme ?? 'blue';
-  const disablePast = props.disablePast !== false; // default true
+  const disablePast = props.disablePast !== false;
 
   const disabled = useMemo(() => {
     const common = disablePast ? { before: startOfToday() } : undefined;
@@ -119,15 +119,15 @@ export default function CalendarBase(props: CalendarBaseProps) {
   const themeStyle = useMemo(() => {
     if (theme === 'red') {
       return {
-        baseBg: '#ef4444', // red-500
-        midBg: '#fee2e2', // red-100 slightly lighter for middle fill
+        baseBg: '#ef4444',
+        midBg: '#fee2e2',
         textOnBase: '#ffffff',
-        textOnMid: '#4b5563', // gray-600
+        textOnMid: '#4b5563',
       } as const;
     }
     return {
-      baseBg: '#2563eb', // blue-600 approx for primary
-      midBg: '#dbeafe', // blue-100
+      baseBg: '#3897F4',
+      midBg: '#CFE7FF',
       textOnBase: '#ffffff',
       textOnMid: '#4b5563',
     } as const;
@@ -149,16 +149,18 @@ export default function CalendarBase(props: CalendarBaseProps) {
           today: 'text-primary font-bold',
           chevron: 'fill-primary',
         }}
-        modifiersClassNames={{
-          range_middle: themeClass.range_middle,
-          range_start: themeClass.range_start,
-          range_end: themeClass.range_end,
-          selected: themeClass.selected,
-        }}
         modifiersStyles={{
           range_middle: { borderRadius: 0 },
         }}
-        styles={{ day: { margin: 0, width: '36px', height: '36px' }, cell: { padding: 0 } }}
+        styles={{
+          day: { margin: 0, width: '36px', height: '36px' },
+          cell: { padding: 0 },
+          root: {
+            ['--rdp-accent-color' as any]: themeStyle.baseBg,
+            ['--rdp-accent-background-color' as any]: themeStyle.midBg,
+            ['--rdp-outside-opacity' as any]: 0.5,
+          },
+        }}
         navLayout="around"
         className={`mx-auto flex justify-center ${props.className ?? ''}`}
       />

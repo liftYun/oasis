@@ -14,7 +14,7 @@ interface Props {
 }
 
 export function SearchTabs({ activeTab, onTabChange, selectedRegion }: Props) {
-  const { lang } = useLanguage(); // ✅ useLanguage 훅으로 교체
+  const { lang } = useLanguage();
   const [showTooltip, setShowTooltip] = useState(false);
 
   const labels = {

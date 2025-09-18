@@ -7,6 +7,7 @@ export interface AddressSearchResult {
 }
 
 export type CreateStayTexts = {
+  createStay: string;
   header: {
     searchTitle: string;
   };

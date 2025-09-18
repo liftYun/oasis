@@ -2,6 +2,7 @@ import type { CreateStayTexts } from './types';
 
 export const createStayMessages: Record<'kor' | 'eng', CreateStayTexts> = {
   kor: {
+    createStay: '숙소 등록하기',
     header: {
       searchTitle: '주소 찾기',
     },
@@ -87,6 +88,7 @@ export const createStayMessages: Record<'kor' | 'eng', CreateStayTexts> = {
     },
   },
   eng: {
+    createStay: 'Create Stay',
     header: {
       searchTitle: 'Find Address',
     },
