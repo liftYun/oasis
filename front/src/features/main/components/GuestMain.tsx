@@ -67,7 +67,7 @@ function ScrollableRoomList({ rooms }: { rooms: StayCardByWishDto[] }) {
               </div>
             </div>
 
-            <p className="mt-3 mx-1 text-sm text-gray-700 font-semibold truncate text-left">
+            <p className="mt-3 mx-1 text-sm text-gray-600 font-semibold truncate text-left">
               {room.title}
             </p>
             <div className="flex items-center gap-1.5 mx-1 mt-1">

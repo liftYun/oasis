@@ -24,16 +24,12 @@ function CallbackInner() {
           ? authHeader.split(' ')[1]
           : undefined;
         const { needProfileUpdate, nickname, email, profileUrl, uuid, role } = res.data;
-
-        console.log('accessToken', accessToken);
-        console.log(res.data);
         if (accessToken) {
           setUser({ accessToken, nickname, email, profileUrl, uuid, role });
           useRegisterStore.getState().setNickname(nickname);
           useRegisterStore.getState().setEmail(email);
           useRegisterStore.getState().setProfileUrl(profileUrl);
-          // const next = needProfileUpdate ? '/language' : '/main';
-          const next = '/language';
+          const next = needProfileUpdate ? '/language' : '/main';
           router.replace(next);
         } else {
           router.replace('/');

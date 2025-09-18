@@ -44,15 +44,6 @@ export interface StayDetailResponse {
   images: string[];
 }
 
-export interface StayCardByWishDto {
-  stayId: number;
-  title: string;
-  thumbnail: string;
-  rating: number;
-  price: number;
-  wishCount: number;
-}
-
 export interface SubRegionDto {
   id: number;
   subName: string;
@@ -77,4 +68,17 @@ export interface BaseResponse<T> {
   message: string;
   code: number;
   result: T;
+}
+
+export interface StayCardDto {
+  stayId: number;
+  title: string;
+  thumbnail: string;
+  rating: number;
+  price: number;
+}
+
+export interface WishResponseDto {
+  id: number;
+  stayCardDto: StayCardDto;
 }

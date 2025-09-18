@@ -7,7 +7,7 @@ import {
   StayDetailResponse,
   PresignedRequest,
   PresignedResponse,
-  StayCardByWishDto,
+  WishResponseDto,
   SubRegionDto,
   RegionDto,
   BaseResponse,
@@ -51,3 +51,13 @@ export const searchStaysByRating = () => http.get('/api/v1/stay/rating');
 export const fetchRegions = () => {
   return http.get<BaseResponse<RegionDto[]>>('/api/v1/stay/region');
 };
+
+// 관심 숙소 등록
+export const addWish = (stayId: number) => http.post<BaseResponse<void>>(`/api/v1/wish/${stayId}`);
+
+// 관심 숙소 목록 조회
+export const fetchWishes = () => http.get<BaseResponse<WishResponseDto[]>>('/api/v1/wish');
+
+// 관심 숙소 삭제
+export const deleteWish = (wishId: number) =>
+  http.delete<BaseResponse<void>>(`/api/v1/wish/${wishId}`);

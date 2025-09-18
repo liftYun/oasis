@@ -1,6 +1,3 @@
-import { logout } from '@/services/auth.api';
-import { email } from 'zod';
-
 export const profileMessages = {
   kor: {
     guest: '게스트',
