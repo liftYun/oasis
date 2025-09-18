@@ -3,10 +3,12 @@ package org.muhan.oasis.stay.repository;
 
 import org.muhan.oasis.stay.dto.out.StayCardByWishDto;
 import org.muhan.oasis.stay.dto.out.StayCardDto;
+import org.muhan.oasis.stay.dto.out.StayChatResponseDto;
 import org.muhan.oasis.stay.dto.out.StayResponseDto;
 import org.muhan.oasis.stay.entity.CancellationPolicyEntity;
 import org.muhan.oasis.stay.entity.StayEntity;
 import org.muhan.oasis.stay.entity.StayFacilityEntity;
+import org.muhan.oasis.valueobject.Language;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -141,5 +143,18 @@ public interface StayRepository extends JpaRepository<StayEntity, Long> {
             "JOIN FETCH s.cancellationPolicyEntity " +
             "WHERE s.id = :stayId")
     StayEntity findStayWithPolicy(@Param("stayId") Long stayId);
+
+    @Query("""
+      select new org.muhan.oasis.stay.dto.out.StayChatResponseDto(
+        s.id,
+        case when :language = org.muhan.oasis.valueobject.Language.KOR
+             then s.addressLine else s.addressLineEng end,
+        s.thumbnail
+      )
+      from StayEntity s
+      where s.id in :ids
+    """)
+    List<StayChatResponseDto> findChatInfo(@Param("language") Language language,
+                                           @Param("ids") List<Long> ids);
 }
 
