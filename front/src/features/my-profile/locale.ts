@@ -32,6 +32,7 @@ export const profileMessages = {
     role: '권한',
     edit: '수정',
     language: '사용 언어',
+    policy: '취소 수수료 관리',
   },
   eng: {
     guest: 'Guest',
@@ -67,5 +68,6 @@ export const profileMessages = {
     role: 'Role',
     edit: 'Edit',
     language: 'Use Language',
+    policy: 'Cancellation Policy',
   },
 } as const;

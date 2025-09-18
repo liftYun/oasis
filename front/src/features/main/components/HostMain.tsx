@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import { useLanguage } from '@/features/language';
 import { mainMessages } from '@/features/main/locale';
 import SearchBar from '@/components/molecules/SearchBar';
@@ -14,19 +15,31 @@ import Star from '@/assets/icons/star.png';
 import PositiveReview from '@/assets/icons/positive-review.png';
 import MainCard from '@/components/organisms/main-card/MainCard';
 import Usdc from '@/assets/icons/usd-circle.png';
-import TestRoom from '@/assets/images/test-room.jpeg';
+import { searchStaysByWish, searchStaysByRating } from '@/services/stay.api';
+import { StayCardByWishDto } from '@/services/stay.types';
 
 export function HostMain() {
   const { lang } = useLanguage();
   const t = mainMessages[lang];
   const router = useRouter();
 
-  const mockRooms = [...Array(12)].map((_, i) => ({
-    name: `숙소 ${i + 1}`,
-    price: '125,000 원',
-    rating: '4.8',
-    image: TestRoom,
-  }));
+  const [wishRooms, setWishRooms] = useState<StayCardByWishDto[]>([]);
+  const [ratingRooms, setRatingRooms] = useState<StayCardByWishDto[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const wishRes = await searchStaysByWish();
+        setWishRooms(wishRes ?? []);
+
+        const ratingRes = await searchStaysByRating();
+        setRatingRooms(ratingRes ?? []);
+      } catch (e) {
+        console.error('숙소 목록 조회 실패', e);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <main
@@ -65,10 +78,10 @@ export function HostMain() {
 
         <div className="overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing relative">
           <div className="flex gap-4 w-max px-1">
-            {mockRooms.map((room, i) => (
-              <div key={i} className="flex-shrink-0 w-40">
+            {wishRooms.map((room) => (
+              <div key={room.stayId} className="flex-shrink-0 w-40">
                 <div className="relative w-40 h-40 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
-                  <Image src={room.image} alt={room.name} fill className="object-cover" />
+                  <Image src={room.thumbnail} alt={room.title} fill className="object-cover" />
                   <Image
                     src={HeartDefault}
                     alt="heart"
@@ -78,16 +91,20 @@ export function HostMain() {
                   />
                   <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-yellow/70 px-2 py-1 rounded-full">
                     <Image src={Star} alt="star" width={14} height={14} className="opacity-60" />
-                    <span className="text-xs text-gray-600 font-medium">{room.rating}</span>
+                    <span className="text-xs text-gray-600 font-medium">
+                      {room.rating.toFixed(1)}
+                    </span>
                   </div>
                 </div>
 
                 <p className="mt-3 mx-1 text-sm text-gray-700 font-semibold truncate text-left">
-                  {room.name}
+                  {room.title}
                 </p>
                 <div className="flex items-center gap-1.5 mx-1 mt-1">
                   <Image src={Usdc} alt="usdc" width={16} height={16} className="shrink-0" />
-                  <p className="text-sm text-gray-600 font-medium truncate">{room.price}</p>
+                  <p className="text-sm text-gray-600 font-medium truncate">
+                    {room.price.toLocaleString()} 원
+                  </p>
                 </div>
               </div>
             ))}
@@ -112,10 +129,10 @@ export function HostMain() {
 
         <div className="overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing relative">
           <div className="flex gap-4 w-max px-1">
-            {mockRooms.map((room, i) => (
-              <div key={i} className="flex-shrink-0 w-40">
+            {ratingRooms.map((room) => (
+              <div key={room.stayId} className="flex-shrink-0 w-40">
                 <div className="relative w-40 h-40 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
-                  <Image src={room.image} alt={room.name} fill className="object-cover" />
+                  <Image src={room.thumbnail} alt={room.title} fill className="object-cover" />
                   <Image
                     src={HeartDefault}
                     alt="heart"
@@ -125,17 +142,21 @@ export function HostMain() {
                   />
                   <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-yellow/70 px-2 py-1 rounded-full">
                     <Image src={Star} alt="star" width={14} height={14} className="opacity-60" />
-                    <span className="text-xs text-gray-600 font-medium">{room.rating}</span>
+                    <span className="text-xs text-gray-600 font-medium">
+                      {room.rating.toFixed(1)}
+                    </span>
                   </div>
                 </div>
 
                 <p className="mt-3 mx-1 text-sm text-gray-700 font-semibold truncate text-left">
-                  {room.name}
+                  {room.title}
                 </p>
 
                 <div className="flex items-center gap-1 mx-1 mt-1">
                   <Image src={Usdc} alt="usdc" width={16} height={16} className="shrink-0" />
-                  <p className="text-sm text-gray-600 font-medium truncate">{room.price}</p>
+                  <p className="text-sm text-gray-600 font-medium truncate">
+                    {room.price.toLocaleString()} 원
+                  </p>
                 </div>
               </div>
             ))}

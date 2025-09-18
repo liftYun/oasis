@@ -9,7 +9,9 @@ export default function LanguageLayout({ children }: { children: React.ReactNode
 
   return (
     <>
-      <section className="items-center justify-center">{children}</section>
+      <section className="items-center justify-center overflow-y-auto scrollbar-hide">
+        {children}
+      </section>
       {!hideTabBar && <TabBar activeKey="profile" />}
     </>
   );

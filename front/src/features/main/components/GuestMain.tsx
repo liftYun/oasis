@@ -15,16 +15,8 @@ import PositiveReview from '@/assets/icons/positive-review.png';
 import MainCard from '@/components/organisms/main-card/MainCard';
 import Usdc from '@/assets/icons/usd-circle.png';
 import { useEffect, useRef, useState } from 'react';
-import { searchStaysByWish } from '@/services/stay.api';
-
-interface StayCardByWishDto {
-  stayId: number;
-  title: string;
-  thumbnail: string;
-  rating: number;
-  price: number;
-  wishCount: number;
-}
+import { searchStaysByWish, searchStaysByRating } from '@/services/stay.api';
+import { StayCardByWishDto } from '@/services/stay.types';
 
 function ScrollableRoomList({ rooms }: { rooms: StayCardByWishDto[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -98,19 +90,21 @@ export function GuestMain() {
   const t: MainMessagesMap[Lang] = mainMessages[lang];
   const router = useRouter();
   const [wishRooms, setWishRooms] = useState<StayCardByWishDto[]>([]);
+  const [ratingRooms, setRatingRooms] = useState<StayCardByWishDto[]>([]);
 
   useEffect(() => {
-    console.log('wishRooms', wishRooms);
-    const fetchWishRooms = async () => {
+    const fetchData = async () => {
       try {
-        const res = await searchStaysByWish();
-        console.log(res);
-        // setWishRooms(res.data.data ?? []);
+        const wishRes = await searchStaysByWish();
+        setWishRooms(wishRes ?? []);
+
+        const ratingRes = await searchStaysByRating();
+        setRatingRooms(ratingRes ?? []);
       } catch (e) {
         console.error(e);
       }
     };
-    fetchWishRooms();
+    fetchData();
   }, []);
 
   return (
@@ -118,7 +112,6 @@ export function GuestMain() {
       className="flex flex-col w-full px-6 pb-10 min-h-screen"
       style={{ paddingBottom: 'var(--safe-bottom, 110px)' }}
     >
-      {/* 검색 섹션 */}
       <section className="mt-6">
         <div className="relative w-full h-[18rem] flex flex-col items-center justify-center">
           <Lottie src="/lotties/search.json" className="w-[90%] h-40" />
@@ -135,7 +128,6 @@ export function GuestMain() {
         </div>
       </section>
 
-      {/* 찜 많은 숙소 섹션 */}
       <section className="mt-10 relative">
         <div className="flex items-center gap-4 px-1 mb-6">
           <Image src={HeartBlue} alt="heart" width={44} height={44} />
@@ -147,7 +139,6 @@ export function GuestMain() {
         <ScrollableRoomList rooms={wishRooms} />
       </section>
 
-      {/* 리뷰 좋은 숙소 섹션 - 아직은 mock */}
       <section className="mt-20 mb-10 relative">
         <div className="flex items-center gap-4 px-1 mb-6">
           <Image src={PositiveReview} alt="review" width={44} height={44} />
@@ -161,7 +152,6 @@ export function GuestMain() {
 
       <div className="-mx-6 w-screen h-3 bg-gray-100 my-8" />
 
-      {/* 브랜드 소개 */}
       <section className="mt-10">
         <div className="flex items-center gap-4 px-1 mb-10">
           <Image src={Logo} alt="logo" width={44} height={44} />

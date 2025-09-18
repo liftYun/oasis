@@ -82,3 +82,12 @@ export interface WishResponseDto {
   id: number;
   stayCardDto: StayCardDto;
 }
+
+export interface StayCardByWishDto {
+  stayId: number;
+  title: string;
+  thumbnail: string;
+  rating: number;
+  price: number;
+  wishCount: number;
+}

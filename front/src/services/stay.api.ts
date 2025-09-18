@@ -12,6 +12,7 @@ import {
   RegionDto,
   BaseResponse,
   StayCardDto,
+  StayCardByWishDto,
 } from './stay.types';
 
 // 숙소 등록
@@ -41,11 +42,11 @@ export const searchStays = (params?: Record<string, any>) => {
   return http.get<BaseResponse<StayCardDto[]>>('/api/v1/stay', { params });
 };
 
-// 숙소 검색 (관심많은 순)
-export const searchStaysByWish = () => http.get('/api/v1/stay/rank/wish');
+// 숙소 검색 (관심 많은 순)
+export const searchStaysByWish = () => http.get<StayCardByWishDto[]>('/api/v1/stay/rank/wish');
 
 // 숙소 검색 (평점 높은 순)
-export const searchStaysByRating = () => http.get('/api/v1/stay/rating');
+export const searchStaysByRating = () => http.get<StayCardByWishDto[]>('/api/v1/stay/rank/rating');
 
 // 지역 조회
 export const fetchRegions = () => {
