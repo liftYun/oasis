@@ -4,7 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
+import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +27,12 @@ public class MqttConfig {
     private int keepAliveSeconds = 30;
     private int qosDefault = 1;
     private String topicPrefix = "cmd";
+
+    @Bean
+    public MqttClientPersistence mqttPersistence() {
+        // 디스크 대신 메모리 사용 → 배포 환경 파일권한/경로 이슈 제거
+        return new MemoryPersistence();
+    }
 
     @Bean
     public MqttConnectOptions mqttConnectOptions() {
