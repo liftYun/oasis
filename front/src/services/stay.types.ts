@@ -43,3 +43,38 @@ export interface StayDetailResponse {
   longitude: number;
   images: string[];
 }
+
+export interface StayCardByWishDto {
+  stayId: number;
+  title: string;
+  thumbnail: string;
+  rating: number;
+  price: number;
+  wishCount: number;
+}
+
+export interface SubRegionDto {
+  id: number;
+  subName: string;
+}
+
+export interface RegionDto {
+  region: string;
+  subRegions: SubRegionDto[];
+}
+
+export interface StayCardDto {
+  stayId: number;
+  title: string;
+  thumbnail: string;
+  rating: number;
+  price: number;
+}
+
+export interface BaseResponse<T> {
+  httpStatus: string;
+  isSuccess: boolean;
+  message: string;
+  code: number;
+  result: T;
+}

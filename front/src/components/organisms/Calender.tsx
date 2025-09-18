@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { differenceInDays, format } from 'date-fns';
@@ -9,10 +9,20 @@ import Calender from '@/assets/icons/calender.png';
 import { useLanguage } from '@/features/language';
 import CalendarBase from '@/components/organisms/CalendarBase';
 
-export default function Calendar() {
-  const [range, setRange] = useState<DateRange | undefined>(undefined);
-  const nights = range?.from && range?.to ? differenceInDays(range.to, range.from) : 0;
+interface Props {
+  value?: DateRange;
+  onChange?: (range: DateRange | undefined) => void;
+}
+
+export default function Calendar({ value, onChange }: Props) {
+  const [range, setRange] = useState<DateRange | undefined>(value);
   const { lang } = useLanguage();
+
+  useEffect(() => {
+    setRange(value);
+  }, [value]);
+
+  const nights = range?.from && range?.to ? differenceInDays(range.to, range.from) : 0;
 
   const labels = {
     kor: {
@@ -24,6 +34,11 @@ export default function Calendar() {
       nights: (n: number) => `${n} nights`,
     },
   } as const;
+
+  const handleSelect = (newRange: DateRange | undefined) => {
+    setRange(newRange);
+    onChange?.(newRange);
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-[0_0_10px_rgba(0,0,0,0.1)] p-6 mt-10">
@@ -43,7 +58,7 @@ export default function Calendar() {
         mode="singleRange"
         theme="blue"
         selected={range}
-        onChange={setRange}
+        onChange={handleSelect}
         className="mx-auto flex justify-center"
       />
     </div>
