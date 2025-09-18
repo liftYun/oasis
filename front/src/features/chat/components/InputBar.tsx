@@ -3,12 +3,16 @@
 import { useState } from 'react';
 import { SmilePlus, SendHorizontal } from 'lucide-react';
 import EmojiPicker, { type EmojiClickData } from 'emoji-picker-react';
+import { useLanguage } from '@/features/language';
+import { chatMessages } from '@/features/chat/locale';
 
 interface InputBarProps {
   onSend?: (text: string) => void; // UI 전용. 동작은 추후 연결
 }
 
 export default function InputBar({ onSend }: InputBarProps) {
+  const { lang } = useLanguage();
+  const t = chatMessages[lang];
   const [text, setText] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
@@ -37,7 +41,7 @@ export default function InputBar({ onSend }: InputBarProps) {
           type="button"
           onClick={() => setShowEmojiPicker(!showEmojiPicker)}
           className="flex-shrink-0 p-2 text-gray-400 hover:text-gray-600"
-          aria-label="open-emoji-picker"
+          aria-label={t.ariaOpenEmoji}
         >
           <SmilePlus className="text-lg text-gray-300" />
         </button>
@@ -49,6 +53,7 @@ export default function InputBar({ onSend }: InputBarProps) {
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
           className="flex-1 min-w-0 bg-transparent outline-none text-base px-1"
+          placeholder={t.inputPlaceholder}
           maxLength={500}
         />
         <button
@@ -56,7 +61,7 @@ export default function InputBar({ onSend }: InputBarProps) {
           onClick={handleSend}
           disabled={!text.trim()}
           className="flex-shrink-0 p-2 text-gray-400 hover:text-gray-600 disabled:text-gray-300"
-          aria-label="send-message"
+          aria-label={t.ariaSend}
         >
           <SendHorizontal className="text-lg text-gray-300" />
         </button>

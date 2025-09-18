@@ -4,6 +4,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import StayImage from '@/assets/images/stay_example.png';
+import { useLanguage } from '@/features/language';
+import { chatMessages } from '@/features/chat/locale';
 import { ChatUserThumbnail } from '@/components/atoms/ChatUserThumbnail';
 
 type ChatListItemProps = {
@@ -14,10 +16,12 @@ type ChatListItemProps = {
 };
 
 export function ChatListItem({ id, title, location, date }: ChatListItemProps) {
+  const { lang } = useLanguage();
+  const t = chatMessages[lang];
   return (
     <Link
       href={`/chat/${encodeURIComponent(id)}`}
-      aria-label={`Open chat: ${title}`}
+      aria-label={`${t.ariaOpenChat}: ${title}`}
       className="flex items-center gap-4 py-5 hover:bg-gray-50"
     >
       {/* 래퍼 분리: 아바타가 이미지 밖으로 자연스럽게 튀어나오도록 */}
