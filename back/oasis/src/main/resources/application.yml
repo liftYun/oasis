@@ -121,3 +121,15 @@ chain:
 wallet:
   private:
     key: ${WALLET_PRIVATE_KEY}
+
+mqtt:
+  host: ${MQTT_HOST}
+  port: ${MQTT_PORT}
+  username: ${MQTT_USERNAME}
+  password: ${MQTT_PASSWORD}
+  client-id: oasis-api-publisher-${random.uuid}
+  ssl: true
+  keep-alive-seconds: 30
+  qos-default: 1
+  # 선택: 장치 제어 토픽 프리픽스
+  topic-prefix: cmd
