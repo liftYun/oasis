@@ -13,7 +13,7 @@ type HostInfoProps = {
   defaultFile?: File | null;
 };
 
-const ACCEPT = ['image/*', 'application/pdf'];
+const ACCEPT = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 
 export function HostInfo({ onConfirm, defaultFile = null }: HostInfoProps) {
   const router = useRouter();
@@ -23,6 +23,7 @@ export function HostInfo({ onConfirm, defaultFile = null }: HostInfoProps) {
   const [error, setError] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const isValid = useMemo(() => !!file && !error, [file, error]);
 
   const isPDF = useMemo(() => file?.type === 'application/pdf', [file]);
   const previewURL = useMemo(
@@ -32,9 +33,13 @@ export function HostInfo({ onConfirm, defaultFile = null }: HostInfoProps) {
 
   const validate = (f: File) => {
     if (!f) return '파일을 선택해주세요.';
-    const valid = f.type.startsWith('image/') || f.type === 'application/pdf';
-    if (!valid) return '이미지 또는 PDF만 업로드할 수 있어요.';
-    if (f.size > 10 * 1024 * 1024) return '최대 10MB까지 업로드할 수 있어요.';
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    const valid = allowedTypes.includes(f.type);
+
+    if (!valid) return t.errorPdf;
+    if (f.size > 10 * 1024 * 1024) return t.limtedPdf;
+
     return '';
   };
 
@@ -74,6 +79,7 @@ export function HostInfo({ onConfirm, defaultFile = null }: HostInfoProps) {
   };
 
   const handleSubmit = () => {
+    if (!isValid) return;
     onConfirm?.(file ?? null);
     router.push('/register/host/money');
   };
@@ -165,7 +171,12 @@ export function HostInfo({ onConfirm, defaultFile = null }: HostInfoProps) {
       </section>
 
       <div className="mt-auto">
-        <Button variant="default" onClick={handleSubmit} className="w-full max-w-lg mx-auto">
+        <Button
+          variant={isValid ? 'default' : 'defaultLight'}
+          disabled={!isValid}
+          onClick={handleSubmit}
+          className="w-full max-w-lg mx-auto"
+        >
           {t.confirm}
         </Button>
       </div>

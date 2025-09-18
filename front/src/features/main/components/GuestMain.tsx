@@ -17,6 +17,7 @@ import MainCard from '@/components/organisms/main-card/MainCard';
 import Usdc from '@/assets/icons/usd-circle.png';
 import TestRoom from '@/assets/images/test-room.jpeg';
 import { useEffect, useRef, useState } from 'react';
+import { Header } from '@/components/organisms/ProfileHeader';
 
 function ScrollableRoomList({ rooms }: { rooms: typeof mockRooms }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -100,10 +101,11 @@ export function GuestMain() {
 
   return (
     <main
-      className="flex flex-col w-full px-6 py-10 min-h-screen"
+      className="flex flex-col w-full px-6 pb-10 min-h-screen"
       style={{ paddingBottom: 'var(--safe-bottom, 110px)' }}
     >
-      <SearchBar />
+      {/* <Header /> */}
+      {/* <SearchBar /> */}
 
       <section className="mt-6">
         <div className="relative w-full h-[18rem] flex flex-col items-center justify-center">

@@ -3,7 +3,6 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { ProgressBar } from '@/components/molecules/ProgressBar';
-import { ChevronLeft } from 'lucide-react';
 import { useCreateStayStore } from '@/features/create-stay/store';
 import {
   AddressSearch,
@@ -22,15 +21,10 @@ export default function CreateStayPage() {
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
 
-  // 현재 URL의 step 파라미터만 안정적으로 추출 (메모이제이션 불필요)
   const stepParam = searchParams.get('step');
-
-  // 새로고침 여부 저장용 ref
   const isReloadRef = useRef(false);
-  // 초기 마운트 시 딥링크 금지 처리 여부
   const didInitRef = useRef(false);
 
-  // 초기 진입 시: 딥링크(step 파라미터) 무시하고 항상 step=1로 고정
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (didInitRef.current) return;
@@ -45,13 +39,11 @@ export default function CreateStayPage() {
     }
   }, [currentStep, router, setStep]);
 
-  // 새로고침 감지 시: 상태 초기화 및 첫 단계로 강제 이동
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const entries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
     const isReload =
       entries?.[0]?.type === 'reload' ||
-      // Legacy fallback (deprecated API)
       (performance.navigation && performance.navigation.type === 1);
     if (isReload) {
       isReloadRef.current = true;
@@ -60,9 +52,6 @@ export default function CreateStayPage() {
     }
   }, [reset, router]);
 
-  // 딥링크 금지: URL 변화로 스텝을 동기화하지 않음
-
-  // store -> URL: 첫 렌더는 건너뛰고, 이후 currentStep이 바뀔 때만 동기화
   const didMountRef = useRef(false);
   useEffect(() => {
     if (!didMountRef.current) {
@@ -83,7 +72,7 @@ export default function CreateStayPage() {
     } else if (currentStep > 1) {
       setStep(currentStep - 1);
     } else {
-      router.push('/'); // Or your desired fallback route
+      router.push('/');
     }
   };
 
@@ -103,29 +92,15 @@ export default function CreateStayPage() {
   };
 
   return (
-    <main className="flex flex-col flex-1 bg-white my-5">
-      <header className="mb-8">
-        {view === 'form' ? (
-          <div>
-            <div className="flex h-12 items-center">
-              <button type="button" onClick={handleBack}>
-                <ChevronLeft />
-              </button>
-            </div>
-            <ProgressBar totalSteps={4} currentStep={currentStep} className="mt-2" />
-          </div>
-        ) : (
-          <div className="relative flex h-12 items-center justify-center">
-            <button type="button" onClick={handleBack} className="absolute left-0">
-              <ChevronLeft />
-            </button>
-            <h1 className="text-lg font-bold">{t.header.searchTitle}</h1>
-          </div>
-        )}
-      </header>
-      <div className="flex flex-col flex-grow">
-        {view === 'form' ? renderStep() : <AddressSearch />}
-      </div>
-    </main>
+    <>
+      {view === 'form' && (
+        <ProgressBar
+          totalSteps={4}
+          currentStep={currentStep}
+          className="pt-20 max-w-md mx-auto p-4"
+        />
+      )}
+      {view === 'form' ? renderStep() : <AddressSearch />}
+    </>
   );
 }

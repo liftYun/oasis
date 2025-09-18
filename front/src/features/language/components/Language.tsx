@@ -4,10 +4,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useLanguage } from '@/features/language/hooks/useLanguage';
+import { updateLanguage } from '@/services/user.api';
 import EnDark from '@/assets/icons/en-dark.png';
 import EnLight from '@/assets/icons/en-light.png';
 import KoDark from '@/assets/icons/ko-dark.png';
 import KoLight from '@/assets/icons/ko-light.png';
+import BackHeader from '@/components/molecules/BackHeader';
 
 export function Language() {
   const { changeLang } = useLanguage();
@@ -17,16 +19,36 @@ export function Language() {
   const cardClass = () =>
     'group block rounded-2xl px-5 py-10 transition focus-visible:outline-none bg-gray-100 text-gray-500 hover:bg-gray-500 hover:text-white';
 
+  const targetPath = from === 'myprofile' ? '/my-profile/detail' : '/register';
+
+  const handleChange = async (lang: 'kor' | 'eng') => {
+    try {
+      await updateLanguage(lang.toUpperCase());
+      changeLang(lang);
+    } catch (err) {
+      console.error('언어 변경 실패:', err);
+    }
+  };
+
   return (
     <main className="relative flex flex-col w-full mx-0 px-6 py-10 min-h-screen">
-      {/* {from ==='myprofile' && <BackHeader />} */}
+      {from === 'myprofile' && <BackHeader title="언어 선택" />}
 
-      <h1 className="text-2xl font-bold text-gray-500 leading-relaxed">
+      <h1
+        className={`text-2xl font-bold text-gray-500 leading-relaxed ${
+          from === 'myprofile' ? 'pt-16' : ''
+        }`}
+      >
         사용 언어를 선택해주세요. <br /> Please select a language.
       </h1>
 
       <div className="mt-20 flex flex-col gap-6">
-        <Link href="/register" prefetch className={cardClass()} onClick={() => changeLang('kor')}>
+        <Link
+          href={targetPath}
+          prefetch
+          className={cardClass()}
+          onClick={() => handleChange('kor')}
+        >
           <div className="flex justify-between gap-3 w-full max-w-lg mx-auto">
             <div>
               <div className="text-xl font-semibold">한국어</div>
@@ -51,7 +73,12 @@ export function Language() {
           </div>
         </Link>
 
-        <Link href="/register" prefetch className={cardClass()} onClick={() => changeLang('eng')}>
+        <Link
+          href={targetPath}
+          prefetch
+          className={cardClass()}
+          onClick={() => handleChange('eng')}
+        >
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="text-xl font-semibold">English</div>

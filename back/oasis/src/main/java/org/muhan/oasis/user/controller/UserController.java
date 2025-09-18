@@ -232,8 +232,7 @@ public class UserController {
     )
     public ResponseEntity<BaseResponse<?>> updateLang(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable(name = "language") String language,
-            HttpServletResponse response
+            @PathVariable(name = "language") String language
     ) {
         Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
         // language parsing

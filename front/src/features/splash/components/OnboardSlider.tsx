@@ -98,7 +98,7 @@ export function OnboardSlider({
         className="absolute right-0 top-0 h-full w-1/5 z-10"
       />
 
-      <div className="relative h-[420px] overflow-hidden">
+      <div className="relative h-[clamp(300px,60vh,420px)] overflow-hidden">
         <AnimatePresence custom={direction} mode="sync" initial={false}>
           <motion.div
             key={index}
@@ -121,15 +121,18 @@ export function OnboardSlider({
             }}
             className="absolute inset-0 px-6 transform-gpu will-change-transform"
           >
-            <div className="mt-10 min-h-[120px] flex flex-col justify-start">
+            <div className="mt-10 min-h-[100px] flex flex-col justify-start">
               <h2 className="text-2xl font-bold text-center">{slide.title}</h2>
               <p className="mt-2 text-gray-600 whitespace-pre-line text-center">{slide.desc}</p>
             </div>
 
-            <div className="h-64 flex items-center justify-center">{defaultBodies[index]}</div>
+            <div className="h-[clamp(160px,30vh,256px)] flex items-center justify-center">
+              {defaultBodies[index]}
+            </div>
           </motion.div>
         </AnimatePresence>
       </div>
+
       <div className="mt-14 mb-10 flex justify-center gap-2" aria-label="Slide indicators">
         {slides.map((_, i) => {
           const active = i === index;

@@ -2,12 +2,10 @@ package org.muhan.oasis.stay.service;
 
 
 import org.muhan.oasis.stay.dto.in.CreateStayRequestDto;
+import org.muhan.oasis.stay.dto.in.StayChatRequestDto;
 import org.muhan.oasis.stay.dto.in.StayQueryRequestDto;
 import org.muhan.oasis.stay.dto.in.UpdateStayRequestDto;
-import org.muhan.oasis.stay.dto.out.StayCardByWishDto;
-import org.muhan.oasis.stay.dto.out.StayCardDto;
-import org.muhan.oasis.stay.dto.out.StayResponseDto;
-import org.muhan.oasis.stay.dto.out.StayReadResponseDto;
+import org.muhan.oasis.stay.dto.out.*;
 import org.muhan.oasis.valueobject.Language;
 import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
@@ -30,4 +28,6 @@ public interface StayService {
     List<StayCardByWishDto> searchStayByWish(String userUuid);
 
     List<StayCardDto> searchStayByRating(String userUuid);
+
+    List<StayChatResponseDto> getStays(List<StayChatRequestDto> stayChatListDto, String userUuid);
 }

@@ -15,13 +15,17 @@ import org.muhan.oasis.key.dto.out.KeyResponseDto;
 import org.muhan.oasis.key.service.KeyService;
 import org.muhan.oasis.key.vo.in.ShareKeyRequestVo;
 import org.muhan.oasis.key.vo.out.ListOfKeyResponseVO;
+import org.muhan.oasis.mqtt.service.MqttPublisherService;
+import org.muhan.oasis.mqtt.vo.in.MqttPublishRequestVo;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
 import org.muhan.oasis.user.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @ResponseBody
@@ -31,10 +35,12 @@ import java.util.Map;
 public class KeyController {
     private final KeyService keyService;
     private final UserService userService;
+    private final MqttPublisherService mqttPublisher;
 
-    public KeyController(KeyService keyService, UserService userService) {
+    public KeyController(KeyService keyService, UserService userService, MqttPublisherService mqttPublisher) {
         this.keyService = keyService;
         this.userService = userService;
+        this.mqttPublisher = mqttPublisher;
     }
 
     @Operation(
@@ -66,6 +72,9 @@ public class KeyController {
                 사용자가 소유/공유받은 키로 도어 개방을 요청합니다.
                 - 서버는 사용자의 개방 권한을 검증합니다.
                 - 검증 통과 시 MQTT로 장치에 개방 명령을 발행하고, 명령 트래킹을 위한 commandId를 반환합니다.
+                ### 발행 토픽/페이로드
+                - topic: `cmd/{deviceId}/open` (verifyOpenPermission이 `cmd/{deviceId}` 또는 `cmd/{deviceId}/open`을 줄 수 있음 → 컨트롤러에서 보정)
+                - payload(JSON): `{"commandId": "...", "keyId": 1001, "userId": 7, "ts": 1726612345678}`
                 """
     )
     @ApiResponses({
@@ -81,13 +90,61 @@ public class KeyController {
             @Parameter(description = "개방에 사용할 키 ID", required = true, example = "1001")
             @PathVariable Long keyId,
             @Parameter(hidden = true)
-            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        // MQTT 발행
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
         Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
-        String commandId = keyService.verifyOpenPermission(userId, keyId);
 
-        return BaseResponse.of(Map.of("commandId", commandId));
+        /*
+         * 기존 서비스: verifyOpenPermission -> 토픽 문자열 반환
+         * - Redis 빠른 경로 / DB 폴백 / 디바이스 온라인 체크 / Redis 리필까지 내부에서 수행
+         * - 반환값: topicFor(deviceId)
+         */
+        String topicFromService = keyService.verifyOpenPermission(userId, keyId);
+
+        // topic 보정: 끝이 "/open"으로 끝나지 않으면 붙인다.
+        String topic = (topicFromService != null && topicFromService.endsWith("/open"))
+                ? topicFromService
+                : topicFromService + "/open";
+
+        // 간단한 커맨드 ID 발급(서버 트래킹용). 필요 시 keyService에서 발급하도록 변경 가능
+        String commandId = "cmd-" + UUID.randomUUID();
+
+        String payload = """
+                {"commandId":"%s","keyId":%d,"userId":%d,"ts":%d}
+                """.formatted(commandId, keyId, userId, Instant.now().toEpochMilli()).replaceAll("\\s+","");
+
+        // MQTT 발행(QoS 1, retain=false)
+        mqttPublisher.publish(topic, payload, 1, false);
+
+        return BaseResponse.of(Map.of(
+                "commandId", commandId,
+                "topic", topic,
+                "published", true
+        ));
     }
+
+    @Operation(
+            summary = "[테스트] 임의 토픽으로 MQTT 발행",
+            description = """
+                로컬/포스트맨에서 topic/payload를 보내면 서버가 그대로 브로커에 발행합니다.
+                운영에서는 ROLE 제한 또는 비활성화를 권장합니다.
+                """
+    )
+    @PostMapping("/publish")
+    public BaseResponse<?> publishTest(
+            @RequestBody MqttPublishRequestVo vo,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        String topic = vo.getTopic();
+        String payload = (vo.getPayload() == null) ? "" : vo.getPayload();
+        mqttPublisher.publish(topic, payload, vo.getQos(), vo.getRetain());
+        return BaseResponse.of(Map.of(
+                "topic", topic,
+                "payload", payload,
+                "published", true
+        ));
+    }
+
 
     @Operation(
             summary = "디지털 키 리스트",

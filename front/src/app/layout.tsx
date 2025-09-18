@@ -4,6 +4,7 @@ import { ReactQueryProvider } from '@/providers/ReactQueryProvider';
 import AppToaster from '@/components/molecules/AppToaster';
 import { ClientLayout } from './ClientLayout';
 import InstallPrompt from '@/components/organisms/InstallPrompt';
+import AuthBootstrap from './_components/AuthBootstrap';
 
 export const metadata: Metadata = {
   title: 'oasis',
@@ -23,10 +24,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="font-sans min-h-dvh">
+      <body className="font-sans min-h-dvh border-x border-gray-100 ">
         <AppToaster />
         <ReactQueryProvider>
           <InstallPrompt />
+          <AuthBootstrap />
           <ClientLayout>{children}</ClientLayout>
         </ReactQueryProvider>
       </body>
