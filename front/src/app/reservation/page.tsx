@@ -8,6 +8,7 @@ import { useLanguage } from '@/features/language';
 import { reservationMessages } from '@/features/reservation/locale';
 import { StepFlowProvider } from '@/features/common/step-flow/StepFlowContext';
 import type { ReservationStep } from '@/features/reservation/store';
+import { useCallback, useMemo } from 'react';
 
 export default function ReservationPage() {
   const { step, setStep } = useReservationStore();
@@ -27,17 +28,18 @@ export default function ReservationPage() {
     }
   };
 
+  const goPrevStep = useCallback(() => {
+    const prev: ReservationStep = step === 3 ? 2 : 1;
+    setStep(prev);
+  }, [step, setStep]);
+
+  const stepFlowValue = useMemo(
+    () => ({ currentStep: step, canGoPrev: step >= 2, goPrevStep }),
+    [step, goPrevStep]
+  );
+
   return (
-    <StepFlowProvider
-      value={{
-        currentStep: step,
-        canGoPrev: step >= 2,
-        goPrevStep: () => {
-          const prev: ReservationStep = step === 3 ? 2 : 1;
-          setStep(prev);
-        },
-      }}
-    >
+    <StepFlowProvider value={stepFlowValue}>
       <main className="flex flex-col flex-1 bg-white">
         <BackHeader title={t.header.title} />
         <div className="fixed left-1/2 -translate-x-1/2 top-[calc(env(safe-area-inset-top)+56px)] w-full max-w-[480px] z-[60] bg-white">

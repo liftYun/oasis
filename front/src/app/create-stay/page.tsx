@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ProgressBar } from '@/components/molecules/ProgressBar';
 import BackHeader from '@/components/molecules/BackHeader';
 import { useCreateStayStore } from '@/features/create-stay/store';
@@ -85,20 +85,21 @@ export default function CreateStayPage() {
     }
   };
 
+  const goPrevStep = useCallback(() => {
+    if (view === 'searchAddress') {
+      setView('form');
+    } else if (currentStep > 1) {
+      setStep(currentStep - 1);
+    }
+  }, [view, currentStep, setView, setStep]);
+
+  const stepFlowValue = useMemo(
+    () => ({ currentStep, canGoPrev, goPrevStep }),
+    [currentStep, canGoPrev, goPrevStep]
+  );
+
   return (
-    <StepFlowProvider
-      value={{
-        currentStep,
-        canGoPrev,
-        goPrevStep: () => {
-          if (view === 'searchAddress') {
-            setView('form');
-          } else if (currentStep > 1) {
-            setStep(currentStep - 1);
-          }
-        },
-      }}
-    >
+    <StepFlowProvider value={stepFlowValue}>
       <>
         <BackHeader title={view === 'searchAddress' ? t.header.searchTitle : t.createStay} />
         {view === 'form' && (
