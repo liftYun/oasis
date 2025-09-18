@@ -3,7 +3,7 @@
 import BackHeader from '@/components/molecules/BackHeader';
 import { ProgressBar } from '@/components/molecules/ProgressBar';
 import { useReservationStore } from '@/features/reservation/store';
-import { Step1_Dates, Step2_Dummy, Step3_Dummy } from '@/features/reservation';
+import { Step1_Dates, Step3_Dummy, Step2_SmartKey } from '@/features/reservation';
 import { useLanguage } from '@/features/language';
 import { reservationMessages } from '@/features/reservation/locale';
 
@@ -17,7 +17,7 @@ export default function ReservationPage() {
       case 1:
         return <Step1_Dates />;
       case 2:
-        return <Step2_Dummy />;
+        return <Step2_SmartKey />;
       case 3:
         return <Step3_Dummy />;
       default:

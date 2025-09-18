@@ -2,12 +2,10 @@
 
 import Image from 'next/image';
 import type { DateRange } from 'react-day-picker';
-import { addDays, differenceInDays, format, startOfToday } from 'date-fns';
-import { DayPicker } from 'react-day-picker';
-import 'react-day-picker/dist/style.css';
-import { ko } from 'date-fns/locale';
+import { addDays, differenceInDays, format } from 'date-fns';
 import CalenderIcon from '@/assets/icons/calender.png';
 import { Button } from '@/components/atoms/Button';
+import CalendarBase from '@/components/organisms/CalendarBase';
 import { useLanguage } from '@/features/language';
 import { reservationMessages } from '@/features/reservation/locale';
 import { useReservationStore } from '@/features/reservation/store';
@@ -20,7 +18,7 @@ export function Step1_Dates() {
   const nights =
     dateRange?.from && dateRange?.to ? differenceInDays(dateRange.to, dateRange.from) : 0;
 
-  const handleSelect = (r: DateRange | undefined) => {
+  const handleDateRangeChange = (r: DateRange | undefined) => {
     if (!r?.from || !r?.to) {
       setDateRange(r);
       return;
@@ -38,15 +36,6 @@ export function Step1_Dates() {
 
   const canNext = Boolean(dateRange?.from && dateRange?.to && nights >= 1);
 
-  const handleDayClick = (date: Date) => {
-    if (!dateRange?.from || !dateRange?.to) return;
-    const isStart = dateRange.from && date.toDateString() === dateRange.from.toDateString();
-    const isEnd = dateRange.to && date.toDateString() === dateRange.to.toDateString();
-    if (isStart || isEnd) {
-      setDateRange(undefined);
-    }
-  };
-
   return (
     <section className="flex flex-col flex-1 gap-4">
       <div className="px-4 py-4 rounded-full bg-gray-50 flex items-center text-sm text-gray-600 gap-3">
@@ -61,34 +50,13 @@ export function Step1_Dates() {
         )}
       </div>
 
-      <div className="mx-auto flex justify-center">
-        <DayPicker
-          mode="range"
-          selected={dateRange}
-          onSelect={handleSelect}
-          onDayClick={handleDayClick}
-          locale={lang === 'kor' ? ko : undefined}
-          showOutsideDays
-          fixedWeeks
-          disabled={{ before: startOfToday() }}
-          classNames={{
-            day: 'text-gray-600',
-            today: 'text-primary font-bold',
-            chevron: 'fill-primary',
-            caption: 'flex items-center justify-center whitespace-nowrap',
-            nav: 'flex items-center gap-2 whitespace-nowrap',
-          }}
-          modifiersClassNames={{
-            range_middle: 'bg-blue-100 text-gray-600',
-            range_start: 'bg-primary text-white rounded-full',
-            range_end: 'bg-primary text-white rounded-full',
-            selected: 'bg-primary text-white',
-          }}
-          modifiersStyles={{ range_middle: { borderRadius: 0 } }}
-          styles={{ day: { margin: 0, width: '36px', height: '36px' }, cell: { padding: 0 } }}
-          navLayout="around"
-        />
-      </div>
+      <CalendarBase
+        mode="singleRange"
+        selected={dateRange}
+        onChange={handleDateRangeChange}
+        theme="blue"
+        disablePast={true}
+      />
 
       <div className="mt-auto pb-2">
         <Button

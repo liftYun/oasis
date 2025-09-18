@@ -12,6 +12,13 @@ export const reservationMessages = {
     step2: {
       title: '게스트 정보 입력 (더미)',
       next: '다음',
+      searchPlaceholder: '스마트 키를 등록할 닉네임을 검색하세요.',
+      successMessage: '스마트 키 등록이 완료되었습니다.',
+      failMessage: '닉네임을 찾을 수 없습니다.',
+      promo: [
+        { title: '스마트 키는 한번 등록하면\n변경할 수 없습니다.', caption: '안전하게 보관되며, 이후 수정·삭제 불가능' },
+        { title: '하나의 키로\n여러 이용자가 공유할 수 있습니다!', caption: '스마트 컨트랙트 기반 검증' },
+      ],
     },
     step3: {
       title: '결제 확인 (더미)',
@@ -26,7 +33,17 @@ export const reservationMessages = {
       nights: (n: number) => `${n} nights`,
       guide: 'Choose check-in/check-out. (min 2 nights, max 30)',
     },
-    step2: { title: 'Guest info (dummy)', next: 'Next' },
+    step2: {
+      title: 'Guest info (dummy)',
+      next: 'Next',
+      searchPlaceholder: 'Search a nickname to register smart key',
+      successMessage: 'Smart key registration completed.',
+      failMessage: 'Nickname not found.',
+      promo: [
+        { title: 'Once registered,\nthe smart key cannot be changed.', caption: 'Safely stored; editing/deletion is not allowed' },
+        { title: 'One key can be shared\namong multiple users!', caption: 'Verified by smart contracts' },
+      ],
+    },
     step3: { title: 'Payment (dummy)', submit: 'Request' },
   },
 } as const;
