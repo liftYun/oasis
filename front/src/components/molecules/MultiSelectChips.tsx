@@ -2,19 +2,19 @@ import * as React from 'react';
 import { Chip } from '@/components/atoms/chip';
 
 interface OptionItem {
-  key: string;
+  key: number;
   label: string;
 }
 
 interface MultiSelectChipsProps {
   options: OptionItem[];
-  values: string[]; // 선택된 option key 들
-  onChange: (values: string[]) => void;
+  values: number[];
+  onChange: (values: number[]) => void;
   className?: string;
 }
 
 export function MultiSelectChips({ options, values, onChange, className }: MultiSelectChipsProps) {
-  const toggle = (key: string) => {
+  const toggle = (key: number) => {
     const exists = values.includes(key);
     onChange(exists ? values.filter((v) => v !== key) : [...values, key]);
   };

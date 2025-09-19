@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { Input, type InputProps } from '@/components/atoms/input';
 import { Label } from '@/components/atoms/label';
-import type { FieldError, UseFormRegisterReturn } from 'react-hook-form';
+import type { FieldError, FieldErrorsImpl, Merge, UseFormRegisterReturn } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 
 interface FormFieldProps extends InputProps {

@@ -17,15 +17,27 @@ export interface PresignedResponse {
   publicUrl: string;
 }
 
+export interface BlockRangeDto {
+  start: string; // YYYY-MM-DD
+  end: string; // YYYY-MM-DD
+}
+
 export interface CreateStayRequest {
+  subRegionId: number;
   title: string;
-  location: string;
-  pricePerNight: number;
-  guestCount: number;
+  titleEng: string;
   description: string;
-  latitude: number;
-  longitude: number;
+  descriptionEng: string;
+  price: number;
+  address: string;
+  addressEng: string;
+  addressDetail: string;
+  addressDetailEng: string;
+  postalCode: string;
+  maxGuest: number;
   imageRequestList: ImageRequest[];
+  facilities?: number[];
+  blockRangeList?: BlockRangeDto[];
 }
 
 export interface UpdateStayRequest extends CreateStayRequest {
@@ -35,22 +47,19 @@ export interface UpdateStayRequest extends CreateStayRequest {
 export interface StayDetailResponse {
   id: number;
   title: string;
-  location: string;
-  pricePerNight: number;
-  guestCount: number;
+  titleEng: string;
   description: string;
-  latitude: number;
-  longitude: number;
-  images: string[];
-}
-
-export interface StayCardByWishDto {
-  stayId: number;
-  title: string;
-  thumbnail: string;
-  rating: number;
+  descriptionEng: string;
   price: number;
-  wishCount: number;
+  address: string;
+  addressEng: string;
+  addressDetail: string;
+  addressDetailEng: string;
+  postalCode: string;
+  maxGuest: number;
+  images: string[];
+  facilities: number[];
+  blockRangeList: BlockRangeDto[];
 }
 
 export interface SubRegionDto {
@@ -77,4 +86,18 @@ export interface BaseResponse<T> {
   message: string;
   code: number;
   result: T;
+}
+
+export interface WishResponseDto {
+  id: number;
+  stayCardDto: StayCardDto;
+}
+
+export interface StayCardByWishDto {
+  stayId: number;
+  title: string;
+  thumbnail: string | null;
+  rating: number;
+  price: number;
+  wishCount?: number;
 }

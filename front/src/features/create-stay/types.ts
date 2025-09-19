@@ -1,9 +1,14 @@
-export interface AddressSearchResult {
-  address_name: string; // 전체 지번 주소
-  road_address_name: string; // 전체 도로명 주소
-  zone_no: string; // 우편번호
-  address_name_eng?: string; // 영문 지번 주소(있다면)
-  road_address_name_eng?: string; // 영문 도로명 주소(있다면)
+export interface KakaoAddressResponse {
+  zonecode: string;
+  roadAddress: string;
+  roadAddressEnglish: string;
+  address: string;
+  addressEnglish: string;
+  jibunAddress: string;
+  jibunAddressEnglish: string;
+  bcode: string; // 행정구역 코드
+  bname: string;
+  bnameEnglish: string;
 }
 
 export type CreateStayTexts = {
@@ -37,6 +42,8 @@ export type CreateStayTexts = {
     imagesUploadCta: string;
     imagesPreviewAlt: string;
     imagesDeleteAria: string;
+    maxGuestLabel?: string;
+    maxGuestPlaceholder?: string;
   };
   step2: {
     title: string;
@@ -79,13 +86,23 @@ export type CreateStayTexts = {
   errors: {
     titleRequired: string;
     titleMax: string;
+    titleEngRequired: string;
+    titleEngMax: string;
+    descriptionRequired: string;
+    descriptionEngRequired: string;
     postalCodeRequired: string;
     addressRequired: string;
+    addressEngRequired: string;
     addressDetailRequired: string;
+    addressDetailEngRequired: string;
+    subRegionRequired: string;
     priceType: string;
     pricePositive: string;
     priceInvalid: string;
     priceDecimal: string;
+    maxGuestType: string;
+    maxGuestPositive: string;
+    maxGuestInt: string;
     imagesMin: string;
     imagesMax: string;
     fileSizeMax: string;

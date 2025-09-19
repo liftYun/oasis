@@ -24,9 +24,6 @@ function CallbackInner() {
           ? authHeader.split(' ')[1]
           : undefined;
         const { needProfileUpdate, nickname, email, profileUrl, uuid, role } = res.data;
-
-        console.log('accessToken', accessToken);
-        console.log(res.data);
         if (accessToken) {
           setUser({ accessToken, nickname, email, profileUrl, uuid, role });
           useRegisterStore.getState().setNickname(nickname);

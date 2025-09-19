@@ -4,7 +4,7 @@ import { twMerge } from 'tailwind-merge';
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   autoResize?: boolean;
   maxHeightPx?: number;
-  withCounterPadding?: boolean; // 우측 상단 카운터용 패딩. 현재는 사용하지 않음 (카운터가 아래로 이동)
+  withCounterPadding?: boolean;
 }
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
@@ -40,7 +40,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     };
 
     const baseClasses =
-      'w-full min-h-[12rem] rounded-lg border border-gray-300 bg-white px-4 py-3 text-base placeholder:text-sm placeholder:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary resize-none';
+      'w-full min-h-[12rem] rounded-md border border-gray-200 bg-white px-4 py-3 text-base placeholder:text-sm placeholder:text-gray-300 focus-visible:outline-none focus-visible:border-1 focus-visible:border-primary resize-none';
     const paddingForCounter = withCounterPadding ? 'pr-12' : '';
     const combinedClasses = twMerge(baseClasses, paddingForCounter, className);
 

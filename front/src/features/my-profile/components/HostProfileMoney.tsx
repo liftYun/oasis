@@ -6,13 +6,14 @@ import { useLanguage } from '@/features/language';
 import { registerMessages } from '@/features/register';
 import { Button } from '@/components/atoms/Button';
 import { BottomSheet } from '@/components/organisms/BottomSheet';
-import { DonutPercentPicker } from './DonutPercentPicker';
+import { DonutPercentPicker } from '@/features/register/components/DonutPercentPicker';
 import { CenterModal } from '@/components/organisms/CenterModel';
 import { useRouter } from 'next/navigation';
 import { Lottie } from '@/components/atoms/Lottie';
-import { registCancellationPolicy } from '@/services/user.api';
+import { updateCancellationPolicy } from '@/services/user.api';
 import { CancellationPolicyRequest } from '@/services/user.types';
 import { toast } from 'react-hot-toast';
+import BackHeader from '@/components/molecules/BackHeader';
 
 type Rule = {
   id: string;
@@ -34,7 +35,11 @@ const DEFAULT_RULES: Rule[] = [
   { id: 'd1', daysBefore: 1, value: 20, label: { kor: '1~2일 전', eng: '1~2 days before' } },
 ];
 
-export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: HostMoneyProps) {
+export function HostProfileMoney({
+  defaultRules = DEFAULT_RULES,
+  onConfirm,
+  loading,
+}: HostMoneyProps) {
   const { lang } = useLanguage();
   const t = registerMessages[lang];
   const langKey = (lang as keyof Rule['label']) ?? 'kor';
@@ -86,7 +91,7 @@ export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: 
     };
 
     try {
-      const res = await registCancellationPolicy(body);
+      const res = await updateCancellationPolicy(body);
       // toast.success(langKey === 'kor' ? '취소 정책이 등록되었어요.' : 'Policy saved.');
       setConfirmOpen(true);
     } catch (err) {
@@ -105,7 +110,8 @@ export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: 
 
   return (
     <main className="flex flex-col w-full px-6 py-10 min-h-screen">
-      <h1 className="text-2xl font-bold leading-relaxed text-gray-600 mb-3 whitespace-pre-line">
+      <BackHeader />
+      <h1 className="mt-10 text-2xl font-bold leading-relaxed text-gray-600 mb-3 whitespace-pre-line">
         {t.moneyTitle}
       </h1>
       <p className="text-base text-gray-400 mb-8 whitespace-pre-line">{t.moneySubTitle}</p>
@@ -136,12 +142,11 @@ export function HostMoney({ defaultRules = DEFAULT_RULES, onConfirm, loading }: 
 
       {error && <p className="mt-3 text-sm text-red-500">{error}</p>}
 
-      <div className="mt-auto pt-6">
+      <div className="fixed bottom-[calc(90px+var(--safe-bottom,20px))] left-0 w-full px-6">
         <Button variant="default" onClick={handleSubmit} className="w-full" disabled={loading}>
           {t.confirm}
         </Button>
       </div>
-
       <CenterModal
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}

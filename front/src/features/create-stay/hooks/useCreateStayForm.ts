@@ -1,5 +1,3 @@
-// features/create-stay/hooks/useCreateStayForm.ts
-import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -16,18 +14,35 @@ interface UseCreateStayFormProps {
 
 export function useCreateStayForm({ onFormSubmit, defaultValues }: UseCreateStayFormProps) {
   const { lang } = useLanguage();
-  const schema = useMemo(() => buildCreateStayInputSchema(lang), [lang]);
-  const resolver = useMemo(() => zodResolver(schema), [schema]);
+
   const form = useForm<CreateStayInput>({
-    resolver,
-    defaultValues,
+    resolver: zodResolver(buildCreateStayInputSchema(lang)) as any,
     mode: 'onChange',
+    defaultValues: {
+      title: '',
+      titleEng: '',
+      description: '',
+      descriptionEng: '',
+      address: '',
+      addressEng: '',
+      addressDetail: '',
+      addressDetailEng: '',
+      postalCode: '',
+      subRegionId: 0,
+      price: undefined,
+      maxGuest: undefined,
+      facilities: [],
+      blockRangeList: [],
+      imageRequestList: [],
+      images: undefined,
+      ...defaultValues,
+    },
   });
 
-  useEffect(() => {
-    // 언어 변경 시 에러 메시지/검증 결과를 최신화
-    form.trigger();
-  }, [resolver]);
+  // useEffect(() => {
+  //   // 언어 변경 시 에러 메시지/검증 결과를 최신화
+  //   form.trigger();
+  // }, [resolver]);
 
   const onSubmit = async (data: CreateStayInput) => {
     const transformedData: CreateStayOutput = {

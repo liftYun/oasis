@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useLanguage } from '@/features/language';
 import { mainMessages } from '@/features/main';
 import { Lang, MainMessagesMap } from '@/features/main/types';
+import SearchBar from '@/components/molecules/SearchBar';
 import { Lottie } from '@/components/atoms/Lottie';
 import { ChevronRight } from 'lucide-react';
 import Logo from '@/assets/logos/oasis-logo-512.png';
@@ -15,16 +16,8 @@ import PositiveReview from '@/assets/icons/positive-review.png';
 import MainCard from '@/components/organisms/main-card/MainCard';
 import Usdc from '@/assets/icons/usd-circle.png';
 import { useEffect, useRef, useState } from 'react';
-import { searchStaysByWish } from '@/services/stay.api';
-
-interface StayCardByWishDto {
-  stayId: number;
-  title: string;
-  thumbnail: string;
-  rating: number;
-  price: number;
-  wishCount: number;
-}
+import { searchStaysByWish, searchStaysByRating } from '@/services/stay.api';
+import { StayCardByWishDto } from '@/services/stay.types';
 
 function ScrollableRoomList({ rooms }: { rooms: StayCardByWishDto[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -53,7 +46,7 @@ function ScrollableRoomList({ rooms }: { rooms: StayCardByWishDto[] }) {
         {rooms.map((room) => (
           <div key={room.stayId} className="flex-shrink-0 w-40">
             <div className="relative w-40 h-40 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
-              <Image src={room.thumbnail} alt={room.title} fill className="object-cover" />
+              <Image src={room.thumbnail || Logo} alt={room.title} fill className="object-cover" />
               <Image
                 src={HeartDefault}
                 alt="heart"
@@ -67,7 +60,7 @@ function ScrollableRoomList({ rooms }: { rooms: StayCardByWishDto[] }) {
               </div>
             </div>
 
-            <p className="mt-3 mx-1 text-sm text-gray-700 font-semibold truncate text-left">
+            <p className="mt-3 mx-1 text-sm text-gray-600 font-semibold truncate text-left">
               {room.title}
             </p>
             <div className="flex items-center gap-1.5 mx-1 mt-1">
@@ -98,29 +91,32 @@ export function GuestMain() {
   const t: MainMessagesMap[Lang] = mainMessages[lang];
   const router = useRouter();
   const [wishRooms, setWishRooms] = useState<StayCardByWishDto[]>([]);
+  const [ratingRooms, setRatingRooms] = useState<StayCardByWishDto[]>([]);
+
+  const fetchData = async () => {
+    try {
+      const wishRes = await searchStaysByWish();
+      setWishRooms(Array.isArray(wishRes?.result) ? wishRes.result : []);
+
+      const ratingRes = await searchStaysByRating();
+      setRatingRooms(Array.isArray(ratingRes?.result) ? ratingRes.result : []);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
-    console.log('wishRooms', wishRooms);
-    const fetchWishRooms = async () => {
-      try {
-        const res = await searchStaysByWish();
-        console.log(res);
-        // setWishRooms(res.data.data ?? []);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    fetchWishRooms();
+    fetchData();
   }, []);
 
   return (
     <main
-      className="flex flex-col w-full px-6 pb-10 min-h-screen"
+      className="flex flex-col w-full px-6 pb-10 pt-6 min-h-screen"
       style={{ paddingBottom: 'var(--safe-bottom, 110px)' }}
     >
-      {/* 검색 섹션 */}
+      <SearchBar />
       <section className="mt-6">
-        <div className="relative w-full h-[18rem] flex flex-col items-center justify-center">
+        <div className="relative w-full h-[22rem] flex flex-col items-center justify-center">
           <Lottie src="/lotties/search.json" className="w-[90%] h-40" />
           <div className="absolute top-6 inset-x-0 text-center px-6">
             <h2 className="text-xl font-bold text-gray-600 mb-1 drop-shadow-sm">{t.searchTitle}</h2>
@@ -128,14 +124,13 @@ export function GuestMain() {
           </div>
           <button
             onClick={() => router.push('/search')}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 w-full py-3 rounded-md bg-primary text-white text-sm font-medium hover:opacity-90 transition"
+            className="absolute bottom-12 left-1/2 -translate-x-1/2 w-full py-3 rounded-md bg-primary text-white text-sm font-medium hover:opacity-90 transition"
           >
             {t.search}
           </button>
         </div>
       </section>
 
-      {/* 찜 많은 숙소 섹션 */}
       <section className="mt-10 relative">
         <div className="flex items-center gap-4 px-1 mb-6">
           <Image src={HeartBlue} alt="heart" width={44} height={44} />
@@ -147,7 +142,6 @@ export function GuestMain() {
         <ScrollableRoomList rooms={wishRooms} />
       </section>
 
-      {/* 리뷰 좋은 숙소 섹션 - 아직은 mock */}
       <section className="mt-20 mb-10 relative">
         <div className="flex items-center gap-4 px-1 mb-6">
           <Image src={PositiveReview} alt="review" width={44} height={44} />
@@ -156,12 +150,11 @@ export function GuestMain() {
             <p className="text-sm text-gray-400">{t.favoriteSubtitle}</p>
           </div>
         </div>
-        <ScrollableRoomList rooms={wishRooms} />
+        <ScrollableRoomList rooms={ratingRooms} />
       </section>
 
       <div className="-mx-6 w-screen h-3 bg-gray-100 my-8" />
 
-      {/* 브랜드 소개 */}
       <section className="mt-10">
         <div className="flex items-center gap-4 px-1 mb-10">
           <Image src={Logo} alt="logo" width={44} height={44} />

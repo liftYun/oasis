@@ -1,61 +1,90 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useCreateStayStore } from '@/features/create-stay/store';
+import { useStayStores } from '@/stores/useStayStores';
 import { StayForm } from '@/components/organisms/StayForm';
 import { useCreateStayForm } from '@/features/create-stay/hooks/useCreateStayForm';
-import { useImageUploader } from '@/features/create-stay/hooks/useImageUploader';
 import type { CreateStayInput } from '@/features/create-stay/schema';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
 import BackHeader from '@/components/molecules/BackHeader';
 
+type ExtendedCreateStayInput = CreateStayInput & {
+  imageRequestList: { key: string; sortOrder: number }[];
+};
+
 export function Step1_StayInfo() {
-  const { setStep, setFormData, formData, setView } = useCreateStayStore();
+  const store = useStayStores();
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
 
-  const handleNextStep = async (data: CreateStayInput) => {
-    setFormData(data);
-    setStep(2);
+  const handleNextStep = async (data: ExtendedCreateStayInput) => {
+    const validKeys = [
+      'subRegionId',
+      'title',
+      'titleEng',
+      'description',
+      'descriptionEng',
+      'price',
+      'address',
+      'addressEng',
+      'addressDetail',
+      'addressDetailEng',
+      'postalCode',
+      'maxGuest',
+      'facilities',
+      'blockRangeList',
+      'imageRequestList',
+    ] as const;
+
+    type ValidKey = (typeof validKeys)[number];
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (validKeys.includes(key as ValidKey)) {
+        store.setField(key as ValidKey, value as any);
+      }
+    });
+
+    store.setStep(2);
   };
 
   const { form, handleSubmit } = useCreateStayForm({
     onFormSubmit: handleNextStep,
-    defaultValues: formData,
+    defaultValues: {
+      title: store.title,
+      titleEng: store.titleEng,
+      address: store.address,
+      addressEng: store.addressEng,
+      addressDetail: store.addressDetail,
+      addressDetailEng: store.addressDetailEng,
+      postalCode: store.postalCode,
+      subRegionId: store.subRegionId,
+      price: store.price,
+      maxGuest: store.maxGuest,
+      imageRequestList: store.imageRequestList ?? [],
+      mode: 'onChange',
+    } as ExtendedCreateStayInput,
   });
-  const { watch, setValue } = form;
+
+  const { setValue } = form;
 
   useEffect(() => {
-    // 주소 검색 페이지에서 돌아왔을 때, 스토어의 최신 주소 정보를 폼에 반영
-    if (formData.address) {
-      setValue('address', formData.address, { shouldValidate: true });
+    if (store.address) {
+      setValue('address', store.address, { shouldValidate: true });
     }
-    if (formData.postalCode) {
-      setValue('postalCode', formData.postalCode, { shouldValidate: true });
+    if (store.postalCode) {
+      setValue('postalCode', store.postalCode, { shouldValidate: true });
     }
-  }, [formData.address, formData.postalCode, setValue]);
-
-  const { imagePreviews, handleRemoveImage, handleReorder } = useImageUploader({ watch, setValue });
-
-  const handleSearchAddress = () => {
-    // 현재 폼 데이터를 스토어에 저장하고 뷰 전환
-    setFormData(watch());
-    setView('searchAddress');
-  };
+  }, [store.address, store.postalCode, setValue]);
 
   return (
-    <div className="max-w-md flex flex-col w-full min-h-screen p-4">
+    <div className="max-w-md flex flex-1 flex-col w-full min-h-[calc(100vh-116px)] p-4 overflow-y-auto">
       <BackHeader title={t.createStay} />
       <h1 className="text-xl font-bold mb-6 pt-2">{t.step1.title}</h1>
       <StayForm
         form={form}
         handleSubmit={handleSubmit}
-        openAddressModal={handleSearchAddress}
-        imagePreviews={imagePreviews}
-        onRemoveImage={handleRemoveImage}
         isSubmitting={form.formState.isSubmitting}
-        onReorder={handleReorder}
       />
     </div>
   );

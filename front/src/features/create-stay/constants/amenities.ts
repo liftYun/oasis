@@ -47,6 +47,7 @@ export const AMENITY_LABELS: Record<AmenityOptionKey, { kor: string; eng: string
   bath_towel: { kor: '💧 수건', eng: '💧 Towels' },
   bath_toothpaste_toothbrush: { kor: '🪥 치약/칫솔', eng: '🪥 Toothpaste & toothbrush' },
   bath_razor: { kor: '🪒 면도기', eng: '🪒 Razor' },
+
   bed_single: { kor: '🛏️ 싱글', eng: '🛏️ Single bed' },
   bed_double: { kor: '🛏️ 더블', eng: '🛏️ Double bed' },
   bed_twin: { kor: '🛏️ 트윈', eng: '🛏️ Twin beds' },
@@ -54,6 +55,7 @@ export const AMENITY_LABELS: Record<AmenityOptionKey, { kor: string; eng: string
   bed_sofabed: { kor: '🛏️ 쇼파베드', eng: '🛏️ Sofa bed' },
   bed_extra_bed_available: { kor: '➕ 추가 침대 가능', eng: '➕ Extra bed available' },
   bed_blackout_curtain: { kor: '🌙 암막 커튼', eng: '🌙 Blackout curtains' },
+
   kit_fridge: { kor: '🧊 냉장고', eng: '🧊 Refrigerator' },
   kit_microwave: { kor: '🍲 전자레인지', eng: '🍲 Microwave' },
   kit_coffee_machine: { kor: '☕ 커피머신', eng: '☕ Coffee machine' },
@@ -61,7 +63,8 @@ export const AMENITY_LABELS: Record<AmenityOptionKey, { kor: string; eng: string
   kit_cookware_tableware: { kor: '🍴 조리도구/식기', eng: '🍴 Cookware & tableware' },
   kit_kettle: { kor: '♨️ 전기포트', eng: '♨️ Electric kettle' },
   kit_bottled_water: { kor: '💧 생수', eng: '💧 Bottled water' },
-  conv_wifi: { kor: '📡 Wi-Fi', eng: '📡 Wi‑Fi' },
+
+  conv_wifi: { kor: '📡 Wi-Fi', eng: '📡 Wi-Fi' },
   conv_tv: { kor: '📺 TV', eng: '📺 TV' },
   conv_ott: { kor: '📺 OTT', eng: '📺 Streaming apps' },
   conv_wardrobe_hanger: { kor: '👕 옷장/행거', eng: '👕 Wardrobe & hangers' },
@@ -69,6 +72,7 @@ export const AMENITY_LABELS: Record<AmenityOptionKey, { kor: string; eng: string
   conv_washer: { kor: '🧺 세탁기', eng: '🧺 Washer' },
   conv_dryer: { kor: '💨 건조기', eng: '💨 Dryer' },
   conv_desk: { kor: '📚 책상', eng: '📚 Desk' },
+
   around_store_mart: { kor: '🏪 편의점/마트', eng: '🏪 Convenience store/Mart' },
   around_public_transport: { kor: '🚏 대중교통', eng: '🚏 Public transport' },
   around_parking: { kor: '🅿️ 주차장', eng: '🅿️ Parking' },
@@ -118,7 +122,51 @@ export const AMENITIES_BY_CATEGORY: Record<AmenityCategoryKey, AmenityOptionKey[
   around: ['around_store_mart', 'around_public_transport', 'around_parking', 'around_park'],
 };
 
-export type AmenitiesSelection = Partial<Record<AmenityCategoryKey, AmenityOptionKey[]>>;
+export const AMENITY_ID_TO_KEY: Record<number, AmenityOptionKey> = {
+  1: 'bath_bathtub',
+  2: 'bath_shower_booth',
+  3: 'bath_hair_dryer',
+  4: 'bath_shampoo',
+  5: 'bath_rinse',
+  6: 'bath_bodywash',
+  7: 'bath_towel',
+  8: 'bath_toothpaste_toothbrush',
+  9: 'bath_razor',
+
+  10: 'bed_single',
+  11: 'bed_double',
+  12: 'bed_twin',
+  13: 'bed_queen_king',
+  14: 'bed_sofabed',
+  15: 'bed_extra_bed_available',
+  16: 'bed_blackout_curtain',
+
+  17: 'kit_fridge',
+  18: 'kit_microwave',
+  19: 'kit_coffee_machine',
+  20: 'kit_stove',
+  21: 'kit_cookware_tableware',
+  22: 'kit_kettle',
+  23: 'kit_bottled_water',
+
+  24: 'conv_wifi',
+  25: 'conv_tv',
+  26: 'conv_ott',
+  27: 'conv_wardrobe_hanger',
+  28: 'conv_styler',
+  29: 'conv_washer',
+  30: 'conv_dryer',
+  31: 'conv_desk',
+
+  32: 'around_store_mart',
+  33: 'around_public_transport',
+  34: 'around_parking',
+  35: 'around_park',
+};
+
+export const AMENITY_KEY_TO_ID: Record<AmenityOptionKey, number> = Object.fromEntries(
+  Object.entries(AMENITY_ID_TO_KEY).map(([id, key]) => [key, Number(id)])
+) as Record<AmenityOptionKey, number>;
 
 export const getAmenityLabel = (key: AmenityOptionKey, lang: 'kor' | 'eng') =>
   AMENITY_LABELS[key][lang];
