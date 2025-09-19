@@ -142,7 +142,8 @@ public interface StayRepository extends JpaRepository<StayEntity, Long> {
         s.id,
         case when :language = 'KOR'
              then s.addressLine else s.addressLineEng end,
-        s.thumbnail
+        s.thumbnail,
+        s.title
       )
       from StayEntity s
       where s.id in :ids
