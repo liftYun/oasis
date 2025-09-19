@@ -33,7 +33,7 @@ public class SseController {
     @Parameters({
             @Parameter(name = "nickname", description = "알림을 받을 사용자 닉네임", required = true)
     })
-    @GetMapping(value = "/sse/connect/{nickname}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/api/v1/sse/connect/{nickname}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter connect(@PathVariable String nickname) {
         return sseService.subscribe(nickname);
     }
