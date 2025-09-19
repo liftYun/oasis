@@ -1,13 +1,8 @@
 package org.muhan.oasis.stay.service;
 
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
-import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.common.exception.BaseException;
-import org.muhan.oasis.openAI.dto.in.AddrRequestDto;
-import org.muhan.oasis.openAI.dto.in.StayRequestDto;
-import org.muhan.oasis.openAI.dto.out.StayTranslationResultDto;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
 import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.stay.dto.in.*;
@@ -19,8 +14,6 @@ import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.valueobject.Language;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -450,7 +443,7 @@ public class StayServiceImpl implements StayService{
     }
 
     @Override
-    public List<StayCardByWishDto> searchStayByWish(String userUuid) {
+    public List<StayCardByWishView> searchStayByWish(String userUuid) {
 
         UserEntity user = userRepository.findByUserUuid(userUuid)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));

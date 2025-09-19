@@ -1,18 +1,12 @@
 package org.muhan.oasis.stay.repository;
 
 
-import org.muhan.oasis.stay.dto.out.StayCardByWishDto;
+import org.muhan.oasis.stay.dto.out.StayCardByWishView;
 import org.muhan.oasis.stay.dto.out.StayCardDto;
 import org.muhan.oasis.stay.dto.out.StayChatResponseDto;
-import org.muhan.oasis.stay.dto.out.StayResponseDto;
 import org.muhan.oasis.stay.entity.CancellationPolicyEntity;
 import org.muhan.oasis.stay.entity.StayEntity;
-import org.muhan.oasis.stay.entity.StayFacilityEntity;
-import org.muhan.oasis.valueobject.Language;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -20,8 +14,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 
-import java.net.ContentHandler;
-import java.time.LocalDate;
 import java.util.List;
 
 import java.util.Optional;
@@ -108,21 +100,21 @@ public interface StayRepository extends JpaRepository<StayEntity, Long> {
         );
 
     @Query(value = """
-        SELECT
-          s.stay_id AS stayId,
-          CASE WHEN :lang = 'KOR' THEN s.title ELSE s.title_eng END AS title,
-          s.thumbnail AS thumbnail,
-          COALESCE(rs.avg_rating, 0) AS rating,        
-          s.price AS price,
-          COUNT(w.wish_id) AS wishCount
-        FROM stays s
-        LEFT JOIN stay_rating_summary rs ON rs.stay_id = s.stay_id
-        LEFT JOIN wishes w ON w.stay_id = s.stay_id
-        GROUP BY s.stay_id, s.title, s.title_eng, rs.avg_rating, s.thumbnail, s.price
-        ORDER BY wishCount DESC, s.stay_id DESC
-        LIMIT 12
-        """, nativeQuery = true)
-    List<StayCardByWishDto> findTop12ByWish(@Param("lang") String lang);
+    SELECT
+      s.stay_id AS stayId,
+      CASE WHEN :lang = 'KOR' THEN s.title ELSE s.title_eng END AS title,
+      s.thumbnail AS thumbnail,
+      COALESCE(rs.avg_rating, 0) AS rating,
+      s.price AS price,
+      COUNT(w.wish_id) AS wishCount
+    FROM stays s
+    LEFT JOIN stay_rating_summary rs ON rs.stay_id = s.stay_id
+    LEFT JOIN wishes w ON w.stay_id = s.stay_id
+    GROUP BY s.stay_id, s.title, s.title_eng, rs.avg_rating, s.thumbnail, s.price
+    ORDER BY wishCount DESC, s.stay_id DESC
+    LIMIT 12
+    """, nativeQuery = true)
+    List<StayCardByWishView> findTop12ByWish(@Param("lang") String lang);
 
     @Query(value = """
         SELECT

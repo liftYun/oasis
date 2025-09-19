@@ -7,7 +7,6 @@ import org.muhan.oasis.stay.dto.in.StayQueryRequestDto;
 import org.muhan.oasis.stay.dto.in.UpdateStayRequestDto;
 import org.muhan.oasis.stay.dto.out.*;
 import org.muhan.oasis.valueobject.Language;
-import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -25,7 +24,7 @@ public interface StayService {
 
     List<StayCardDto> searchStay(Long lastStayId, StayQueryRequestDto stayQuery, String userUuid);
 
-    List<StayCardByWishDto> searchStayByWish(String userUuid);
+    List<StayCardByWishView> searchStayByWish(String userUuid);
 
     List<StayCardDto> searchStayByRating(String userUuid);
 
