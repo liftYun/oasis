@@ -45,7 +45,7 @@ function ScrollableRoomList({ rooms }: { rooms: StayCardByWishDto[] }) {
         {rooms.map((room) => (
           <div key={room.stayId} className="flex-shrink-0 w-40">
             <div className="relative w-40 h-40 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
-              <Image src={room.thumbnail} alt={room.title} fill className="object-cover" />
+              <Image src={room.thumbnail || Logo} alt={room.title} fill className="object-cover" />
               <Image
                 src={HeartDefault}
                 alt="heart"

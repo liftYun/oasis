@@ -1,14 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/atoms/Button';
 import { SegmentedTabs } from '@/components/molecules/SegmentedTabs';
 import { MultiSelectChips } from '@/components/molecules/MultiSelectChips';
 import { useAmenitiesQuery } from '@/features/create-stay/hooks/useAmenitiesQuery';
-import type {
-  AmenityCategoryKey,
-  AmenityOptionKey,
-} from '@/features/create-stay/constants/amenities';
+import type { AmenityCategoryKey } from '@/features/create-stay/constants/amenities';
 import { useStayStores } from '@/stores/useStayStores';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
@@ -22,57 +19,42 @@ export function Step3_Amenities() {
 
   const initialCategory: AmenityCategoryKey = 'bathroom';
   const [category, setCategory] = useState<AmenityCategoryKey>(initialCategory);
-  const tabs = !data
-    ? ([] as { key: AmenityCategoryKey; label: string }[])
-    : (Object.keys(data.categoryLabels) as AmenityCategoryKey[]).map((key) => ({
-        key,
-        label: data.categoryLabels[key],
-      }));
-
-  // 기존 store 값 복원
-  const [selected, setSelected] = useState<Record<AmenityCategoryKey, AmenityOptionKey[]>>(() => {
-    return (
-      (store.facilities as any) ?? {
-        bathroom: [],
-        bedroom: [],
-        kitchen: [],
-        convenience: [],
-        around: [],
-      }
-    );
-  });
-
-  // 선택 변경 시마다 store에 즉시 반영
-  const handleChangeValues = (values: AmenityOptionKey[]) => {
-    const newSelected = { ...selected, [category]: values };
-    setSelected(newSelected);
-    store.setField('facilities', newSelected as any);
-    console.log('[DEBUG] store.facilities 저장됨:', newSelected);
-  };
-
-  const currentOptions: { key: AmenityOptionKey; label: string }[] = !data
-    ? []
-    : (data.amenityIdsByCategory[category] ?? []).map((id) => ({
-        key: id,
-        label: data.amenityLabels[id],
-      }));
-
-  // Step2와 동일: 저장 후 다음 step
-  const handleNext = () => {
-    console.log('[DEBUG] handleNext 실행');
-    store.setField('facilities', selected as any);
-    console.log('[DEBUG] 최종 store.facilities 저장됨');
-    console.log('[DEBUG] currentStep ->', store.currentStep, '→', store.currentStep + 1);
-    store.setStep(store.currentStep + 1);
-  };
+  const [selectedIds, setSelectedIds] = useState<number[]>(store.facilities ?? []);
 
   if (!data) {
     return <div className="text-sm text-gray-400">{t.step3.loading}</div>;
   }
 
+  const tabs = (Object.keys(data.categoryLabels) as AmenityCategoryKey[]).map((key) => ({
+    key,
+    label: data.categoryLabels[key],
+  }));
+
+  const currentIds = (data.amenityIdsByCategory[category] as unknown as number[]) ?? [];
+
+  const currentOptions = currentIds.map((id) => ({
+    key: id,
+    label: data.amenityLabels[id as unknown as keyof typeof data.amenityLabels],
+  }));
+  const categorySelected = selectedIds.filter((id) => currentIds.includes(id));
+
+  const handleChangeValues = (newCategoryValues: number[]) => {
+    const otherIds = selectedIds.filter((id) => !currentIds.includes(id));
+    const updated = [...otherIds, ...newCategoryValues];
+
+    setSelectedIds(updated);
+    store.setField('facilities', updated);
+  };
+
+  const handleNext = () => {
+    store.setField('facilities', selectedIds);
+    store.setStep(store.currentStep + 1);
+  };
+
   return (
     <div className="max-w-md w-full mx-auto flex flex-1 flex-col p-4 min-h-[calc(100vh-116px)] overflow-y-auto">
       <BackHeader title={t.createStay} />
+
       <div className="mb-6">
         <h1 className="text-xl font-bold mb-2 pt-2">{t.step3.title}</h1>
         <p className="text-gray-400 text-base">{t.step3.subtitle}</p>
@@ -82,8 +64,8 @@ export function Step3_Amenities() {
 
       <MultiSelectChips
         options={currentOptions}
-        values={(selected[category] ?? []) as string[]}
-        onChange={(vals) => handleChangeValues(vals as AmenityOptionKey[])}
+        values={categorySelected}
+        onChange={handleChangeValues}
       />
 
       <div className="mt-auto pt-4">
