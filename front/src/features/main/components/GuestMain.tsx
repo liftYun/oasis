@@ -148,7 +148,7 @@ export function GuestMain() {
             <p className="text-sm text-gray-400">{t.favoriteSubtitle}</p>
           </div>
         </div>
-        <ScrollableRoomList rooms={wishRooms} />
+        <ScrollableRoomList rooms={ratingRooms} />
       </section>
 
       <div className="-mx-6 w-screen h-3 bg-gray-100 my-8" />
