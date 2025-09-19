@@ -66,7 +66,7 @@ export function Step2_Description() {
         length={length}
       />
 
-      <div className="mt-auto mb-6">
+      <div className="mt-auto pt-4">
         <Button
           type="button"
           onClick={handleNext}

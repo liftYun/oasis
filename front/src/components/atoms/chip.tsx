@@ -8,12 +8,12 @@ export interface ChipProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
 
 export function Chip({ className, selected, variant = 'option', ...props }: ChipProps) {
   const base =
-    'h-9 px-3 border text-sm transition-colors whitespace-nowrap select-none ' +
+    'h-8 px-4 border text-sm transition-colors whitespace-nowrap select-none ' +
     (variant === 'category' ? 'rounded-full' : 'rounded-md');
   const styles = selected
     ? variant === 'category'
-      ? 'bg-blue-500 border-blue-500 text-white'
-      : 'bg-blue-50 border-blue-400 text-blue-600'
-    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50';
+      ? 'bg-primary border-primary text-white'
+      : 'bg-primary/20 border-primary text-blue-500'
+    : 'bg-white border-gray-200 text-gray-600 hover:bg-primary/20';
   return <button type="button" className={twMerge(base, styles, className)} {...props} />;
 }

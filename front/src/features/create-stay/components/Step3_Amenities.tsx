@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/atoms/Button';
 import { SegmentedTabs } from '@/components/molecules/SegmentedTabs';
 import { MultiSelectChips } from '@/components/molecules/MultiSelectChips';
@@ -9,19 +9,19 @@ import type {
   AmenityCategoryKey,
   AmenityOptionKey,
 } from '@/features/create-stay/constants/amenities';
-import { useCreateStayStore } from '@/features/create-stay/store';
+import { useStayStores } from '@/stores/useStayStores';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
+import BackHeader from '@/components/molecules/BackHeader';
 
 export function Step3_Amenities() {
+  const store = useStayStores();
   const { data } = useAmenitiesQuery();
-  const { setStep, currentStep, setFormData, formData } = useCreateStayStore();
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
 
   const initialCategory: AmenityCategoryKey = 'bathroom';
   const [category, setCategory] = useState<AmenityCategoryKey>(initialCategory);
-
   const tabs = !data
     ? ([] as { key: AmenityCategoryKey; label: string }[])
     : (Object.keys(data.categoryLabels) as AmenityCategoryKey[]).map((key) => ({
@@ -29,13 +29,10 @@ export function Step3_Amenities() {
         label: data.categoryLabels[key],
       }));
 
+  // 기존 store 값 복원
   const [selected, setSelected] = useState<Record<AmenityCategoryKey, AmenityOptionKey[]>>(() => {
-    // 스토어에 기존 선택이 있다면 복구
-    const saved = (formData as any)?.amenities as
-      | Record<AmenityCategoryKey, AmenityOptionKey[]>
-      | undefined;
     return (
-      saved ?? {
+      (store.facilities as any) ?? {
         bathroom: [],
         bedroom: [],
         kitchen: [],
@@ -45,6 +42,14 @@ export function Step3_Amenities() {
     );
   });
 
+  // 선택 변경 시마다 store에 즉시 반영
+  const handleChangeValues = (values: AmenityOptionKey[]) => {
+    const newSelected = { ...selected, [category]: values };
+    setSelected(newSelected);
+    store.setField('facilities', newSelected as any);
+    console.log('[DEBUG] store.facilities 저장됨:', newSelected);
+  };
+
   const currentOptions: { key: AmenityOptionKey; label: string }[] = !data
     ? []
     : (data.amenityIdsByCategory[category] ?? []).map((id) => ({
@@ -52,14 +57,13 @@ export function Step3_Amenities() {
         label: data.amenityLabels[id],
       }));
 
-  const handleChangeValues = (values: AmenityOptionKey[]) => {
-    setSelected((prev) => ({ ...prev, [category]: values }));
-  };
-
+  // Step2와 동일: 저장 후 다음 step
   const handleNext = () => {
-    // 선택이 없어도 다음으로 넘어갈 수 있음
-    setFormData({ amenities: selected } as any);
-    setStep(currentStep + 1);
+    console.log('[DEBUG] handleNext 실행');
+    store.setField('facilities', selected as any);
+    console.log('[DEBUG] 최종 store.facilities 저장됨');
+    console.log('[DEBUG] currentStep ->', store.currentStep, '→', store.currentStep + 1);
+    store.setStep(store.currentStep + 1);
   };
 
   if (!data) {
@@ -67,10 +71,11 @@ export function Step3_Amenities() {
   }
 
   return (
-    <div className="flex flex-col flex-1 gap-6">
-      <div>
-        <h1 className="text-xl font-bold mb-1">{t.step3.title}</h1>
-        <p className="text-gray-400 text-sm">{t.step3.subtitle}</p>
+    <div className="max-w-md w-full mx-auto flex flex-1 flex-col p-4 min-h-[calc(100vh-116px)] overflow-y-auto">
+      <BackHeader title={t.createStay} />
+      <div className="mb-6">
+        <h1 className="text-xl font-bold mb-2 pt-2">{t.step3.title}</h1>
+        <p className="text-gray-400 text-base">{t.step3.subtitle}</p>
       </div>
 
       <SegmentedTabs tabs={tabs} value={category} onChange={setCategory} className="mt-2" />
