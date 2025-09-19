@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.muhan.oasis.common.base.BaseResponse;
+import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.openAI.dto.in.StayRequestDto;
 import org.muhan.oasis.openAI.service.SqsSendService;
 import org.muhan.oasis.s3.service.S3StorageService;
@@ -25,6 +26,7 @@ import org.muhan.oasis.stay.repository.RegionRepository;
 import org.muhan.oasis.stay.service.StayService;
 import org.muhan.oasis.user.service.UserService;
 import org.muhan.oasis.valueobject.Language;
+import org.muhan.oasis.valueobject.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -332,6 +334,21 @@ public class StayController {
         Long cursor = (lastStayId == null || lastStayId <= 0) ? null : lastStayId;
 
         List<StayCardDto> stays = stayService.searchStay(cursor, stayQuery, userDetails.getUserUuid());
+
+        BaseResponse<List<StayCardDto>> body = new BaseResponse<>(stays);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @GetMapping
+    public ResponseEntity<BaseResponse<?>> findMyStays(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        if(userDetails.getRole() == Role.ROLE_GUEST)
+            return ResponseEntity.badRequest().body(BaseResponse.error(NO_ACCESS_AUTHORITY));
+
+        List<StayCardDto> stays = stayService.findMyStays(userDetails.getUserUuid());
 
         BaseResponse<List<StayCardDto>> body = new BaseResponse<>(stays);
 

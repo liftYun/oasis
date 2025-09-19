@@ -29,4 +29,6 @@ public interface StayService {
     List<StayCardView> searchStayByRating(String userUuid);
 
     List<StayChatResponseDto> getStays(List<StayChatRequestDto> stayChatListDto, String userUuid);
+
+    List<StayCardDto> findMyStays(String userUuid);
 }
