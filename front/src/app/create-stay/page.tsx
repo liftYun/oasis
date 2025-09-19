@@ -1,8 +1,9 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ProgressBar } from '@/components/molecules/ProgressBar';
+import BackHeader from '@/components/molecules/BackHeader';
 import { useCreateStayStore } from '@/features/create-stay/store';
 import {
   AddressSearch,
@@ -13,6 +14,7 @@ import {
 } from '@/features/create-stay';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
+import { StepFlowProvider } from '@/features/common/step-flow/StepFlowContext';
 
 export default function CreateStayPage() {
   const router = useRouter();
@@ -66,15 +68,7 @@ export default function CreateStayPage() {
     }
   }, [currentStep, router]);
 
-  const handleBack = () => {
-    if (view === 'searchAddress') {
-      setView('form');
-    } else if (currentStep > 1) {
-      setStep(currentStep - 1);
-    } else {
-      router.push('/');
-    }
-  };
+  const canGoPrev = view === 'searchAddress' || currentStep > 1;
 
   const renderStep = () => {
     switch (currentStep) {
@@ -91,16 +85,38 @@ export default function CreateStayPage() {
     }
   };
 
+  const goPrevStep = useCallback(() => {
+    if (view === 'searchAddress') {
+      setView('form');
+    } else if (currentStep > 1) {
+      setStep(currentStep - 1);
+    }
+  }, [view, currentStep, setView, setStep]);
+
+  const stepFlowValue = useMemo(
+    () => ({ currentStep, canGoPrev, goPrevStep }),
+    [currentStep, canGoPrev, goPrevStep]
+  );
+
   return (
-    <>
-      {view === 'form' && (
-        <ProgressBar
-          totalSteps={4}
-          currentStep={currentStep}
-          className="pt-20 max-w-md mx-auto p-4"
-        />
-      )}
-      {view === 'form' ? renderStep() : <AddressSearch />}
-    </>
+    <StepFlowProvider value={stepFlowValue}>
+      <main className="flex flex-col flex-1 bg-white">
+        <BackHeader title={view === 'searchAddress' ? t.header.searchTitle : t.createStay} />
+        {view === 'form' && (
+          <div className="fixed left-1/2 -translate-x-1/2 top-[calc(env(safe-area-inset-top)+56px)] w-full max-w-[480px] z-[60] bg-white">
+            <ProgressBar
+              totalSteps={4}
+              currentStep={currentStep}
+              className="max-w-md mx-auto p-4"
+            />
+          </div>
+        )}
+        <div
+          className={`flex flex-col flex-grow ${view === 'form' ? 'pt-[120px]' : ''} px-2 sm:px-4`}
+        >
+          {view === 'form' ? renderStep() : <AddressSearch />}
+        </div>
+      </main>
+    </StepFlowProvider>
   );
 }

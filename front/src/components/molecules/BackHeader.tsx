@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
+import { useStepFlow } from '@/features/common/step-flow/StepFlowContext';
 
 interface BackHeaderContentProps {
   title?: string;
@@ -11,11 +12,22 @@ interface BackHeaderContentProps {
 
 export function BackHeaderContent({ title = '검색', className, onBack }: BackHeaderContentProps) {
   const router = useRouter();
+  const stepFlow = useStepFlow();
+
+  const handleBack = () => {
+    if (onBack) {
+      return onBack();
+    }
+    if (stepFlow && stepFlow.canGoPrev) {
+      return stepFlow.goPrevStep();
+    }
+    router.back();
+  };
 
   return (
     <header className={`relative z-0 h-14 bg-white px-2 flex items-center justify-between`}>
       <button
-        onClick={() => (onBack ? onBack() : router.back())}
+        onClick={handleBack}
         className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200"
         aria-label="back"
       >
