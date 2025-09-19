@@ -21,7 +21,6 @@ interface StayStore extends CreateStayRequest {
 }
 
 export const useStayStores = create<StayStore>((set, get) => ({
-  // 등록용 초기 상태
   subRegionId: 0,
   title: '',
   titleEng: '',

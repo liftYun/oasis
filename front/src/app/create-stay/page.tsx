@@ -5,23 +5,16 @@ import { useEffect, useRef } from 'react';
 import { ProgressBar } from '@/components/molecules/ProgressBar';
 import { useStayStores } from '@/stores/useStayStores';
 import {
-  AddressSearch,
   Step1_StayInfo,
   Step2_Description,
   Step3_Amenities,
   Step4_Availability,
 } from '@/features/create-stay';
-import { useLanguage } from '@/features/language';
-import { createStayMessages } from '@/features/create-stay/locale';
 
 export default function CreateStayPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { currentStep, setStep, view, setView, reset, submit } = useStayStores();
-  const { lang } = useLanguage();
-  const t = createStayMessages[lang];
-
-  const stepParam = searchParams.get('step');
+  const { currentStep, setStep, reset, submit } = useStayStores();
   const isReloadRef = useRef(false);
   const didInitRef = useRef(false);
 
@@ -66,27 +59,17 @@ export default function CreateStayPage() {
     }
   }, [currentStep, router]);
 
-  // 📝 상태 변화 로깅
+  // 상태 변화 로깅
   useEffect(() => {
     const unsub = useStayStores.subscribe((state) => {
-      console.log('📌 현재 스토어 상태', state);
+      console.log('현재 스토어 상태', state);
     });
     return () => unsub();
   }, []);
 
   useEffect(() => {
-    console.log(`✅ Step ${currentStep} 진입`);
+    console.log(`Step ${currentStep} 진입`);
   }, [currentStep]);
-
-  const handleBack = () => {
-    if (view === 'searchAddress') {
-      setView('form');
-    } else if (currentStep > 1) {
-      setStep(currentStep - 1);
-    } else {
-      router.push('/');
-    }
-  };
 
   const renderStep = () => {
     switch (currentStep) {
@@ -105,14 +88,12 @@ export default function CreateStayPage() {
 
   return (
     <>
-      {view === 'form' && (
-        <ProgressBar
-          totalSteps={4}
-          currentStep={currentStep}
-          className="pt-20 max-w-md mx-auto p-4"
-        />
-      )}
-      {view === 'form' ? renderStep() : <AddressSearch />}
+      <ProgressBar
+        totalSteps={4}
+        currentStep={currentStep}
+        className="pt-20 max-w-md mx-auto p-4"
+      />
+      <div className="flex items-center justify-center mt-4">{renderStep()}</div>
     </>
   );
 }

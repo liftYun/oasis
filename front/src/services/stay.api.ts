@@ -33,7 +33,7 @@ export const getStayDetail = (stayId: number) =>
 
 // 사진 업로드 URL 발급
 export const getPresignedUrls = (imageInfos: PresignedRequest[]) =>
-  http.post<PresignedResponse[]>('/api/v1/stay/photos/upload-url', { imageInfos });
+  http.post<BaseResponse<PresignedResponse[]>>('/api/v1/stay/photos/upload-url', { imageInfos });
 
 // 숙소 번역
 export const translateStay = (stayId: number, targetLang: string) =>

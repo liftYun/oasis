@@ -47,35 +47,39 @@ export const buildCreateStayInputSchema = (lang: Lang) => {
   const nonEmpty = (msg: string) => z.string().min(1, msg);
 
   return z.object({
-    subRegionId: toNumber({ typeMsg: e.subRegionRequired }),
-
+    // Step1에서 사용하는 필드만 필수
     title: nonEmpty(e.titleRequired).max(20, e.titleMax),
-    titleEng: nonEmpty(e.titleEngRequired).max(50, e.titleEngMax),
-
-    description: nonEmpty(e.descriptionRequired),
-    descriptionEng: nonEmpty(e.descriptionEngRequired),
-
+    address: nonEmpty(e.addressRequired),
     price: toNumber({
       typeMsg: e.priceType,
       positiveMsg: e.pricePositive,
       maxDecimals: 2,
       decimalMsg: e.priceDecimal,
-    }),
+    }).optional(),
+    imageRequestList: z
+      .array(
+        z.object({
+          key: z.string(),
+          sortOrder: z.number(),
+        })
+      )
+      .min(1, e.imagesMin),
 
-    address: nonEmpty(e.addressRequired),
-    addressEng: nonEmpty(e.addressEngRequired),
-    addressDetail: nonEmpty(e.addressDetailRequired),
-    addressDetailEng: nonEmpty(e.addressDetailEngRequired),
-    postalCode: nonEmpty(e.postalCodeRequired),
-
+    // Step2 이후에 받을 필드들은 optional 처리
+    subRegionId: toNumber({ typeMsg: e.subRegionRequired }).optional(),
+    titleEng: z.string().max(50, e.titleEngMax).optional(),
+    description: z.string().optional(),
+    descriptionEng: z.string().optional(),
+    addressEng: z.string().optional(),
+    addressDetail: z.string().optional(),
+    addressDetailEng: z.string().optional(),
+    postalCode: z.string().optional(),
     maxGuest: toNumber({
       typeMsg: e.maxGuestType,
       positiveMsg: e.maxGuestPositive,
       intMsg: e.maxGuestInt,
-    }),
-
+    }).optional(),
     facilities: z.array(z.number()).optional(),
-
     blockRangeList: z
       .array(
         z.object({
@@ -84,37 +88,7 @@ export const buildCreateStayInputSchema = (lang: Lang) => {
         })
       )
       .optional(),
-
-    imageRequestList: z
-      .array(
-        z.object({
-          key: z.string(),
-          sortOrder: z.number(),
-        })
-      )
-      .optional(),
-
-    images: z.any().superRefine((files, ctx) => {
-      if (typeof window === 'undefined') return;
-
-      if (!files || !(files instanceof FileList) || files.length === 0) {
-        ctx.addIssue({ code: 'custom', message: e.imagesMin });
-        return;
-      }
-      if (files.length > 10) {
-        ctx.addIssue({ code: 'custom', message: e.imagesMax });
-      }
-
-      const fileList = Array.from(files) as File[];
-
-      if (!fileList.every((file) => file.size <= MAX_FILE_SIZE)) {
-        ctx.addIssue({ code: 'custom', message: e.fileSizeMax });
-      }
-
-      if (!fileList.every((file) => ACCEPTED_IMAGE_TYPES.includes(file.type))) {
-        ctx.addIssue({ code: 'custom', message: e.fileType });
-      }
-    }),
+    images: z.any().optional(),
   });
 };
 

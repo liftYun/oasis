@@ -1,8 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useWatch } from 'react-hook-form';
-import { ACCEPTED_IMAGE_TYPES, type CreateStayInput } from '@/features/create-stay/schema';
 import { FormField } from '@/components/molecules/FormField';
 import { ImageUploader } from '@/components/molecules/ImageUploader';
 import { Button } from '@/components/atoms/Button';
@@ -10,38 +10,50 @@ import { AddressField } from '@/components/molecules/AddressField';
 import { PriceField } from '@/components/molecules/PriceField';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
+import { useDaumPostcode } from '@/features/create-stay/hooks/useDaumPostCode';
 
 interface StayFormProps {
-  form: UseFormReturn<CreateStayInput>;
+  form: UseFormReturn<any>;
   handleSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
-  openAddressModal: () => void;
   isSubmitting?: boolean;
-  imagePreviews: string[];
-  onRemoveImage: (index: number) => void;
-  onReorder?: (newOrder: string[]) => void;
 }
 
-export function StayForm({
-  form,
-  handleSubmit,
-  openAddressModal,
-  isSubmitting,
-  imagePreviews,
-  onRemoveImage,
-  onReorder,
-}: StayFormProps) {
+export function StayForm({ form, handleSubmit, isSubmitting }: StayFormProps) {
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
   const {
     register,
+    setValue,
     watch,
     formState: { errors, isValid },
   } = form;
 
   const titleValue = useWatch({ control: form.control, name: 'title' }) ?? '';
+  const openPostcode = useDaumPostcode();
+
+  const handleSearchClick = () => {
+    openPostcode((data) => {
+      const selected = {
+        subRegionId: Number(data.bcode) || 0,
+        address: data.roadAddress || data.address,
+        addressEng: data.roadAddressEnglish || data.addressEnglish || '',
+        addressDetail: '',
+        addressDetailEng: '',
+        postalCode: data.zonecode,
+      };
+
+      setValue('address', selected.address, { shouldValidate: true });
+      setValue('addressEng', selected.addressEng, { shouldValidate: true });
+      setValue('postalCode', selected.postalCode, { shouldValidate: true });
+      setValue('subRegionId', selected.subRegionId, { shouldValidate: true });
+    });
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+    <form
+      onSubmit={handleSubmit}
+      className="min-h[calc(100vh-100px)] flex-1 flex flex-col gap-6 w-full justify-center"
+    >
       <FormField
         label={t.form.titleLabel}
         registration={register('title', {
@@ -50,7 +62,6 @@ export function StayForm({
         id="title"
         placeholder={t.form.titlePlaceholder}
         maxLength={20}
-        error={errors.title}
         className="pr-12"
       >
         <p className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-300">
@@ -62,7 +73,7 @@ export function StayForm({
         register={register}
         errors={errors}
         watch={watch}
-        onSearchClick={openAddressModal}
+        onSearchClick={handleSearchClick}
       />
 
       <PriceField
@@ -81,24 +92,12 @@ export function StayForm({
             return Number(normalized);
           },
         })}
-        error={errors.price}
       />
 
       <ImageUploader
-        registration={register('images', {
-          validate: (value) => (value && value.length > 0) || '최소 1장의 이미지를 업로드해주세요.',
-        })}
-        error={errors.images}
-        accept={ACCEPTED_IMAGE_TYPES.join(',')}
-        imagePreviews={imagePreviews}
-        onRemoveImage={(index) => {
-          onRemoveImage(index);
-          const newImages = imagePreviews.filter((_, i) => i !== index);
-          form.setValue('images', newImages, { shouldValidate: true });
-        }}
-        onReorder={(newOrder) => {
-          onReorder?.(newOrder);
-          form.setValue('images', newOrder, { shouldValidate: true });
+        onChange={(imageRequestList) => {
+          // imageRequestList = [{ key: string, sortOrder: number }]
+          form.setValue('imageRequestList', imageRequestList, { shouldValidate: true });
         }}
       />
 

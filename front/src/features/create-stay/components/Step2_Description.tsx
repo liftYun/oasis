@@ -6,6 +6,7 @@ import { TextAreaField } from '@/components/molecules/TextAreaField';
 import { useCreateStayStore } from '@/features/create-stay/store';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
+import BackHeader from '@/components/molecules/BackHeader';
 
 export function Step2_Description() {
   const { formData, setFormData, currentStep, setStep } = useCreateStayStore();
@@ -40,8 +41,9 @@ export function Step2_Description() {
   };
 
   return (
-    <div className="flex flex-col flex-1 gap-4">
-      <h1 className="text-xl font-bold">{t.step2.title}</h1>
+    <div className="max-w-md w-full mx-auto flex flex-1 flex-col p-4 min-h-[calc(100vh-100px)]">
+      <BackHeader title={t.createStay} />
+      <h1 className="text-xl font-bold mb-6 pt-2">{t.step2.title}</h1>
 
       <div className="bg-primary/10 text-primary text-xs p-2 me-auto mb-6 rounded-md">
         <span className="text-primary font-bold">{t.step2.tipTitle}</span> {t.step2.tipText}
@@ -57,12 +59,12 @@ export function Step2_Description() {
         length={length}
       />
 
-      <div className="mt-auto pt-4">
+      <div className="mt-auto mb-6">
         <Button
           type="button"
           onClick={handleNext}
           disabled={!isValid}
-          variant={isValid ? 'blue' : 'google'}
+          variant={isValid ? 'blue' : 'blueLight'}
         >
           {t.common.next}
         </Button>
