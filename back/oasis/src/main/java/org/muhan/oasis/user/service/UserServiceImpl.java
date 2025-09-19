@@ -78,6 +78,7 @@ public class UserServiceImpl implements UserService {
         UserEntity user = userExistService.userExist(userId);
 
         return new UserDetailsResponseDto(
+                user.getUserUuid(),
                 user.getNickname(),
                 user.getEmail(),
                 user.getProfileUrl(),

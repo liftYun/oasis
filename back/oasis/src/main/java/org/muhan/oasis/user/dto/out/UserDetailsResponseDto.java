@@ -12,6 +12,7 @@ import org.muhan.oasis.valueobject.Role;
 @AllArgsConstructor
 @Builder
 public class UserDetailsResponseDto {
+    private String uuid;
     private String nickname;
     private String email;
     private String profileUrl;
