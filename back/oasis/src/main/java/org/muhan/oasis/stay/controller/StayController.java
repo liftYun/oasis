@@ -409,9 +409,9 @@ public class StayController {
     public ResponseEntity<BaseResponse<?>> searchStayByRating(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ){
-        List<StayCardDto> stays = stayService.searchStayByRating(userDetails.getUserUuid());
+        List<StayCardView> stays = stayService.searchStayByRating(userDetails.getUserUuid());
 
-        BaseResponse<List<StayCardDto>> body = new BaseResponse<>(stays);
+        BaseResponse<List<StayCardView>> body = new BaseResponse<>(stays);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);

@@ -454,7 +454,7 @@ public class StayServiceImpl implements StayService{
     }
 
     @Override
-    public List<StayCardDto> searchStayByRating(String userUuid) {
+    public List<StayCardView> searchStayByRating(String userUuid) {
         UserEntity user = userRepository.findByUserUuid(userUuid)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
 

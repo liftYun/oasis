@@ -3,6 +3,7 @@ package org.muhan.oasis.stay.repository;
 
 import org.muhan.oasis.stay.dto.out.StayCardByWishView;
 import org.muhan.oasis.stay.dto.out.StayCardDto;
+import org.muhan.oasis.stay.dto.out.StayCardView;
 import org.muhan.oasis.stay.dto.out.StayChatResponseDto;
 import org.muhan.oasis.stay.entity.CancellationPolicyEntity;
 import org.muhan.oasis.stay.entity.StayEntity;
@@ -128,7 +129,7 @@ public interface StayRepository extends JpaRepository<StayEntity, Long> {
         ORDER BY COALESCE(rs.avg_rating, 0) DESC, s.stay_id DESC
         LIMIT 12
         """, nativeQuery = true)
-    List<StayCardDto> findTop12ByRating(@Param("lang") String lang);
+    List<StayCardView> findTop12ByRating(@Param("lang") String lang);
 
 
     @Query("SELECT s FROM StayEntity s " +
