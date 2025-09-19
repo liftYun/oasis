@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useWatch } from 'react-hook-form';
 import { FormField } from '@/components/molecules/FormField';
