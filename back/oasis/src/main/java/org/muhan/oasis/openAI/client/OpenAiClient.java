@@ -32,23 +32,24 @@ public class OpenAiClient {
     private static final String PROMPT_TRANSLATE_STAY_TO_ENG = """
             You are a KO→EN translator for a lodging platform.
 
-            Translate the following input fields to English and return ONE valid JSON object only:
+            Translate the following input fields to English and return ONE valid JSON object only (no extra text, no code fences, no comments). Do not perform language detection.
 
+            Return exactly these four keys (never omit keys; for missing/null inputs return an empty string ""):
             {
               "detailAddress": string, // English (building/wing/floor/unit only)
               "title": string,         // English
-              "content": string        // English
+              "content": string,       // English
+              "address": string        // English (street/city/province/ZIP if provided)
             }
 
-            Rules (General for title/content):
-            - Do NOT perform language detection.
-            - Preserve meaning, tone, formatting, and line breaks.
+            General rules (title/content/address):
+            - Preserve meaning, tone, formatting, and line breaks (use "\\n").
             - Keep numbers, prices, dates, units, emojis, and URLs as-is.
             - Do not add or remove information. Do not summarize. Do not localize brand names.
-            - If a field is missing or empty, return an empty string "" for that field.
+            - If an input field is missing or null, output "" for that field.
 
-            Rules (detailAddress: KO → EN component mapping ONLY; not a postal address):
-            - Input contains ONLY internal components: building wing/tower, floor, unit (e.g., “A동 101호”).
+            detailAddress rules (component conversion ONLY; NOT postal formatting):
+            - Input contains ONLY internal components: building wing/tower, floor, unit (e.g., "A동 101호").
             - “{X}동” → “Bldg {X}”  (e.g., “101동”→“Bldg 101”, “A동”→“Bldg A”)
             - “{n}층” → “{n}F”;  “지하{n}층” → “B{n}F”
             - “{n}호”, “호수 {n}” → “Unit {n}” (preserve hyphens: “1203-1호”→“Unit 1203-1”)
@@ -58,48 +59,58 @@ public class OpenAiClient {
             - If an unrecognized token appears, keep it as-is and still convert recognized parts.
             - ASCII for EN output. Do NOT add street/city/zip. This is NOT postal formatting.
 
+            address notes:
+            - Treat as general address text (street/neighborhood/city/province/ZIP if present).
+            - Translate/romanize naturally (e.g., “강남구”→“Gangnam-gu”, “종로구”→“Jongno-gu”, “-로”→“-ro”, “-길”→“-gil”), but do not invent or reorder components beyond natural English phrasing.
+            - Do NOT merge detailAddress into address and do NOT fabricate postal codes.
+            - If address is missing/null, output "".
+
             Output constraints:
-            - Output JSON only (no prose, no code fences, no comments).
+            - Output JSON only, with the four keys in this order.
             - Escape special characters properly; preserve line breaks with "\\\\n".
-            
-            Do not omit any keys; always return all three keys and use an empty string "" for missing fields.
-                                             
+                                                         
            """;
 
     private static final String PROMPT_TRANSLATE_STAY_TO_KOR = """
             You are an EN→KO translator for a lodging platform.
-             
-             Translate the following input fields to Korean and return ONE valid JSON object only (no extra text, no code fences, no comments). Do not perform language detection.
-             
-             Return exactly these three keys (never omit keys):
-             {
-               "detailAddress": string,  // Korean
-               "title": string,          // Korean
-               "content": string         // Korean
-             }
-             
-             General rules (title/content):
-             - Preserve meaning, tone, formatting, and line breaks (use "\\n").
-             - Keep numbers, prices, dates, units, emojis, and URLs as-is.
-             - Do not add or remove information. Do not summarize.
-             - If a field is missing or empty, return an empty string "" for that field.
-             
-             Detail address rules (component conversion only; NOT postal formatting):
-             - Input contains ONLY internal components: building wing/tower, floor, unit (e.g., "Bldg A, 3F, Unit 101").
-             - “Building”, “Bldg”, “Bldg.” → “{…}동”  (e.g., “Bldg 3”→“3동”, “Building A-2”→“A-2동”)
-             - “{n}F” → “{n}층”;   “B{n}F” → “지하{n}층”
-             - “Unit {n}”, “Apt {n}”, “Room {n}”, “#{n}” → “{n}호” (drop leading “#”)
-             - Output order & separators: “{동?} {층?} {호?}” with single spaces, no commas.
-             - Preserve all numbers/letters/dashes exactly (e.g., “A-2”, “1203-1”).
-             - If only one component exists (e.g., “Unit 804” or “B2F”), convert only that part.
-             - Do NOT add street/city/zip.
-             
+
+            Translate the following input fields to Korean and return ONE valid JSON object only (no extra text, no code fences, no comments). Do not perform language detection.
+
+            Return exactly these four keys (never omit keys; for missing/null inputs return an empty string "") in this order:
+            {
+              "detailAddress": string, // Korean (building/wing/floor/unit only)
+              "title": string,         // Korean
+              "content": string,       // Korean
+              "address": string        // Korean (street/city/province/ZIP if provided)
+            }
+
+            General rules (title/content/address):
+            - Preserve meaning, tone, formatting, and line breaks (use "\\n").
+            - Keep numbers, prices, dates, units, emojis, and URLs as-is.
+            - Do not add or remove information. Do not summarize.
+            - If an input field is missing or null, output "" for that field.
+
+            detailAddress rules (component conversion ONLY; NOT postal formatting):
+            - The field contains ONLY internal components: building wing/tower, floor, unit (e.g., "Bldg A, 3F, Unit 101").
+            - "Building", "Bldg", "Bldg." → "{…}동"  (e.g., "Bldg 3" → "3동", "Building A-2" → "A-2동")
+            - "{n}F" → "{n}층";  "B{n}F" → "지하{n}층"
+            - "Unit {n}", "Apt {n}", "Room {n}", "#{n}" → "{n}호" (drop leading "#")
+            - Output order & separators: "{동?} {층?} {호?}" with single spaces, no commas.
+            - Preserve all numbers/letters/dashes exactly (e.g., "A-2", "1203-1").
+            - If only one component exists (e.g., "Unit 804" or "B2F"), convert only that part.
+            - Do NOT add street/city/zip. This is NOT postal formatting.
+
+            address notes:
+            - Treat as general address text. If it is a romanized Korean address, naturalize to Korean script:
+              - "Gangnam-gu" → "강남구", "Jongno-gu" → "종로구", "-ro" → "로", "-gil" → "길", "dong" (neighborhood) → "동".
+            - Keep non-Korean proper nouns as-is (e.g., “Netflix”, “Times Square”).
+            - Do NOT merge detailAddress into address and do NOT fabricate postal codes.
+            - If address is missing/null, output "".
+
             Output constraints:
-             - Output JSON only (no prose, no code fences, no comments).
-             - Escape special characters properly; preserve line breaks with "\\\\n".
-             
-             Do not omit any keys; always return all three keys and use an empty string "" for missing fields.
-                                                                                       
+            - Output JSON only, with the four keys in this order.
+            - Escape special characters properly; preserve line breaks with "\\\\n".
+                                                                                                   
            """;
 
     private static final String PROMPT_TRANSLATE_REVIEW_TO_ENG = """
