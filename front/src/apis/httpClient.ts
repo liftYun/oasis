@@ -129,7 +129,7 @@ class HttpClient {
             const newToken = useAuthStore.getState().accessToken;
 
             if (newToken && original.headers) {
-              (original.headers as any).set?.('Authorization', `Bearer ${newToken}`);
+              (original.headers as any).Authorization = `Bearer ${newToken}`;
             }
 
             return this.client.request(original);

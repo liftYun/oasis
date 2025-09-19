@@ -18,8 +18,8 @@ interface AddressFieldProps {
 export function AddressField({ register, errors, watch, onSearchClick }: AddressFieldProps) {
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
-  const postalCodeValue = watch('postalCode');
-  const addressValue = watch('address');
+  const postalCodeValue = watch('postalCode') ?? '';
+  const addressValue = watch('address') ?? '';
 
   const variants = {
     readOnly: 'cursor-pointer',

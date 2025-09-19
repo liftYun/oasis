@@ -14,7 +14,7 @@ export function StayDetail() {
     <div className="pb-28">
       <StayImageSlider images={data.images} />
 
-      <div className="px-6 py-4 space-y-6">
+      {/* <div className="px-6 py-4 space-y-6">
         <div>
           <h1 className="text-xl font-semibold">{data.title}</h1>
           <p className="text-gray-500 text-sm">{data.location}</p>
@@ -31,7 +31,7 @@ export function StayDetail() {
         </div>
       </div>
 
-      <StayBookingBar price={data.pricePerNight} />
+      <StayBookingBar price={data.pricePerNight} /> */}
     </div>
   );
 }

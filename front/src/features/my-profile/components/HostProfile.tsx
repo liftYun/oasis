@@ -9,6 +9,7 @@ import { getMyProfile } from '@/services/user.api';
 import type { MyProfile } from '@/services/user.types';
 import Calendar from '@/assets/icons/calendar.png';
 import CreateStay from '@/assets/icons/create-stay.png';
+import Policy from '@/assets/icons/dollar.png';
 import SignOut from '@/assets/icons/sign-out.png';
 import Usdc from '@/assets/icons/usd-circle.png';
 import { useLanguage } from '@/features/language';
@@ -47,6 +48,10 @@ export function HostProfile() {
 
   const handleProfile = () => {
     router.push('/my-profile/detail');
+  };
+
+  const handlePolicy = () => {
+    router.push('/my-profile/policy');
   };
 
   const handleLogout = async () => {
@@ -136,6 +141,13 @@ export function HostProfile() {
 
         <div className="w-full max-w-sm space-y-1">
           <p className="text-sm text-gray-500 mb-2 font-bold">{t.guide}</p>
+          <button
+            onClick={handlePolicy}
+            className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
+          >
+            <Image src={Policy} alt="Policy Icon" width={24} height={24} />
+            <span className="text-gray-800 text-sm">{t.policy}</span>
+          </button>
           <button
             onClick={handleLogout}
             className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
