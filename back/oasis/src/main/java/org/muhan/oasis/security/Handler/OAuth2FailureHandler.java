@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
@@ -28,8 +29,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OAuth2FailureHandler implements AuthenticationFailureHandler {
 
-    @Value("${app.front-base-url}")
-    private String frontBaseUrl;
+//    @Value("${app.front-base-url}")
+//    private String frontBaseUrl;
+    private final String frontBaseUrl = "http://localhost:3000";
 
     // 리다이렉트로 처리해도 되는 "무해한 재호출/사용자 취소" 유형
     private static final Set<String> BENIGN_ERROR_CODES = Set.of(
@@ -62,6 +64,8 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
                     acceptsJson(request) ||
                             "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With")) ||
                             "json".equalsIgnoreCase(request.getParameter("responseMode"));
+
+            log.info("[OAUTH2:FAILURE] frontBaseUrl={}", frontBaseUrl);
 
             if (isBenignRepeat(exception, errorCode)) {
                 String safeCode = (errorCode != null ? errorCode : "oauth2_repeat");
@@ -155,5 +159,15 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
 
     private String firstNonBlank(String a, String b) {
         return (a != null && !a.isBlank()) ? a : b;
+    }
+
+    @SuppressWarnings("unused")
+    private boolean isHttps(String url) {
+        try {
+            URI u = URI.create(url);
+            return "https".equalsIgnoreCase(u.getScheme());
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

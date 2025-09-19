@@ -11,4 +11,5 @@ public class StayTranslationResultDto {
     private String detailAddress;
     private String title;
     private String content;
+    private String address;
 }

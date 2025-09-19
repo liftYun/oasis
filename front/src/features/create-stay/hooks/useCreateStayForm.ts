@@ -39,6 +39,11 @@ export function useCreateStayForm({ onFormSubmit, defaultValues }: UseCreateStay
     },
   });
 
+  // useEffect(() => {
+  //   // 언어 변경 시 에러 메시지/검증 결과를 최신화
+  //   form.trigger();
+  // }, [resolver]);
+
   const onSubmit = async (data: CreateStayInput) => {
     const transformedData: CreateStayOutput = {
       ...data,

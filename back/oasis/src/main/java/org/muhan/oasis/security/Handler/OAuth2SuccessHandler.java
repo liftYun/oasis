@@ -27,6 +27,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URI;
 import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
@@ -36,8 +37,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
-    @Value("${app.front-base-url}")
-    private String frontBaseUrl;
+//    @Value("${app.front-base-url}")
+//    private String frontBaseUrl;
+    private final String frontBaseUrl = "http://localhost:3000";
     @Value("${app.domain}")
     private String cookieDomain;
 
@@ -116,6 +118,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             log.info("[OAUTH2:SUCCESS] tokens issued | uuid={}, role={}, lang={}, rtTtlMs={}",
                     uuid, role, language, jwtUtil.getRefreshExpiredMs());
 
+            // 요청 기반 프론트 베이스 URL 동적 결정
+            log.info("[OAUTH2:SUCCESS] frontBaseUrl={}", frontBaseUrl);
+            boolean isLocal = isLocalOrigin(frontBaseUrl);
+            boolean secure = !isLocal && isHttps(frontBaseUrl, request);
+
             String rtCookie = ResponseCookie.from("refreshToken", refreshToken)
                     .httpOnly(true)
                     .secure(true)              // 로컬 HTTP 개발이면 false로
@@ -185,6 +192,29 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             long tookMs = (System.nanoTime() - startNs) / 1_000_000;
             log.info("[OAUTH2:SUCCESS] done in {} ms", tookMs);
             MDC.clear();
+        }
+    }
+
+    private boolean isHttps(String frontBaseUrl, HttpServletRequest request) {
+        try {
+            if (frontBaseUrl != null) {
+                URI u = URI.create(frontBaseUrl);
+                if (u.getScheme() != null) return "https".equalsIgnoreCase(u.getScheme());
+            }
+        } catch (Exception ignored) {}
+        // 프록시 헤더 고려
+        String proto = request.getHeader("X-Forwarded-Proto");
+        if (proto != null) return "https".equalsIgnoreCase(proto);
+        return request.isSecure();
+    }
+
+    private boolean isLocalOrigin(String url) {
+        try {
+            URI u = URI.create(url);
+            String host = u.getHost();
+            return host != null && ("localhost".equalsIgnoreCase(host) || host.startsWith("127."));
+        } catch (Exception e) {
+            return false;
         }
     }
 

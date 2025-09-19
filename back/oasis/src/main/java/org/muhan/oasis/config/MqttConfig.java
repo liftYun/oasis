@@ -4,10 +4,14 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
+import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.UUID;
 
 @Slf4j
 @Getter
@@ -27,6 +31,12 @@ public class MqttConfig {
     private String topicPrefix = "cmd";
 
     @Bean
+    public MqttClientPersistence mqttPersistence() {
+        // 디스크 대신 메모리 사용 → 배포 환경 파일권한/경로 이슈 제거
+        return new MemoryPersistence();
+    }
+
+    @Bean
     public MqttConnectOptions mqttConnectOptions() {
         MqttConnectOptions opts = new MqttConnectOptions();
         String uri = (ssl ? "ssl" : "tcp") + "://" + host + ":" + port;
@@ -42,7 +52,12 @@ public class MqttConfig {
     }
 
     @Bean
-    public MqttAsyncClient mqttAsyncClient() throws Exception {
-        return new MqttAsyncClient((ssl ? "ssl" : "tcp") + "://" + host + ":" + port, clientId);
+    public MqttAsyncClient mqttAsyncClient(MqttClientPersistence persistence) throws Exception {
+        String uri = (ssl ? "ssl" : "tcp") + "://" + host + ":" + port;
+        String id = (clientId == null || clientId.isBlank())
+                ? "oasis-api-publisher-" + UUID.randomUUID()
+                : clientId;
+        // !!! MemoryPersistence를 명시적으로 넘긴다 !!!
+        return new MqttAsyncClient(uri, id, persistence);
     }
 }
