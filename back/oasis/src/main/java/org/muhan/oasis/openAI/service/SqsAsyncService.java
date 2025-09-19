@@ -14,15 +14,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 
 @Service
 @RequiredArgsConstructor
-public class SqsAsyncServicce {
+public class SqsAsyncService {
 
     private final OpenAiClient openAiClient;
     private final ObjectMapper objectMapper;
@@ -35,7 +34,7 @@ public class SqsAsyncServicce {
         try {
             MessageDto messageDto = objectMapper.readValue(messageBody, MessageDto.class);
             StayRequestDto request = objectMapper.convertValue(messageDto.data(), StayRequestDto.class);
-
+            System.out.println("번역시작");
             CompletableFuture.supplyAsync(() -> {
                         try {
                             return openAiClient.translateStay(request);

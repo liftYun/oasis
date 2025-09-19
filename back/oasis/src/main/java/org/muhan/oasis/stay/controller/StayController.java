@@ -448,7 +448,7 @@ public class StayController {
     ){
 
         sqsSendService.sendStayTransMessage(stayRequest, userDetails.getUserNickname());
-
+        System.out.println(userDetails.getUserNickname());
         return ResponseEntity.status(HttpStatus.OK)
                 .body(BaseResponse.ok());
     }
