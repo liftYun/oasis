@@ -1,5 +1,6 @@
 package org.muhan.oasis.key.dto.out;
 
+import jakarta.persistence.Column;
 import lombok.*;
 import org.muhan.oasis.key.entity.KeyEntity;
 import org.muhan.oasis.key.entity.KeyOwnerEntity;
@@ -23,6 +24,10 @@ public class KeyResponseDto {
     /** ====== 표시용(다국어) ====== */
     private String stayName;      // 카드 타이틀 (국문)
     private String stayNameEng;   // 카드 타이틀 (영문)
+
+    /** ====== 숙소 주소(다국어) ====== */
+    private String addressLine;
+    private String addressLineEng;
 
     /** ====== 썸네일/뷰 용 ====== */
     private String thumbnailUrl;  // 숙소 썸네일 (ReservationEntity.getStay().getThumbnail())
@@ -54,12 +59,24 @@ public class KeyResponseDto {
                 .deviceId(device.getId())
                 .stayId(stay.getId())
                 .reservationId(res != null ? res.getReservationId() : null)
+
+                // 표시용 이름(다국어)
                 .stayName(device.getStayName())
                 .stayNameEng(device.getStayNameEng())
-                .thumbnailUrl(res != null ? res.getThumbnail() : stay.getThumbnail())
+
+                // 주소(다국어) - 주소는 숙소 기준으로 매핑
+                .addressLine(stay.getAddressLine())
+                .addressLineEng(stay.getAddressLineEng())
+
+                // 썸네일: 예약에 썸네일이 있으면 우선 사용, 없으면 숙소 썸네일
+                .thumbnailUrl(res != null && res.getThumbnail() != null ? res.getThumbnail() : stay.getThumbnail())
+
+                // 키 상태/시간
                 .activationTime(key.getActivationTime())
                 .expirationTime(key.getExpirationTime())
                 .status(status)
+
+                // 체크인/아웃(예약이 있을 때만)
                 .checkinDate(res != null ? res.getCheckinDate() : null)
                 .checkoutDate(res != null ? res.getCheckoutDate() : null)
                 .build();
