@@ -37,10 +37,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
-    private final FrontUrlResolver frontUrlResolver;
 //    @Value("${app.front-base-url}")
 //    private String frontBaseUrl;
-//    private final String frontBaseUrl = "http://localhost:3000";
+    private final String frontBaseUrl = "http://localhost:3000";
     @Value("${app.domain}")
     private String cookieDomain;
 
@@ -120,7 +119,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                     uuid, role, language, jwtUtil.getRefreshExpiredMs());
 
             // 요청 기반 프론트 베이스 URL 동적 결정
-            String frontBaseUrl = frontUrlResolver.resolve(request);
+            log.info("[OAUTH2:SUCCESS] frontBaseUrl={}", frontBaseUrl);
             boolean isLocal = isLocalOrigin(frontBaseUrl);
             boolean secure = !isLocal && isHttps(frontBaseUrl, request);
 
