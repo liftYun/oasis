@@ -3,6 +3,7 @@ package org.muhan.oasis.user.service;
 import org.muhan.oasis.user.dto.in.CancellationPolicyRequestDto;
 import org.muhan.oasis.user.dto.in.UpdateCancellationPolicyRequestDto;
 import org.muhan.oasis.user.dto.out.UserDetailsResponseDto;
+import org.muhan.oasis.user.vo.out.CancellationPolicyResponseVo;
 import org.muhan.oasis.user.vo.out.UserSearchResultResponseVo;
 import org.muhan.oasis.valueobject.Language;
 
@@ -26,4 +27,6 @@ public interface UserService {
     Long getUserIdByUserUuid(String userUuid);
 
     String getUserEmailByUuid(String userUuid);
+
+    CancellationPolicyResponseVo getCancellationPolicy(Long userId);
 }

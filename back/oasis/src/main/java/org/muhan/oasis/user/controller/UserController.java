@@ -19,6 +19,7 @@ import org.muhan.oasis.user.dto.in.UpdateCancellationPolicyRequestDto;
 import org.muhan.oasis.user.service.UserService;
 import org.muhan.oasis.user.vo.in.CancellationPolicyRequestVo;
 import org.muhan.oasis.user.vo.in.UpdateCancellationPolicyRequestVo;
+import org.muhan.oasis.user.vo.out.CancellationPolicyResponseVo;
 import org.muhan.oasis.user.vo.out.UserDetailsResponseVo;
 import org.muhan.oasis.user.vo.out.UserSearchResultResponseVo;
 import org.muhan.oasis.valueobject.Language;
@@ -289,6 +290,17 @@ public class UserController {
         return BaseResponse.ok();
     }
 
+    @GetMapping("/details/cancellationPolicy")
+    @PreAuthorize("hasRole('ROLE_HOST')")
+    @Operation(
+            summary = "호스트 취소 정책 조회",
+            description = "호스트가 호스팅 중인 숙소의 예약 취소 정책을 확인합니다."
+    )
+    public BaseResponse<?> getCancellationPolicy(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
+        CancellationPolicyResponseVo vo = userService.getCancellationPolicy(userId);
+        return BaseResponse.of(vo);
+    }
 
     // 파일 확장자
     private String contentTypeToExt(String contentType) {
