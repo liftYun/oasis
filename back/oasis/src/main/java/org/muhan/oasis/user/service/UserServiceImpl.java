@@ -132,44 +132,38 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void updateCancellationPolicy(Long userId, UpdateCancellationPolicyRequestDto dto) {
-        // 유저 유효성 검사 및 Entity 생성
+        // 유저 유효성 검사
         UserEntity user = userExistService.userExist(userId);
 
-        /**
-         * 기존 취소정책 비활성화
-         * 수정 전 예약들에 대해 새 정책 적용 예방
-         * 차후 스케쥴러 등으로 기존 정책 삭제 필요
-         */
-        CancellationPolicyEntity oldPolicy = cancellationPolicyRepository.findById(dto.getId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약입니다."));
-        Long oldPolicyId = oldPolicy.getId();
-        boolean active = false;
-        int updated = cancellationPolicyRepository.updatePolicy(oldPolicyId, active);
+        // 기존 활성화 정책 조회
+        CancellationPolicyEntity oldPolicy = cancellationPolicyRepository
+                .findTopByUser_UserIdAndActiveTrueOrderByIdDesc(userId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY));
 
+        // 기존 정책 비활성화
+        int updated = cancellationPolicyRepository.updatePolicy(oldPolicy.getId(), false);
         if (updated == 0) {
-            log.warn("[updateLang] no rows updated. policyId={}", oldPolicy.getId());
+            log.warn("[updateCancellationPolicy] no rows updated. policyId={}", oldPolicy.getId());
             throw new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY);
         }
-        log.info("[updateLang] Policy updated. policyId={}, active={}",
-                oldPolicyId, oldPolicy.isActive());
+        log.info("[updateCancellationPolicy] Policy deactivated. policyId={}", oldPolicy.getId());
 
-        // 취소정책 새로 등록
-        CancellationPolicyEntity policy = CancellationPolicyEntity.builder()
-                .user(user)
-                .policy1(dto.getPolicy1())
-                .policy2(dto.getPolicy2())
-                .policy3(dto.getPolicy3())
-                .policy4(dto.getPolicy4())
-                .build();
+        // 새로운 정책 등록
+        CancellationPolicyEntity newPolicy = cancellationPolicyRepository.save(
+                CancellationPolicyEntity.builder()
+                        .user(user)
+                        .policy1(dto.getPolicy1())
+                        .policy2(dto.getPolicy2())
+                        .policy3(dto.getPolicy3())
+                        .policy4(dto.getPolicy4())
+                        .active(true) // 새 정책은 활성화
+                        .build()
+        );
 
-        // 새로 등록된 정책 엔터티
-        CancellationPolicyEntity newPolicy = cancellationPolicyRepository.save(policy);
-
-        // 등록된 숙소들에 새로 변경된 정책 업데이트
+        // 숙소들에 새로운 정책 바인딩
         stayRepository.rebindCancellationPolicy(oldPolicy, newPolicy);
 
-        log.info("[updateLang] Policy created. policyId={}",
-                newPolicy.getId());
+        log.info("[updateCancellationPolicy] Policy created. policyId={}", newPolicy.getId());
     }
 
     @Override

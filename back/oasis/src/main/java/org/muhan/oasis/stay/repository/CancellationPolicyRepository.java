@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Optional;
+
 public interface CancellationPolicyRepository extends JpaRepository<CancellationPolicyEntity, Long> {
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
@@ -19,4 +21,6 @@ public interface CancellationPolicyRepository extends JpaRepository<Cancellation
 
     @Query("SELECT s.cancellationPolicyEntity FROM StayEntity s WHERE s.id = :stayId")
     CancellationPolicyEntity findByStayId(@Param("stayId") Long stayId);
+
+    Optional<CancellationPolicyEntity> findTopByUser_UserIdAndActiveTrueOrderByIdDesc(Long userId);
 }
