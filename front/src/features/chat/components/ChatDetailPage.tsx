@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import StayInfoCard from '@/features/chat/components/StayInfoCard';
 import MessageItem, { type MessageItemModel } from '@/features/chat/components/MessageItem';
 import InputBar from '@/features/chat/components/InputBar';
-import { useChatDetail, type ChatDetailData } from '@/features/chat/hooks/useChatDetail';
 import { notifyFirebaseUnavailable } from '@/features/chat/api/toastHelpers';
 import {
   ensureTestChat,
@@ -21,16 +20,24 @@ interface ChatDetailPageProps {
 
 const TEST_SENDER_ID = 123; // 테스트용 내 사용자 ID
 
+// 화면 표시에 필요한 최소 데이터 모델
+interface ChatDetailData {
+  stay: {
+    id: string;
+    title: string;
+    address: string;
+    thumbnailUrl?: string;
+  };
+  messages: MessageItemModel[];
+}
+
 export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
   const isTest = chatId === 'test';
   const initError = getFirebaseInitError();
   const { lang } = useLanguage();
   const t = chatMessages[lang];
 
-  // 기존 더미/실제 API 훅 (테스트가 아닐 때 사용)
-  const { data, isLoading } = useChatDetail(chatId);
-
-  // 테스트 방 전용 상태
+  // Firebase 테스트 방 전용 상태
   const [testData, setTestData] = useState<ChatDetailData | null>(null);
   const [isTestLoading, setIsTestLoading] = useState<boolean>(isTest);
   const [testError, setTestError] = useState<string | null>(null);
@@ -87,7 +94,7 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
     })();
 
     return () => unsubscribe?.();
-  }, [isTest]);
+  }, [isTest, lang, t.am, t.pm]);
 
   useEffect(() => {
     if (!isTest) return;
@@ -96,12 +103,12 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
     }
   }, [isTest, initError, testError, lang]);
 
-  const displayData = isTest ? testData : data;
-  const loading = isTest ? isTestLoading : isLoading;
+  const displayData = testData;
+  const loading = isTestLoading;
 
   const handleTranslate = (id: string) => {
     // 현재 표시 중인 메시지에서 원문을 찾아 언어 탐지
-    const all = (isTest ? testData?.messages : data?.messages) ?? [];
+    const all = testData?.messages ?? [];
     const target = all.find((m) => m.id === id);
     const text = target?.content ?? '';
     import('@/features/chat/utils/languageDetection').then(
@@ -115,11 +122,7 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
 
   const handleSend = (text: string) => {
     if (!text.trim()) return;
-    if (isTest) {
-      void sendTestMessage(TEST_SENDER_ID, text.trim());
-      return;
-    }
-    console.log('send message:', text.trim(), 'in chat:', chatId);
+    void sendTestMessage(TEST_SENDER_ID, text.trim());
   };
 
   if (loading) {
@@ -127,7 +130,7 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
   }
 
   // 오류 시: 빈 화면만 표시 (토스트는 상단 effect에서 한 번만 노출)
-  if (isTest && (initError || testError)) {
+  if (initError || testError) {
     return <main className="flex flex-col w-full min-h-screen bg-white" />;
   }
 
