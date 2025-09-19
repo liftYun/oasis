@@ -13,9 +13,18 @@ type ChatListItemProps = {
   title: string;
   location: string;
   date: string;
+  thumbnailUrl?: string;
+  opponentProfileUrl?: string;
 };
 
-export function ChatListItem({ id, title, location, date }: ChatListItemProps) {
+export function ChatListItem({
+  id,
+  title,
+  location,
+  date,
+  thumbnailUrl,
+  opponentProfileUrl,
+}: ChatListItemProps) {
   const { lang } = useLanguage();
   const t = chatMessages[lang];
   return (
@@ -27,10 +36,10 @@ export function ChatListItem({ id, title, location, date }: ChatListItemProps) {
       {/* 래퍼 분리: 아바타가 이미지 밖으로 자연스럽게 튀어나오도록 */}
       <div className="relative h-16 w-16 flex-shrink-0">
         <div className="relative h-full w-full rounded overflow-hidden bg-gray-100">
-          <Image src={StayImage} alt={title} fill className="object-cover" />
+          <Image src={thumbnailUrl || StayImage} alt={title} fill className="object-cover" />
         </div>
         <div className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 z-10">
-          <ChatUserThumbnail size={38} />
+          <ChatUserThumbnail size={38} src={opponentProfileUrl} />
         </div>
       </div>
 

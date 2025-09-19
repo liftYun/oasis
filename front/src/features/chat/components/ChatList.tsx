@@ -18,6 +18,7 @@ export function ChatList({ items }: ChatListProps) {
           title={c.title}
           location={c.location}
           date={c.lastDate}
+          thumbnailUrl={c.thumbnailUrl}
         />
       ))}
     </div>

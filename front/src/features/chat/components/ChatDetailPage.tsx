@@ -18,7 +18,7 @@ interface ChatDetailPageProps {
   chatId: string;
 }
 
-const TEST_SENDER_ID = 123; // 테스트용 내 사용자 ID
+const TEST_SENDER_UID = '123'; // 테스트용 내 사용자 UID (string)
 
 // 화면 표시에 필요한 최소 데이터 모델
 interface ChatDetailData {
@@ -50,7 +50,7 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
       try {
         await ensureTestChat();
         unsubscribe = subscribeTestChat(
-          ({ stay, messages }) => {
+          ({ room, messages }) => {
             // 분 단위로 묶어서 같은 분의 첫 메시지에만 타임스탬프를 붙인다
             let lastMinuteKey: string | null = null;
             const mapped: MessageItemModel[] = messages.map((m) => {
@@ -75,11 +75,18 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
               return {
                 id: m.id,
                 content: m.content,
-                isMine: m.senderId === TEST_SENDER_ID,
+                isMine: m.senderUid === TEST_SENDER_UID,
                 timestamp: showTime ? timeText : undefined,
               };
             });
-            setTestData({ stay, messages: mapped });
+            setTestData({
+              stay: {
+                id: String(room.stayId),
+                title: '테스트',
+                address: '',
+              },
+              messages: mapped,
+            });
             setIsTestLoading(false);
           },
           (err) => {
@@ -122,7 +129,7 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
 
   const handleSend = (text: string) => {
     if (!text.trim()) return;
-    void sendTestMessage(TEST_SENDER_ID, text.trim());
+    void sendTestMessage(TEST_SENDER_UID, text.trim());
   };
 
   if (loading) {
