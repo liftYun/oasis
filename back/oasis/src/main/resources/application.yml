@@ -67,6 +67,9 @@ app:
     timeout-ms: 3000
   front-base-url: ${FRONT_BASE_URL}
   backend-base-url: ${BACK_BASE_URL}
+
+  front:
+    allowed-origins: ${ALLOWED_ORIGINS}
   domain: .stay-oasis.kr
 #  domain: localhost
 papago:
