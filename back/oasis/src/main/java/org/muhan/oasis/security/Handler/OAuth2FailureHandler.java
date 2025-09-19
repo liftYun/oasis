@@ -28,9 +28,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OAuth2FailureHandler implements AuthenticationFailureHandler {
 
-//    @Value("${app.front-base-url}")
-//    private String frontBaseUrl;
-    private final String frontBaseUrl = "http://localhost:3000";
+    @Value("${app.front-base-url}")
+    private String frontBaseUrl;
+//    private final String frontBaseUrl = "http://localhost:3000";
 
     // 리다이렉트로 처리해도 되는 "무해한 재호출/사용자 취소" 유형
     private static final Set<String> BENIGN_ERROR_CODES = Set.of(
