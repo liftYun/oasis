@@ -30,5 +30,5 @@ public interface StayService {
 
     List<StayChatResponseDto> getStays(List<StayChatRequestDto> stayChatListDto, String userUuid);
 
-    List<StayCardDto> findMyStays(String userUuid);
+    List<StayCardView> findMyStays(String userUuid);
 }

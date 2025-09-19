@@ -341,16 +341,16 @@ public class StayController {
                 .body(body);
     }
 
-    @GetMapping
+    @GetMapping("/mystay")
     public ResponseEntity<BaseResponse<?>> findMyStays(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ){
         if(userDetails.getRole() == Role.ROLE_GUEST)
             return ResponseEntity.badRequest().body(BaseResponse.error(NO_ACCESS_AUTHORITY));
 
-        List<StayCardDto> stays = stayService.findMyStays(userDetails.getUserUuid());
+        List<StayCardView> stays = stayService.findMyStays(userDetails.getUserUuid());
 
-        BaseResponse<List<StayCardDto>> body = new BaseResponse<>(stays);
+        BaseResponse<List<StayCardView>> body = new BaseResponse<>(stays);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);

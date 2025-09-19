@@ -474,13 +474,11 @@ public class StayServiceImpl implements StayService{
     }
 
     @Override
-    public List<StayCardDto> findMyStays(String userUuid) {
-        /*UserEntity user = userRepository.findByUserUuid(userUuid)
+    public List<StayCardView> findMyStays(String userUuid) {
+        UserEntity user = userRepository.findByUserUuid(userUuid)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
 
-        return user.getStays().stream().map(stay -> StayCardDto.from(stay, user.getLanguage())).toList();
-        */
-        return null;
+        return stayRepository.findCardsByUserId(user.getUserId(), user.getLanguage().getDescription());
     }
 
 }
