@@ -52,7 +52,7 @@ export function StayForm({ form, handleSubmit, isSubmitting }: StayFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="min-h[calc(100vh-100px)] flex-1 flex flex-col gap-6 w-full justify-center"
+      className="min-h-[calc(100vh-200px)] flex flex-col gap-6 w-full justify-center overflow-y-auto"
     >
       <FormField
         label={t.form.titleLabel}

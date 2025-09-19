@@ -93,7 +93,7 @@ export default function CreateStayPage() {
         currentStep={currentStep}
         className="pt-20 max-w-md mx-auto p-4"
       />
-      <div className="flex items-center justify-center mt-4">{renderStep()}</div>
+      <div className="flex items-center justify-center">{renderStep()}</div>
     </>
   );
 }

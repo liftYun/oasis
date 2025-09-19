@@ -41,7 +41,7 @@ export function Step2_Description() {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto flex flex-1 flex-col p-4 min-h-[calc(100vh-100px)]">
+    <div className="max-w-md w-full mx-auto flex flex-1 flex-col p-4 min-h-[calc(100vh-116px)] overflow-y-auto">
       <BackHeader title={t.createStay} />
       <h1 className="text-xl font-bold mb-6 pt-2">{t.step2.title}</h1>
 
