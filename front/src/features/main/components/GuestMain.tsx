@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useLanguage } from '@/features/language';
 import { mainMessages } from '@/features/main';
 import { Lang, MainMessagesMap } from '@/features/main/types';
+import SearchBar from '@/components/molecules/SearchBar';
 import { Lottie } from '@/components/atoms/Lottie';
 import { ChevronRight } from 'lucide-react';
 import Logo from '@/assets/logos/oasis-logo-512.png';
@@ -110,11 +111,12 @@ export function GuestMain() {
 
   return (
     <main
-      className="flex flex-col w-full px-6 pb-10 min-h-screen"
+      className="flex flex-col w-full px-6 pb-10 pt-6 min-h-screen"
       style={{ paddingBottom: 'var(--safe-bottom, 110px)' }}
     >
+      <SearchBar />
       <section className="mt-6">
-        <div className="relative w-full h-[18rem] flex flex-col items-center justify-center">
+        <div className="relative w-full h-[22rem] flex flex-col items-center justify-center">
           <Lottie src="/lotties/search.json" className="w-[90%] h-40" />
           <div className="absolute top-6 inset-x-0 text-center px-6">
             <h2 className="text-xl font-bold text-gray-600 mb-1 drop-shadow-sm">{t.searchTitle}</h2>
@@ -122,7 +124,7 @@ export function GuestMain() {
           </div>
           <button
             onClick={() => router.push('/search')}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 w-full py-3 rounded-md bg-primary text-white text-sm font-medium hover:opacity-90 transition"
+            className="absolute bottom-12 left-1/2 -translate-x-1/2 w-full py-3 rounded-md bg-primary text-white text-sm font-medium hover:opacity-90 transition"
           >
             {t.search}
           </button>

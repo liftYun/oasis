@@ -8,7 +8,6 @@ export const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'im
 export const buildCreateStayInputSchema = (lang: Lang) => {
   const e = createStayMessages[lang].errors;
 
-  // 문자열/숫자 입력 모두 처리 + 옵션 기반 검증
   const toNumber = (opts: {
     typeMsg: string;
     positiveMsg?: string;
@@ -86,6 +85,15 @@ export const buildCreateStayInputSchema = (lang: Lang) => {
       )
       .optional(),
 
+    imageRequestList: z
+      .array(
+        z.object({
+          key: z.string(),
+          sortOrder: z.number(),
+        })
+      )
+      .optional(),
+
     images: z.any().superRefine((files, ctx) => {
       if (typeof window === 'undefined') return;
 
@@ -111,3 +119,4 @@ export const buildCreateStayInputSchema = (lang: Lang) => {
 };
 
 export type CreateStayInput = z.infer<ReturnType<typeof buildCreateStayInputSchema>>;
+export type CreateStayOutput = CreateStayInput & { address_line: string };
