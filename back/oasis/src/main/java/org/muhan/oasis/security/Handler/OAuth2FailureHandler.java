@@ -31,8 +31,7 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
 
 //    @Value("${app.front-base-url}")
 //    private String frontBaseUrl;
-//    private final String frontBaseUrl = "http://localhost:3000";
-    private final FrontUrlResolver frontUrlResolver;
+    private final String frontBaseUrl = "http://localhost:3000";
 
     // 리다이렉트로 처리해도 되는 "무해한 재호출/사용자 취소" 유형
     private static final Set<String> BENIGN_ERROR_CODES = Set.of(
@@ -66,7 +65,7 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
                             "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With")) ||
                             "json".equalsIgnoreCase(request.getParameter("responseMode"));
 
-            String frontBaseUrl = frontUrlResolver.resolve(request);
+            log.info("[OAUTH2:FAILURE] frontBaseUrl={}", frontBaseUrl);
 
             if (isBenignRepeat(exception, errorCode)) {
                 String safeCode = (errorCode != null ? errorCode : "oauth2_repeat");
