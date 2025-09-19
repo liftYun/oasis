@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.muhan.oasis.common.base.BaseResponse;
+import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.openAI.dto.in.StayRequestDto;
 import org.muhan.oasis.openAI.service.SqsSendService;
 import org.muhan.oasis.s3.service.S3StorageService;
@@ -25,6 +26,7 @@ import org.muhan.oasis.stay.repository.RegionRepository;
 import org.muhan.oasis.stay.service.StayService;
 import org.muhan.oasis.user.service.UserService;
 import org.muhan.oasis.valueobject.Language;
+import org.muhan.oasis.valueobject.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -339,6 +341,21 @@ public class StayController {
                 .body(body);
     }
 
+    @GetMapping("/mystay")
+    public ResponseEntity<BaseResponse<?>> findMyStays(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        if(userDetails.getRole() == Role.ROLE_GUEST)
+            return ResponseEntity.badRequest().body(BaseResponse.error(NO_ACCESS_AUTHORITY));
+
+        List<StayCardView> stays = stayService.findMyStays(userDetails.getUserUuid());
+
+        BaseResponse<List<StayCardView>> body = new BaseResponse<>(stays);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
     @Operation(
             summary = "위시 많은 순 Top 12",
             description = "위시 수가 많은 숙소 12개를 반환합니다."
@@ -448,7 +465,7 @@ public class StayController {
     ){
 
         sqsSendService.sendStayTransMessage(stayRequest, userDetails.getUserNickname());
-
+        System.out.println(userDetails.getUserNickname());
         return ResponseEntity.status(HttpStatus.OK)
                 .body(BaseResponse.ok());
     }
@@ -563,7 +580,7 @@ public class StayController {
         }
     }
 
-    @GetMapping("/chatList")
+    @PostMapping("/chatList")
     public ResponseEntity<BaseResponse<?>> getChatStays(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody List<StayChatRequestDto> stayChatListDto

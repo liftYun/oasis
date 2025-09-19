@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
@@ -63,6 +64,8 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
                     acceptsJson(request) ||
                             "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With")) ||
                             "json".equalsIgnoreCase(request.getParameter("responseMode"));
+
+            log.info("[OAUTH2:FAILURE] frontBaseUrl={}", frontBaseUrl);
 
             if (isBenignRepeat(exception, errorCode)) {
                 String safeCode = (errorCode != null ? errorCode : "oauth2_repeat");
@@ -156,5 +159,15 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
 
     private String firstNonBlank(String a, String b) {
         return (a != null && !a.isBlank()) ? a : b;
+    }
+
+    @SuppressWarnings("unused")
+    private boolean isHttps(String url) {
+        try {
+            URI u = URI.create(url);
+            return "https".equalsIgnoreCase(u.getScheme());
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

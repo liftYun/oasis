@@ -472,4 +472,13 @@ public class StayServiceImpl implements StayService{
 
         return stayRepository.findChatInfo(user.getLanguage().getDescription(), list);
     }
+
+    @Override
+    public List<StayCardView> findMyStays(String userUuid) {
+        UserEntity user = userRepository.findByUserUuid(userUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
+        return stayRepository.findCardsByUserId(user.getUserId(), user.getLanguage().getDescription());
+    }
+
 }

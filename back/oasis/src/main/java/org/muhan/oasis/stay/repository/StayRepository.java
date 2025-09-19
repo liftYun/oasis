@@ -8,6 +8,7 @@ import org.muhan.oasis.stay.dto.out.StayChatResponseDto;
 import org.muhan.oasis.stay.entity.CancellationPolicyEntity;
 import org.muhan.oasis.stay.entity.StayEntity;
 import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -142,12 +143,27 @@ public interface StayRepository extends JpaRepository<StayEntity, Long> {
         s.id,
         case when :language = 'KOR'
              then s.addressLine else s.addressLineEng end,
-        s.thumbnail
+        s.thumbnail,
+        s.title
       )
       from StayEntity s
       where s.id in :ids
     """)
     List<StayChatResponseDto> findChatInfo(@Param("language") String language,
                                            @Param("ids") List<Long> ids);
+
+    @Query("""
+      select
+        s.id                                           as stayId,
+        case when :lang = 'KOR' then s.title else s.titleEng end as title,
+        s.thumbnail                                    as thumbnail,
+        coalesce(rs.avgRating, 0)                      as rating,
+        s.price                                        as price
+      from StayEntity s
+      left join s.ratingSummary rs
+      where s.user.userId = :userId
+      order by s.id desc
+    """)
+    List<StayCardView> findCardsByUserId(@Param("userId") Long userId, @Param("lang") String lang);
 }
 

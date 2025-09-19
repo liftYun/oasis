@@ -1,6 +1,5 @@
 package org.muhan.oasis.user.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.muhan.oasis.common.base.BaseResponseStatus;
@@ -16,6 +15,7 @@ import org.muhan.oasis.user.dto.in.UpdateCancellationPolicyRequestDto;
 import org.muhan.oasis.user.dto.out.UserDetailsResponseDto;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
+import org.muhan.oasis.user.vo.out.CancellationPolicyResponseVo;
 import org.muhan.oasis.user.vo.out.UserBriefResponseVo;
 import org.muhan.oasis.user.vo.out.UserSearchResultResponseVo;
 import org.muhan.oasis.valueobject.Language;
@@ -24,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URI;
 import java.util.List;
@@ -174,6 +175,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public String getUserEmailByUuid(String userUuid) {
         return userRepository.findByUserUuid(userUuid).get().getEmail();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CancellationPolicyResponseVo getCancellationPolicy(Long userId) {
+        CancellationPolicyEntity entity = cancellationPolicyRepository
+                .findTopByUser_UserIdAndActiveTrueOrderByIdDesc(userId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY));
+
+        return toResponseVo(entity);
+    }
+
+    private CancellationPolicyResponseVo toResponseVo(CancellationPolicyEntity entity) {
+        return CancellationPolicyResponseVo.builder()
+                .id(entity.getId())
+                .policy1(entity.getPolicy1())
+                .policy2(entity.getPolicy2())
+                .policy3(entity.getPolicy3())
+                .policy4(entity.getPolicy4())
+                .build();
     }
 
     private Optional<String> extractKeyIfSameBucket(String url) {
