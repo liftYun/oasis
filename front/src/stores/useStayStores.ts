@@ -1,80 +1,83 @@
 'use client';
 
 import { create } from 'zustand';
-import { CreateStayRequest } from '@/services/stay.types';
 import { createStay } from '@/services/stay.api';
+import type { CreateStayRequest } from '@/services/stay.types';
 import type { AxiosResponse } from 'axios';
 
+type ViewMode = 'form' | 'searchAddress';
+
 interface StayStore extends CreateStayRequest {
+  currentStep: number;
+  view: ViewMode;
   loading: boolean;
   error: string | null;
 
-  setField: <K extends keyof CreateStayRequest>(field: K, value: CreateStayRequest[K]) => void;
-
+  setField: (field: keyof CreateStayRequest, value: any) => void;
+  setStep: (step: number) => void;
+  setView: (view: ViewMode) => void;
   reset: () => void;
-
-  submit: () => Promise<number | null>; // 성공 시 stayId 반환
+  submit: () => Promise<number | null>;
 }
 
 export const useStayStores = create<StayStore>((set, get) => ({
-  // 기본값 초기화
+  // 등록용 초기 상태
+  subRegionId: 0,
   title: '',
-  location: '',
-  pricePerNight: 0,
-  guestCount: 1,
+  titleEng: '',
   description: '',
-  latitude: 0,
-  longitude: 0,
+  descriptionEng: '',
+  price: 0,
+  address: '',
+  addressEng: '',
+  addressDetail: '',
+  addressDetailEng: '',
+  postalCode: '',
+  maxGuest: 1,
   imageRequestList: [],
+  facilities: [],
+  blockRangeList: [],
+
+  currentStep: 1,
+  view: 'form',
 
   loading: false,
   error: null,
 
-  setField: (field, value) => set({ [field]: value } as Partial<StayStore>),
+  setField: (field: keyof StayStore, value: any) => set({ [field]: value } as Partial<StayStore>),
+  setStep: (step) => set({ currentStep: step }),
+  setView: (view) => set({ view }),
 
   reset: () =>
     set({
+      subRegionId: 0,
       title: '',
-      location: '',
-      pricePerNight: 0,
-      guestCount: 1,
+      titleEng: '',
       description: '',
-      latitude: 0,
-      longitude: 0,
+      descriptionEng: '',
+      price: 0,
+      address: '',
+      addressEng: '',
+      addressDetail: '',
+      addressDetailEng: '',
+      postalCode: '',
+      maxGuest: 1,
       imageRequestList: [],
-      error: null,
+      facilities: [],
+      blockRangeList: [],
+      currentStep: 1,
+      view: 'form',
       loading: false,
+      error: null,
     }),
 
   submit: async () => {
     set({ loading: true, error: null });
     try {
-      const {
-        title,
-        location,
-        pricePerNight,
-        guestCount,
-        description,
-        latitude,
-        longitude,
-        imageRequestList,
-      } = get();
-
-      const body: CreateStayRequest = {
-        title,
-        location,
-        pricePerNight,
-        guestCount,
-        description,
-        latitude,
-        longitude,
-        imageRequestList,
-      };
-
-      const res = (await createStay(body)) as any;
+      const body = { ...get() };
+      const res: AxiosResponse = await createStay(body);
       const locationHeader = res.headers['location'];
       const stayId = locationHeader?.split('/').pop();
-
       set({ loading: false });
       return stayId ? Number(stayId) : null;
     } catch (err: any) {

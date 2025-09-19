@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { ProgressBar } from '@/components/molecules/ProgressBar';
-import { useCreateStayStore } from '@/features/create-stay/store';
+import { useStayStores } from '@/stores/useStayStores';
 import {
   AddressSearch,
   Step1_StayInfo,
@@ -17,7 +17,7 @@ import { createStayMessages } from '@/features/create-stay/locale';
 export default function CreateStayPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { currentStep, setStep, view, setView, reset } = useCreateStayStore();
+  const { currentStep, setStep, view, setView, reset, submit } = useStayStores();
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
 
@@ -65,6 +65,18 @@ export default function CreateStayPage() {
       router.replace(`/create-stay?${params.toString()}`, { scroll: false });
     }
   }, [currentStep, router]);
+
+  // 📝 상태 변화 로깅
+  useEffect(() => {
+    const unsub = useStayStores.subscribe((state) => {
+      console.log('📌 현재 스토어 상태', state);
+    });
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    console.log(`✅ Step ${currentStep} 진입`);
+  }, [currentStep]);
 
   const handleBack = () => {
     if (view === 'searchAddress') {

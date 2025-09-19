@@ -92,18 +92,19 @@ export function GuestMain() {
   const [wishRooms, setWishRooms] = useState<StayCardByWishDto[]>([]);
   const [ratingRooms, setRatingRooms] = useState<StayCardByWishDto[]>([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const wishRes = await searchStaysByWish();
-        setWishRooms(wishRes ?? []);
+  const fetchData = async () => {
+    try {
+      const wishRes = await searchStaysByWish();
+      setWishRooms(Array.isArray(wishRes?.result) ? wishRes.result : []);
 
-        const ratingRes = await searchStaysByRating();
-        setRatingRooms(ratingRes ?? []);
-      } catch (e) {
-        console.error(e);
-      }
-    };
+      const ratingRes = await searchStaysByRating();
+      setRatingRooms(Array.isArray(ratingRes?.result) ? ratingRes.result : []);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
 

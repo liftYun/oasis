@@ -1,6 +1,7 @@
 'use client';
 
 import { http } from '@/apis/httpClient';
+import type { AxiosResponse } from 'axios';
 import {
   CreateStayRequest,
   UpdateStayRequest,
@@ -15,8 +16,9 @@ import {
   StayCardByWishDto,
 } from './stay.types';
 
-// 숙소 등록
-export const createStay = (body: CreateStayRequest) => http.post('/api/v1/stay', body);
+export const createStay = (body: CreateStayRequest): Promise<AxiosResponse> => {
+  return http.post('/api/v1/stay', body);
+};
 
 // 숙소 수정
 export const updateStay = (stayId: number, body: UpdateStayRequest) =>
@@ -43,10 +45,12 @@ export const searchStays = (params?: Record<string, any>) => {
 };
 
 // 숙소 검색 (관심 많은 순)
-export const searchStaysByWish = () => http.get<StayCardByWishDto[]>('/api/v1/stay/rank/wish');
+export const searchStaysByWish = () =>
+  http.get<BaseResponse<StayCardByWishDto[]>>('/api/v1/stay/rank/wish');
 
 // 숙소 검색 (평점 높은 순)
-export const searchStaysByRating = () => http.get<StayCardByWishDto[]>('/api/v1/stay/rank/rating');
+export const searchStaysByRating = () =>
+  http.get<BaseResponse<StayCardByWishDto[]>>('/api/v1/stay/rank/rating');
 
 // 지역 조회
 export const fetchRegions = () => {

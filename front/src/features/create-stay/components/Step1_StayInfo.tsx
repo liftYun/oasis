@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useCreateStayStore } from '@/features/create-stay/store';
+import { useStayStores } from '@/stores/useStayStores';
 import { StayForm } from '@/components/organisms/StayForm';
 import { useCreateStayForm } from '@/features/create-stay/hooks/useCreateStayForm';
 import { useImageUploader } from '@/features/create-stay/hooks/useImageUploader';
@@ -10,38 +10,86 @@ import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
 import BackHeader from '@/components/molecules/BackHeader';
 
+type ExtendedCreateStayInput = CreateStayInput & {
+  imageRequestList: { key: string; sortOrder: number }[];
+};
+
 export function Step1_StayInfo() {
-  const { setStep, setFormData, formData, setView } = useCreateStayStore();
+  const store = useStayStores();
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
 
-  const handleNextStep = async (data: CreateStayInput) => {
-    setFormData(data);
-    setStep(2);
+  // 다음 스텝 이동 시 Zustand에 모든 필드 저장
+  const handleNextStep = async (data: ExtendedCreateStayInput) => {
+    const validKeys = [
+      'subRegionId',
+      'title',
+      'titleEng',
+      'description',
+      'descriptionEng',
+      'price',
+      'address',
+      'addressEng',
+      'addressDetail',
+      'addressDetailEng',
+      'postalCode',
+      'maxGuest',
+      'facilities',
+      'blockRangeList',
+      'imageRequestList',
+    ] as const;
+
+    type ValidKey = (typeof validKeys)[number];
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (validKeys.includes(key as ValidKey)) {
+        store.setField(key as ValidKey, value as any);
+      }
+    });
+
+    console.log('Step1 저장 완료:', data);
+    store.setStep(2);
   };
 
   const { form, handleSubmit } = useCreateStayForm({
     onFormSubmit: handleNextStep,
-    defaultValues: formData,
+    defaultValues: {
+      title: store.title,
+      titleEng: store.titleEng,
+      address: store.address,
+      addressEng: store.addressEng,
+      addressDetail: store.addressDetail,
+      addressDetailEng: store.addressDetailEng,
+      postalCode: store.postalCode,
+      subRegionId: store.subRegionId,
+      price: store.price,
+      maxGuest: store.maxGuest,
+      imageRequestList: store.imageRequestList ?? [],
+    } as ExtendedCreateStayInput,
   });
+
   const { watch, setValue } = form;
 
   useEffect(() => {
-    // 주소 검색 페이지에서 돌아왔을 때, 스토어의 최신 주소 정보를 폼에 반영
-    if (formData.address) {
-      setValue('address', formData.address, { shouldValidate: true });
+    if (store.address) {
+      setValue('address', store.address, { shouldValidate: true });
     }
-    if (formData.postalCode) {
-      setValue('postalCode', formData.postalCode, { shouldValidate: true });
+    if (store.postalCode) {
+      setValue('postalCode', store.postalCode, { shouldValidate: true });
     }
-  }, [formData.address, formData.postalCode, setValue]);
+  }, [store.address, store.postalCode, setValue]);
 
   const { imagePreviews, handleRemoveImage, handleReorder } = useImageUploader({ watch, setValue });
 
   const handleSearchAddress = () => {
-    // 현재 폼 데이터를 스토어에 저장하고 뷰 전환
-    setFormData(watch());
-    setView('searchAddress');
+    const currentData = watch();
+
+    store.setField('address', currentData.address);
+    store.setField('postalCode', currentData.postalCode);
+    store.setField('addressDetail', currentData.addressDetail);
+
+    console.log('주소 검색 전 데이터 저장', currentData);
+    store.setView('searchAddress');
   };
 
   return (

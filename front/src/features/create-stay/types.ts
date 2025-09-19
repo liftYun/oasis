@@ -37,6 +37,8 @@ export type CreateStayTexts = {
     imagesUploadCta: string;
     imagesPreviewAlt: string;
     imagesDeleteAria: string;
+    maxGuestLabel?: string;
+    maxGuestPlaceholder?: string;
   };
   step2: {
     title: string;
@@ -79,13 +81,23 @@ export type CreateStayTexts = {
   errors: {
     titleRequired: string;
     titleMax: string;
+    titleEngRequired: string;
+    titleEngMax: string;
+    descriptionRequired: string;
+    descriptionEngRequired: string;
     postalCodeRequired: string;
     addressRequired: string;
+    addressEngRequired: string;
     addressDetailRequired: string;
+    addressDetailEngRequired: string;
+    subRegionRequired: string;
     priceType: string;
     pricePositive: string;
     priceInvalid: string;
     priceDecimal: string;
+    maxGuestType: string;
+    maxGuestPositive: string;
+    maxGuestInt: string;
     imagesMin: string;
     imagesMax: string;
     fileSizeMax: string;
