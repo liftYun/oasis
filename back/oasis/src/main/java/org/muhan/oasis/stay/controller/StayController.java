@@ -370,9 +370,9 @@ public class StayController {
     public ResponseEntity<BaseResponse<?>> searchStayByWish(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ){
-        List<StayCardByWishDto> stays = stayService.searchStayByWish(userDetails.getUserUuid());
+        List<StayCardByWishView> stays = stayService.searchStayByWish(userDetails.getUserUuid());
 
-        BaseResponse<List<StayCardByWishDto>> body = new BaseResponse<>(stays);
+        BaseResponse<List<StayCardByWishView>> body = new BaseResponse<>(stays);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
@@ -409,9 +409,9 @@ public class StayController {
     public ResponseEntity<BaseResponse<?>> searchStayByRating(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ){
-        List<StayCardDto> stays = stayService.searchStayByRating(userDetails.getUserUuid());
+        List<StayCardView> stays = stayService.searchStayByRating(userDetails.getUserUuid());
 
-        BaseResponse<List<StayCardDto>> body = new BaseResponse<>(stays);
+        BaseResponse<List<StayCardView>> body = new BaseResponse<>(stays);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
@@ -448,7 +448,7 @@ public class StayController {
     ){
 
         sqsSendService.sendStayTransMessage(stayRequest, userDetails.getUserNickname());
-
+        System.out.println(userDetails.getUserNickname());
         return ResponseEntity.status(HttpStatus.OK)
                 .body(BaseResponse.ok());
     }
