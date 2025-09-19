@@ -11,7 +11,6 @@ import org.muhan.oasis.user.vo.in.UpdateCancellationPolicyRequestVo;
 @AllArgsConstructor
 @Builder
 public class UpdateCancellationPolicyRequestDto {
-    private Long id;
     private Integer policy1;
     // 3일
     private Integer policy2;
@@ -22,7 +21,6 @@ public class UpdateCancellationPolicyRequestDto {
 
     public static UpdateCancellationPolicyRequestDto from(UpdateCancellationPolicyRequestVo vo) {
         return UpdateCancellationPolicyRequestDto.builder()
-                .id(vo.getId())
                 .policy1(vo.getPolicy1())
                 .policy2(vo.getPolicy2())
                 .policy3(vo.getPolicy3())
