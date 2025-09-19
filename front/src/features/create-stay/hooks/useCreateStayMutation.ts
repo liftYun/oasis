@@ -1,20 +1,52 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
+import { useStayStores } from '@/stores/useStayStores';
+import { useLanguage } from '@/features/language';
+import { createStay } from '@/services/stay.api';
+import type { CreateStayRequest } from '@/services/stay.types';
 
 export function useCreateStayMutation() {
   const router = useRouter();
+  const stayStore = useStayStores();
+  const { lang } = useLanguage();
 
   return useMutation({
-    onSuccess: (data) => {
-      console.log('숙소 생성 성공:', data);
-      // 성공 시 다음 페이지로 이동하거나, 사용자에게 성공 피드백을 보여줍니다.
-      // 예: router.push(`/create-stay/success?stayId=${data.stayId}`);
-      alert('숙소 생성이 완료되었습니다!');
+    mutationFn: async () => {
+      const thumbnail = stayStore.imageRequestList?.[0]?.key ?? null;
+
+      const body: CreateStayRequest & { thumbnail?: string | null } = {
+        subRegionId: stayStore.subRegionId,
+        title: stayStore.title,
+        titleEng: stayStore.titleEng,
+        description: stayStore.description,
+        descriptionEng: stayStore.descriptionEng,
+        price: stayStore.price,
+        address: stayStore.address,
+        addressEng: stayStore.addressEng,
+        addressDetail: stayStore.addressDetail,
+        addressDetailEng: stayStore.addressDetailEng,
+        postalCode: stayStore.postalCode,
+        maxGuest: stayStore.maxGuest,
+        imageRequestList: stayStore.imageRequestList,
+        facilities: stayStore.facilities,
+        blockRangeList: stayStore.blockRangeList,
+        thumbnail,
+      };
+
+      console.log('숙소 생성 요청', body);
+      return await createStay(body);
     },
-    onError: (error) => {
-      console.error('숙소 생성 실패:', error);
-      // 실패 시 에러 메시지를 보여줍니다.
-      alert('숙소 생성에 실패했습니다. 잠시 후 다시 시도해주세요.');
+
+    onSuccess: () => {
+      toast.success(lang === 'kor' ? '숙소 생성에 성공했습니다.' : 'Stay created successfully!');
+      router.push('/');
+    },
+
+    onError: () => {
+      toast.error(
+        lang === 'kor' ? '숙소 생성에 실패했습니다.' : 'Failed to create stay. Please try again.'
+      );
     },
   });
 }

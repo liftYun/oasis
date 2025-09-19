@@ -25,7 +25,7 @@ export function BackHeaderContent({ title = ' ', className, onBack }: BackHeader
   };
 
   return (
-    <header className={`relative z-0 h-14 bg-white px-2 flex items-center justify-between`}>
+    <header className={`relative h-14 bg-white px-2 flex items-center justify-between`}>
       <button
         onClick={handleBack}
         className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200"

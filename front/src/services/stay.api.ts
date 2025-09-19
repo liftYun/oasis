@@ -14,6 +14,7 @@ import {
   BaseResponse,
   StayCardDto,
   StayCardByWishDto,
+  StayRequestDto,
 } from './stay.types';
 
 export const createStay = (body: CreateStayRequest): Promise<AxiosResponse> => {
@@ -36,8 +37,7 @@ export const getPresignedUrls = (imageInfos: PresignedRequest[]) =>
   http.post<BaseResponse<PresignedResponse[]>>('/api/v1/stay/photos/upload-url', { imageInfos });
 
 // 숙소 번역
-export const translateStay = (stayId: number, targetLang: string) =>
-  http.post(`/api/v1/stay/translate`, { stayId, targetLang });
+export const translateStay = (body: StayRequestDto) => http.post('/api/v1/stay/translate', body);
 
 // 숙소 검색
 export const searchStays = (params?: Record<string, any>) => {

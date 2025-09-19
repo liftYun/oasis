@@ -22,6 +22,19 @@ export interface BlockRangeDto {
   end: string; // YYYY-MM-DD
 }
 
+export interface StayRequestDto {
+  detailAddress: string;
+  title: string;
+  content: string;
+  language: 'KOR' | 'ENG';
+}
+
+export interface StayTranslationResultDto {
+  detailAddress: string;
+  title: string;
+  content: string;
+}
+
 export interface CreateStayRequest {
   subRegionId: number;
   title: string;
@@ -38,6 +51,7 @@ export interface CreateStayRequest {
   imageRequestList: ImageRequest[];
   facilities?: number[];
   blockRangeList?: BlockRangeDto[];
+  thumbnail?: string | null;
 }
 
 export interface UpdateStayRequest extends CreateStayRequest {

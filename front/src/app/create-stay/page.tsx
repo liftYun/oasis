@@ -1,11 +1,10 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 import { ProgressBar } from '@/components/molecules/ProgressBar';
 import { useStayStores } from '@/stores/useStayStores';
-// import BackHeader from '@/components/molecules/BackHeader';
-// import { useCreateStayStore } from '@/features/create-stay/store';
+import { useStayTranslateSSE } from '@/features/create-stay/hooks/useStayTranslateSSE';
 import {
   Step1_StayInfo,
   Step2_Description,
@@ -13,16 +12,12 @@ import {
   Step4_Availability,
 } from '@/features/create-stay';
 
-// import { useLanguage } from '@/features/language';
-// import { createStayMessages } from '@/features/create-stay/locale';
-// import { StepFlowProvider } from '@/features/common/step-flow/StepFlowContext';
-
 export default function CreateStayPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { currentStep, setStep, reset, submit } = useStayStores();
+  const { currentStep, setStep, reset } = useStayStores();
   const isReloadRef = useRef(false);
   const didInitRef = useRef(false);
+  useStayTranslateSSE();
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -52,6 +47,7 @@ export default function CreateStayPage() {
   }, [reset, router]);
 
   const didMountRef = useRef(false);
+
   useEffect(() => {
     if (!didMountRef.current) {
       didMountRef.current = true;
@@ -65,19 +61,10 @@ export default function CreateStayPage() {
     }
   }, [currentStep, router]);
 
-  // 상태 변화 로깅
   useEffect(() => {
-    const unsub = useStayStores.subscribe((state) => {
-      console.log('현재 스토어 상태', state);
-    });
+    const unsub = useStayStores.subscribe((state) => {});
     return () => unsub();
   }, []);
-
-  useEffect(() => {
-    console.log(`Step ${currentStep} 진입`);
-  }, [currentStep]);
-
-  // const canGoPrev = view === 'searchAddress' || currentStep > 1;
 
   const renderStep = () => {
     switch (currentStep) {
@@ -94,19 +81,6 @@ export default function CreateStayPage() {
     }
   };
 
-  // const goPrevStep = useCallback(() => {
-  //   if (view === 'searchAddress') {
-  //     setView('form');
-  //   } else if (currentStep > 1) {
-  //     setStep(currentStep - 1);
-  //   }
-  // }, [view, currentStep, setView, setStep]);
-
-  // const stepFlowValue = useMemo(
-  //   () => ({ currentStep, canGoPrev, goPrevStep }),
-  //   [currentStep, canGoPrev, goPrevStep]
-  // );
-
   return (
     <>
       <ProgressBar
@@ -116,25 +90,5 @@ export default function CreateStayPage() {
       />
       <div className="flex items-center justify-center">{renderStep()}</div>
     </>
-
-    // <StepFlowProvider value={stepFlowValue}>
-    //   <main className="flex flex-col flex-1 bg-white">
-    //     <BackHeader title={view === 'searchAddress' ? t.header.searchTitle : t.createStay} />
-    //     {view === 'form' && (
-    //       <div className="fixed left-1/2 -translate-x-1/2 top-[calc(env(safe-area-inset-top)+56px)] w-full max-w-[480px] z-[60] bg-white">
-    //         <ProgressBar
-    //           totalSteps={4}
-    //           currentStep={currentStep}
-    //           className="max-w-md mx-auto p-4"
-    //         />
-    //       </div>
-    //     )}
-    //     <div
-    //       className={`flex flex-col flex-grow ${view === 'form' ? 'pt-[120px]' : ''} px-2 sm:px-4`}
-    //     >
-    //       {view === 'form' ? renderStep() : <AddressSearch />}
-    //     </div>
-    //   </main>
-    // </StepFlowProvider>
   );
 }

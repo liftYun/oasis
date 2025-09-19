@@ -51,6 +51,8 @@ export type CreateStayTexts = {
     tipText: string;
     descriptionLabel: string;
     descriptionPlaceholder: string;
+    maxGuestLabel: string;
+    peolple: string;
   };
   step3: {
     title: string;
