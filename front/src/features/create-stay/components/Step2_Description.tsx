@@ -53,7 +53,7 @@ export function Step2_Description() {
       detailAddress: store.addressDetail,
       title: store.title,
       content: description.trim(),
-      language: 'KOR',
+      language: lang.toUpperCase() as 'KOR' | 'ENG',
     });
 
     store.setStep(store.currentStep + 1);

@@ -50,7 +50,7 @@ export function ImageUploader({ onChange }: ImageUploaderProps) {
     try {
       // 1. presigned URL 발급
       const presignReq: PresignedRequest[] = files.map((f, i) => ({
-        sortOrder: images.length + i,
+        sortOrder: images.length + i + 1,
         contentType: f.type,
       }));
       const res = await getPresignedUrls(presignReq);

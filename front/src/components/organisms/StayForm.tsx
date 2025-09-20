@@ -10,6 +10,7 @@ import { PriceField } from '@/components/molecules/PriceField';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
 import { useDaumPostcode } from '@/features/create-stay/hooks/useDaumPostCode';
+import { fetchRegions } from '@/services/stay.api';
 
 interface StayFormProps {
   form: UseFormReturn<any>;
@@ -30,21 +31,53 @@ export function StayForm({ form, handleSubmit, isSubmitting }: StayFormProps) {
   const titleValue = useWatch({ control: form.control, name: 'title' }) ?? '';
   const openPostcode = useDaumPostcode();
 
-  const handleSearchClick = () => {
-    openPostcode((data) => {
-      const selected = {
-        subRegionId: Number(data.bcode) || 0,
-        address: data.roadAddress || data.address,
-        addressEng: data.roadAddressEnglish || data.addressEnglish || '',
-        addressDetail: '',
-        addressDetailEng: '',
-        postalCode: data.zonecode,
-      };
+  const handleSearchClick = async () => {
+    openPostcode(async (data) => {
+      try {
+        const regionData = await fetchRegions();
+        if (!regionData?.result) return;
 
-      setValue('address', selected.address, { shouldValidate: true });
-      setValue('addressEng', selected.addressEng, { shouldValidate: true });
-      setValue('postalCode', selected.postalCode, { shouldValidate: true });
-      setValue('subRegionId', selected.subRegionId, { shouldValidate: true });
+        const regionName = data.sido;
+        const subRegionName = data.sigungu;
+        const regionNameEng = data.sidoEnglish;
+        const subRegionNameEng = data.sigunguEnglish;
+
+        let region = regionData.result.find(
+          (r: any) => regionName && r.region.includes(regionName)
+        );
+
+        if (!region) {
+          region = regionData.result.find(
+            (r: any) => regionNameEng && r.region.includes(regionNameEng)
+          );
+        }
+
+        let subRegion = region?.subRegions.find(
+          (sr: any) => subRegionName && sr.subName.includes(subRegionName)
+        );
+
+        if (!subRegion) {
+          subRegion = region?.subRegions.find(
+            (sr: any) => subRegionNameEng && sr.subName.includes(subRegionNameEng)
+          );
+        }
+
+        const selected = {
+          subRegionId: subRegion?.id ?? 0,
+          address: data.roadAddress || data.address,
+          addressEng: data.roadAddressEnglish || data.addressEnglish || '',
+          addressDetail: '',
+          addressDetailEng: '',
+          postalCode: data.zonecode,
+        };
+
+        setValue('address', selected.address, { shouldValidate: true });
+        setValue('addressEng', selected.addressEng, { shouldValidate: true });
+        setValue('postalCode', selected.postalCode, { shouldValidate: true });
+        setValue('subRegionId', selected.subRegionId, { shouldValidate: true });
+      } catch (error) {
+        // console.error('지역 매핑 실패:', error);
+      }
     });
   };
 
