@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Users } from 'lucide-react';
 import { useLanguage } from '@/features/language';
 import { stayDetailLocale } from '@/features/stays/locale';
+import DescriptionModal from './DescriptionModal';
 
 interface StayDescriptionProps {
   description: string;
@@ -14,6 +15,7 @@ export default function StayDescription({ description, maxGuests }: StayDescript
   const [expanded, setExpanded] = useState(false);
   const { lang } = useLanguage();
   const t = stayDetailLocale[lang];
+  const [modalOpen, setModalOpen] = useState(false);
 
   const PREVIEW_LENGTH = 100;
   const isLong = description.length > PREVIEW_LENGTH;
@@ -36,12 +38,18 @@ export default function StayDescription({ description, maxGuests }: StayDescript
 
       {isLong && (
         <button
-          onClick={() => setExpanded(!expanded)}
+          onClick={() => setModalOpen(true)}
           className="mt-3 w-full rounded-md bg-gray-100 py-3 text-sm text-gray-600 hover:bg-gray-200"
         >
-          {expanded ? t.description.close : t.description.more}
+          {t.description.more}
         </button>
       )}
+
+      <DescriptionModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        description={description}
+      />
     </section>
   );
 }

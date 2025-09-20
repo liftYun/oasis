@@ -25,6 +25,7 @@ export const stayDetailLocale = {
       lowSummary: '↓ 낮은 평점 요약',
       ratingUnit: '점',
       seeAll: '전체 리뷰 보기',
+      reviewsNot: '리뷰가 없습니다.',
     },
     host: {
       hostName: '호스트',
@@ -69,6 +70,7 @@ export const stayDetailLocale = {
       lowSummary: '↓ Low Rating Summary',
       ratingUnit: 'points',
       seeAll: 'See All Reviews',
+      reviewsNot: 'No reviews yet.',
     },
     host: {
       hostName: 'Host',

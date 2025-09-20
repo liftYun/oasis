@@ -152,3 +152,12 @@ export interface StayCardByWishDto {
   price: number;
   wishCount?: number;
 }
+
+export interface StayReviewResponseVo {
+  reviewId: number;
+  reservationId?: string | null;
+  rating: number;
+  createdAt: string; // ISO-8601
+  content: string;
+  nickname: string;
+}

@@ -14,6 +14,7 @@ import {
   StayCardDto,
   StayCardByWishDto,
   StayRequestDto,
+  StayReviewResponseVo,
 } from './stay.types';
 
 export const createStay = (body: CreateStayRequest): Promise<AxiosResponse> => {
@@ -65,3 +66,7 @@ export const fetchWishes = () => http.get<BaseResponse<WishResponseDto[]>>('/api
 // 관심 숙소 삭제
 export const deleteWish = (wishId: number) =>
   http.delete<BaseResponse<void>>(`/api/v1/wish/${wishId}`);
+
+// 숙소 리뷰 목록 조회
+export const fetchStayReviews = (stayId: number) =>
+  http.get<BaseResponse<StayReviewResponseVo[]>>(`/api/v1/review/${stayId}`);

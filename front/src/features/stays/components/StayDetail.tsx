@@ -61,11 +61,12 @@ export function StayDetail() {
           rating={stay.review.rating}
           highReviews={stay.review.highRateSummary}
           lowReviews={stay.review.lowRateSummary}
+          stayId={stay.stayId}
         />
 
         <div className="-mx-6 w-screen h-3 bg-gray-100 my-12" />
 
-        <StayHost host={stay.host} onChatStart={() => console.log('채팅 시작!')} />
+        <StayHost host={stay.host} onChatStart={() => console.log('채팅 시작')} />
       </main>
       <StayBookingBar price={stay.price} />
     </section>
