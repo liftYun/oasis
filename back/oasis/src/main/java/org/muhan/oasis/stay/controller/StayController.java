@@ -255,13 +255,15 @@ public class StayController {
 
         List<PresignedResponseDto> result = new ArrayList<>();
 
+        String uuid = String.valueOf(java.util.UUID.randomUUID());
+
         for (ImageTypeRequestDto imageInfo : imageTypeListDto.imageInfos()) {
             if (imageInfo.contentType() == null || !imageInfo.contentType().startsWith("image/")) {
                 return BaseResponse.error(NO_IMG_FORM);
             }
 
             String key = "stay-image/%s/%s/%s.%s".formatted(
-                    userDetails.getUserUuid(), java.util.UUID.randomUUID(), imageInfo.sortOrder(), contentTypeToExt(imageInfo.contentType())
+                    userDetails.getUserUuid(), uuid, imageInfo.sortOrder(), contentTypeToExt(imageInfo.contentType())
             );
 
             Duration ttl = Duration.ofMinutes(10);
