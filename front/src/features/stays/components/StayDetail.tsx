@@ -1,37 +1,73 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { StayImageSlider, StayBookingBar, StayMap, useStayDetail } from '@/features/stays';
+import { fetchStayDetail } from '@/services/stay.api';
+import { StayReadResponseDto } from '@/services/stay.types';
+import { useLanguage } from '@/features/language';
+import { stayDetailLocale } from '@/features/stays/locale';
+import StayImageSlider from './StayImageSlider';
+import StayBookingBar from './StayBookingBar';
+import StayMap from './StayMap';
+import StayDescription from './StayDescription';
+import StayFacilities from './StayFacilities';
+import StayReview from './StayReview';
+import StayHost from './StayHost';
 
 export function StayDetail() {
-  const params = useParams();
-  const id = Number(params.id);
-  const { data, isLoading } = useStayDetail(id);
+  const { lang } = useLanguage();
+  const t = stayDetailLocale[lang];
+  const { id } = useParams();
+  const [stay, setStay] = useState<StayReadResponseDto | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (isLoading || !data) return <p className="p-10">로딩 중...</p>;
+  useEffect(() => {
+    if (!id) return;
+    const load = async () => {
+      try {
+        const res = await fetchStayDetail(Number(id));
+        setStay(res.result);
+        console.log(res.result);
+      } catch (e) {
+        console.error('숙소 조회 실패:', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [id]);
+
+  if (loading) return <div className="p-6">{t.common.loading}</div>;
+  if (!stay) return <div className="p-6">{t.common.loadError}</div>;
 
   return (
-    <div className="pb-28">
-      <StayImageSlider images={data.images} />
-
-      {/* <div className="px-6 py-4 space-y-6">
-        <div>
-          <h1 className="text-xl font-semibold">{data.title}</h1>
-          <p className="text-gray-500 text-sm">{data.location}</p>
+    <section className="overflow-y-auto scrollbar-hide flex flex-1 flex-col">
+      <StayImageSlider photos={stay.photos} title={stay.title} />
+      <main className="relative w-full mx-auto px-6 pb-24">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mt-4">{stay.title}</h1>
+          <p className="text-gray-400 mt-1">
+            {stay.region} · {stay.subRegion}
+          </p>
         </div>
 
-        <div>
-          <h2 className="font-medium mb-2">숙소 설명</h2>
-          <p className="text-sm text-gray-700">{data.description}</p>
-        </div>
+        <StayFacilities facilities={stay.facilities} />
 
-        <div>
-          <h2 className="font-medium mb-2">숙소 위치</h2>
-          <StayMap latitude={data.latitude} longitude={data.longitude} />
-        </div>
-      </div>
+        <StayDescription description={stay.description} maxGuests={stay.maxGuest} />
 
-      <StayBookingBar price={data.pricePerNight} /> */}
-    </div>
+        <StayMap postalCode={stay.postalCode} />
+
+        <StayReview
+          rating={stay.review.rating}
+          highReviews={stay.review.highRateSummary}
+          lowReviews={stay.review.lowRateSummary}
+        />
+
+        <div className="-mx-6 w-screen h-3 bg-gray-100 my-12" />
+
+        <StayHost host={stay.host} onChatStart={() => console.log('채팅 시작!')} />
+      </main>
+      <StayBookingBar price={stay.price} />
+    </section>
   );
 }

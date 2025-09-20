@@ -62,9 +62,7 @@ export function Reviews() {
                     key={i}
                     size={14}
                     className={
-                      i < Math.round(item.rating)
-                        ? 'text-yellow-400 fill-yellow-400'
-                        : 'text-gray-300'
+                      i < Math.round(item.rating) ? 'text-yellow fill-yellow' : 'text-gray-300'
                     }
                   />
                 ))}

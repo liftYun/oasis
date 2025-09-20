@@ -58,22 +58,59 @@ export interface UpdateStayRequest extends CreateStayRequest {
   id: number;
 }
 
-export interface StayDetailResponse {
-  id: number;
+export interface StayReadResponseDto {
+  stayId: number;
   title: string;
-  titleEng: string;
   description: string;
-  descriptionEng: string;
-  price: number;
-  address: string;
-  addressEng: string;
-  addressDetail: string;
-  addressDetailEng: string;
+  region: string;
+  subRegion: string;
   postalCode: string;
   maxGuest: number;
-  images: string[];
-  facilities: number[];
-  blockRangeList: BlockRangeDto[];
+  price: number;
+  photos: ImageResponseDto[];
+  review: StayReviewSummaryResponseDto;
+  host: HostInfoResponseDto;
+  facilities: FacilityCategoryResponseDto[];
+  cancellations: StayBlockResponseDto[];
+  reservedDate: ReservedResponseDto[];
+}
+
+export interface ImageResponseDto {
+  url: string;
+  sortOrder: number;
+}
+
+export interface StayReviewSummaryResponseDto {
+  rating: number;
+  count: number;
+  highRateSummary: string;
+  lowRateSummary: string;
+}
+
+export interface HostInfoResponseDto {
+  nickname: string;
+  uuid: string;
+  url: string;
+}
+
+export interface FacilityCategoryResponseDto {
+  category: string;
+  facilities: FacilityResponseDto[];
+}
+
+export interface FacilityResponseDto {
+  id: number;
+  name: string;
+}
+
+export interface StayBlockResponseDto {
+  startDate: string;
+  endDate: string;
+}
+
+export interface ReservedResponseDto {
+  checkIn: string;
+  checkOut: string;
 }
 
 export interface SubRegionDto {

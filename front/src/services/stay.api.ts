@@ -5,11 +5,10 @@ import type { AxiosResponse } from 'axios';
 import {
   CreateStayRequest,
   UpdateStayRequest,
-  StayDetailResponse,
+  StayReadResponseDto,
   PresignedRequest,
   PresignedResponse,
   WishResponseDto,
-  SubRegionDto,
   RegionDto,
   BaseResponse,
   StayCardDto,
@@ -29,8 +28,8 @@ export const updateStay = (stayId: number, body: UpdateStayRequest) =>
 export const deleteStay = (stayId: number) => http.delete(`/api/v1/stay/${stayId}`);
 
 // 숙소 상세 조회
-export const getStayDetail = (stayId: number) =>
-  http.get<StayDetailResponse>(`/api/v1/stay/${stayId}`);
+export const fetchStayDetail = (stayId: number) =>
+  http.get<BaseResponse<StayReadResponseDto>>(`/api/v1/stay/${stayId}`);
 
 // 사진 업로드 URL 발급
 export const getPresignedUrls = (imageInfos: PresignedRequest[]) =>
