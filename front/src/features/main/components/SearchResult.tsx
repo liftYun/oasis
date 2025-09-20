@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SearchBar from '@/components/molecules/SearchBar';
 import PromoCard from '@/components/organisms/promo-card/PromoCard';
 import { useSearchStore } from '@/stores/useSearchStore';
@@ -9,12 +9,25 @@ import HeartDefault from '@/assets/icons/heart-default.png';
 import HeartBlue from '@/assets/icons/heart-blue.png';
 import Star from '@/assets/icons/star.png';
 import Usdc from '@/assets/icons/usd-circle.png';
-import { addWish } from '@/services/stay.api';
+import { addWish, fetchWishes } from '@/services/stay.api';
+import { WishResponseDto } from '@/services/stay.types';
 
 export function SearchResult() {
   const results = useSearchStore((s) => s.results);
   const [favorites, setFavorites] = useState<number[]>([]);
 
+  useEffect(() => {
+    const loadWishes = async () => {
+      try {
+        const res = await fetchWishes();
+        const wishIds = res.result.map((wish: WishResponseDto) => wish.stayCardDto.stayId);
+        setFavorites(wishIds);
+      } catch (e) {
+        console.error('관심 숙소 불러오기 실패:', e);
+      }
+    };
+    loadWishes();
+  }, []);
   const handleToggleFavorite = async (stayId: number) => {
     try {
       await addWish(stayId);
