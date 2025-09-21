@@ -1,6 +1,7 @@
 'use client';
 import { getApps, initializeApp, type FirebaseApp } from 'firebase/app';
 import { getFirestore, type Firestore } from 'firebase/firestore';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -37,6 +38,20 @@ function initializeFirebase(): InitResult {
 
   try {
     const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+    // App Check 초기화 (로컬 개발 시 디버그 토큰 사용)
+    if (process.env.NEXT_PUBLIC_FIREBASE_APPCHECK_SITE_KEY) {
+      if (process.env.NODE_ENV !== 'production') {
+        // 고정 디버그 토큰 사용 (콘솔 출력 방지)
+        (self as any).FIREBASE_APPCHECK_DEBUG_TOKEN =
+          process.env.NEXT_PUBLIC_FIREBASE_APPCHECK_DEBUG_TOKEN;
+      }
+      initializeAppCheck(app, {
+        provider: new ReCaptchaEnterpriseProvider(
+          process.env.NEXT_PUBLIC_FIREBASE_APPCHECK_SITE_KEY as string
+        ),
+        isTokenAutoRefreshEnabled: true,
+      });
+    }
     const db = getFirestore(app);
     return { ok: true, app, db };
   } catch (error) {
