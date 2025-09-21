@@ -41,10 +41,10 @@ public class StayEntity {
         @Column(name = "title_eng", nullable = false)
         private String titleEng;
 
-        @Column(name = "description", nullable = false)
+        @Column(name = "description", columnDefinition = "TEXT", nullable = false)
         private String description;
 
-        @Column(name = "description_eng", nullable = false)
+        @Column(name = "description_eng", columnDefinition = "TEXT", nullable = false)
         private String descriptionEng;
 
         @Column(name = "price", nullable = false)
