@@ -22,7 +22,6 @@ export function ManageStayList() {
     const load = async () => {
       try {
         const res = await fetchMyStays();
-        console.log(res);
         setStays(res.result || []);
       } catch (err) {
         console.error('내 숙소 불러오기 실패:', err);
@@ -45,7 +44,7 @@ export function ManageStayList() {
           {stays.map((stay) => (
             <Link
               key={stay.stayId}
-              href={`/stays/${stay.stayId}`}
+              href={`/stays/${stay.stayId}?from=manage`}
               className="group relative w-[200px] rounded-xl overflow-hidden shadow hover:shadow-lg transition"
             >
               <div className="relative aspect-square rounded-xl overflow-hidden shadow hover:shadow-lg transition">

@@ -3,6 +3,7 @@ export const stayDetailLocale = {
     common: {
       loading: '로딩 중...',
       loadError: '숙소 정보를 불러올 수 없습니다.',
+      editStay: '숙소 정보 수정하기',
     },
     detail: {
       infoTitle: '숙소 세부정보',
@@ -48,6 +49,7 @@ export const stayDetailLocale = {
     common: {
       loading: 'Loading...',
       loadError: 'Unable to load stay information.',
+      editStay: 'Edit Stay Information',
     },
     detail: {
       infoTitle: 'Stay Details',

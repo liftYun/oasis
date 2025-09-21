@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { fetchStayDetail } from '@/services/stay.api';
 import { StayReadResponseDto } from '@/services/stay.types';
 import { useLanguage } from '@/features/language';
@@ -13,13 +13,16 @@ import StayDescription from './StayDescription';
 import StayFacilities from './StayFacilities';
 import StayReview from './StayReview';
 import StayHost from './StayHost';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, SquarePen } from 'lucide-react';
 
 export function StayDetail() {
   const { lang } = useLanguage();
   const t = stayDetailLocale[lang];
   const { id } = useParams();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [stay, setStay] = useState<StayReadResponseDto | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -41,25 +44,45 @@ export function StayDetail() {
   if (loading) return <div className="p-6">{t.common.loading}</div>;
   if (!stay) return <div className="p-6">{t.common.loadError}</div>;
 
+  const isManageMode = pathname.startsWith('/manage') || searchParams.get('from') === 'manage';
+
   return (
     <section className="overflow-y-auto scrollbar-hide flex flex-1 flex-col relative">
       <StayImageSlider photos={stay.photos} title={stay.title} />
 
       <main className="relative w-full mx-auto px-6 pb-24">
-        <div className="text-center">
+        <div className="relative text-center justify-between">
           <button
             onClick={() => router.back()}
             className="absolute top-4 left-4 z-20 transition"
             aria-label="뒤로가기"
           >
-            <ChevronLeft className="w-7 h-7 text-black" />
+            <ChevronLeft className="w-7 h-7 text-gray-600" />
           </button>
+
+          {isManageMode && (
+            <div className="absolute top-4 right-4 group">
+              <button
+                // onClick={() => router.push(`/manage/stay/${stay.stayId}/edit`)}
+                className="p-2 rounded-full hover:bg-gray-100 transition"
+                aria-label="숙소 수정"
+              >
+                <SquarePen className="w-5 h-5 text-gray-600" />
+              </button>
+
+              <span className="absolute top-11 right-0 whitespace-nowrap rounded-md bg-gray-600 text-white text-xs px-3 py-1 opacity-0 group-hover:opacity-100 transition">
+                {t.common.editStay}
+              </span>
+            </div>
+          )}
+
           <h1 className="text-2xl font-bold mt-4">{stay.title}</h1>
           <p className="text-gray-400 mt-1">
             {stay.region} · {stay.subRegion}
           </p>
         </div>
 
+        {/* 상세 섹션 */}
         <StayFacilities facilities={stay.facilities} />
         <StayDescription description={stay.description} maxGuests={stay.maxGuest} />
         <StayMap postalCode={stay.postalCode} />
@@ -70,7 +93,7 @@ export function StayDetail() {
           stayId={stay.stayId}
         />
 
-        <div className="-mx-6 w-screen h-3 bg-gray-100 my-12" />
+        {/* <div className="-mx-6 w-screen h-3 bg-gray-100 my-12" /> */}
 
         <StayHost host={stay.host} onChatStart={() => console.log('채팅 시작')} />
       </main>
