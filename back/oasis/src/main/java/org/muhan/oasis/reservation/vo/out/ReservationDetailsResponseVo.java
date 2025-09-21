@@ -27,7 +27,7 @@ public class ReservationDetailsResponseVo {
     /** ===== 예약 ===== */
     private String reservationId;
     private LocalDateTime reservationDate;
-    private boolean isCancled;
+    private boolean isCanceled;
     private boolean isSettlemented;
     private boolean isReviewed;
     private int payment;
@@ -246,7 +246,7 @@ public class ReservationDetailsResponseVo {
         return ReservationDetailsResponseVo.builder()
                 .reservationId(dto.reservationId())
                 .reservationDate(dto.reservationDate())
-                .isCancled(dto.isCancled())
+                .isCanceled(dto.isCanceled())
                 .isSettlemented(dto.isSettlemented())
                 .isReviewed(dto.isReviewed())
                 .payment(dto.payment())

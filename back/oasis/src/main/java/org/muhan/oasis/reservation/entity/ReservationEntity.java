@@ -48,8 +48,8 @@ public class ReservationEntity {
     @Column(name = "payment", nullable = false)
     private int payment;
 
-    @Column(name = "is_cancled", nullable = false)
-    private boolean isCancled;
+    @Column(name = "is_canceled", nullable = false)
+    private boolean isCanceled;
 
     @Column(name = "stay_title", nullable = false)
     private String stayTitle;
@@ -57,7 +57,7 @@ public class ReservationEntity {
     @Column(name = "stay_title_eng", nullable = false)
     private String stayTitleEng;
     @Builder
-    public ReservationEntity(String reservationId, UserEntity user, StayEntity stay, LocalDateTime checkinDate, LocalDateTime checkoutDate, LocalDateTime reservationDate, boolean isSettlemented, boolean isReviewed, int payment, boolean isCancled, String stayTitle, String stayTitleEng) {
+    public ReservationEntity(String reservationId, UserEntity user, StayEntity stay, LocalDateTime checkinDate, LocalDateTime checkoutDate, LocalDateTime reservationDate, boolean isSettlemented, boolean isReviewed, int payment, boolean isCanceled, String stayTitle, String stayTitleEng) {
         this.reservationId = reservationId;
         this.user = user;
         this.stay = stay;
@@ -67,7 +67,7 @@ public class ReservationEntity {
         this.isSettlemented = isSettlemented;
         this.isReviewed = isReviewed;
         this.payment = payment;
-        this.isCancled = isCancled;
+        this.isCanceled = isCanceled;
         this.stayTitle = stayTitle;
         this.stayTitleEng = stayTitleEng;
     }

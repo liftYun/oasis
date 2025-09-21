@@ -22,7 +22,7 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
         )
         from ReservationEntity r
         where r.stay.id = :stayId
-          and r.isCancled = false
+          and r.isCanceled = false
           and r.checkoutDate >= :todayStart
         order by r.checkinDate asc
     """)
@@ -33,7 +33,7 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
 
     @Modifying
     @Transactional
-    @Query("UPDATE ReservationEntity r SET r.isCancled = true WHERE r.reservationId = :reservationId")
+    @Query("UPDATE ReservationEntity r SET r.isCanceled = true WHERE r.reservationId = :reservationId")
     void markCanceled(@Param("reservationId") String reservationId);
     // ✅ 정산 안 된 예약 전체 조회
     List<ReservationEntity> findByIsSettlementedFalseAndCheckoutDateBefore(LocalDateTime now);
