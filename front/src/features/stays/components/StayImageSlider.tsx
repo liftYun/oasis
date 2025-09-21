@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -23,7 +24,10 @@ export default function StayImageSlider({ photos, title }: Props) {
         modules={[Navigation, Pagination]}
         spaceBetween={10}
         slidesPerView={1}
-        navigation
+        navigation={{
+          prevEl: '.custom-prev',
+          nextEl: '.custom-next',
+        }}
         pagination={{ clickable: true }}
         className="w-full"
         onSlideChange={(swiper) => setCurrent(swiper.activeIndex + 1)}
@@ -46,6 +50,13 @@ export default function StayImageSlider({ photos, title }: Props) {
       <div className="z-10 absolute bottom-3 right-3 bg-black/60 text-white text-sm px-3 py-1 rounded-full">
         {current} / {photos.length}
       </div>
+
+      <button className="custom-prev absolute top-1/2 left-3 -translate-y-1/2 z-20 bg-primary/40 hover:bg-primary/60 text-white p-2 rounded-full shadow-lg transition">
+        <ChevronLeft className="w-5 h-5" />
+      </button>
+      <button className="custom-next absolute top-1/2 right-3 -translate-y-1/2 z-20 bg-primary/40 hover:bg-primary/60 text-white p-2 rounded-full shadow-lg transition">
+        <ChevronRight className="w-5 h-5" />
+      </button>
     </div>
   );
 }

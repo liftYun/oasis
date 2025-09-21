@@ -10,6 +10,7 @@ import HeartDefault from '@/assets/icons/heart-default.png';
 import HeartBlue from '@/assets/icons/heart-blue.png';
 import Star from '@/assets/icons/star.png';
 import Usdc from '@/assets/icons/usd-circle.png';
+import Logo from '@/assets/logos/oasis-logo-512.png';
 import { addWish, deleteWish, fetchWishes } from '@/services/stay.api';
 import { WishResponseDto } from '@/services/stay.types';
 
@@ -39,17 +40,14 @@ export function SearchResult() {
   const handleToggleFavorite = async (stayId: number) => {
     try {
       if (favorites[stayId]) {
-        // 이미 등록 → 삭제
-        await deleteWish(favorites[stayId]); // wishId 필요
+        await deleteWish(favorites[stayId]);
         setFavorites((prev) => {
           const copy = { ...prev };
           delete copy[stayId];
           return copy;
         });
       } else {
-        // 등록 → addWish는 void 반환
         await addWish(stayId);
-        // 다시 fetch 해서 최신화
         const res = await fetchWishes();
         const wishMap = res.result.reduce(
           (acc, wish: WishResponseDto) => {
@@ -78,15 +76,11 @@ export function SearchResult() {
       >
         {results.map((stay) => (
           <div key={stay.stayId} className="flex-shrink-0 w-40">
-            <div className="relative">
+            <div className="relative group">
               <Link href={`/stays/${stay.stayId}`} className="block w-40">
-                <div className="relative w-40 h-40 rounded-xl shadow-sm transition overflow-hidden">
+                <div className="relative w-40 h-40 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
                   <Image
-                    src={
-                      stay.thumbnail && stay.thumbnail !== 'null'
-                        ? stay.thumbnail
-                        : 'https://stay-oasis.s3.ap-northeast-2.amazonaws.com/null'
-                    }
+                    src={stay.thumbnail || Logo}
                     alt={stay.title}
                     fill
                     className="object-cover"
