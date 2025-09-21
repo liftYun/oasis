@@ -4,6 +4,8 @@ import StayInfoCard from '@/features/chat/components/StayInfoCard';
 import MessageItem from '@/features/chat/components/MessageItem';
 import InputBar from '@/features/chat/components/InputBar';
 import { useChatDetail } from '@/features/chat/hooks/useChatDetail';
+import { sendChatMessage } from '@/features/chat/api/chat.firestore';
+import { useAuthStore } from '@/stores/useAuthStores';
 
 interface ChatDetailPageProps {
   chatId: string;
@@ -11,6 +13,7 @@ interface ChatDetailPageProps {
 
 export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
   const { data, isLoading } = useChatDetail(chatId);
+  const { uuid: myUid } = useAuthStore();
 
   const handleTranslate = (id: string) => {
     const text = data?.messages.find((m) => m.id === id)?.content ?? '';
@@ -23,10 +26,13 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
     );
   };
 
-  const handleSend = (text: string) => {
-    if (!text.trim()) return;
-    // TODO: 실제 메시지 전송 API 연동 시 교체
-    console.log('[send]', text.trim());
+  const handleSend = async (text: string) => {
+    if (!text.trim() || !myUid) return;
+    try {
+      await sendChatMessage(chatId, myUid, text.trim());
+    } catch (e) {
+      if (process.env.NODE_ENV !== 'production') console.error(e);
+    }
   };
 
   if (isLoading || !data) {

@@ -29,7 +29,15 @@ export function ChatListItem({
   const t = chatMessages[lang];
   return (
     <Link
-      href={`/chat/${encodeURIComponent(id)}`}
+      href={{
+        pathname: `/chat/${encodeURIComponent(id)}`,
+        query: {
+          title,
+          addr: location,
+          thumb: thumbnailUrl || undefined,
+          opp: opponentProfileUrl || undefined,
+        },
+      }}
       aria-label={`${t.ariaOpenChat}: ${title}`}
       className="flex items-center gap-4 py-5 hover:bg-gray-50"
     >

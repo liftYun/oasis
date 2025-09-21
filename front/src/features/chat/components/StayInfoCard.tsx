@@ -13,6 +13,7 @@ type StayInfo = {
   title: string;
   address: string;
   thumbnailUrl?: string | StaticImageData;
+  opponentProfileUrl?: string | null;
 };
 
 interface StayInfoCardProps {
@@ -41,14 +42,25 @@ export default function StayInfoCard({ stay }: StayInfoCardProps) {
         <div className="relative h-16 w-16 flex-shrink-0">
           <div className="relative h-full w-full rounded overflow-hidden bg-gray-100">
             <Image
-              src={stay.thumbnailUrl ?? StayImage}
+              src={
+                (typeof stay.thumbnailUrl === 'string' && stay.thumbnailUrl.length > 0
+                  ? stay.thumbnailUrl
+                  : StayImage) as any
+              }
               alt={stay.title}
               fill
               className="object-cover"
             />
           </div>
           <div className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 z-10">
-            <ChatUserThumbnail size={38} />
+            <ChatUserThumbnail
+              size={38}
+              src={
+                typeof stay.opponentProfileUrl === 'string' && stay.opponentProfileUrl.length > 0
+                  ? stay.opponentProfileUrl
+                  : undefined
+              }
+            />
           </div>
         </div>
 

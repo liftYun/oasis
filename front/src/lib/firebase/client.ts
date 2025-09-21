@@ -1,7 +1,7 @@
 'use client';
 import { getApps, initializeApp, type FirebaseApp } from 'firebase/app';
 import { getFirestore, type Firestore } from 'firebase/firestore';
-import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -46,7 +46,7 @@ function initializeFirebase(): InitResult {
           process.env.NEXT_PUBLIC_FIREBASE_APPCHECK_DEBUG_TOKEN;
       }
       initializeAppCheck(app, {
-        provider: new ReCaptchaEnterpriseProvider(
+        provider: new ReCaptchaV3Provider(
           process.env.NEXT_PUBLIC_FIREBASE_APPCHECK_SITE_KEY as string
         ),
         isTokenAutoRefreshEnabled: true,

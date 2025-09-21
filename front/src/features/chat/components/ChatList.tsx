@@ -19,6 +19,7 @@ export function ChatList({ items }: ChatListProps) {
           location={c.location}
           date={c.lastDate}
           thumbnailUrl={c.thumbnailUrl}
+          opponentProfileUrl={c.opponentProfileUrl}
         />
       ))}
     </div>

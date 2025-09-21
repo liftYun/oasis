@@ -24,6 +24,9 @@ function mapToSummary(
       title: stay?.title ?? '',
       location: stay?.addr ?? '',
       thumbnailUrl: stay?.thumbnail ?? '',
+      opponentProfileUrl: (r.data.participants?.[opponentUid]?.profileUrl || undefined) as
+        | string
+        | undefined,
       lastDate: (() => {
         const ts = r.data.updatedAt?.toDate?.();
         if (!ts) return '';
