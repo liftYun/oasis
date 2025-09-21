@@ -128,6 +128,7 @@ public class SecurityConfig {
                         "/api/google/redirect",
                         "/api/google/login",
                         "/api/v1/health/**",
+                        "/api/v1/user/**",
                         "/api/v1/sse/connect/**").permitAll()
                 .requestMatchers(HttpMethod.POST,
                         "/api/v1/auth/refresh",
