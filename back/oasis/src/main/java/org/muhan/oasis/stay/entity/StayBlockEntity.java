@@ -12,7 +12,6 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @Table(name = "stay_block")
-@Check(constraints = "start_date < end_date")
 @AllArgsConstructor
 public class StayBlockEntity {
     @Id

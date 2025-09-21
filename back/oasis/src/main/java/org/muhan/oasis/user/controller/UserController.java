@@ -67,7 +67,7 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "검색 성공")
     })
-    @GetMapping("/search")
+    @GetMapping("/search/{q}/{page}/{size}")
     public BaseResponse<UserSearchResultResponseVo> search(
             @Parameter(description = "검색 키워드", required = true, example = "이도")
             @PathVariable("q") String keyword,

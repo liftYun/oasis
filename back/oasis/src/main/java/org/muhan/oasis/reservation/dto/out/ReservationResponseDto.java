@@ -20,7 +20,8 @@ public class ReservationResponseDto {
     @JsonProperty("isSettlemented") private boolean settlemented;
     // 리뷰 작성 여부에 따라 리뷰 버튼 활성화
     @JsonProperty("isReviewed")     private boolean reviewed;
-    @JsonProperty("isCancled")      private boolean cancled;
+    @JsonProperty("isCanceled")      private boolean canceled;
+    private Long stayId;
     private String stayTitle;
     private String stayTitleEng;
     // stayEntity로 부터 얻어와야함
@@ -38,7 +39,8 @@ public class ReservationResponseDto {
                 .reservationDate(r.getReservationDate())
                 .settlemented(Boolean.TRUE.equals(r.isSettlemented()))
                 .reviewed(Boolean.TRUE.equals(r.isReviewed()))
-                .cancled(Boolean.TRUE.equals(r.isCancled()))
+                .canceled(Boolean.TRUE.equals(r.isCanceled()))
+                .stayId(stay != null ? stay.getId() : null)
                 .stayTitle(stay != null ? stay.getTitle() : null)
                 .stayTitleEng(stay != null ? stay.getTitleEng() : null)
                 .thumbnail(stay != null ? stay.getThumbnail() : null)

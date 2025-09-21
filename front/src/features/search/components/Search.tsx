@@ -1,41 +1,42 @@
 'use client';
 
 import { useState } from 'react';
+import { useSearchStore } from '@/stores/useSearchStore';
+import { useRouter } from 'next/navigation';
 import type { DateRange } from 'react-day-picker';
 import { SearchTabs, SearchSelector } from '@/features/search';
 import Calendar from '@/components/organisms/Calender';
 import { Button } from '@/components/atoms/Button';
 import { searchStays } from '@/services/stay.api';
-import { StayCardDto } from '@/services/stay.types';
+import { searchMessages } from '@/features/search/locale';
+import { useLanguage } from '@/features/language';
 
 export function Search() {
   const [activeTab, setActiveTab] = useState<'region' | 'date'>('region');
-
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [selectedSubRegionId, setSelectedSubRegionId] = useState<number | null>(null);
-
   const [selectedRange, setSelectedRange] = useState<DateRange | undefined>(undefined);
-
-  const [stays, setStays] = useState<StayCardDto[]>([]);
+  const router = useRouter();
+  const setResults = useSearchStore((s) => s.setResults);
+  const { lang } = useLanguage();
+  const t = searchMessages[lang];
 
   const handleSearch = async () => {
     try {
       const stayQuery = {
         subRegionId: selectedSubRegionId ?? undefined,
         checkIn: selectedRange?.from?.toISOString().slice(0, 10),
-        checkout: selectedRange?.to?.toISOString().slice(0, 10),
+        checkOut: selectedRange?.to?.toISOString().slice(0, 10),
       };
 
-      const params = {
+      const { result } = await searchStays({
         lastStayId: 0,
-        stayQuery, // ✅ 서버가 요구하는 형식
-      };
+        stayQuery: JSON.stringify(stayQuery),
+      });
 
-      console.log('📦 요청 파라미터', params);
-
-      const { result } = await searchStays(params);
-      setStays(result ?? []);
+      setResults(result);
+      router.push(`/main/search`);
     } catch (e) {
       console.error('숙소 검색 실패:', e);
     }
@@ -61,12 +62,13 @@ export function Search() {
 
       <div className="mt-auto mb-6">
         <Button
-          variant="default"
+          variant={
+            selectedSubRegionId && selectedRange?.from && selectedRange?.to ? 'blue' : 'blueLight'
+          }
           className="w-full max-w-lg mx-auto"
           onClick={handleSearch}
-          // disabled={!selectedSubRegionId || !selectedRange?.from || !selectedRange?.to}
         >
-          검색
+          {t.search}
         </Button>
       </div>
     </main>

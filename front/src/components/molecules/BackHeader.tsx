@@ -10,7 +10,7 @@ interface BackHeaderContentProps {
   onBack?: () => void;
 }
 
-export function BackHeaderContent({ title = '검색', className, onBack }: BackHeaderContentProps) {
+export function BackHeaderContent({ title = ' ', className, onBack }: BackHeaderContentProps) {
   const router = useRouter();
   const stepFlow = useStepFlow();
 
@@ -56,7 +56,7 @@ interface Props {
   onBack?: () => void;
 }
 
-export default function BackHeader({ title = '검색', onBack }: Props) {
+export default function BackHeader({ title = ' ', onBack }: Props) {
   return (
     <FixedHeaderLayout>
       <BackHeaderContent title={title} onBack={onBack} />
