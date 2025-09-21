@@ -6,7 +6,6 @@ import { HostProfile } from '@/features/my-profile';
 
 export default function MyProfilePage() {
   const role = useAuthStore((s) => s.role);
-  console.log(role);
 
   if (role === 'host') {
     return <HostProfile />;

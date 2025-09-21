@@ -63,7 +63,7 @@ export function StayForm({ form, handleSubmit, isSubmitting }: StayFormProps) {
         }
 
         const selected = {
-          subRegionId: subRegion?.id ?? 0,
+          subRegionId: subRegion?.id ?? 1,
           address: data.roadAddress || data.address,
           addressEng: data.roadAddressEnglish || data.addressEnglish || '',
           addressDetail: '',

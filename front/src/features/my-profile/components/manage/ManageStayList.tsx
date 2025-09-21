@@ -45,7 +45,7 @@ export function ManageStayList() {
             <Link
               key={stay.stayId}
               href={`/stays/${stay.stayId}?from=manage`}
-              className="group relative w-[200px] rounded-xl overflow-hidden shadow hover:shadow-lg transition"
+              className="group relative w-full rounded-xl overflow-hidden shadow hover:shadow-lg transition"
             >
               <div className="relative aspect-square rounded-xl overflow-hidden shadow hover:shadow-lg transition">
                 <Image

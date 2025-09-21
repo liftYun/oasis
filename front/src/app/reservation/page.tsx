@@ -81,7 +81,7 @@ export default function ReservationPage() {
         currentStep={currentStep}
         className="pt-20 max-w-md mx-auto p-4"
       />
-      <div className="flex items-center justify-center">{renderStep()}</div>
+      <div className="flex flex-1 w-full items-center justify-center px-8 py-4">{renderStep()}</div>
     </>
   );
 }

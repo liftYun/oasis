@@ -3,8 +3,8 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { useStayStores } from '@/stores/useStayStores';
 import { useLanguage } from '@/features/language';
-import { createStay } from '@/services/stay.api';
-import type { CreateStayRequest } from '@/services/stay.types';
+import { createStay, updateStay } from '@/services/stay.api';
+import type { CreateStayRequest, UpdateStayRequest } from '@/services/stay.types';
 
 const AMENITY_KEY_TO_ID: Record<string, number> = {
   bath_bathtub: 1,
@@ -48,7 +48,7 @@ const AMENITY_KEY_TO_ID: Record<string, number> = {
   around_park: 35,
 };
 
-export function useCreateStayMutation() {
+export function useSaveStayMutation() {
   const router = useRouter();
   const stayStore = useStayStores();
   const { lang } = useLanguage();
@@ -56,8 +56,6 @@ export function useCreateStayMutation() {
   return useMutation({
     mutationFn: async () => {
       const thumbnail = stayStore.imageRequestList?.[0]?.key ?? null;
-
-      // 문자열 → 숫자 변환
       const facilitiesAsIds = stayStore.facilities?.map((key) => AMENITY_KEY_TO_ID[key]) ?? [];
 
       const body: CreateStayRequest & { thumbnail?: string | null } = {
@@ -79,18 +77,42 @@ export function useCreateStayMutation() {
         thumbnail,
       };
 
-      return await createStay(body);
+      if (stayStore.mode === 'create') {
+        return await createStay(body);
+      } else {
+        if (!stayStore.stayId) throw new Error('수정할 숙소 ID가 없습니다.');
+        return await updateStay(stayStore.stayId, {
+          ...body,
+          id: stayStore.stayId,
+        } as UpdateStayRequest);
+      }
     },
 
     onSuccess: () => {
-      toast.success(lang === 'kor' ? '숙소 생성에 성공했습니다.' : 'Stay created successfully!');
+      const msg =
+        stayStore.mode === 'create'
+          ? lang === 'kor'
+            ? '숙소 생성에 성공했습니다.'
+            : 'Stay created successfully!'
+          : lang === 'kor'
+            ? '숙소 수정에 성공했습니다.'
+            : 'Stay updated successfully!';
+
+      toast.success(msg);
       router.push('/my-profile');
     },
 
     onError: () => {
-      toast.error(
-        lang === 'kor' ? '숙소 생성에 실패했습니다.' : 'Failed to create stay. Please try again.'
-      );
+      const msg =
+        stayStore.mode === 'create'
+          ? lang === 'kor'
+            ? '숙소 생성에 실패했습니다.'
+            : 'Failed to create stay. Please try again.'
+          : lang === 'kor'
+            ? '숙소 수정에 실패했습니다.'
+            : 'Failed to update stay. Please try again.';
+
+      toast.error(msg);
     },
   });
 }

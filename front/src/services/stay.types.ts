@@ -58,12 +58,22 @@ export interface UpdateStayRequest extends CreateStayRequest {
   id: number;
 }
 
+export type SaveStayRequest =
+  | ({ mode: 'create' } & CreateStayRequest)
+  | ({ mode: 'edit'; id: number } & CreateStayRequest);
+
+/**
+ * ✅ 숙소 상세 조회 응답
+ */
 export interface StayReadResponseDto {
   stayId: number;
   title: string;
+  titleEng?: string; // ✅ 영문 제목 추가
   description: string;
+  descriptionEng?: string; // ✅ 영문 설명 추가
   region: string;
   subRegion: string;
+  subRegionId?: number; // ✅ 등록 요청과 매핑용
   postalCode: string;
   maxGuest: number;
   price: number;
@@ -73,6 +83,11 @@ export interface StayReadResponseDto {
   facilities: FacilityCategoryResponseDto[];
   cancellations: StayBlockResponseDto[];
   reservedDate: ReservedResponseDto[];
+
+  address?: string; // ✅ 상세 주소
+  addressEng?: string;
+  addressDetail?: string;
+  addressDetailEng?: string;
 }
 
 export interface ImageResponseDto {

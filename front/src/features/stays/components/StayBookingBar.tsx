@@ -39,7 +39,7 @@ export default function StayBookingBar({ stay }: Props) {
 
         <button
           onClick={handleReserve}
-          className="flex-1 bg-gray-600 text-white rounded-md px-4 py-3 text-base font-medium hover:bg-gray-600 transition"
+          className="flex-1 bg-gray-600 text-white rounded-md px-4 py-3 text-base font-medium transition"
         >
           {t.booking.reserve}
         </button>

@@ -1,12 +1,16 @@
 'use client';
 
 import { http } from '@/apis/httpClient';
-import type { AxiosResponse } from 'axios';
 import type {
   CreateReservationRequest,
   CreateReservationResponse,
   BaseResponse,
   UserSearchResultResponseVo,
+  ReservationResponseDto,
+  RegistReviewRequestVo,
+  StayReviewResponseVo,
+  ReviewDetailResponseVo,
+  ReviewResponseVo,
 } from './reservation.types';
 
 // 예약 등록
@@ -22,8 +26,8 @@ export const cancelReservation = (reservationId: string) =>
   http.put(`/api/v1/reservation/${reservationId}/cancel`);
 
 // 예약 목록 조회
-export const fetchReservations = (params?: Record<string, any>) =>
-  http.get<CreateReservationResponse[]>('/api/v1/reservation', { params });
+export const fetchReservations = () =>
+  http.get<BaseResponse<{ reservations: ReservationResponseDto[] }>>('/api/v1/reservation/list');
 
 // 회원 검색
 export const searchUsers = async (
@@ -40,3 +44,19 @@ export const searchUsers = async (
   const res = await http.get<BaseResponse<UserSearchResultResponseVo>>(url);
   return res;
 };
+
+// 숙소 리뷰 작성
+export const registReview = (body: RegistReviewRequestVo) =>
+  http.post<BaseResponse<void>>('/api/v1/review/regist', body);
+
+// 특정 숙소 리뷰 목록 조회
+export const fetchStayReviews = (stayId: number) =>
+  http.get<BaseResponse<StayReviewResponseVo[]>>(`/api/v1/review/${stayId}`);
+
+// 리뷰 상세 조회
+export const fetchReviewDetail = (reviewId: number) =>
+  http.get<BaseResponse<ReviewDetailResponseVo>>(`/api/v1/review/detail/${reviewId}`);
+
+// 내가 작성한 리뷰 목록 조회
+export const fetchMyReviews = () =>
+  http.get<BaseResponse<ReviewResponseVo[]>>('/api/v1/review/list');

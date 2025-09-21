@@ -5,6 +5,7 @@ import { BottomSheet } from '@/components/organisms/BottomSheet';
 import { Star } from 'lucide-react';
 import { Button } from '@/components/atoms/Button';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import ZoomIn from '@/assets/icons/zoom-in.png';
 import { useLanguage } from '@/features/language';
 import { profileMessages } from '@/features/my-profile';
@@ -14,10 +15,22 @@ import { toast } from 'react-hot-toast';
 type ReviewBottomSheetProps = {
   open: boolean;
   onClose: () => void;
-  reservationId: string; // 예약 식별자
+  reservationId: string;
+  stayId: number;
+  stayTitle: string;
+  addressLine: string;
+  thumbnail?: string | null;
 };
 
-export function ReviewBottomSheet({ open, onClose, reservationId }: ReviewBottomSheetProps) {
+export function ReviewBottomSheet({
+  open,
+  onClose,
+  reservationId,
+  stayId,
+  stayTitle,
+  addressLine,
+  thumbnail,
+}: ReviewBottomSheetProps) {
   const { lang } = useLanguage();
   const t = profileMessages[lang];
 
@@ -25,6 +38,7 @@ export function ReviewBottomSheet({ open, onClose, reservationId }: ReviewBottom
   const [hover, setHover] = useState(0);
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async () => {
     if (!rating) {
@@ -54,8 +68,8 @@ export function ReviewBottomSheet({ open, onClose, reservationId }: ReviewBottom
       <div className="flex items-center gap-4 rounded-md bg-gray-50 pr-5 shadow-sm overflow-hidden">
         <div className="w-28 h-28 overflow-hidden shrink-0">
           <Image
-            src="/images/default-room.jpg"
-            alt="숙소"
+            src={thumbnail || '/images/default-room.jpg'}
+            alt={stayTitle}
             width={96}
             height={96}
             className="w-full h-full object-cover rounded-md"
@@ -63,17 +77,29 @@ export function ReviewBottomSheet({ open, onClose, reservationId }: ReviewBottom
         </div>
 
         <div className="flex flex-col flex-1 py-5 pl-3">
-          <h4 className="font-semibold text-gray-800 leading-tight">숙소 이름</h4>
-          <p className="mt-1 text-sm text-gray-500 leading-snug">숙소 주소</p>
-          <button className="mt-2 flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600">
+          <h4 className="font-semibold text-gray-800 leading-tight">{stayTitle}</h4>
+          <p className="mt-1 text-sm text-gray-500 leading-snug">{addressLine}</p>
+          <button
+            className="mt-2 flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"
+            onClick={() => router.push(`/stays/${stayId}`)}
+          >
             <Image src={ZoomIn} alt="zoom" width={12} height={12} />
             자세히 보기
           </button>
         </div>
       </div>
 
-      <div className="mt-5 flex items-center justify-between rounded-md bg-gray-50 p-4">
-        <div className="flex space-x-1">
+      <div className="mt-5 flex items-center rounded-md bg-gray-50 p-4">
+        <svg width="0" height="0">
+          <defs>
+            <linearGradient id="half">
+              <stop offset="50%" stopColor="#FBE264" />
+              <stop offset="50%" stopColor="transparent" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <div className="flex space-x-1 flex-grow">
           {[0, 1, 2, 3, 4].map((i) => {
             const full = i + 1;
             const half = i + 0.5;
@@ -83,7 +109,7 @@ export function ReviewBottomSheet({ open, onClose, reservationId }: ReviewBottom
             else if (current >= half) fill = 'url(#half)';
 
             return (
-              <div key={i} className="relative">
+              <div key={i} className="relative w-5 h-5">
                 <button
                   type="button"
                   className="absolute inset-y-0 left-0 w-1/2"
@@ -109,7 +135,9 @@ export function ReviewBottomSheet({ open, onClose, reservationId }: ReviewBottom
             );
           })}
         </div>
-        <span className="ml-2 text-sm font-medium text-gray-600 bg-yellow/60 py-1 px-3 rounded-full">
+
+        {/* 오른쪽: 숫자 */}
+        <span className="ml-auto text-sm font-medium text-gray-600 bg-yellow/60 py-1 px-3 rounded-full">
           {rating.toFixed(1)}
         </span>
       </div>
@@ -117,7 +145,7 @@ export function ReviewBottomSheet({ open, onClose, reservationId }: ReviewBottom
       <div className="mt-4">
         <textarea
           className="w-full rounded-md border border-gray-200 p-3 text-sm resize-none
-             focus:outline-none focus:border-yellow placeholder-gray-300"
+              focus:outline-none focus:border-yellow placeholder-gray-300"
           rows={8}
           maxLength={1000}
           placeholder={t.writeReviewDescription}

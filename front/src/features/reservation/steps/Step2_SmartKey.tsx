@@ -58,7 +58,7 @@ export function Step2_SmartKey() {
           {
             id: Number(uuid),
             nickname,
-            profileUrl: profileUrl || '/me.png',
+            profileUrl: profileUrl,
           },
         ]
       : []
@@ -84,6 +84,7 @@ export function Step2_SmartKey() {
         setLoading(true);
         setSearched(true);
         const res = await searchUsers(query, page, size);
+        console.log(res);
         if (res.status === 200 && res.result) {
           setResults(res.result.users);
         } else {

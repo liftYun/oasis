@@ -41,6 +41,12 @@ export function Step3_Dummy() {
         </header>
       </div>
 
+      <div className="w-full flex flex-col flex-1">
+        <div className="mb-6">
+          <h1 className="text-xl font-bold mb-2 pt-2">{t.step3.title}</h1>
+        </div>
+      </div>
+
       <div
         className="w-full max-w-sm rounded-md p-5"
         style={{ background: 'linear-gradient(to right, #dbeafe, #e0f2f1)' }}
@@ -59,9 +65,7 @@ export function Step3_Dummy() {
         </div>
       </div>
 
-      <div className="w-full h-3 bg-gray-100 my-12" />
-
-      <section className="w-full max-w-sm">
+      <section className="w-full mt-12 max-w-sm">
         <h2 className="text-lg font-semibold mb-6">{t.step3.summaryTitle}</h2>
         <div className="rounded-md border border-gray-100 overflow-hidden font-bold">
           <div className="flex items-center justify-between px-4 py-3 bg-gray-100">
@@ -95,7 +99,7 @@ export function Step3_Dummy() {
 
       <RefundPolicy />
 
-      <div className="mt-6">
+      <div className="mt-12">
         <label className="flex items-start gap-3 text-sm text-gray-600">
           <input
             type="checkbox"

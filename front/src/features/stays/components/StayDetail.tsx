@@ -8,6 +8,7 @@ import { useLanguage } from '@/features/language';
 import { stayDetailLocale } from '@/features/stays/locale';
 import StayImageSlider from './StayImageSlider';
 import StayBookingBar from './StayBookingBar';
+import StayHostBar from './StayHostBar';
 import StayMap from './StayMap';
 import StayDescription from './StayDescription';
 import StayFacilities from './StayFacilities';
@@ -60,7 +61,7 @@ export function StayDetail() {
             <ChevronLeft className="w-7 h-7 text-gray-600" />
           </button>
 
-          {isManageMode && (
+          {/* {isManageMode && (
             <div className="absolute top-4 right-4 group">
               <button
                 // onClick={() => router.push(`/manage/stay/${stay.stayId}/edit`)}
@@ -74,7 +75,7 @@ export function StayDetail() {
                 {t.common.editStay}
               </span>
             </div>
-          )}
+          )} */}
 
           <h1 className="text-2xl font-bold mt-4">{stay.title}</h1>
           <p className="text-gray-400 mt-1">
@@ -82,7 +83,6 @@ export function StayDetail() {
           </p>
         </div>
 
-        {/* 상세 섹션 */}
         <StayFacilities facilities={stay.facilities} />
         <StayDescription description={stay.description} maxGuests={stay.maxGuest} />
         <StayMap postalCode={stay.postalCode} />
@@ -98,7 +98,7 @@ export function StayDetail() {
         <StayHost host={stay.host} onChatStart={() => console.log('채팅 시작')} />
       </main>
 
-      <StayBookingBar stay={stay} />
+      {isManageMode ? <StayHostBar stay={stay} /> : <StayBookingBar stay={stay} />}
     </section>
   );
 }

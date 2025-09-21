@@ -10,7 +10,7 @@ import {
   Step2_Description,
   Step3_Amenities,
   Step4_Availability,
-} from '@/features/create-stay';
+} from '@/features/edit-stay';
 
 export default function CreateStayPage() {
   const router = useRouter();

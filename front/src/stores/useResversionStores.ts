@@ -6,6 +6,7 @@ import type {
   CreateReservationRequest,
   CreateReservationResponse,
 } from '@/services/reservation.types';
+import { makeReservationId } from '@/utils/makeReservationId';
 
 type ViewMode = 'form' | 'searchAddress';
 
@@ -70,7 +71,6 @@ export const useReservationStore = create<ReservationStore>((set, get) => ({
       error: null,
     }),
 
-  // ===== 예약 등록 API 호출 =====
   submit: async () => {
     set({ loading: true, error: null });
     try {
@@ -78,17 +78,17 @@ export const useReservationStore = create<ReservationStore>((set, get) => ({
 
       // 서버 스펙에 맞는 값만 추출
       const body: CreateReservationRequest = {
-        reservationId: state.reservationId || '',
+        reservationId: makeReservationId(),
         stayId: state.stayId,
         checkinDate: state.checkinDate,
         checkoutDate: state.checkoutDate,
         reservationDate: new Date().toISOString(), // 현재 시각
         payment: state.payment,
-        stayTitle: state.stayTitle,
-        stayTitleEng: state.stayTitleEng,
-        reviewed: state.reviewed,
-        cancled: state.cancled,
-        settlemented: state.settlemented,
+        // stayTitle: state.stayTitle,
+        // stayTitleEng: state.stayTitleEng,
+        // reviewed: state.reviewed,
+        // cancled: state.cancled,
+        // settlemented: state.settlemented,
       };
 
       const res = await createReservation(body);
