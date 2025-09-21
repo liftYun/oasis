@@ -3,6 +3,7 @@ import type { CreateStayTexts } from './types';
 export const createStayMessages: Record<'kor' | 'eng', CreateStayTexts> = {
   kor: {
     createStay: '숙소 등록하기',
+    editStay: '숙소 수정하기',
     header: {
       searchTitle: '주소 찾기',
     },
@@ -11,6 +12,7 @@ export const createStayMessages: Record<'kor' | 'eng', CreateStayTexts> = {
       processing: '처리 중...',
       tip: 'TIP',
       back: '뒤로',
+      save: '저장하기',
     },
     step1: {
       title: '숙소 정보를 작성해주세요.',
@@ -103,6 +105,7 @@ export const createStayMessages: Record<'kor' | 'eng', CreateStayTexts> = {
   },
   eng: {
     createStay: 'Create Stay',
+    editStay: 'Edit Stay',
     header: {
       searchTitle: 'Find Address',
     },
@@ -111,6 +114,7 @@ export const createStayMessages: Record<'kor' | 'eng', CreateStayTexts> = {
       processing: 'Processing...',
       tip: 'TIP',
       back: 'Back',
+      save: 'Save',
     },
     step1: {
       title: 'Enter your stay details.',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/atoms/Button';
 import { SegmentedTabs } from '@/components/molecules/SegmentedTabs';
 import { MultiSelectChips } from '@/components/molecules/MultiSelectChips';
@@ -11,7 +11,7 @@ import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
 import { ChevronLeft } from 'lucide-react';
 
-export function Step3_Amenities() {
+export function Step3_Amenities_Edit() {
   const store = useStayStores();
   const { data } = useAmenitiesQuery();
   const { lang } = useLanguage();
@@ -20,6 +20,12 @@ export function Step3_Amenities() {
   const initialCategory: AmenityCategoryKey = 'bathroom';
   const [category, setCategory] = useState<AmenityCategoryKey>(initialCategory);
   const [selectedIds, setSelectedIds] = useState<number[]>(store.facilities ?? []);
+
+  useEffect(() => {
+    if (store.facilities && store.facilities.length > 0) {
+      setSelectedIds(store.facilities);
+    }
+  }, [store.facilities]);
 
   if (!data) {
     return <div className="text-sm text-gray-400">{t.step3.loading}</div>;
@@ -70,7 +76,7 @@ export function Step3_Amenities() {
           </button>
 
           <h1 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-gray-600">
-            {t.createStay}
+            {t.editStay ?? '숙소 수정'}
           </h1>
 
           <div className="w-7" />

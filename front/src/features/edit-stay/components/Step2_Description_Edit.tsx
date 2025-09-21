@@ -10,15 +10,15 @@ import { translateStay } from '@/services/stay.api';
 import { useStayTranslateSSE } from '@/features/create-stay/hooks/useStayTranslateSSE';
 import { ChevronLeft, Minus, Plus } from 'lucide-react';
 
-export function Step2_Description() {
+export function Step2_Description_Edit() {
   const store = useStayStores();
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
 
   useStayTranslateSSE();
 
-  const [description, setDescription] = useState<string>(store.description ?? '');
-  const [maxGuest, setMaxGuest] = useState<number>(store.maxGuest ?? 1);
+  const [description, setDescription] = useState(store.description ?? '');
+  const [maxGuest, setMaxGuest] = useState(store.maxGuest ?? 1);
 
   const MAX_LEN = 1000;
   const length = description.length;
@@ -78,7 +78,7 @@ export function Step2_Description() {
           </button>
 
           <h1 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-gray-600">
-            {t.createStay}
+            {t.editStay ?? '숙소 수정'}
           </h1>
 
           <div className="w-7" />
@@ -92,6 +92,7 @@ export function Step2_Description() {
           <span className="text-primary font-bold">{t.step2.tipTitle}</span> {t.step2.tipText}
         </div>
 
+        {/* ✅ 게스트 수 */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-600 mb-2">
             {t.step2.maxGuestLabel}
@@ -121,6 +122,7 @@ export function Step2_Description() {
           </div>
         </div>
 
+        {/* ✅ 설명 */}
         <TextAreaField
           label={t.step2.descriptionLabel}
           id="description"

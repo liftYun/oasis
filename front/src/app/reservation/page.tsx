@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { use, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { ProgressBar } from '@/components/molecules/ProgressBar';
 import { useReservationStore } from '@/stores/useResversionStores';
 import { Step1_Dates, Step3_Dummy, Step2_SmartKey } from '@/features/reservation';
@@ -32,9 +32,10 @@ export default function ReservationPage() {
     const isReload =
       entries?.[0]?.type === 'reload' ||
       (performance.navigation && performance.navigation.type === 1);
-    if (isReload) {
+
+    if (isReload && !isReloadRef.current) {
       isReloadRef.current = true;
-      reset();
+      // reset();
       router.replace('/reservation?step=1', { scroll: false });
     }
   }, [reset, router]);
@@ -55,7 +56,9 @@ export default function ReservationPage() {
   }, [currentStep, router]);
 
   useEffect(() => {
-    const unsub = useReservationStore.subscribe((state) => {});
+    const unsub = useReservationStore.subscribe((state) => {
+      console.log('📌 ReservationStore 변경됨:', state);
+    });
     return () => unsub();
   }, []);
 

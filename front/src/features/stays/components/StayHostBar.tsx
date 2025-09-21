@@ -24,7 +24,7 @@ export default function StayHostBar({ stay }: Props) {
 
   // 수정 버튼
   const handleEdit = () => {
-    // router.push(`/manage/stay/${stay.stayId}/edit`);
+    router.push(`/edit-stay/${encodeURIComponent(stay.stayId)}`);
   };
 
   const handleDeleteClick = () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Label } from '@/components/atoms/label';
 import { Button } from '@/components/atoms/Button';
@@ -20,15 +20,28 @@ import { getPresignedUrls } from '@/services/stay.api';
 import type { PresignedRequest, PresignedResponse } from '@/services/stay.types';
 
 interface ImageUploaderProps {
+  defaultImages?: { key: string; sortOrder: number; url?: string }[];
   onChange: (images: { key: string; sortOrder: number }[]) => void;
 }
 
-export function ImageUploader({ onChange }: ImageUploaderProps) {
+export function ImageUploader({ defaultImages = [], onChange }: ImageUploaderProps) {
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
   const sensors = useSensors(useSensor(PointerSensor));
 
   const [images, setImages] = useState<PresignedResponse[]>([]);
+
+  useEffect(() => {
+    if (defaultImages.length > 0) {
+      const mapped = defaultImages.map((img, i) => ({
+        key: img.key,
+        sortOrder: img.sortOrder ?? i,
+        publicUrl: img.key,
+        uploadUrl: '',
+      }));
+      setImages(mapped);
+    }
+  }, [defaultImages]);
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
@@ -48,7 +61,6 @@ export function ImageUploader({ onChange }: ImageUploaderProps) {
     if (!files.length) return;
 
     try {
-      // 1. presigned URL 발급
       const presignReq: PresignedRequest[] = files.map((f, i) => ({
         sortOrder: images.length + i + 1,
         contentType: f.type,
@@ -56,7 +68,6 @@ export function ImageUploader({ onChange }: ImageUploaderProps) {
       const res = await getPresignedUrls(presignReq);
       const presigned = res.result;
 
-      // 2. S3 PUT 업로드
       await Promise.all(
         presigned.map(async (p, i) => {
           await fetch(p.uploadUrl, {
@@ -67,7 +78,6 @@ export function ImageUploader({ onChange }: ImageUploaderProps) {
         })
       );
 
-      // 3. 상태 갱신 및 부모 전달)
       const newImages = [...images, ...presigned];
       setImages(newImages);
       onChange(newImages.map(({ key, sortOrder }) => ({ key, sortOrder })));

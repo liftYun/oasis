@@ -6,36 +6,39 @@ import { Button } from '@/components/atoms/Button';
 import CalendarSheet from '@/components/organisms/CalendarSheet';
 import CalenderIcon from '@/assets/icons/calender.png';
 import type { DateRange } from 'react-day-picker';
-import { useCreateStayStore } from '@/features/create-stay/store';
 import { useStayStores } from '@/stores/useStayStores';
 import { format } from 'date-fns';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
 import { ChevronLeft } from 'lucide-react';
-import { useSaveStayMutation } from '@/features/create-stay/hooks/useSaveStayMutation';
+import { useRouter } from 'next/navigation';
 
-export function Step4_Availability() {
+export function Step4_Availability_Edit() {
   const [open, setOpen] = useState(false);
 
-  const createStore = useCreateStayStore();
   const stayStore = useStayStores();
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
+  const router = useRouter();
 
-  const savedRanges = createStore.formData?.unavailableRanges;
-  const [ranges, setRanges] = useState<DateRange[]>(savedRanges || []);
+  const [ranges, setRanges] = useState<DateRange[]>([]);
   const hasPicked = ranges.length > 0;
 
   const readOnlyInputClassName =
     'flex h-12 w-full cursor-pointer items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-base placeholder:text-sm placeholder:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50';
 
   const handleBack = () => {
-    if (createStore.currentStep > 1) {
-      createStore.setStep(createStore.currentStep - 1);
+    if (stayStore.currentStep > 1) {
+      stayStore.setStep(stayStore.currentStep - 1);
     }
   };
 
-  const { mutate: createStayMutate } = useSaveStayMutation();
+  const handleSave = async () => {
+    const id = await stayStore.submit();
+    if (id) {
+      router.replace(`/my-profile/manage-stay`);
+    }
+  };
 
   return (
     <div className="max-w-md w-full mx-auto flex flex-1 flex-col min-h-[calc(100vh-100px)] overflow-y-auto">
@@ -50,7 +53,7 @@ export function Step4_Availability() {
           </button>
 
           <h1 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-gray-600">
-            {t.createStay}
+            {t.editStay ?? '숙소 수정'}
           </h1>
 
           <div className="w-7" />
@@ -98,7 +101,6 @@ export function Step4_Availability() {
           initialRanges={ranges}
           onNext={(picked) => {
             setRanges(picked);
-            createStore.setFormData({ unavailableRanges: picked });
 
             const blockRangeList = picked.map((r) => ({
               start: format(r.from!, 'yyyy-MM-dd'),
@@ -113,11 +115,12 @@ export function Step4_Availability() {
         <div className="mt-auto pt-4">
           <Button
             type="button"
-            onClick={() => createStayMutate()}
+            onClick={handleSave}
             variant="blue"
             className="w-full font-bold"
+            disabled={stayStore.loading}
           >
-            {t.common.next}
+            {stayStore.loading ? t.common.processing : t.common.save}
           </Button>
         </div>
       </div>
