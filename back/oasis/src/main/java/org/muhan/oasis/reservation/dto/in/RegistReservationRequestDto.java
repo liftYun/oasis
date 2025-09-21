@@ -24,17 +24,7 @@ public class RegistReservationRequestDto {
 
     private LocalDateTime reservationDate;
 
-    private boolean isSettlemented;
-
-    private boolean isReviewed;
-
     private int payment;
-
-    private boolean isCancled;
-
-    private String stayTitle;
-
-    private String stayTitleEng;
 
     public static ReservationEntity to(UserEntity user, StayEntity stay, RegistReservationRequestDto dto) {
         return ReservationEntity.builder()
@@ -44,12 +34,12 @@ public class RegistReservationRequestDto {
                 .checkinDate(dto.getCheckinDate())
                 .checkoutDate(dto.getCheckoutDate())
                 .reservationDate(dto.getReservationDate())
-                .isSettlemented(dto.isSettlemented())
-                .isReviewed(dto.isReviewed())
+                .isSettlemented(false)
+                .isReviewed(false)
                 .payment(dto.getPayment())
-                .isCancled(dto.isCancled())
-                .stayTitle(dto.getStayTitle())
-                .stayTitleEng(dto.getStayTitleEng())
+                .isCanceled(false)
+                .stayTitle(stay.getTitle())
+                .stayTitleEng(stay.getTitleEng())
                 .build();
     }
 
@@ -60,12 +50,7 @@ public class RegistReservationRequestDto {
                 .checkinDate(vo.getCheckinDate())
                 .checkoutDate(vo.getCheckoutDate())
                 .reservationDate(vo.getReservationDate())
-                .isSettlemented(vo.isSettlemented())
-                .isReviewed(vo.isReviewed())
                 .payment(vo.getPayment())
-                .isCancled(vo.isCancled())
-                .stayTitle(vo.getStayTitle())
-                .stayTitleEng(vo.getStayTitleEng())
                 .build();
     }
 }

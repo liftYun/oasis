@@ -253,7 +253,7 @@ public class ReservationServiceImpl implements ReservationService {
         return new ReservationDetailsResponseDto(
                 r.getReservationId(),
                 r.getReservationDate(),
-                r.isCancled(),
+                r.isCanceled(),
                 r.isSettlemented(),
                 r.isReviewed(),
                 r.getPayment(),
