@@ -6,6 +6,8 @@ import InputBar from '@/features/chat/components/InputBar';
 import { useChatDetail } from '@/features/chat/hooks/useChatDetail';
 import { sendChatMessage } from '@/features/chat/api/chat.firestore';
 import { useAuthStore } from '@/stores/useAuthStores';
+import { useLanguage } from '@/features/language';
+import { notifySendFail } from '@/features/chat/api/toastHelpers';
 
 interface ChatDetailPageProps {
   chatId: string;
@@ -14,6 +16,7 @@ interface ChatDetailPageProps {
 export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
   const { data, isLoading } = useChatDetail(chatId);
   const { uuid: myUid } = useAuthStore();
+  const { lang } = useLanguage();
 
   const handleTranslate = (id: string) => {
     const text = data?.messages.find((m) => m.id === id)?.content ?? '';
@@ -32,6 +35,7 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
       await sendChatMessage(chatId, myUid, text.trim());
     } catch (e) {
       if (process.env.NODE_ENV !== 'production') console.error(e);
+      notifySendFail(lang);
     }
   };
 

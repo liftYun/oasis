@@ -8,6 +8,8 @@ import { getChatList } from '@/services/chat.api';
 import type { ChatListItem } from '@/services/chat.types';
 import type { BaseResponse } from '@/services/stay.types';
 import type { ChatSummary } from '@/features/chat';
+import { useLanguage } from '@/features/language';
+import { notifyFirebaseUnavailable } from '@/features/chat/api/toastHelpers';
 
 type FirestoreRoomWithId = { id: string; data: FirestoreRoom };
 
@@ -42,13 +44,23 @@ function mapToSummary(
 export function useChatList() {
   const { uuid: myUid } = useAuthStore();
   const [rooms, setRooms] = useState<FirestoreRoomWithId[]>([]);
+  const { lang } = useLanguage();
 
   // Firestore 실시간 구독: 내 UUID 기준
   useEffect(() => {
     if (!myUid) return;
-    const unsub = subscribeMyChatRooms(myUid, (list) => setRooms(list));
+    const unsub = subscribeMyChatRooms(
+      myUid,
+      (list) => setRooms(list),
+      (error) => {
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('Failed to subscribe to chat rooms:', error);
+        }
+        notifyFirebaseUnavailable(lang);
+      }
+    );
     return () => unsub();
-  }, [myUid]);
+  }, [myUid, lang]);
 
   // stayId 목록 추출 (중복 제거)
   const stayIds = useMemo(() => {

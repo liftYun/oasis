@@ -96,9 +96,12 @@ export function useChatDetail(chatId: string) {
         thumbnailUrl: thumb && thumb.length > 0 ? thumb : undefined,
         opponentProfileUrl: opp && opp.length > 0 ? opp : undefined,
       });
-    } catch {}
+    } catch (error) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Failed to parse URL parameters:', error);
+      }
+    }
   }, [room?.data.stayId]);
-
   const detail: ChatDetailData | undefined = useMemo(() => {
     if (!room) return undefined;
     const stayInfo: StayInfo = header ?? {
