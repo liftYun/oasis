@@ -26,9 +26,6 @@ import {
 } from '@/services/stay.api';
 import { StayCardByWishDto, WishResponseDto } from '@/services/stay.types';
 
-// -------------------------------
-// ScrollableRoomList 컴포넌트
-// -------------------------------
 function ScrollableRoomList({
   rooms,
   favorites,
@@ -64,7 +61,6 @@ function ScrollableRoomList({
         {rooms.map((room) => (
           <div key={room.stayId} className="flex-shrink-0 w-40">
             <div className="relative">
-              {/* ✅ 상세 페이지 이동 */}
               <Link href={`/stays/${room.stayId}`} className="block w-40">
                 <div className="relative w-40 h-40 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
                   <Image
@@ -74,7 +70,6 @@ function ScrollableRoomList({
                     className="object-cover"
                   />
 
-                  {/* 평점 */}
                   <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-yellow/70 px-2 py-1 rounded-full">
                     <Image src={Star} alt="star" width={14} height={14} className="opacity-60" />
                     <span className="text-xs text-gray-600 font-medium">
@@ -83,7 +78,6 @@ function ScrollableRoomList({
                   </div>
                 </div>
 
-                {/* 숙소 제목 */}
                 <p className="mt-3 mx-1 text-sm text-gray-600 font-semibold truncate text-left">
                   {room.title}
                 </p>
@@ -95,7 +89,6 @@ function ScrollableRoomList({
                 </div>
               </Link>
 
-              {/* ✅ 좋아요 버튼 */}
               <Image
                 src={favorites[room.stayId] ? HeartBlue : HeartDefault}
                 alt="heart"
@@ -113,7 +106,6 @@ function ScrollableRoomList({
         ))}
       </div>
 
-      {/* 우측 화살표 */}
       <div
         className={`pointer-events-none absolute top-1/2 -translate-y-1/2 right-3 transition-opacity duration-300 ${
           showArrow ? 'opacity-100' : 'opacity-0'
@@ -127,9 +119,6 @@ function ScrollableRoomList({
   );
 }
 
-// -------------------------------
-// GuestMain
-// -------------------------------
 export function GuestMain() {
   const { lang } = useLanguage();
   const t: MainMessagesMap[Lang] = mainMessages[lang];
@@ -138,7 +127,6 @@ export function GuestMain() {
   const [favorites, setFavorites] = useState<Record<number, number>>({});
   const router = useRouter();
 
-  // 초기 좋아요 불러오기
   useEffect(() => {
     const loadWishes = async () => {
       try {
@@ -158,7 +146,6 @@ export function GuestMain() {
     loadWishes();
   }, []);
 
-  // 좋아요 토글
   const handleToggleFavorite = async (stayId: number) => {
     try {
       if (favorites[stayId]) {
@@ -185,7 +172,6 @@ export function GuestMain() {
     }
   };
 
-  // 데이터 불러오기
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -220,7 +206,6 @@ export function GuestMain() {
         </div>
       </section>
 
-      {/* 관심 숙소 */}
       <section className="mt-10 relative">
         <div className="flex items-center gap-4 px-1 mb-6">
           <Image src={HeartBlue} alt="heart" width={44} height={44} />
@@ -236,7 +221,6 @@ export function GuestMain() {
         />
       </section>
 
-      {/* 인기 숙소 */}
       <section className="mt-20 mb-10 relative">
         <div className="flex items-center gap-4 px-1 mb-6">
           <Image src={PositiveReview} alt="review" width={44} height={44} />
