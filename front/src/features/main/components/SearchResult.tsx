@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import SearchBar from '@/components/molecules/SearchBar';
 import PromoCard from '@/components/organisms/promo-card/PromoCard';
-import { useSearchStore } from '@/stores/useSearchStore';
+import { useSearchStore } from '@/stores/useSearchStores';
 import HeartDefault from '@/assets/icons/heart-default.png';
 import HeartBlue from '@/assets/icons/heart-blue.png';
 import Star from '@/assets/icons/star.png';

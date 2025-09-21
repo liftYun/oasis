@@ -1,5 +1,3 @@
-'use client';
-
 export default function CreateStayLayout({ children }: { children: React.ReactNode }) {
   return (
     <>

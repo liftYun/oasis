@@ -1,36 +1,42 @@
 'use client';
 
 import { http } from '@/apis/httpClient';
+import type { AxiosResponse } from 'axios';
+import type {
+  CreateReservationRequest,
+  CreateReservationResponse,
+  BaseResponse,
+  UserSearchResultResponseVo,
+} from './reservation.types';
 
-export interface ReservationResponseDto {
-  reservationId: string;
-  checkinDate: string;
-  checkoutDate: string;
-  reservationDate: string;
-  stayTitle: string;
-  stayTitleEng: string;
-  thumbnail: string;
-  addressLine: string;
-  addressLineEng: string;
-  isSettlemented: boolean;
-  isReviewed: boolean;
-  isCancled: boolean;
-}
+// 예약 등록
+export const createReservation = (body: CreateReservationRequest) =>
+  http.post<CreateReservationResponse>('/api/v1/reservation', body);
 
-export interface RegistReviewRequestVo {
-  reservationId: string;
-  rating: number;
-  originalContent?: string;
-}
+// 예약 상세 조회
+export const fetchReservationDetail = (reservationId: string) =>
+  http.get<CreateReservationResponse>(`/api/v1/reservation/${reservationId}`);
 
-export interface ListOfReservationResponseVo {
-  reservations: ReservationResponseDto[];
-}
+// 예약 취소
+export const cancelReservation = (reservationId: string) =>
+  http.put(`/api/v1/reservation/${reservationId}/cancel`);
 
-// 예약 내역 조회
-export const fetchReservations = () =>
-  http.get<{ result: ListOfReservationResponseVo }>('/api/v1/reservation/list');
+// 예약 목록 조회
+export const fetchReservations = (params?: Record<string, any>) =>
+  http.get<CreateReservationResponse[]>('/api/v1/reservation', { params });
 
-// 리뷰 등록
-export const registReview = (body: RegistReviewRequestVo) =>
-  http.post('/api/v1/review/regist', body);
+// 회원 검색
+export const searchUsers = async (
+  q: string,
+  page: number,
+  size: number,
+  excludeIds: number[] = []
+): Promise<BaseResponse<UserSearchResultResponseVo>> => {
+  const params = excludeIds.map((id) => `exclude=${id}`).join('&');
+  const query = params ? `?${params}` : '';
+
+  const url = `/api/v1/user/search/${q}/${page}/${size}${query}`;
+
+  const res = await http.get<BaseResponse<UserSearchResultResponseVo>>(url);
+  return res;
+};

@@ -45,7 +45,7 @@ export function BackHeaderContent({ title = ' ', className, onBack }: BackHeader
 
 function FixedHeaderLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="fixed left-1/2 -translate-x-1/2 top-[env(safe-area-inset-top)] w-full max-w-[480px] z-[70]">
+    <div className="border-gray-100 fixed left-1/2 -translate-x-1/2 top-[env(safe-area-inset-top)] w-full max-w-[480px] z-[70]">
       {children}
     </div>
   );

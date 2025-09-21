@@ -1,19 +1,22 @@
+import { se } from 'date-fns/locale';
+
 export const reservationMessages = {
   kor: {
     header: {
       title: '숙소 예약하기',
     },
     step1: {
-      datePlaceholder: '날짜를 선택하세요',
+      datePlaceholder: '날짜를 선택하세요.',
       next: '다음',
       nights: (n: number) => `${n}박`,
       guide: '체크인/체크아웃 날짜를 선택해주세요. (최소 1박, 최대 29박)',
     },
     step2: {
-      title: '게스트 정보 입력 (더미)',
+      title: '스마트키 사용자를 선택해주세요.',
       next: '다음',
       searchPlaceholder: '스마트 키를 등록할 닉네임을 검색하세요.',
       successMessage: '스마트 키 등록이 완료되었습니다.',
+      searchMessage: '스마트 키를 등록할 유저를 선택해주세요.',
       failMessage: '닉네임을 찾을 수 없습니다.',
       promo: [
         {
@@ -58,10 +61,11 @@ export const reservationMessages = {
       guide: 'Choose check-in/check-out. (min 1 night, max 29 nights)',
     },
     step2: {
-      title: 'Guest info (dummy)',
+      title: 'Select a smart key user',
       next: 'Next',
       searchPlaceholder: 'Search a nickname to register smart key',
       successMessage: 'Smart key registration completed.',
+      searchMessage: 'Select a user to register smart key.',
       failMessage: 'Nickname not found.',
       promo: [
         {

@@ -68,7 +68,7 @@ export function StayDetail() {
 
         <StayHost host={stay.host} onChatStart={() => console.log('채팅 시작')} />
       </main>
-      <StayBookingBar price={stay.price} />
+      <StayBookingBar stay={stay} />
     </section>
   );
 }

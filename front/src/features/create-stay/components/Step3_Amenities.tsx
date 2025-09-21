@@ -80,7 +80,7 @@ export function Step3_Amenities() {
       <div className="p-4 flex flex-col flex-1">
         <div className="mb-6">
           <h1 className="text-xl font-bold mb-2 pt-2">{t.step3.title}</h1>
-          <p className="text-gray-400 text-base">{t.step3.subtitle}</p>
+          <p className="text-gray-400 text-sm">{t.step3.subtitle}</p>
         </div>
 
         <SegmentedTabs tabs={tabs} value={category} onChange={setCategory} className="mt-2" />

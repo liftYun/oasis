@@ -5,41 +5,52 @@ import { useState } from 'react';
 import { Button } from '@/components/atoms/Button';
 import { useLanguage } from '@/features/language';
 import { reservationMessages } from '@/features/reservation/locale';
-import { useReservationStore } from '@/features/reservation/store';
+import { useReservationStore } from '@/stores/useResversionStores';
 import Usdc from '@/assets/icons/usd-circle.png';
+import { RefundPolicy } from '@/features/reservation/components/RefundPolicy';
+import { ChevronLeft } from 'lucide-react';
 
 export function Step3_Dummy() {
   const { lang } = useLanguage();
   const t = reservationMessages[lang];
-  const { reset } = useReservationStore();
-
-  const dummy = {
-    tokenSymbol: 'USDC',
-    balance: 19.0,
-    nights: 2,
-    pricePerNight: 125,
-    fee: 0,
-  } as const;
-
+  const store = useReservationStore();
   const [agreed, setAgreed] = useState(false);
-  const total = dummy.nights * dummy.pricePerNight + dummy.fee;
+  const handleBack = () => {
+    if (store.currentStep > 1) {
+      store.setStep(store.currentStep - 1);
+    }
+  };
 
   return (
-    <section className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-lg font-semibold mb-2">{t.step3.title}</h1>
-        <p className="text-sm text-gray-500">{t.step3.description}</p>
+    <div className="max-w-md w-full mx-auto flex flex-1 flex-col min-h-[calc(100vh-100px)] overflow-y-auto">
+      <div className="fixed left-1/2 -translate-x-1/2 top-[env(safe-area-inset-top)] w-full max-w-[480px] z-[70]">
+        <header className="relative h-14 bg-white px-2 flex items-center justify-between">
+          <button
+            onClick={handleBack}
+            className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200"
+            aria-label="back"
+          >
+            <ChevronLeft className="w-7 h-7 text-gray-500" />
+          </button>
+
+          <h1 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-gray-600">
+            {t.header.title}
+          </h1>
+
+          <div className="w-7" />
+        </header>
       </div>
+
       <div
         className="w-full max-w-sm rounded-md p-5"
         style={{ background: 'linear-gradient(to right, #dbeafe, #e0f2f1)' }}
       >
         <div className="flex items-center gap-2 mb-3">
           <Image src={Usdc} alt="USDC Icon" width={15} height={15} />
-          <span className="text-sm text-gray-800 font-medium">{dummy.tokenSymbol}</span>
+          <span className="text-sm text-gray-800 font-medium">USDC</span>
         </div>
         <div className="flex items-center justify-between">
-          <p className="text-2xl font-bold text-gray-900">{dummy.balance.toFixed(1)}</p>
+          <p className="text-2xl font-bold text-gray-900">19.0</p>
           <button className="px-4 py-1.5 rounded-full bg-white font-semibold flex items-center justify-center">
             <span className="text-xs text-transparent bg-clip-text bg-gradient-to-r from-[#3B87F4] to-[#88D4AF]">
               {t.step3.topUp}
@@ -47,28 +58,33 @@ export function Step3_Dummy() {
           </button>
         </div>
       </div>
-      <div className="-mx-6 h-3 bg-gray-100 my-4" />
+
+      <div className="w-full h-3 bg-gray-100 my-12" />
+
       <section className="w-full max-w-sm">
-        <h3 className="text-base font-semibold mb-3">{t.step3.summaryTitle}</h3>
+        <h2 className="text-lg font-semibold mb-6">{t.step3.summaryTitle}</h2>
         <div className="rounded-md border border-gray-100 overflow-hidden font-bold">
-          <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
-            <span className="text-sm text-gray-600">{t.step3.labels.nights}</span>
-            <span className="text-sm text-gray-900">
-              {dummy.nights}박 x ${dummy.pricePerNight.toFixed(2)}
+          <div className="flex items-center justify-between px-4 py-3 bg-gray-100">
+            <span className="text-base text-gray-600">{t.step3.labels.nights}</span>
+            <span className="text-base text-gray-600">
+              {store.night}박 x ${(store.payment ?? 0).toFixed(2)}
             </span>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
-            <span className="text-sm text-gray-600">{t.step3.labels.fee}</span>
-            <span className="text-sm text-gray-900">$ {dummy.fee.toFixed(0)}</span>
+          <div className="flex items-center justify-between px-4 py-3 bg-gray-100">
+            <span className="text-base text-gray-600">{t.step3.labels.fee}</span>
+            <span className="text-base text-gray-900">$ 0</span>
           </div>
-          <div className="flex items-center justify-end px-4 py-3 bg-gray-900 text-white">
-            <span className="text-sm">$ {total.toFixed(2)}</span>
+          <div className="flex items-center justify-end px-4 py-3 bg-gray-600 text-white">
+            <span className="text-base font-medium">
+              $ {((store.night ?? 0) * (store.payment ?? 0)).toFixed(2)}
+            </span>
           </div>
         </div>
       </section>
-      <section className="w-full mt-4 max-w-sm">
-        <h3 className="text-base font-semibold mb-3">{t.step3.notesTitle}</h3>
-        <div className="rounded-md border border-gray-100 bg-gray-50 p-4 text-[13px] leading-6 text-gray-700 font-bold">
+
+      <section className="w-full mt-12 max-w-sm">
+        <h2 className="text-lg font-semibold mb-6">{t.step3.notesTitle}</h2>
+        <div className="rounded-md bg-gray-100 p-4 text-[13px] leading-6 text-gray-600 font-medium">
           <ol className="list-decimal pl-5 space-y-1">
             {t.step3.notes.map((note, idx) => (
               <li key={idx}>{note}</li>
@@ -76,11 +92,14 @@ export function Step3_Dummy() {
           </ol>
         </div>
       </section>
-      <div className="mt-2">
-        <label className="flex items-start gap-3 text-sm text-gray-700">
+
+      <RefundPolicy />
+
+      <div className="mt-6">
+        <label className="flex items-start gap-3 text-sm text-gray-600">
           <input
             type="checkbox"
-            className="mt-1 h-4 w-4 accent-primary"
+            className="mt-1 h-4 w-4 mb-12 accent-primary"
             checked={agreed}
             onChange={(e) => setAgreed(e.target.checked)}
           />
@@ -91,23 +110,40 @@ export function Step3_Dummy() {
           </span>
         </label>
       </div>
-      <div className="mt-2 max-w-sm">
+      <div className="mt-auto pb-2">
         <Button
-          variant={agreed ? 'default' : 'google'}
+          variant={agreed ? 'blue' : 'blueLight'}
           disabled={!agreed}
-          onClick={() => {
+          onClick={async () => {
             if (!agreed) return;
-            reset();
-            alert(
-              lang === 'kor'
-                ? '예약 요청이 완료되었습니다. (더미)'
-                : 'Reservation requested. (dummy)'
-            );
+
+            try {
+              const result = await store.submit();
+              console.log(result);
+
+              if (result) {
+                alert(
+                  lang === 'kor'
+                    ? '예약 요청이 완료되었습니다.'
+                    : 'Reservation requested successfully.'
+                );
+                store.reset();
+              } else {
+                alert(lang === 'kor' ? '예약 요청에 실패했습니다.' : 'Reservation request failed.');
+              }
+            } catch (err) {
+              console.error(err);
+              alert(
+                lang === 'kor'
+                  ? '예약 요청 중 오류가 발생했습니다.'
+                  : 'An error occurred while requesting reservation.'
+              );
+            }
           }}
         >
           {t.step3.submit}
         </Button>
       </div>
-    </section>
+    </div>
   );
 }
