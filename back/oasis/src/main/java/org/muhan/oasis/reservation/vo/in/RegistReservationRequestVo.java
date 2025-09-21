@@ -18,15 +18,5 @@ public class RegistReservationRequestVo {
 
     private LocalDateTime reservationDate;
 
-    private boolean isSettlemented;
-
-    private boolean isReviewed;
-
     private int payment;
-
-    private boolean isCancled;
-
-    private String stayTitle;
-
-    private String stayTitleEng;
 }
