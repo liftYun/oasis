@@ -133,3 +133,6 @@ mqtt:
   qos-default: 1
   # 선택: 장치 제어 토픽 프리픽스
   topic-prefix: cmd
+
+stripe:
+  secret-key : ${STRIPE_SECRET_KEY}
