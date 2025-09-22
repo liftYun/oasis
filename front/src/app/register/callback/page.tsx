@@ -29,8 +29,9 @@ function CallbackInner() {
           useRegisterStore.getState().setNickname(nickname);
           useRegisterStore.getState().setEmail(email);
           useRegisterStore.getState().setProfileUrl(profileUrl);
-          // const next = needProfileUpdate ? '/language' : '/main';
-          const next = '/language';
+          useAuthStore.getState().setAccessToken(accessToken);
+          const next = needProfileUpdate ? '/language' : '/main';
+          // const next = '/language';
           router.replace(next);
         } else {
           router.replace('/');

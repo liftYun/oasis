@@ -5,6 +5,7 @@ import { SmilePlus, SendHorizontal } from 'lucide-react';
 import EmojiPicker, { type EmojiClickData } from 'emoji-picker-react';
 import { useLanguage } from '@/features/language';
 import { chatMessages } from '@/features/chat/locale';
+import { notifyTooLong } from '@/features/chat/api/toastHelpers';
 
 interface InputBarProps {
   onSend?: (text: string) => void; // UI 전용. 동작은 추후 연결
@@ -15,6 +16,7 @@ export default function InputBar({ onSend }: InputBarProps) {
   const t = chatMessages[lang];
   const [text, setText] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [hasShownTooLongToast, setHasShownTooLongToast] = useState(false);
 
   const handleSend = () => {
     if (!text.trim()) return;
@@ -34,6 +36,19 @@ export default function InputBar({ onSend }: InputBarProps) {
     setShowEmojiPicker(false);
   };
 
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newText = e.target.value;
+    setText(newText);
+
+    // 500자 초과 시 토스트 표시 (한 번만)
+    if (newText.length > 500 && !hasShownTooLongToast) {
+      notifyTooLong(lang);
+      setHasShownTooLongToast(true);
+    } else if (newText.length <= 500) {
+      setHasShownTooLongToast(false);
+    }
+  };
+
   return (
     <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-50  py-2">
       <div className="mx-2 rounded-full border border-gray-200 bg-white px-3 pt-2 pb-[calc(env(safe-area-inset-bottom)+10px)] flex items-center gap-2">
@@ -50,7 +65,7 @@ export default function InputBar({ onSend }: InputBarProps) {
           inputMode="text"
           enterKeyHint="send"
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={handleTextChange}
           onKeyDown={handleKeyDown}
           className="flex-1 min-w-0 bg-transparent outline-none text-base px-1"
           placeholder={t.inputPlaceholder}
