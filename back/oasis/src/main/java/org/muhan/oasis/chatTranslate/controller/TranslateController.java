@@ -24,8 +24,9 @@ public class TranslateController {
     public record TranslateRes(String text, String target, String engine) {}
 
     @PostMapping
-    public Mono<TranslateRes> translate(@RequestBody TranslateReq req) {
-        return service.translate(req.text(), req.target(), req.source())
+    public TranslateRes translate(@RequestBody TranslateReq req) {
+        Mono<TranslateRes> map = service.translate(req.text(), req.target(), req.source())
                 .map(r -> new TranslateRes(r.text(), r.target(), r.engine()));
+        return map.block();
     }
 }
