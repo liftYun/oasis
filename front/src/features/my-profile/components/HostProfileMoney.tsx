@@ -99,14 +99,14 @@ export function HostProfileMoney({
     }
   };
 
-  if (submitting) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <Lottie src="/lotties/success.json" className="w-20 h-20" />
-        <p className="text-sm text-gray-500">{t.successLogin}</p>
-      </div>
-    );
-  }
+  // if (submitting) {
+  //   return (
+  //     <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+  //       <Lottie src="/lotties/success.json" className="w-20 h-20" />
+  //       <p className="text-sm text-gray-500">{t.successLogin}</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <main className="flex flex-col w-full px-6 py-10 min-h-screen">
@@ -166,7 +166,7 @@ export function HostProfileMoney({
             setSubmitting(true);
             onConfirm?.(rules);
             await new Promise((r) => setTimeout(r, 1500));
-            router.push('/main');
+            router.push('/my-profile');
           }}
         >
           {t.confirm}

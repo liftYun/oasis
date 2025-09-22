@@ -4,14 +4,21 @@ import { useState } from 'react';
 interface Props {
   placeholder: string;
   onSubmit: (keyword: string) => void;
+  onChange?: (keyword: string) => void;
 }
 
-export default function SearchUserBar({ placeholder, onSubmit }: Props) {
+export default function SearchUserBar({ placeholder, onSubmit, onChange }: Props) {
   const [keyword, setKeyword] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(keyword.trim());
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setKeyword(value);
+    onChange?.(value.trim());
   };
 
   return (
@@ -22,10 +29,10 @@ export default function SearchUserBar({ placeholder, onSubmit }: Props) {
       <Search className="w-4 h-8 text-gray-500" />
       <input
         value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
+        onChange={handleChange}
         type="text"
         placeholder={placeholder}
-        className="ml-4 w-full  bg-transparent outline-none text-sm text-gray-600 placeholder-gray-300 placeholder:text-xs"
+        className="ml-4 w-full bg-transparent outline-none text-sm text-gray-600 placeholder-gray-300 placeholder:text-xs"
       />
       <button type="submit" className="hidden" aria-hidden />
     </form>

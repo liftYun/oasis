@@ -62,8 +62,6 @@ export default function AuthBootstrap() {
             };
           }>('/api/v1/user/mypage');
 
-          // console.log('User info response:', me);
-
           const r = me.result;
           setUser({
             accessToken: token,

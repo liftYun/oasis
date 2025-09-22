@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSearchStore } from '@/stores/useSearchStore';
+import { useSearchStore } from '@/stores/useSearchStores';
 import { useRouter } from 'next/navigation';
 import type { DateRange } from 'react-day-picker';
 import { SearchTabs, SearchSelector } from '@/features/search';

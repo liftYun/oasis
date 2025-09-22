@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/features/language';
 import { mainMessages } from '@/features/main/locale';
@@ -15,10 +16,24 @@ import Star from '@/assets/icons/star.png';
 import PositiveReview from '@/assets/icons/positive-review.png';
 import MainCard from '@/components/organisms/main-card/MainCard';
 import Usdc from '@/assets/icons/usd-circle.png';
-import { searchStaysByWish, searchStaysByRating } from '@/services/stay.api';
-import { StayCardByWishDto } from '@/services/stay.types';
+import {
+  searchStaysByWish,
+  searchStaysByRating,
+  fetchWishes,
+  addWish,
+  deleteWish,
+} from '@/services/stay.api';
+import { StayCardByWishDto, WishResponseDto } from '@/services/stay.types';
 
-function ScrollableRoomList({ rooms }: { rooms: StayCardByWishDto[] }) {
+function ScrollableRoomList({
+  rooms,
+  favorites,
+  onToggleFavorite,
+}: {
+  rooms: StayCardByWishDto[];
+  favorites: Record<number, number>;
+  onToggleFavorite: (stayId: number) => void;
+}) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showArrow, setShowArrow] = useState(false);
 
@@ -44,29 +59,47 @@ function ScrollableRoomList({ rooms }: { rooms: StayCardByWishDto[] }) {
       <div className="flex gap-4 w-max px-1">
         {rooms.map((room) => (
           <div key={room.stayId} className="flex-shrink-0 w-40">
-            <div className="relative w-40 h-40 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
-              <Image src={room.thumbnail || Logo} alt={room.title} fill className="object-cover" />
+            <div className="relative">
+              <Link href={`/stays/${room.stayId}`} className="block w-40">
+                <div className="relative w-40 h-40 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
+                  <Image
+                    src={room.thumbnail || Logo}
+                    alt={room.title}
+                    fill
+                    className="object-cover"
+                  />
+
+                  <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-yellow/70 px-2 py-1 rounded-full">
+                    <Image src={Star} alt="star" width={14} height={14} className="opacity-60" />
+                    <span className="text-xs text-gray-600 font-medium">
+                      {room.rating.toFixed(1)}
+                    </span>
+                  </div>
+                </div>
+
+                <p className="mt-3 mx-1 text-sm text-gray-600 font-semibold truncate text-left">
+                  {room.title}
+                </p>
+                <div className="flex items-center gap-1.5 mx-1 mt-1">
+                  <Image src={Usdc} alt="usdc" width={16} height={16} className="shrink-0" />
+                  <p className="text-sm text-gray-600 font-medium truncate">
+                    {room.price.toLocaleString()} 원
+                  </p>
+                </div>
+              </Link>
+
               <Image
-                src={HeartDefault}
+                src={favorites[room.stayId] ? HeartBlue : HeartDefault}
                 alt="heart"
                 width={28}
                 height={28}
-                className="absolute top-2 right-2 opacity-70"
+                className="absolute top-2 right-2 opacity-80 cursor-pointer hover:scale-110 transition"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onToggleFavorite(room.stayId);
+                }}
               />
-              <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-yellow/70 px-2 py-1 rounded-full">
-                <Image src={Star} alt="star" width={14} height={14} className="opacity-60" />
-                <span className="text-xs text-gray-600 font-medium">{room.rating.toFixed(1)}</span>
-              </div>
-            </div>
-
-            <p className="mt-3 mx-1 text-sm text-gray-600 font-semibold truncate text-left">
-              {room.title}
-            </p>
-            <div className="flex items-center gap-1.5 mx-1 mt-1">
-              <Image src={Usdc} alt="usdc" width={16} height={16} className="shrink-0" />
-              <p className="text-sm text-gray-600 font-medium truncate">
-                {room.price.toLocaleString()} 원
-              </p>
             </div>
           </div>
         ))}
@@ -92,20 +125,65 @@ export function HostMain() {
 
   const [wishRooms, setWishRooms] = useState<StayCardByWishDto[]>([]);
   const [ratingRooms, setRatingRooms] = useState<StayCardByWishDto[]>([]);
+  const [favorites, setFavorites] = useState<Record<number, number>>({});
 
-  const fetchData = async () => {
+  useEffect(() => {
+    const loadWishes = async () => {
+      try {
+        const res = await fetchWishes();
+        const wishMap = res.result.reduce(
+          (acc, wish: WishResponseDto) => {
+            acc[wish.stayCardDto.stayId] = wish.id;
+            return acc;
+          },
+          {} as Record<number, number>
+        );
+        setFavorites(wishMap);
+      } catch (e) {
+        console.error('관심 숙소 불러오기 실패:', e);
+      }
+    };
+    loadWishes();
+  }, []);
+
+  const handleToggleFavorite = async (stayId: number) => {
     try {
-      const wishRes = await searchStaysByWish();
-      setWishRooms(Array.isArray(wishRes?.result) ? wishRes.result : []);
-
-      const ratingRes = await searchStaysByRating();
-      setRatingRooms(Array.isArray(ratingRes?.result) ? ratingRes.result : []);
+      if (favorites[stayId]) {
+        await deleteWish(favorites[stayId]);
+        setFavorites((prev) => {
+          const copy = { ...prev };
+          delete copy[stayId];
+          return copy;
+        });
+      } else {
+        await addWish(stayId);
+        const res = await fetchWishes();
+        const wishMap = res.result.reduce(
+          (acc, wish: WishResponseDto) => {
+            acc[wish.stayCardDto.stayId] = wish.id;
+            return acc;
+          },
+          {} as Record<number, number>
+        );
+        setFavorites(wishMap);
+      }
     } catch (e) {
-      console.error(e);
+      console.error('관심 숙소 토글 실패:', e);
     }
   };
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const wishRes = await searchStaysByWish();
+        setWishRooms(Array.isArray(wishRes?.result) ? wishRes.result : []);
+
+        const ratingRes = await searchStaysByRating();
+        setRatingRooms(Array.isArray(ratingRes?.result) ? ratingRes.result : []);
+      } catch (e) {
+        console.error(e);
+      }
+    };
     fetchData();
   }, []);
 
@@ -143,7 +221,11 @@ export function HostMain() {
             <p className="text-sm text-gray-400">{t.likedSubtitle}</p>
           </div>
         </div>
-        <ScrollableRoomList rooms={wishRooms} />
+        <ScrollableRoomList
+          rooms={wishRooms}
+          favorites={favorites}
+          onToggleFavorite={handleToggleFavorite}
+        />
       </section>
 
       <section className="mt-20 mb-10 relative">
@@ -154,7 +236,11 @@ export function HostMain() {
             <p className="text-sm text-gray-400">{t.favoriteSubtitle}</p>
           </div>
         </div>
-        <ScrollableRoomList rooms={ratingRooms} />
+        <ScrollableRoomList
+          rooms={ratingRooms}
+          favorites={favorites}
+          onToggleFavorite={handleToggleFavorite}
+        />
       </section>
 
       <div className="-mx-6 w-screen h-3 bg-gray-100 my-8" />
