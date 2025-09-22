@@ -20,7 +20,7 @@ export default function StayHostBar({ stay }: Props) {
   };
 
   return (
-    <div className="fixed bottom-0 w-full max-w-[480px] bg-white border-t border-gray-200">
+    <div className="fixed bottom-0 w-full max-w-[480px] bg-white border border-gray-100">
       <div className="mx-auto px-6 py-4 flex gap-3 mb-6">
         <button
           onClick={handleEdit}
