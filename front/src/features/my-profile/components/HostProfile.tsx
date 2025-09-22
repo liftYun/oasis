@@ -21,6 +21,7 @@ import { useAuthStore } from '@/stores/useAuthStores';
 import { toast } from 'react-hot-toast';
 import { CenterModal } from '@/components/organisms/CenterModel';
 import { Lottie } from '@/components/atoms/Lottie';
+import { BlockChainWallet } from '@/features/my-profile/components/blockchain/BlockChainWallet';
 
 export function HostProfile() {
   const { lang } = useLanguage();
@@ -105,24 +106,7 @@ export function HostProfile() {
           </div>
         </section>
 
-        <div
-          className="w-full max-w-sm rounded-md p-5 mb-8"
-          style={{ background: 'linear-gradient(to right, #dbeafe, #e0f2f1)' }}
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <Image src={Usdc} alt="USDC Icon" width={15} height={15} />
-            <span className="text-sm text-gray-800 font-medium">{t.usdc}</span>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <p className="text-2xl font-bold text-gray-900">19.0</p>
-            <button className="px-4 py-1.5 rounded-full bg-white font-semibold flex items-center justify-center">
-              <span className="text-xs text-transparent bg-clip-text bg-gradient-to-r from-[#3B87F4] to-[#88D4AF]">
-                {t.balance}
-              </span>
-            </button>
-          </div>
-        </div>
+        <BlockChainWallet />
 
         <div className="w-full max-w-sm space-y-1">
           <p className="text-sm text-gray-500 mb-2 font-bold">{t.stayManage}</p>

@@ -27,8 +27,7 @@ export function StayDetail() {
   const [stay, setStay] = useState<StayReadResponseDto | null>(null);
   const [loading, setLoading] = useState(true);
   const handleChatStart = (host: HostInfoResponseDto) => {
-    // host 정보를 쿼리스트링이나 state로 넘김
-    router.push(`/chat?hostId=${host.uuid}&hostName=${host.nickname}`);
+    // router.push(`/chat?hostId=${host.uuid}&hostName=${host.nickname}`);
   };
 
   useEffect(() => {
@@ -64,22 +63,6 @@ export function StayDetail() {
           >
             <ChevronLeft className="w-7 h-7 text-gray-600" />
           </button>
-
-          {/* {isManageMode && (
-            <div className="absolute top-4 right-4 group">
-              <button
-                // onClick={() => router.push(`/manage/stay/${stay.stayId}/edit`)}
-                className="p-2 rounded-full hover:bg-gray-100 transition"
-                aria-label="숙소 수정"
-              >
-                <SquarePen className="w-5 h-5 text-gray-600" />
-              </button>
-
-              <span className="absolute top-11 right-0 whitespace-nowrap rounded-md bg-gray-600 text-white text-xs px-3 py-1 opacity-0 group-hover:opacity-100 transition">
-                {t.common.editStay}
-              </span>
-            </div>
-          )} */}
 
           <h1 className="text-2xl font-bold mt-4">{stay.title}</h1>
           <p className="text-gray-400 mt-1">

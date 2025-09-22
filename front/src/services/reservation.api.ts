@@ -4,6 +4,7 @@ import { http } from '@/apis/httpClient';
 import type {
   CreateReservationRequest,
   CreateReservationResponse,
+  BlockChainReservationResponse,
   BaseResponse,
   UserSearchResultResponseVo,
   ReservationResponseDto,
@@ -13,9 +14,17 @@ import type {
   ReviewResponseVo,
 } from './reservation.types';
 
-// 예약 등록
+// 예약 등록 (DB에 저장)
 export const createReservation = (body: CreateReservationRequest) =>
   http.post<CreateReservationResponse>('/api/v1/reservation', body);
+
+// 예약 등록 (BlockChain 저장 Approve)
+export const approveReservation = (body: CreateReservationRequest) =>
+  http.post<BlockChainReservationResponse>('/api/v1/reservation/approve', body);
+
+// 예약 등록 (BlockChain 저장 Lock)
+export const lockReservation = (body: CreateReservationRequest) =>
+  http.post<BlockChainReservationResponse>('/api/v1/reservation/lock', body);
 
 // 예약 상세 조회
 export const fetchReservationDetail = (reservationId: string) =>
