@@ -14,7 +14,7 @@ import StayDescription from './StayDescription';
 import StayFacilities from './StayFacilities';
 import StayReview from './StayReview';
 import StayHost from './StayHost';
-import { ChevronLeft } from 'lucide-react';
+import { StayHeader } from './StayHeader';
 
 export function StayDetail() {
   const { lang } = useLanguage();
@@ -52,18 +52,11 @@ export function StayDetail() {
 
   return (
     <section className="overflow-y-auto scrollbar-hide flex flex-1 flex-col relative">
+      <StayHeader title={stay.title} />
       <StayImageSlider photos={stay.photos} title={stay.title} />
 
       <main className="relative w-full mx-auto px-6 pb-24">
         <div className="relative text-center justify-between">
-          <button
-            onClick={() => router.back()}
-            className="absolute top-4 left-4 z-20 transition"
-            aria-label="뒤로가기"
-          >
-            <ChevronLeft className="w-7 h-7 text-gray-600" />
-          </button>
-
           <h1 className="text-2xl font-bold mt-4">{stay.title}</h1>
           <p className="text-gray-400 mt-1">
             {stay.region} · {stay.subRegion}
@@ -80,7 +73,7 @@ export function StayDetail() {
           stayId={stay.stayId}
         />
 
-        {/* <div className="-mx-6 w-screen h-3 bg-gray-100 my-12" /> */}
+        <div className="-mx-6 w-screen h-3 bg-gray-100 my-12" />
 
         <StayHost host={stay.host} onChatStart={handleChatStart} />
       </main>
