@@ -9,7 +9,7 @@ import type { AmenityCategoryKey } from '@/features/create-stay/constants/amenit
 import { useStayStores } from '@/stores/useStayStores';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
-import BackHeader from '@/components/molecules/BackHeader';
+import { ChevronLeft } from 'lucide-react';
 
 export function Step3_Amenities() {
   const store = useStayStores();
@@ -51,27 +51,51 @@ export function Step3_Amenities() {
     store.setStep(store.currentStep + 1);
   };
 
-  return (
-    <div className="max-w-md w-full mx-auto flex flex-1 flex-col p-4 min-h-[calc(100vh-116px)] overflow-y-auto">
-      <BackHeader title={t.createStay} />
+  const handleBack = () => {
+    if (store.currentStep > 1) {
+      store.setStep(store.currentStep - 1);
+    }
+  };
 
-      <div className="mb-6">
-        <h1 className="text-xl font-bold mb-2 pt-2">{t.step3.title}</h1>
-        <p className="text-gray-400 text-base">{t.step3.subtitle}</p>
+  return (
+    <div className="max-w-md w-full mx-auto flex flex-1 flex-col min-h-[calc(100vh-100px)] overflow-y-auto">
+      <div className="fixed left-1/2 -translate-x-1/2 top-[env(safe-area-inset-top)] w-full max-w-[480px] z-[70]">
+        <header className="relative h-14 bg-white px-2 flex items-center justify-between">
+          <button
+            onClick={handleBack}
+            className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200"
+            aria-label="back"
+          >
+            <ChevronLeft className="w-7 h-7 text-gray-500" />
+          </button>
+
+          <h1 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-gray-600">
+            {t.createStay}
+          </h1>
+
+          <div className="w-7" />
+        </header>
       </div>
 
-      <SegmentedTabs tabs={tabs} value={category} onChange={setCategory} className="mt-2" />
+      <div className="p-4 flex flex-col flex-1">
+        <div className="mb-6">
+          <h1 className="text-xl font-bold mb-2 pt-2">{t.step3.title}</h1>
+          <p className="text-gray-400 text-sm">{t.step3.subtitle}</p>
+        </div>
 
-      <MultiSelectChips
-        options={currentOptions}
-        values={categorySelected}
-        onChange={handleChangeValues}
-      />
+        <SegmentedTabs tabs={tabs} value={category} onChange={setCategory} className="mt-2" />
 
-      <div className="mt-auto pt-4">
-        <Button type="button" onClick={handleNext} variant="blue">
-          {t.common.next}
-        </Button>
+        <MultiSelectChips
+          options={currentOptions}
+          values={categorySelected}
+          onChange={handleChangeValues}
+        />
+
+        <div className="mt-auto pt-4">
+          <Button type="button" onClick={handleNext} variant="blue">
+            {t.common.next}
+          </Button>
+        </div>
       </div>
     </div>
   );
