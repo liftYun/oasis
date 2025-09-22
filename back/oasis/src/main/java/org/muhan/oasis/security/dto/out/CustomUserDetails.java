@@ -48,6 +48,8 @@ public class CustomUserDetails implements UserDetails {
 
     public Language getLanguage() { return userEntity.getLanguage(); }
 
+    public Boolean getFirstLogin() { return userEntity.getFirstLogin(); }
+
     @Override
     public String getPassword() {
         return null;
