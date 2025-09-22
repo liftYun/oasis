@@ -7,7 +7,7 @@ import { useChatDetail } from '@/features/chat/hooks/useChatDetail';
 import { sendChatMessage } from '@/features/chat/api/chat.firestore';
 import { useAuthStore } from '@/stores/useAuthStores';
 import { useLanguage } from '@/features/language';
-import { notifySendFail } from '@/features/chat/api/toastHelpers';
+import { notifySendFail, notifyTooLong } from '@/features/chat/api/toastHelpers';
 
 interface ChatDetailPageProps {
   chatId: string;
@@ -30,10 +30,19 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
   };
 
   const handleSend = async (text: string) => {
-    if (!text.trim() || !myUid) return;
+    const msg = text.trim();
+    if (!msg || !myUid) return;
+    if (msg.length > 500) {
+      notifyTooLong(lang);
+      return;
+    }
     try {
-      await sendChatMessage(chatId, myUid, text.trim());
+      await sendChatMessage(chatId, myUid, msg);
     } catch (e) {
+      if (e instanceof Error && e.message === 'MESSAGE_TOO_LONG') {
+        notifyTooLong(lang);
+        return;
+      }
       if (process.env.NODE_ENV !== 'production') console.error(e);
       notifySendFail(lang);
     }
