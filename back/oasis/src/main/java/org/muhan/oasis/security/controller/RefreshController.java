@@ -123,7 +123,7 @@ public class RefreshController {
                 .orElse(Role.ROLE_GUEST);
 
         boolean needProfileUpdate =
-                (userDetails.getRole() == null || userDetails.getUserProfileUrl() == null);
+                (userDetails.getFirstLogin() || userDetails.getRole() == null || userDetails.getUserProfileUrl() == null);
 
         String accessToken = jwtUtil.createAccessToken(
                 userDetails.getUserUuid(),
