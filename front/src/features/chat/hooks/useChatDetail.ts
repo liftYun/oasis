@@ -1,12 +1,22 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useEffect, useMemo, useState } from 'react';
 import type { MessageItemModel } from '@/features/chat/components/MessageItem';
+import {
+  subscribeChatMessages,
+  subscribeChatRoom,
+  type FirestoreRoom,
+} from '@/features/chat/api/chat.firestore';
+import { useAuthStore } from '@/stores/useAuthStores';
+import { useLanguage } from '@/features/language';
+import { notifyFirebaseUnavailable } from '@/features/chat/api/toastHelpers';
 
 interface StayInfo {
   id: string;
   title: string;
   address: string;
+  thumbnailUrl?: string;
+  opponentProfileUrl?: string | null;
 }
 
 export interface ChatDetailData {
@@ -14,57 +24,112 @@ export interface ChatDetailData {
   messages: MessageItemModel[];
 }
 
-async function fetchChatDetail(chatId: string): Promise<ChatDetailData> {
-  // TODO: 실제 API 연동
-  await new Promise((r) => setTimeout(r, 200));
-  return {
-    stay: {
-      id: 'stay-123',
-      title: '광안 바이브',
-      address: '부산 수영구 민락수변로 7 6층 601호',
-    },
-    messages: [
-      {
-        id: 'm1',
-        content:
-          '안녕하세요, 숙소 예약 관련해서 문의드려요. 이번 주말 토요일부터 일요일까지 1박 2일로 생각 중인데 혹시 아직 예약 가능할까요?',
-        isMine: true,
-        timestamp: '25.09.02 오전 10:00',
+export function useChatDetail(chatId: string) {
+  const { uuid: myUid } = useAuthStore();
+  const [room, setRoom] = useState<{ id: string; data: FirestoreRoom } | null>(null);
+  const [messages, setMessages] = useState<MessageItemModel[]>([]);
+  const [header, setHeader] = useState<StayInfo | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const { lang } = useLanguage();
+
+  // 방 메타 구독
+  useEffect(() => {
+    if (!chatId) return;
+    const unsub = subscribeChatRoom(
+      chatId,
+      (r) => setRoom(r),
+      (e) => {
+        if (process.env.NODE_ENV !== 'production') console.error(e);
+        setError('unavailable');
+        notifyFirebaseUnavailable(lang);
+      }
+    );
+    return () => unsub();
+  }, [chatId]);
+
+  // 메시지 구독
+  useEffect(() => {
+    if (!chatId) return;
+    const unsub = subscribeChatMessages(
+      chatId,
+      (list) => {
+        setMessages(
+          list.map((m, idx, arr) => {
+            const created = m.data.createdAt?.toDate?.();
+            // 같은 분에서 첫 메시지에만 타임스탬프 텍스트 노출
+            const prevCreated = idx > 0 ? arr[idx - 1].data.createdAt?.toDate?.() : undefined;
+            const showTime = (() => {
+              if (!created) return '';
+              if (!prevCreated) return formatTs(created);
+              const sameMinute =
+                created.getFullYear() === prevCreated.getFullYear() &&
+                created.getMonth() === prevCreated.getMonth() &&
+                created.getDate() === prevCreated.getDate() &&
+                created.getHours() === prevCreated.getHours() &&
+                created.getMinutes() === prevCreated.getMinutes();
+              return sameMinute ? '' : formatTs(created);
+            })();
+            return {
+              id: m.id,
+              content: m.data.content,
+              isMine: !!myUid && m.data.senderUid === myUid,
+              timestamp: showTime,
+            } satisfies MessageItemModel;
+          })
+        );
       },
-      {
-        id: 'm2',
-        content:
-          '안녕하세요 🙂 네, 이번 주말은 아직 예약 가능합니다. 체크인은 오후 3시 이후, 체크아웃은 오전 11시까지예요.',
-        isMine: false,
-        timestamp: '25.09.02 오전 10:00',
-      },
-      {
-        id: 'm3',
-        content: '혹시 반려동물 동반도 가능한가요? 강아지 한 마리와 함께 가려고 합니다.',
-        isMine: true,
-        timestamp: '25.09.02 오전 10:02',
-      },
-      {
-        id: 'm4',
-        content:
-          '네, 반려동물 동반 가능합니다! 다만, 추가 청소비 2만원이 발생하는 점 참고 부탁드립니다.',
-        isMine: false,
-        timestamp: '25.09.02 오전 10:03',
-      },
-      {
-        id: 'm5',
-        content: '알겠습니다. 예약 진행은 어떻게 하면 될까요?',
-        isMine: true,
-        timestamp: '25.09.02 오전 10:04',
-      },
-    ],
-  };
+      (e) => {
+        if (process.env.NODE_ENV !== 'production') console.error(e);
+        setError('unavailable');
+        notifyFirebaseUnavailable(lang);
+      }
+    );
+    return () => unsub();
+  }, [chatId, myUid]);
+
+  // 라우터 쿼리에서 리스트 데이터 수신 (제목/주소/썸네일/상대썸네일)
+  useEffect(() => {
+    try {
+      const url = typeof window !== 'undefined' ? new URL(window.location.href) : null;
+      if (!url) return;
+      const q = url.searchParams;
+      const title = q.get('title') ?? '';
+      const address = q.get('addr') ?? '';
+      const thumb = q.get('thumb') ?? '';
+      const opp = q.get('opp') ?? '';
+      setHeader({
+        id: String(room?.data.stayId ?? ''),
+        title,
+        address,
+        thumbnailUrl: thumb && thumb.length > 0 ? thumb : undefined,
+        opponentProfileUrl: opp && opp.length > 0 ? opp : undefined,
+      });
+    } catch (error) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Failed to parse URL parameters:', error);
+      }
+    }
+  }, [room?.data.stayId]);
+  const detail: ChatDetailData | undefined = useMemo(() => {
+    if (!room) return undefined;
+    const stayInfo: StayInfo = header ?? {
+      id: String(room.data.stayId),
+      title: '',
+      address: '',
+    };
+    return { stay: stayInfo, messages };
+  }, [room, messages, header]);
+
+  return { data: detail, isLoading: !detail && !error, error };
 }
 
-export function useChatDetail(chatId: string) {
-  return useQuery({
-    queryKey: ['chat', 'detail', chatId],
-    queryFn: () => fetchChatDetail(chatId),
-    enabled: !!chatId,
-  });
+function formatTs(date: Date): string {
+  const hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const ampm = hours < 12 ? '오전' : '오후';
+  const h12 = hours % 12 === 0 ? 12 : hours % 12;
+  const y = String(date.getFullYear()).slice(-2);
+  const mo = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}.${mo}.${d} ${ampm} ${h12}:${minutes}`;
 }
