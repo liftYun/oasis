@@ -63,6 +63,9 @@ public class UserEntity extends BaseEntity {
     @Column(name = "certificate_url", length = 191)
     private String certificateUrl;
 
+    @Column(name = "first_login", nullable = false)
+    private Boolean firstLogin = true;
+
     /* ---------- 양방향 연관관계들 ---------- */
 
     // 위시리스트 (users 1 : N wishes)
@@ -116,13 +119,14 @@ public class UserEntity extends BaseEntity {
 //    }
 
     @Builder
-    public UserEntity(String userUuid, Role role, String nickname, String profileUrl, String email, Language language, String certificateImg) {
+    public UserEntity(String userUuid, Role role, String nickname, String profileUrl, String email, Language language, boolean firstLogin) {
         this.userUuid = userUuid;
         this.role = role;
         this.nickname = nickname;
         this.profileUrl = profileUrl;
         this.email = email;
         this.language = language;
+        this.firstLogin = firstLogin;
     }
     public static UserEntity ofSocial(String uuid, String email, String nickname, Language lang, Role role) {
         UserEntity u = new UserEntity(); // @NoArgsConstructor 필요
