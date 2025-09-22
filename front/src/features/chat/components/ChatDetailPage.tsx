@@ -8,7 +8,7 @@ import { sendChatMessage } from '@/features/chat/api/chat.firestore';
 import { useAuthStore } from '@/stores/useAuthStores';
 import { useLanguage } from '@/features/language';
 import { notifySendFail, notifyTooLong } from '@/features/chat/api/toastHelpers';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { translateMessage } from '@/services/chat.api';
 
 interface ChatDetailPageProps {
@@ -22,6 +22,9 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [showOriginal, setShowOriginal] = useState<Record<string, boolean>>({});
   const storageKey = useMemo(() => `chat:translated:${chatId}`, [chatId]);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const didInitialScrollRef = useRef(false);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     try {
@@ -41,6 +44,23 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
       clear();
     };
   }, [storageKey]);
+
+  // 채팅방 진입 시 최초 한 번, 최신 메시지(하단)로 즉시 스크롤 (이전 단계로 원복)
+  useLayoutEffect(() => {
+    if (!data || didInitialScrollRef.current) return;
+    const scrollToBottom = () =>
+      bottomRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
+    scrollToBottom();
+    requestAnimationFrame(() => {
+      scrollToBottom();
+    });
+    didInitialScrollRef.current = true;
+  }, [data?.messages?.length, data]);
+
+  // 채팅방 이동 시 초기 스크롤 상태 초기화
+  useEffect(() => {
+    didInitialScrollRef.current = false;
+  }, [chatId]);
 
   const handleTranslate = async (id: string) => {
     // 이미 번역된 내용이 있으면 원문/번역문 토글
@@ -116,6 +136,7 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
             />
           );
         })}
+        <div ref={bottomRef} />
       </section>
 
       <InputBar onSend={handleSend} />
