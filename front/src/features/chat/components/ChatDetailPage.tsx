@@ -7,7 +7,9 @@ import { useChatDetail } from '@/features/chat/hooks/useChatDetail';
 import { sendChatMessage } from '@/features/chat/api/chat.firestore';
 import { useAuthStore } from '@/stores/useAuthStores';
 import { useLanguage } from '@/features/language';
-import { notifySendFail } from '@/features/chat/api/toastHelpers';
+import { notifySendFail, notifyTooLong } from '@/features/chat/api/toastHelpers';
+import { useEffect, useMemo, useState } from 'react';
+import { translateMessage } from '@/services/chat.api';
 
 interface ChatDetailPageProps {
   chatId: string;
@@ -17,23 +19,66 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
   const { data, isLoading } = useChatDetail(chatId);
   const { uuid: myUid } = useAuthStore();
   const { lang } = useLanguage();
+  const [translations, setTranslations] = useState<Record<string, string>>({});
+  const storageKey = useMemo(() => `chat:translated:${chatId}`, [chatId]);
 
-  const handleTranslate = (id: string) => {
-    const text = data?.messages.find((m) => m.id === id)?.content ?? '';
-    import('@/features/chat/utils/languageDetection').then(
-      ({ detectLanguage, getTargetLanguage }) => {
-        const lang = detectLanguage(text);
-        const targetLang = getTargetLanguage(lang);
-        console.log('[Translation Detect]', { id, lang, targetLang, text });
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved) as Record<string, string>;
+        setTranslations(parsed);
       }
+    } catch {}
+  }, [storageKey]);
+
+  useEffect(() => {
+    const clear = () => sessionStorage.removeItem(storageKey);
+    window.addEventListener('beforeunload', clear);
+    return () => {
+      window.removeEventListener('beforeunload', clear);
+      clear();
+    };
+  }, [storageKey]);
+
+  const handleTranslate = async (id: string) => {
+    const original = data?.messages.find((m) => m.id === id)?.content ?? '';
+    if (!original) return;
+    const { detectLanguage, getTargetLanguage } = await import(
+      '@/features/chat/utils/languageDetection'
     );
+    const detected = detectLanguage(original); // 'ko' | 'en' | 'unknown'
+    const target = getTargetLanguage(detected) ?? 'en'; // API: 'ko' | 'en'
+    const source = detected === 'ko' ? 'ko' : detected === 'en' ? 'en' : undefined; // 명세 준수
+    try {
+      const res = await translateMessage(
+        source ? { text: original, target, source } : { text: original, target }
+      );
+      const translatedText = res.text;
+      setTranslations((prev) => {
+        const next = { ...prev, [id]: translatedText };
+        sessionStorage.setItem(storageKey, JSON.stringify(next));
+        return next;
+      });
+    } catch (e) {
+      if (process.env.NODE_ENV !== 'production') console.error('번역 실패:', e);
+    }
   };
 
   const handleSend = async (text: string) => {
-    if (!text.trim() || !myUid) return;
+    const msg = text.trim();
+    if (!msg || !myUid) return;
+    if (msg.length > 500) {
+      notifyTooLong(lang);
+      return;
+    }
     try {
-      await sendChatMessage(chatId, myUid, text.trim());
+      await sendChatMessage(chatId, myUid, msg);
     } catch (e) {
+      if (e instanceof Error && e.message === 'MESSAGE_TOO_LONG') {
+        notifyTooLong(lang);
+        return;
+      }
       if (process.env.NODE_ENV !== 'production') console.error(e);
       notifySendFail(lang);
     }
@@ -50,9 +95,19 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
       </section>
 
       <section className="flex-1 px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+88px)]">
-        {data.messages.map((m) => (
-          <MessageItem key={m.id} message={m} onClickTranslate={handleTranslate} />
-        ))}
+        {data.messages.map((m) => {
+          const override = translations[m.id];
+          const translated = typeof override === 'string' && override.length > 0;
+          const display = translated ? { ...m, content: override } : m;
+          return (
+            <MessageItem
+              key={m.id}
+              message={display}
+              translated={translated}
+              onClickTranslate={handleTranslate}
+            />
+          );
+        })}
       </section>
 
       <InputBar onSend={handleSend} />

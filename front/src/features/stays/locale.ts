@@ -11,6 +11,11 @@ export const stayDetailLocale = {
       deleteConfirm: '정말 이 숙소를 삭제하시겠습니까?',
       deleteSuccess: '숙소가 성공적으로 삭제되었습니다.',
       deleteError: '숙소 삭제 중 오류가 발생했습니다.',
+      checkingLogin: '로그인 정보를 확인 중입니다. 잠시만 기다려주세요.',
+      loginRequired: '로그인이 필요합니다. 회원가입/로그인을 진행해 주세요.',
+      stayLoadFailRetry: '숙소 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.',
+      invalidHostInfo: '호스트 정보가 올바르지 않습니다.',
+      chatEnterFailRetry: '채팅방 진입에 실패했어요. 잠시 후 다시 시도해 주세요.',
     },
     detail: {
       infoTitle: '숙소 세부정보',
@@ -64,6 +69,11 @@ export const stayDetailLocale = {
       deleteConfirm: 'Are you sure you want to delete this stay?',
       deleteSuccess: 'The stay has been successfully deleted.',
       deleteError: 'An error occurred while deleting the stay.',
+      checkingLogin: 'Checking login info. Please wait a moment.',
+      loginRequired: 'Login required. Please sign up or log in.',
+      stayLoadFailRetry: 'Failed to load stay info. Please try again later.',
+      invalidHostInfo: 'Host information is invalid.',
+      chatEnterFailRetry: 'Failed to enter the chat. Please try again later.',
     },
     detail: {
       infoTitle: 'Stay Details',
