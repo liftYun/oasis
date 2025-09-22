@@ -20,6 +20,7 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
   const { uuid: myUid } = useAuthStore();
   const { lang } = useLanguage();
   const [translations, setTranslations] = useState<Record<string, string>>({});
+  const [showOriginal, setShowOriginal] = useState<Record<string, boolean>>({});
   const storageKey = useMemo(() => `chat:translated:${chatId}`, [chatId]);
 
   useEffect(() => {
@@ -42,6 +43,11 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
   }, [storageKey]);
 
   const handleTranslate = async (id: string) => {
+    // 이미 번역된 내용이 있으면 원문/번역문 토글
+    if (translations[id]) {
+      setShowOriginal((prev) => ({ ...prev, [id]: !prev[id] }));
+      return;
+    }
     const original = data?.messages.find((m) => m.id === id)?.content ?? '';
     if (!original) return;
     const { detectLanguage, getTargetLanguage } = await import(
@@ -60,6 +66,7 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
         sessionStorage.setItem(storageKey, JSON.stringify(next));
         return next;
       });
+      setShowOriginal((prev) => ({ ...prev, [id]: false }));
     } catch (e) {
       if (process.env.NODE_ENV !== 'production') console.error('번역 실패:', e);
     }
@@ -97,13 +104,14 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
       <section className="flex-1 px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+88px)]">
         {data.messages.map((m) => {
           const override = translations[m.id];
-          const translated = typeof override === 'string' && override.length > 0;
-          const display = translated ? { ...m, content: override } : m;
+          const hasTranslation = typeof override === 'string' && override.length > 0;
+          const isShowingOriginal = showOriginal[m.id] === true;
+          const display = hasTranslation && !isShowingOriginal ? { ...m, content: override } : m;
           return (
             <MessageItem
               key={m.id}
               message={display}
-              translated={translated}
+              translated={hasTranslation && !isShowingOriginal}
               onClickTranslate={handleTranslate}
             />
           );

@@ -12,10 +12,13 @@ export const getChatList = (stayIds: number[]) =>
   );
 
 // 메시지 단건 번역
-export const translateMessage = (body: TranslateReq) =>
-  http.post<TranslateRes>(`/api/v1/chat/translate`, body, {
+export const translateMessage = async (body: TranslateReq) => {
+  const res = await http.post<BaseResponse<TranslateRes>>(`/api/v1/chat/translate`, body, {
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
     },
   });
+  // 새로운 응답 스키마(BaseResponse)에 맞춰 result만 반환
+  return res.result;
+};
