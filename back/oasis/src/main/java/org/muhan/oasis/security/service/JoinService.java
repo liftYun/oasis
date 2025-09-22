@@ -63,7 +63,7 @@ public class JoinService {
 
         log.info("[JoinService] completeProfile userId : {},nickname : {},role : {},language : {}",user.getUserId() ,nickname,role,language);
 
-        userRepository.updateUserById(user.getUserId(), nickname, Language.valueOf(language), Role.valueOf(role), true);
+        userRepository.updateUserById(user.getUserId(), nickname, Language.valueOf(language), Role.valueOf(role), false);
 
         return userRepository.findByUserId(user.getUserId()).orElseThrow();
     }
