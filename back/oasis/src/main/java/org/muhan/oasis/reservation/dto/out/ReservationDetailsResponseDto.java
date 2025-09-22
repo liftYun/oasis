@@ -10,7 +10,7 @@ public record ReservationDetailsResponseDto(
         // ===== 예약 =====
         String reservationId,
         LocalDateTime reservationDate,
-        boolean isCancled,
+        boolean isCanceled,
         boolean isSettlemented,
         boolean isReviewed,
         int payment,
