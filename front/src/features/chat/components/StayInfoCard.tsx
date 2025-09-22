@@ -43,9 +43,9 @@ export default function StayInfoCard({ stay }: StayInfoCardProps) {
           <div className="relative h-full w-full rounded overflow-hidden bg-gray-100">
             <Image
               src={
-                (typeof stay.thumbnailUrl === 'string' && stay.thumbnailUrl.length > 0
+                typeof stay.thumbnailUrl === 'string' && stay.thumbnailUrl.length > 0
                   ? stay.thumbnailUrl
-                  : StayImage) as any
+                  : StayImage
               }
               alt={stay.title}
               fill

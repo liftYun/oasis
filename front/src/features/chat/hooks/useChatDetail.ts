@@ -8,6 +8,8 @@ import {
   type FirestoreRoom,
 } from '@/features/chat/api/chat.firestore';
 import { useAuthStore } from '@/stores/useAuthStores';
+import { useLanguage } from '@/features/language';
+import { notifyFirebaseUnavailable } from '@/features/chat/api/toastHelpers';
 
 interface StayInfo {
   id: string;
@@ -27,6 +29,8 @@ export function useChatDetail(chatId: string) {
   const [room, setRoom] = useState<{ id: string; data: FirestoreRoom } | null>(null);
   const [messages, setMessages] = useState<MessageItemModel[]>([]);
   const [header, setHeader] = useState<StayInfo | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const { lang } = useLanguage();
 
   // 방 메타 구독
   useEffect(() => {
@@ -36,6 +40,8 @@ export function useChatDetail(chatId: string) {
       (r) => setRoom(r),
       (e) => {
         if (process.env.NODE_ENV !== 'production') console.error(e);
+        setError('unavailable');
+        notifyFirebaseUnavailable(lang);
       }
     );
     return () => unsub();
@@ -74,6 +80,8 @@ export function useChatDetail(chatId: string) {
       },
       (e) => {
         if (process.env.NODE_ENV !== 'production') console.error(e);
+        setError('unavailable');
+        notifyFirebaseUnavailable(lang);
       }
     );
     return () => unsub();
@@ -112,7 +120,7 @@ export function useChatDetail(chatId: string) {
     return { stay: stayInfo, messages };
   }, [room, messages, header]);
 
-  return { data: detail, isLoading: !detail };
+  return { data: detail, isLoading: !detail && !error, error };
 }
 
 function formatTs(date: Date): string {
