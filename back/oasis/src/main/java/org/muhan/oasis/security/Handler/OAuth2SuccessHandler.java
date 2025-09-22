@@ -146,7 +146,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
             log.debug("[OAUTH2:SUCCESS] cleanup cookie issued: OAUTH2_AUTH_REQUEST");
 
-            boolean needProfileUpdate = (user.getRole() == null || user.getProfileUrl() == null);
+            boolean needProfileUpdate = (user.getFirstLogin() || user.getRole() == null || user.getProfileUrl() == null);
             String baseRedirect = frontBaseUrl + "/register/callback";
             log.info("[OAUTH2:SUCCESS] user ready | uuid={}, email={}, needProfileUpdate={}, next={}",
                     uuid, safe(email), needProfileUpdate, baseRedirect);
