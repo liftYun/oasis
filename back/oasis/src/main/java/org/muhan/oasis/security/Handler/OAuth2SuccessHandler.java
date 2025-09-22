@@ -146,10 +146,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
             log.debug("[OAUTH2:SUCCESS] cleanup cookie issued: OAUTH2_AUTH_REQUEST");
 
-            boolean needProfileUpdate = (user.getFirstLogin() || user.getRole() == null || user.getProfileUrl() == null);
-            String baseRedirect = frontBaseUrl + "/register/callback";
-            log.info("[OAUTH2:SUCCESS] user ready | uuid={}, email={}, needProfileUpdate={}, next={}",
-                    uuid, safe(email), needProfileUpdate, baseRedirect);
+            String redirectUrl = frontBaseUrl + "/register/callback";
+            log.info("[OAUTH2:SUCCESS] user ready | uuid={}, email={}, next={}",
+                    uuid, safe(email), redirectUrl);
 
             boolean wantsJson =
                     acceptsJson(request) ||
@@ -160,8 +159,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             response.setHeader("Pragma", "no-cache");
 
             if (!wantsJson) {
-                String redirectUrl = baseRedirect + (baseRedirect.contains("?") ? "&" : "?")
-                        + "needProfileUpdate=" + needProfileUpdate;
                 response.setStatus(HttpServletResponse.SC_FOUND);
                 response.setHeader("Location", redirectUrl);
                 log.info("[OAUTH2:SUCCESS] <<< redirect 302 to {}", redirectUrl);
@@ -174,12 +171,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                     response.getWriter(),
                     BaseResponse.of(
                             Map.of(
-                                    "needProfileUpdate", needProfileUpdate,
-                                    "nextUrl", baseRedirect
+                                    "nextUrl", redirectUrl
                             )
                     )
             );
-            log.info("[OAUTH2:SUCCESS] <<< JSON 200 | nextUrl={}", baseRedirect);
+            log.info("[OAUTH2:SUCCESS] <<< JSON 200 | nextUrl={}", redirectUrl);
 
         } catch (Exception e) {
             log.error("[OAUTH2:SUCCESS] handler error: {}", e.getMessage(), e);
