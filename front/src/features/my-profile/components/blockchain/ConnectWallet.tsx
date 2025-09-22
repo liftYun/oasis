@@ -12,11 +12,13 @@ interface ConnectWalletProps {
 }
 
 const getUserUuidFromToken = (): string | null => {
-  if (!hasValidToken()) return null;
+  // if (!hasValidToken()) return null;
   const token = getToken();
+  console.log('token', token);
   if (!token) return null;
 
   const decoded = decodeToken(token);
+  console.log('decoded', decoded);
   return decoded?.user_uuid || decoded?.userUuid || decoded?.sub || decoded?.uuid || null;
 };
 
@@ -50,6 +52,7 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
 
     try {
       const userUuid = getUserUuidFromToken();
+      console.log('userUuid', userUuid);
       if (!userUuid) {
         throw new Error('유효한 JWT 토큰이 없습니다. 먼저 로그인해 주세요.');
       }

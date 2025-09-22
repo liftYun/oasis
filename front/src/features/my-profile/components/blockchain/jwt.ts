@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/stores/useAuthStores';
+import { jwtDecode } from 'jwt-decode';
 
 export const getToken = () => {
   const token = useAuthStore.getState().accessToken;
@@ -21,9 +22,10 @@ export const hasValidToken = () => {
 };
 
 export const decodeToken = (token: string) => {
-  try {
-    return JSON.parse(atob(token.split('.')[1]));
-  } catch {
-    return null;
-  }
+  return jwtDecode(token);
+  // try {
+  //   return JSON.parse(atob(token.split('.')[1]));
+  // } catch {
+  //   return null;
+  // }
 };
