@@ -22,7 +22,7 @@ import { toast } from 'react-hot-toast';
 
 export function StayDetail() {
   const { lang } = useLanguage();
-  const t = stayDetailLocale[lang];
+  const t = stayDetailLocale[lang] as (typeof stayDetailLocale)['eng'];
   const { id } = useParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -39,20 +39,20 @@ export function StayDetail() {
 
     // 0) 사전 가드
     if (!initialized) {
-      toast('로그인 정보를 확인 중입니다. 잠시만 기다려주세요.');
+      toast(t.common.checkingLogin);
       return;
     }
     if (!myUid) {
-      toast.error('로그인이 필요합니다. 회원가입/로그인을 진행해 주세요.');
+      toast.error(t.common.loginRequired);
       router.push('/register');
       return;
     }
     if (!stay) {
-      toast.error('숙소 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      toast.error(t.common.stayLoadFailRetry);
       return;
     }
     if (!host?.uuid) {
-      toast.error('호스트 정보가 올바르지 않습니다.');
+      toast.error(t.common.invalidHostInfo);
       return;
     }
 
@@ -84,9 +84,10 @@ export function StayDetail() {
     } catch (e) {
       if (process.env.NODE_ENV !== 'production') console.error('채팅방 처리 실패:', e);
       notifyFirebaseUnavailable(lang);
-      toast.error('채팅방 진입에 실패했어요. 잠시 후 다시 시도해 주세요.');
+      toast.error(t.common.chatEnterFailRetry);
+    } finally {
+      setStartingChat(false);
     }
-    setStartingChat(false);
   };
 
   useEffect(() => {
