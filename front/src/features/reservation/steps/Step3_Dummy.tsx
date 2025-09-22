@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/atoms/Button';
 import { useLanguage } from '@/features/language';
 import { reservationMessages } from '@/features/reservation/locale';
@@ -9,15 +10,44 @@ import { useReservationStore } from '@/stores/useResversionStores';
 import Usdc from '@/assets/icons/usd-circle.png';
 import { RefundPolicy } from '@/features/reservation/components/RefundPolicy';
 import { ChevronLeft } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export function Step3_Dummy() {
   const { lang } = useLanguage();
   const t = reservationMessages[lang];
   const store = useReservationStore();
+  const router = useRouter();
+
   const [agreed, setAgreed] = useState(false);
+
   const handleBack = () => {
     if (store.currentStep > 1) {
       store.setStep(store.currentStep - 1);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!agreed) return;
+
+    try {
+      const result = await store.submit();
+
+      if (result) {
+        toast.success(
+          lang === 'kor' ? '예약 요청이 완료되었습니다.' : 'Reservation requested successfully.'
+        );
+        // store.reset();
+        router.push('/main');
+      } else {
+        toast.error(lang === 'kor' ? '예약 요청에 실패했습니다.' : 'Reservation request failed.');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        lang === 'kor'
+          ? '예약 요청 중 오류가 발생했습니다.'
+          : 'An error occurred while requesting reservation.'
+      );
     }
   };
 
@@ -86,6 +116,7 @@ export function Step3_Dummy() {
         </div>
       </section>
 
+      {/* Notes */}
       <section className="w-full mt-12 max-w-sm">
         <h2 className="text-lg font-semibold mb-6">{t.step3.notesTitle}</h2>
         <div className="rounded-md bg-gray-100 p-4 text-[13px] leading-6 text-gray-600 font-medium">
@@ -114,37 +145,9 @@ export function Step3_Dummy() {
           </span>
         </label>
       </div>
+
       <div className="mt-auto pb-2">
-        <Button
-          variant={agreed ? 'blue' : 'blueLight'}
-          disabled={!agreed}
-          onClick={async () => {
-            if (!agreed) return;
-
-            try {
-              const result = await store.submit();
-              console.log(result);
-
-              if (result) {
-                alert(
-                  lang === 'kor'
-                    ? '예약 요청이 완료되었습니다.'
-                    : 'Reservation requested successfully.'
-                );
-                store.reset();
-              } else {
-                alert(lang === 'kor' ? '예약 요청에 실패했습니다.' : 'Reservation request failed.');
-              }
-            } catch (err) {
-              console.error(err);
-              alert(
-                lang === 'kor'
-                  ? '예약 요청 중 오류가 발생했습니다.'
-                  : 'An error occurred while requesting reservation.'
-              );
-            }
-          }}
-        >
+        <Button variant={agreed ? 'blue' : 'blueLight'} disabled={!agreed} onClick={handleSubmit}>
           {t.step3.submit}
         </Button>
       </div>

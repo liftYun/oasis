@@ -7,6 +7,9 @@ import {
   CancellationPolicyRequest,
   CancellationPolicyResponse,
   MyStayListResponse,
+  ReviewResponseVo,
+  ReviewDetailResponseVo,
+  BaseResponse,
 } from './user.types';
 
 // 내 프로필 조회
@@ -47,5 +50,17 @@ export const updateLanguage = (language: string) =>
 // 내 숙소 조회
 export const fetchMyStays = () =>
   http.get<MyStayListResponse>('/api/v1/stay/mystay', {
+    headers: { Accept: 'application/json' },
+  });
+
+// 내가 작성한 리뷰 목록 조회 (최신순)
+export const getMyReviews = () =>
+  http.get<BaseResponse<ReviewResponseVo[]>>('/api/v1/review/list', {
+    headers: { Accept: 'application/json' },
+  });
+
+// 내가 작성한 리뷰 상세 조회
+export const getMyReviewDetail = () =>
+  http.get<BaseResponse<ReviewDetailResponseVo[]>>('/api/v1/review/list', {
     headers: { Accept: 'application/json' },
   });

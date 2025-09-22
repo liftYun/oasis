@@ -60,11 +60,34 @@ export interface StayCardView {
   price: number;
 }
 
-// BaseResponse<T>는 이미 있으니 재활용
 export interface MyStayListResponse {
   status: number;
   success: boolean;
   message: string;
   code: string;
   result: StayCardView[];
+}
+
+export interface ReviewResponseVo {
+  reviewId: number;
+  reservationId?: string;
+  rating: number;
+  createdAt: string;
+  thumbnail: string;
+}
+
+export interface ReviewDetailResponseVo {
+  reviewId: number;
+  reservationId?: string;
+  rating: number;
+  createdAt: string;
+  content: string;
+}
+
+export interface BaseResponse<T> {
+  status: number;
+  success: boolean;
+  message: string;
+  code: string;
+  result: T;
 }

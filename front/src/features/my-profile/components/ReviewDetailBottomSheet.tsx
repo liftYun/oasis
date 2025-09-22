@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BottomSheet } from '@/components/organisms/BottomSheet';
 import { Star } from 'lucide-react';
 import { Button } from '@/components/atoms/Button';
@@ -9,28 +9,16 @@ import { useRouter } from 'next/navigation';
 import ZoomIn from '@/assets/icons/zoom-in.png';
 import { useLanguage } from '@/features/language';
 import { profileMessages } from '@/features/my-profile';
-import { registReview } from '@/services/reservation.api';
+import { getMyReviewDetail } from '@/services/user.api';
 import { toast } from 'react-hot-toast';
 
 type ReviewBottomSheetProps = {
   open: boolean;
   onClose: () => void;
   reservationId: string;
-  stayId: number;
-  stayTitle: string;
-  addressLine: string;
-  thumbnail?: string | null;
 };
 
-export function ReviewBottomSheet({
-  open,
-  onClose,
-  reservationId,
-  stayId,
-  stayTitle,
-  addressLine,
-  thumbnail,
-}: ReviewBottomSheetProps) {
+export function ReviewDetailBottomSheet({ open, onClose, reservationId }: ReviewBottomSheetProps) {
   const { lang } = useLanguage();
   const t = profileMessages[lang];
 
@@ -40,33 +28,49 @@ export function ReviewBottomSheet({
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async () => {
-    if (!rating) {
-      toast.error('별점을 선택해주세요');
-      return;
-    }
-    setLoading(true);
-    try {
-      await registReview({
-        reservationId,
-        rating,
-        originalContent: text.trim() || undefined,
-      });
-      toast.success('리뷰가 등록되었어요!');
-      onClose();
-      setRating(0);
-      setText('');
-    } catch (err: any) {
-      toast.error(err?.message || '리뷰 등록 실패');
-    } finally {
-      setLoading(false);
-    }
-  };
+  //   const handleSubmit = async () => {
+  //     if (!rating) {
+  //       toast.error('별점을 선택해주세요');
+  //       return;
+  //     }
+  //     setLoading(true);
+  //     try {
+  //       await registReview({
+  //         reservationId,
+  //         rating,
+  //         originalContent: text.trim() || undefined,
+  //       });
+  //       toast.success('리뷰가 등록되었어요!');
+  //       onClose();
+  //       setRating(0);
+  //       setText('');
+  //     } catch (err: any) {
+  //       toast.error(err?.message || '리뷰 등록 실패');
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  useEffect(() => {
+    const fetchReviewDetail = async () => {
+      try {
+        const res = await getMyReviewDetail();
+        console.log(res);
+        // setReviews(res.result ?? []);
+      } catch (err) {
+        console.error('리뷰 불러오기 실패:', err);
+        // setReviews([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReviewDetail();
+  }, []);
 
   return (
     <BottomSheet open={open} onClose={onClose} title={t.writeReview}>
       <div className="flex items-center gap-4 rounded-md bg-gray-50 pr-5 shadow-sm overflow-hidden">
-        <div className="w-28 h-28 overflow-hidden shrink-0">
+        {/* <div className="w-28 h-28 overflow-hidden shrink-0">
           <Image
             src={thumbnail || '/images/default-room.jpg'}
             alt={stayTitle}
@@ -153,12 +157,8 @@ export function ReviewBottomSheet({
         />
         <div className="text-right text-xs text-gray-400 mt-1">
           <span className="text-yellow">{text.length}</span> / 1000
-        </div>
+        </div> */}
       </div>
-
-      <Button variant="default" className="mt-3" onClick={handleSubmit} disabled={loading}>
-        {t.uploadReview}
-      </Button>
     </BottomSheet>
   );
 }
