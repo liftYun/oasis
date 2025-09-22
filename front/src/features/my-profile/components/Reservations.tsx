@@ -9,7 +9,8 @@ import { profileMessages } from '@/features/my-profile';
 import Marker from '@/assets/icons/marker.png';
 import Calender from '@/assets/icons/calender.png';
 import { ReviewBottomSheet } from '@/features/my-profile';
-import { fetchReservations, ReservationResponseDto } from '@/services/reservation.api';
+import { fetchReservations } from '@/services/reservation.api';
+import { ReservationResponseDto } from '@/services/reservation.types';
 
 export function Reservations() {
   const { lang } = useLanguage();
@@ -17,12 +18,17 @@ export function Reservations() {
 
   const [reservations, setReservations] = useState<ReservationResponseDto[]>([]);
   const [open, setOpen] = useState(false);
+  const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null);
+  const [selectedStayId, setSelectedStayId] = useState<number | null>(null);
+  const [selectedStayTitle, setSelectedStayTitle] = useState<string | null>(null);
+  const [selectedAddressLine, setSelectedAddressLine] = useState<string | null>(null);
+  const [selectedThumbnail, setSelectedThumbnail] = useState<string | null>(null);
 
   useEffect(() => {
     const loadReservations = async () => {
       try {
         const res = await fetchReservations();
-        setReservations(res.result.reservations ?? []);
+        setReservations(res.result?.reservations ?? []);
       } catch (err) {
         console.error('예약 내역 조회 실패', err);
       }
@@ -74,13 +80,20 @@ export function Reservations() {
               </div>
             </div>
 
-            {item.isSettlemented && (
+            {!item.isSettlemented && (
               <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white">
                 <p className="mb-2">이용 완료한 숙소 입니다.</p>
                 <div className="flex space-x-4">
                   {!item.isReviewed && (
                     <button
-                      onClick={() => setOpen(true)}
+                      onClick={() => {
+                        setSelectedReservationId(item.reservationId);
+                        setSelectedStayId(item.stayId);
+                        setSelectedStayTitle(item.stayTitle);
+                        setSelectedAddressLine(item.addressLine);
+                        setSelectedThumbnail(item.thumbnail);
+                        setOpen(true);
+                      }}
                       className="flex items-center space-x-1 text-sm"
                     >
                       <Star size={16} />
@@ -101,7 +114,11 @@ export function Reservations() {
       <ReviewBottomSheet
         open={open}
         onClose={() => setOpen(false)}
-        reservationId="RESV-20250901-000045"
+        reservationId={selectedReservationId ?? ''}
+        stayId={selectedStayId ?? 0}
+        stayTitle={selectedStayTitle ?? ''}
+        addressLine={selectedAddressLine ?? ''}
+        thumbnail={selectedThumbnail}
       />
     </div>
   );

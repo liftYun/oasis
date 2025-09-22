@@ -13,6 +13,7 @@ export interface KakaoAddressResponse {
 
 export type CreateStayTexts = {
   createStay: string;
+  editStay: string;
   header: {
     searchTitle: string;
   };
@@ -21,6 +22,7 @@ export type CreateStayTexts = {
     processing: string;
     tip: string;
     back: string;
+    save: string;
   };
   step1: {
     title: string;
@@ -51,6 +53,8 @@ export type CreateStayTexts = {
     tipText: string;
     descriptionLabel: string;
     descriptionPlaceholder: string;
+    maxGuestLabel: string;
+    peolple: string;
   };
   step3: {
     title: string;

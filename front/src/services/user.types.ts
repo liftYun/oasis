@@ -50,3 +50,44 @@ export interface CancellationPolicyResponse {
   refundRate: number;
   createdAt: string;
 }
+
+// 내 숙소 카드 뷰 타입
+export interface StayCardView {
+  stayId: number;
+  title: string;
+  thumbnail: string;
+  rating: number;
+  price: number;
+}
+
+export interface MyStayListResponse {
+  status: number;
+  success: boolean;
+  message: string;
+  code: string;
+  result: StayCardView[];
+}
+
+export interface ReviewResponseVo {
+  reviewId: number;
+  reservationId?: string;
+  rating: number;
+  createdAt: string;
+  thumbnail: string;
+}
+
+export interface ReviewDetailResponseVo {
+  reviewId: number;
+  reservationId?: string;
+  rating: number;
+  createdAt: string;
+  content: string;
+}
+
+export interface BaseResponse<T> {
+  status: number;
+  success: boolean;
+  message: string;
+  code: string;
+  result: T;
+}

@@ -3,83 +3,233 @@
 import ReservationPromo from '../components/promo/ReservationPromo';
 import { Button } from '@/components/atoms/Button';
 import SearchUserBar from '../components/SearchUserBar';
-import UserCard, { type UserItem } from '../components/UserCard';
+import UserCard from '../components/UserCard';
 import { useLanguage } from '@/features/language';
 import { reservationMessages } from '@/features/reservation/locale';
-import { useReservationStore } from '@/features/reservation/store';
-import { CheckCircle2, XCircle } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useAuthStore } from '@/stores/useAuthStores';
+import { useReservationStore } from '@/stores/useResversionStores';
+import { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
+import { searchUsers } from '@/services/reservation.api';
+import type { UserSearchItem } from '@/services/reservation.types';
+import { toast } from 'react-hot-toast';
+import { ChevronLeft } from 'lucide-react';
 
-const DUMMY_USERS: UserItem[] = [
-  { id: '1', nickname: '이민희' },
-  { id: '2', nickname: '이민희' },
-  { id: '3', nickname: '이민희' },
-  { id: '4', nickname: '이민희' },
-  { id: '5', nickname: '이민희' },
-  { id: '6', nickname: '이민희' },
-  { id: '7', nickname: '이민희' },
-  { id: '8', nickname: '이민희' },
-  { id: '9', nickname: '이민희' },
-];
+// async function searchUsers(
+//   query: string,
+//   page: number,
+//   size: number
+// ): Promise<{ status: number; result: { users: UserSearchItem[] } }> {
+//   const mockUsers: UserSearchItem[] = [
+//     { id: 1, nickname: '홍길동', profileUrl: 'hong@test.com' },
+//     { id: 2, nickname: '김철수', profileUrl: 'kim@test.com' },
+//     { id: 3, nickname: '이영희', profileUrl: 'lee@test.com' },
+//     { id: 4, nickname: '박민수', profileUrl: 'park@test.com' },
+//     { id: 5, nickname: '최수진', profileUrl: 'choi@test.com' },
+//     { id: 6, nickname: '정우성', profileUrl: 'jung@test.com' },
+//   ];
+
+//   const filtered = mockUsers.filter((u) => u.nickname.includes(query));
+//   const start = page * size;
+//   const end = start + size;
+
+//   return {
+//     status: 200,
+//     result: {
+//       users: filtered.slice(start, end),
+//     },
+//   };
+// }
 
 export function Step2_SmartKey() {
   const { lang } = useLanguage();
   const t = reservationMessages[lang];
-  const { setStep } = useReservationStore();
+  const store = useReservationStore();
 
   const [query, setQuery] = useState('');
+  const [results, setResults] = useState<UserSearchItem[]>([]);
+  const nickname = useAuthStore((state) => state.nickname);
+  const profileUrl = useAuthStore((state) => state.profileUrl);
+  const uuid = useAuthStore((state) => state.uuid);
+
+  const [selectedUsers, setSelectedUsers] = useState<UserSearchItem[]>(
+    uuid && nickname
+      ? [
+          {
+            id: Number(uuid),
+            nickname,
+            profileUrl: profileUrl,
+          },
+        ]
+      : []
+  );
+  const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
 
-  const results = useMemo(() => {
-    if (!query) return DUMMY_USERS;
-    return DUMMY_USERS.filter((u) => u.nickname.includes(query));
-  }, [query]);
+  const [page, setPage] = useState(0);
+  const size = 6;
 
   const hasResult = results.length > 0;
-  const canNext = true;
+  const canNext = selectedUsers.length > 0;
+
+  useEffect(() => {
+    if (!query) {
+      setResults([]);
+      setSearched(false);
+      return;
+    }
+
+    const delay = setTimeout(async () => {
+      try {
+        setLoading(true);
+        setSearched(true);
+        const res = await searchUsers(query, page, size);
+        console.log(res);
+        if (res.status === 200 && res.result) {
+          setResults(res.result.users);
+        } else {
+          setResults([]);
+        }
+      } catch (err) {
+        console.error(err);
+        setResults([]);
+      } finally {
+        setLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delay);
+  }, [query, page]);
+
+  const handleSelectUser = (user: UserSearchItem) => {
+    if (selectedUsers.some((u) => u.id === user.id)) return;
+    setSelectedUsers((prev) => [...prev, user]);
+    toast.success(`${user.nickname} ${t.step2.successMessage}`);
+  };
+
+  const handleBack = () => {
+    if (store.currentStep > 1) {
+      store.setStep(store.currentStep - 1);
+    }
+  };
+
+  const filteredResults = results.filter((u) => !selectedUsers.some((sel) => sel.id === u.id));
 
   return (
-    <section className="flex flex-col flex-1 gap-5">
+    <div className="max-w-md w-full mx-auto flex flex-1 flex-col min-h-[calc(100vh-100px)] overflow-y-auto">
+      <div className="fixed left-1/2 -translate-x-1/2 top-[env(safe-area-inset-top)] w-full max-w-[480px] z-[70]">
+        <header className="relative h-14 bg-white px-2 flex items-center justify-between border-x border-gray-100">
+          <button
+            onClick={handleBack}
+            className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200"
+            aria-label="back"
+          >
+            <ChevronLeft className="w-7 h-7 text-gray-500" />
+          </button>
+
+          <h1 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-gray-600">
+            {t.header.title}
+          </h1>
+
+          <div className="w-7" />
+        </header>
+      </div>
+
+      <div className="mb-6">
+        <h1 className="text-xl font-bold mb-2 pt-2">{t.step2.title}</h1>
+      </div>
+
       <ReservationPromo />
 
-      <div className="mt-2">
+      <div className="mt-6">
         <SearchUserBar
           placeholder={t.step2.searchPlaceholder}
-          onSubmit={(kw) => {
-            setQuery(kw);
-            setSearched(true);
-          }}
+          onChange={(kw) => setQuery(kw)}
+          onSubmit={(kw) => setQuery(kw)}
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-2 mt-2">
-        {results.slice(0, 6).map((u) => (
-          <UserCard key={u.id} user={u} />
-        ))}
+      {selectedUsers.length > 0 && (
+        <div className="grid grid-cols-3 gap-2 mt-4">
+          {selectedUsers.map((u) => (
+            <div key={`selected-${u.id}`} className="relative">
+              <UserCard
+                user={{
+                  ...u,
+                  id: String(u.id),
+                  profileUrl: u.profileUrl ?? undefined,
+                }}
+              />
+              {u.nickname !== nickname && (
+                <button
+                  onClick={() => setSelectedUsers((prev) => prev.filter((sel) => sel.id !== u.id))}
+                  className="absolute top-1 right-1 bg-black/30 rounded-full p-1 hover:bg-black/60"
+                >
+                  <X size={14} className="text-white" />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {searched && !loading && (
+        <div className="mt-3 px-4 py-3 bg-primary/10 text-primary text-sm rounded-md flex items-center gap-2">
+          <span className="text-sm">{hasResult ? t.step2.searchMessage : t.step2.failMessage}</span>
+        </div>
+      )}
+
+      <div className="grid grid-cols-3 gap-2 mt-4">
+        {loading ? (
+          <span className="col-span-3 text-center text-gray-400 text-sm">검색 중...</span>
+        ) : (
+          filteredResults.map((u) => (
+            <div key={u.id} onClick={() => handleSelectUser(u)} className="cursor-pointer">
+              <UserCard
+                user={{
+                  ...u,
+                  id: String(u.id),
+                  profileUrl: u.profileUrl ?? undefined,
+                }}
+              />
+            </div>
+          ))
+        )}
       </div>
 
-      <div className="mt-auto space-y-3 pb-2">
-        {searched && (
-          <div className="px-4 py-3 rounded-md bg-gray-200 text-gray-700 flex items-center gap-2">
-            {hasResult ? (
-              <CheckCircle2 className="text-green-500" />
-            ) : (
-              <XCircle className="text-red-500" />
-            )}
-            <span className="text-sm">
-              {hasResult ? t.step2.successMessage : t.step2.failMessage}
-            </span>
-          </div>
-        )}
+      {searched && !loading && (
+        <div className="flex justify-center items-center gap-3 my-6">
+          <button
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={page === 0}
+            className="px-3 py-1 text-sm text-gray-500 disabled:text-gray-300 hover:text-gray-700 transition"
+          >
+            ←
+          </button>
 
+          <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm font-medium">
+            {page + 1}
+          </span>
+
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            disabled={!hasResult || results.length < size}
+            className="px-3 py-1 text-sm text-gray-500 disabled:text-gray-300 hover:text-gray-700 transition"
+          >
+            →
+          </button>
+        </div>
+      )}
+
+      <div className="mt-auto pb-2">
         <Button
-          variant={canNext ? 'default' : 'google'}
+          variant={canNext ? 'blue' : 'blueLight'}
           disabled={!canNext}
-          onClick={() => setStep(3)}
+          onClick={() => store.setStep(3)}
         >
           {t.step2.next}
         </Button>
       </div>
-    </section>
+    </div>
   );
 }
