@@ -59,8 +59,9 @@ dependencies {
     testImplementation 'it.ozimov:embedded-redis:0.7.3'
 
     // sqs
-    implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.0.1")
-    implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs'
+    implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.2.0")
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs' // 버전 명시 없이 BOM에서 상속받음
+
 
     // WebSocket (실시간 알림용)
     implementation 'org.springframework.boot:spring-boot-starter-websocket'

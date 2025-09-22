@@ -50,7 +50,7 @@ public class CancelReservationTxService {
         }
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> data = (Map<String, Object>) resp.get("data");
+        Map<String, Object> data = (Map<String, Object>) resp.get("dto");
 
         if (data == null || data.get("challengeId") == null) {
             throw new RuntimeException("❌ missing challengeId: " + resp);

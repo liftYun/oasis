@@ -1,5 +1,5 @@
 package org.muhan.oasis.valueobject;
 
 public enum MessageType {
-    STAY, REVIEW, SUMMARY
+    STAY_TRANSLATE, REVIEW_TRANSLATE, REVIEW_SUMMARIZE
 }
