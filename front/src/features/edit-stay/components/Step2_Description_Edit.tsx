@@ -28,10 +28,13 @@ export function Step2_Description_Edit() {
     if (store.description && store.description !== description) {
       setDescription(store.description);
     }
-    if (store.maxGuest && store.maxGuest !== maxGuest) {
+  }, [store.description]);
+
+  useEffect(() => {
+    if (store.maxGuest) {
       setMaxGuest(store.maxGuest);
     }
-  }, [store.description, store.maxGuest]);
+  }, []);
 
   const handleChange: React.ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     const isComposing = (e.nativeEvent as any)?.isComposing;

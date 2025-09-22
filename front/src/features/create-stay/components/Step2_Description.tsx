@@ -28,10 +28,13 @@ export function Step2_Description() {
     if (store.description && store.description !== description) {
       setDescription(store.description);
     }
-    if (store.maxGuest && store.maxGuest !== maxGuest) {
+  }, [store.description]);
+
+  useEffect(() => {
+    if (store.maxGuest) {
       setMaxGuest(store.maxGuest);
     }
-  }, [store.description, store.maxGuest]);
+  }, []);
 
   const handleChange: React.ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     const isComposing = (e.nativeEvent as any)?.isComposing;
@@ -68,7 +71,7 @@ export function Step2_Description() {
   return (
     <div className="max-w-md w-full mx-auto flex flex-1 flex-col min-h-[calc(100vh-100px)] overflow-y-auto">
       <div className="fixed left-1/2 -translate-x-1/2 top-[env(safe-area-inset-top)] w-full max-w-[480px] z-[70]">
-        <header className="relative h-14 bg-white px-2 flex items-center justify-between">
+        <header className="relative h-14 bg-white px-2 flex items-center justify-between border-x border-gray-100">
           <button
             onClick={handleBack}
             className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200"
@@ -92,6 +95,7 @@ export function Step2_Description() {
           <span className="text-primary font-bold">{t.step2.tipTitle}</span> {t.step2.tipText}
         </div>
 
+        {/* ✅ 게스트 수 */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-600 mb-2">
             {t.step2.maxGuestLabel}
