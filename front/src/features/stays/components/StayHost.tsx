@@ -2,6 +2,7 @@
 
 import { useLanguage } from '@/features/language';
 import { stayDetailLocale } from '@/features/stays/locale';
+import { HostInfoResponseDto } from '@/services/stay.types';
 
 interface Host {
   nickname: string;
@@ -11,7 +12,7 @@ interface Host {
 
 interface StayHostProps {
   host: Host;
-  onChatStart: () => void;
+  onChatStart: (host: HostInfoResponseDto) => void;
 }
 
 export default function StayHost({ host, onChatStart }: StayHostProps) {
@@ -41,7 +42,7 @@ export default function StayHost({ host, onChatStart }: StayHostProps) {
         </div>
       </div>
       <button
-        onClick={onChatStart}
+        onClick={() => onChatStart(host)}
         className="mt-4 w-full rounded-md py-3 text-sm font-medium text-gray-600 transition"
         style={{
           background: 'linear-gradient(to right, #dbeafe, #fef9c3)',

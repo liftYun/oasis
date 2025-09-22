@@ -55,12 +55,12 @@ export default function ReservationPage() {
     }
   }, [currentStep, router]);
 
-  useEffect(() => {
-    const unsub = useReservationStore.subscribe((state) => {
-      console.log('📌 ReservationStore 변경됨:', state);
-    });
-    return () => unsub();
-  }, []);
+  // useEffect(() => {
+  //   const unsub = useReservationStore.subscribe((state) => {
+  //     console.log('ReservationStore 변경됨:', state);
+  //   });
+  //   return () => unsub();
+  // }, []);
 
   const renderStep = () => {
     const state = useReservationStore.getState();

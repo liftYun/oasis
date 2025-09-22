@@ -58,7 +58,7 @@ export function Step2_SmartKey() {
           {
             id: Number(uuid),
             nickname,
-            profileUrl: profileUrl,
+            profileImageUrl: profileUrl,
           },
         ]
       : []
@@ -84,9 +84,8 @@ export function Step2_SmartKey() {
         setLoading(true);
         setSearched(true);
         const res = await searchUsers(query, page, size);
-        console.log(res);
-        if (res.status === 200 && res.result) {
-          setResults(res.result.users);
+        if (res.code === 200 && res.result) {
+          setResults(res.result.content);
         } else {
           setResults([]);
         }
@@ -157,7 +156,7 @@ export function Step2_SmartKey() {
                 user={{
                   ...u,
                   id: String(u.id),
-                  profileUrl: u.profileUrl ?? undefined,
+                  profileUrl: u.profileImageUrl ?? undefined,
                 }}
               />
               {u.nickname !== nickname && (
@@ -189,7 +188,7 @@ export function Step2_SmartKey() {
                 user={{
                   ...u,
                   id: String(u.id),
-                  profileUrl: u.profileUrl ?? undefined,
+                  profileUrl: u.profileImageUrl ?? undefined,
                 }}
               />
             </div>
