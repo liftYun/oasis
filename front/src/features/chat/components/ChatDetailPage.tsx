@@ -10,6 +10,7 @@ import { useLanguage } from '@/features/language';
 import { notifySendFail, notifyTooLong } from '@/features/chat/api/toastHelpers';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { translateMessage } from '@/services/chat.api';
+import ScrollToBottomButton from '@/features/chat/components/ScrollToBottomButton';
 
 interface ChatDetailPageProps {
   chatId: string;
@@ -140,6 +141,7 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
       </section>
 
       <InputBar onSend={handleSend} />
+      <ScrollToBottomButton anchorRef={bottomRef} />
     </main>
   );
 }
