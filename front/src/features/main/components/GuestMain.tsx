@@ -25,6 +25,7 @@ import {
   deleteWish,
 } from '@/services/stay.api';
 import { StayCardByWishDto, WishResponseDto } from '@/services/stay.types';
+import { FooterInfo } from '@/components/organisms/FooterInfo';
 
 function ScrollableRoomList({
   rooms,
@@ -188,7 +189,10 @@ export function GuestMain() {
   }, []);
 
   return (
-    <main className="flex flex-col w-full px-6 pb-10 pt-6 min-h-screen">
+    <main
+      className="flex flex-col w-full px-6 pb-10 pt-6 min-h-screen"
+      style={{ paddingBottom: 'var(--safe-bottom, 110px)' }}
+    >
       <SearchBar />
       <section className="mt-6">
         <div className="relative w-full h-[22rem] flex flex-col items-center justify-center">
@@ -239,7 +243,20 @@ export function GuestMain() {
       <div className="-mx-6 w-screen h-3 bg-gray-100 my-8" />
 
       <section className="mt-10">
+        <div className="flex items-center gap-4 px-1 mb-10">
+          <Image src={Logo} alt="logo" width={44} height={44} />
+          <div className="flex flex-col">
+            <h3 className="text-lg font-semibold text-gray-700">{t.brandTitle}</h3>
+            <p className="text-sm text-gray-400">{t.brandPrefix}</p>
+          </div>
+        </div>
         <MainCard />
+      </section>
+
+      <div className="-mx-6 w-screen h-3 bg-gray-100 my-8" />
+
+      <section className="mb-20">
+        <FooterInfo />
       </section>
     </main>
   );

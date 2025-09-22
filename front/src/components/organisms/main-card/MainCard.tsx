@@ -19,7 +19,7 @@ export default function MainCard() {
   const { lang } = useLanguage();
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-4 w-full mb-20">
       {promoBase.map((item, i) => {
         const text = messages[lang][i];
         return (
