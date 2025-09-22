@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/atoms/Button';
 import CalendarSheet from '@/components/organisms/CalendarSheet';
 import CalenderIcon from '@/assets/icons/calender.png';
 import type { DateRange } from 'react-day-picker';
-import { useStayStores } from '@/stores/useStayStores';
-import { format } from 'date-fns';
+import { useStayStores } from '@/stores/useStayEditStroes';
+import { format, parseISO } from 'date-fns';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
 import { ChevronLeft } from 'lucide-react';
@@ -22,10 +22,18 @@ export function Step4_Availability_Edit() {
   const router = useRouter();
 
   const [ranges, setRanges] = useState<DateRange[]>([]);
-  const hasPicked = ranges.length > 0;
 
-  const readOnlyInputClassName =
-    'flex h-12 w-full cursor-pointer items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-base placeholder:text-sm placeholder:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50';
+  useEffect(() => {
+    if (stayStore.blockRangeList && stayStore.blockRangeList.length > 0) {
+      const initialRanges = stayStore.blockRangeList.map((r) => ({
+        from: parseISO(r.start),
+        to: parseISO(r.end),
+      }));
+      setRanges(initialRanges);
+    }
+  }, [stayStore.blockRangeList]);
+
+  const hasPicked = ranges.length > 0;
 
   const handleBack = () => {
     if (stayStore.currentStep > 1) {
@@ -79,17 +87,30 @@ export function Step4_Availability_Edit() {
                 setOpen(true);
               }
             }}
-            className={`${readOnlyInputClassName} text-sm relative ${
-              hasPicked ? 'text-gray-900' : 'text-gray-300'
-            }`}
+            className="flex w-full cursor-pointer items-center rounded-lg border border-gray-300 bg-white px-4 relative min-h-[3rem] py-2 text-sm"
           >
-            {hasPicked ? t.step4.placeholderSelected : t.step4.placeholder}
+            {hasPicked ? (
+              <div className="flex flex-col justify-center gap-1 flex-1">
+                {ranges.map((r, idx) => {
+                  const from = format(r.from!, 'yyyy-MM-dd');
+                  const to = r.to ? format(r.to, 'yyyy-MM-dd') : from;
+                  return (
+                    <span key={idx} className="block text-gray-700">
+                      {from === to ? from : `${from} ~ ${to}`}
+                    </span>
+                  );
+                })}
+              </div>
+            ) : (
+              <span className="text-gray-300 flex-1">{t.step4.placeholder}</span>
+            )}
+
             <Image
               src={CalenderIcon}
               alt="calendar"
               width={18}
               height={18}
-              className="absolute right-3"
+              className="absolute right-3 top-1/2 -translate-y-1/2"
             />
           </div>
         </div>

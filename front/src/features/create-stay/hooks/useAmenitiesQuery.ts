@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   AMENITIES_BY_CATEGORY,
-  type AmenityCategoryKey,
   AMENITY_LABELS,
+  AMENITY_KEY_TO_ID,
+  type AmenityCategoryKey,
   type AmenityOptionKey,
 } from '@/features/create-stay/constants/amenities';
 import { useLanguage } from '@/features/language';
@@ -10,14 +11,13 @@ import { createStayMessages } from '@/features/create-stay/locale';
 
 export interface AmenitiesData {
   categoryLabels: Record<AmenityCategoryKey, string>;
-  // 카테고리별 옵션 ID 배열
-  amenityIdsByCategory: Record<AmenityCategoryKey, AmenityOptionKey[]>;
-  // ID -> 라벨 맵 (현재 언어)
-  amenityLabels: Record<AmenityOptionKey, string>;
+  amenityIdsByCategory: Record<AmenityCategoryKey, number[]>;
+  amenityLabels: Record<number, string>;
 }
 
 const buildAmenities = (lang: 'kor' | 'eng'): AmenitiesData => {
   const t = createStayMessages[lang];
+
   return {
     categoryLabels: {
       bathroom: t.categories.bathroom,
@@ -26,13 +26,18 @@ const buildAmenities = (lang: 'kor' | 'eng'): AmenitiesData => {
       convenience: t.categories.convenience,
       around: t.categories.around,
     },
-    amenityIdsByCategory: AMENITIES_BY_CATEGORY,
-    amenityLabels: Object.fromEntries(
-      (Object.keys(AMENITY_LABELS) as AmenityOptionKey[]).map((key) => [
-        key,
-        AMENITY_LABELS[key][lang],
+    amenityIdsByCategory: Object.fromEntries(
+      Object.entries(AMENITIES_BY_CATEGORY).map(([cat, keys]) => [
+        cat,
+        keys.map((k) => AMENITY_KEY_TO_ID[k as AmenityOptionKey]),
       ])
-    ) as Record<AmenityOptionKey, string>,
+    ) as Record<AmenityCategoryKey, number[]>,
+    amenityLabels: Object.fromEntries(
+      Object.entries(AMENITY_LABELS).map(([key, value]) => [
+        AMENITY_KEY_TO_ID[key as AmenityOptionKey],
+        value[lang],
+      ])
+    ) as Record<number, string>,
   };
 };
 

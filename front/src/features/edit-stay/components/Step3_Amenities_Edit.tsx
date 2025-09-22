@@ -6,7 +6,7 @@ import { SegmentedTabs } from '@/components/molecules/SegmentedTabs';
 import { MultiSelectChips } from '@/components/molecules/MultiSelectChips';
 import { useAmenitiesQuery } from '@/features/create-stay/hooks/useAmenitiesQuery';
 import type { AmenityCategoryKey } from '@/features/create-stay/constants/amenities';
-import { useStayStores } from '@/stores/useStayStores';
+import { useStayStores } from '@/stores/useStayEditStroes';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
 import { ChevronLeft } from 'lucide-react';
@@ -36,11 +36,10 @@ export function Step3_Amenities_Edit() {
     label: data.categoryLabels[key],
   }));
 
-  const currentIds = (data.amenityIdsByCategory[category] as unknown as number[]) ?? [];
-
+  const currentIds = data.amenityIdsByCategory[category] ?? [];
   const currentOptions = currentIds.map((id) => ({
     key: id,
-    label: data.amenityLabels[id as unknown as keyof typeof data.amenityLabels],
+    label: data.amenityLabels[id] ?? String(id),
   }));
   const categorySelected = selectedIds.filter((id) => currentIds.includes(id));
 

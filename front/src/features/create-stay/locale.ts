@@ -142,7 +142,7 @@ export const createStayMessages: Record<'kor' | 'eng', CreateStayTexts> = {
     step2: {
       title: 'Write an introduction for your stay.',
       tipTitle: 'TIP',
-      tipText: 'Highlight unique benefits or special points.',
+      tipText: 'Highlight unique features or special details guests may appreciate.',
       descriptionLabel: 'Introduction',
       descriptionPlaceholder: 'Write about your stay',
       maxGuestLabel: 'Max guests',
