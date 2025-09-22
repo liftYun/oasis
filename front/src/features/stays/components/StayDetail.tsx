@@ -22,7 +22,7 @@ import { toast } from 'react-hot-toast';
 
 export function StayDetail() {
   const { lang } = useLanguage();
-  const t = stayDetailLocale[lang] as (typeof stayDetailLocale)['eng'];
+  const t = stayDetailLocale[lang];
   const { id } = useParams();
   const router = useRouter();
   const pathname = usePathname();
