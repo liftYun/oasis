@@ -3,6 +3,7 @@ export type ChatSummary = {
   title: string;
   location: string;
   thumbnailUrl: string;
+  opponentProfileUrl?: string;
   lastDate: string; // ISO or YYYY.MM.DD string for now
 };
 

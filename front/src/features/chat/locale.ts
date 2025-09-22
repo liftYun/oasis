@@ -13,6 +13,8 @@ export const chatMessages = {
     pm: '오후',
     emptyTitle: '메시지가 없습니다.',
     emptySubtitle: '첫 메시지를 보내 대화를 시작해 보세요.',
+    loadError: '채팅 정보를 불러올 수 없습니다.',
+    retry: '다시 시도',
   },
   eng: {
     titleChat: 'Chat',
@@ -28,6 +30,8 @@ export const chatMessages = {
     pm: 'PM',
     emptyTitle: 'No messages yet.',
     emptySubtitle: 'Send the first message to start the conversation.',
+    loadError: 'Unable to load chat info.',
+    retry: 'Retry',
   },
 } as const;
 
