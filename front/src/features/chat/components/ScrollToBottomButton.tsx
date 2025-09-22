@@ -84,7 +84,7 @@ export default function ScrollToBottomButton({
       observer.disconnect();
       if (rafId !== null) cancelAnimationFrame(rafId);
     };
-  }, [anchorRef, threshold]);
+  }, [anchorRef, threshold, bottomSlack]);
 
   const scrollToBottom = () => {
     anchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
