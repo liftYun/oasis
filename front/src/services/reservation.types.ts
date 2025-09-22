@@ -44,18 +44,18 @@ export interface CreateReservationResponse {
 export interface UserSearchItem {
   id: number;
   nickname: string;
-  profileUrl?: string | null;
+  profileImageUrl?: string | null;
 }
 
 export interface UserSearchResultResponseVo {
-  users: UserSearchItem[];
+  content: UserSearchItem[];
   page: number;
   size: number;
   total: number;
 }
 
 export interface BaseResponse<T> {
-  status: number;
+  code: number;
   message: string;
   result: T | null;
 }
@@ -79,7 +79,7 @@ export interface ReservationResponseDto {
 // 리뷰 작성 요청
 export interface RegistReviewRequestVo {
   reservationId: string;
-  rating: number; // BigDecimal -> number로 매핑
+  rating: number;
   originalContent?: string;
 }
 

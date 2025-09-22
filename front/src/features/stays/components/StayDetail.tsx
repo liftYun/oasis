@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { fetchStayDetail } from '@/services/stay.api';
-import { StayReadResponseDto } from '@/services/stay.types';
+import { StayReadResponseDto, HostInfoResponseDto } from '@/services/stay.types';
 import { useLanguage } from '@/features/language';
 import { stayDetailLocale } from '@/features/stays/locale';
 import StayImageSlider from './StayImageSlider';
@@ -14,7 +14,7 @@ import StayDescription from './StayDescription';
 import StayFacilities from './StayFacilities';
 import StayReview from './StayReview';
 import StayHost from './StayHost';
-import { ChevronLeft, SquarePen } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 
 export function StayDetail() {
   const { lang } = useLanguage();
@@ -26,6 +26,10 @@ export function StayDetail() {
 
   const [stay, setStay] = useState<StayReadResponseDto | null>(null);
   const [loading, setLoading] = useState(true);
+  const handleChatStart = (host: HostInfoResponseDto) => {
+    // host 정보를 쿼리스트링이나 state로 넘김
+    router.push(`/chat?hostId=${host.uuid}&hostName=${host.nickname}`);
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -95,7 +99,7 @@ export function StayDetail() {
 
         {/* <div className="-mx-6 w-screen h-3 bg-gray-100 my-12" /> */}
 
-        <StayHost host={stay.host} onChatStart={() => console.log('채팅 시작')} />
+        <StayHost host={stay.host} onChatStart={handleChatStart} />
       </main>
 
       {isManageMode ? <StayHostBar stay={stay} /> : <StayBookingBar stay={stay} />}
