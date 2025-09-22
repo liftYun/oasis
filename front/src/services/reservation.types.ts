@@ -41,6 +41,19 @@ export interface CreateReservationResponse {
   } | null;
 }
 
+// 예약 생성 응답 타입 (approve, lock)
+export interface BlockChainReservationResponse {
+  httpStatus: any;
+  isSuccess: boolean;
+  message: string;
+  code: number;
+  result: {
+    challengeId: string;
+    userToken: string;
+    encryptionKey: string;
+  };
+}
+
 export interface UserSearchItem {
   id: number;
   nickname: string;

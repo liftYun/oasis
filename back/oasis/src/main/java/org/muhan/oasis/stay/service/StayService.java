@@ -1,12 +1,14 @@
 package org.muhan.oasis.stay.service;
 
 
+import org.muhan.oasis.openAI.dto.out.ReviewSummaryResultDto;
 import org.muhan.oasis.stay.dto.in.CreateStayRequestDto;
 import org.muhan.oasis.stay.dto.in.StayChatRequestDto;
 import org.muhan.oasis.stay.dto.in.StayQueryRequestDto;
 import org.muhan.oasis.stay.dto.in.UpdateStayRequestDto;
 import org.muhan.oasis.stay.dto.out.*;
 import org.muhan.oasis.valueobject.Language;
+import org.muhan.oasis.valueobject.Rate;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -31,4 +33,6 @@ public interface StayService {
     List<StayChatResponseDto> getStays(List<StayChatRequestDto> stayChatListDto, String userUuid);
 
     List<StayCardView> findMyStays(String userUuid);
+
+    void updateReviewSummary(Long reviewId, Rate rate, ReviewSummaryResultDto result);
 }
