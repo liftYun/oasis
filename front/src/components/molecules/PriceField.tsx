@@ -8,7 +8,7 @@ import { createStayMessages } from '@/features/create-stay/locale';
 
 interface PriceFieldProps {
   control: Control<any>;
-  name: string; // e.g. 'price'
+  name: string;
   registration: UseFormRegisterReturn;
   error?: FieldError;
   id?: string;
@@ -26,11 +26,10 @@ export function PriceField({
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
   const value = useWatch({ control, name });
-  const showCurrency = value !== undefined && value !== null && value !== ('' as any);
+  const showCurrency = value !== undefined && value !== null && value !== '';
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
     const target = e.currentTarget;
-    // 허용 키: 편집/이동/제어 조합
     const controlKeys = [
       'Backspace',
       'Tab',

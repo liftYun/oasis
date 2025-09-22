@@ -7,7 +7,10 @@ import { useEffect, useState } from 'react';
 import { logout } from '@/services/auth.api';
 import { getMyProfile } from '@/services/user.api';
 import type { MyProfile } from '@/services/user.types';
+import Manage from '@/assets/icons/annoucer.png';
 import Calendar from '@/assets/icons/calendar.png';
+import Heart from '@/assets/icons/heart-blue.png';
+import PositiveReview from '@/assets/icons/positive-review.png';
 import CreateStay from '@/assets/icons/create-stay.png';
 import Policy from '@/assets/icons/dollar.png';
 import SignOut from '@/assets/icons/sign-out.png';
@@ -122,12 +125,12 @@ export function HostProfile() {
         </div>
 
         <div className="w-full max-w-sm space-y-1">
-          <p className="text-sm text-gray-500 mb-2 font-bold">{t.reservation}</p>
+          <p className="text-sm text-gray-500 mb-2 font-bold">{t.stayManage}</p>
           <Link
             href="/my-profile/manage-stay"
             className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
           >
-            <Image src={Calendar} alt="Calendar Icon" width={24} height={24} />
+            <Image src={Manage} alt="Manage Icon" width={22} height={22} />
             <span className="text-gray-800 text-sm">{t.manageStay}</span>
           </Link>
           <Link
@@ -137,6 +140,35 @@ export function HostProfile() {
             <Image src={CreateStay} alt="Create Stay Icon" width={24} height={24} />
             <span className="text-gray-800 text-sm">{t.createStay}</span>
           </Link>
+        </div>
+
+        <div className="w-full max-w-sm space-y-1">
+          <p className="text-sm text-gray-500 mb-2 font-bold">{t.reservation}</p>
+          <Link
+            href="/my-profile/reservations"
+            className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
+          >
+            <Image src={Calendar} alt="Calendar Icon" width={24} height={24} />
+            <span className="text-gray-800 text-sm">{t.reservationHistory}</span>
+          </Link>
+        </div>
+
+        <div className="w-full max-w-sm space-y-1">
+          <p className="text-sm text-gray-500 mb-2 font-bold">{t.activity}</p>
+          <Link
+            href="/my-profile/favorite"
+            className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
+          >
+            <Image src={Heart} alt="Heart Icon" width={24} height={24} />
+            <span className="text-gray-800 text-sm">{t.wishlist}</span>
+          </Link>
+          {/* <Link
+            href="/my-profile/reviews"
+            className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
+          >
+            <Image src={PositiveReview} alt="Positive Review Icon" width={24} height={24} />
+            <span className="text-gray-800 text-sm">{t.reviews}</span>
+          </Link> */}
         </div>
 
         <div className="w-full max-w-sm space-y-1">

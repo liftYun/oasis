@@ -5,44 +5,50 @@ import type { AxiosResponse } from 'axios';
 import {
   CreateStayRequest,
   UpdateStayRequest,
-  StayDetailResponse,
+  StayReadResponseDto,
   PresignedRequest,
   PresignedResponse,
   WishResponseDto,
-  SubRegionDto,
   RegionDto,
   BaseResponse,
   StayCardDto,
   StayCardByWishDto,
+  StayRequestDto,
+  StayReviewResponseVo,
+  SaveStayRequest,
 } from './stay.types';
 
+// 숙소 등록
 export const createStay = (body: CreateStayRequest): Promise<AxiosResponse> => {
   return http.post('/api/v1/stay', body);
 };
 
 // 숙소 수정
-export const updateStay = (stayId: number, body: UpdateStayRequest) =>
-  http.put(`/api/v1/stay/${stayId}`, body);
+export const updateStay = (stayId: number, body: UpdateStayRequest): Promise<AxiosResponse> => {
+  return http.put(`/api/v1/stay/${stayId}`, body);
+};
 
 // 숙소 삭제
-export const deleteStay = (stayId: number) => http.delete(`/api/v1/stay/${stayId}`);
+export const deleteStay = (stayId: number) =>
+  http.delete<BaseResponse<null>>(`/api/v1/stay/${stayId}`, {
+    headers: { Accept: 'application/json' },
+    withCredentials: true,
+  });
 
 // 숙소 상세 조회
-export const getStayDetail = (stayId: number) =>
-  http.get<StayDetailResponse>(`/api/v1/stay/${stayId}`);
+export const fetchStayDetail = (stayId: number) =>
+  http.get<BaseResponse<StayReadResponseDto>>(`/api/v1/stay/${stayId}`);
 
 // 사진 업로드 URL 발급
 export const getPresignedUrls = (imageInfos: PresignedRequest[]) =>
   http.post<BaseResponse<PresignedResponse[]>>('/api/v1/stay/photos/upload-url', { imageInfos });
 
 // 숙소 번역
-export const translateStay = (stayId: number, targetLang: string) =>
-  http.post(`/api/v1/stay/translate`, { stayId, targetLang });
+export const translateStay = (body: StayRequestDto) => http.post('/api/v1/stay/translate', body);
 
 // 숙소 검색
-export const searchStays = (params?: Record<string, any>) => {
-  return http.get<BaseResponse<StayCardDto[]>>('/api/v1/stay', { params });
-};
+export const searchStays = (params?: Record<string, any>) =>
+  http.get<BaseResponse<StayCardDto[]>>('/api/v1/stay', { params });
 
 // 숙소 검색 (관심 많은 순)
 export const searchStaysByWish = () =>
@@ -53,9 +59,7 @@ export const searchStaysByRating = () =>
   http.get<BaseResponse<StayCardByWishDto[]>>('/api/v1/stay/rank/rating');
 
 // 지역 조회
-export const fetchRegions = () => {
-  return http.get<BaseResponse<RegionDto[]>>('/api/v1/stay/region');
-};
+export const fetchRegions = () => http.get<BaseResponse<RegionDto[]>>('/api/v1/stay/region');
 
 // 관심 숙소 등록
 export const addWish = (stayId: number) => http.post<BaseResponse<void>>(`/api/v1/wish/${stayId}`);
@@ -66,3 +70,16 @@ export const fetchWishes = () => http.get<BaseResponse<WishResponseDto[]>>('/api
 // 관심 숙소 삭제
 export const deleteWish = (wishId: number) =>
   http.delete<BaseResponse<void>>(`/api/v1/wish/${wishId}`);
+
+// 숙소 리뷰 목록 조회
+export const fetchStayReviews = (stayId: number) =>
+  http.get<BaseResponse<StayReviewResponseVo[]>>(`/api/v1/review/${stayId}`);
+
+// 숙소 등록/수정 (통합)
+export const saveStay = (body: SaveStayRequest): Promise<AxiosResponse> => {
+  if (body.mode === 'create') {
+    return createStay(body);
+  } else {
+    return updateStay(body.id, body);
+  }
+};

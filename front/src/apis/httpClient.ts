@@ -117,7 +117,7 @@ class HttpClient {
         const status = error.response.status;
         const original = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-        if (status === 401 && !original._retry) {
+        if ((status === 401 || status === 403 || status === 404) && !original._retry) {
           original._retry = true;
           try {
             if (isRefreshing) {

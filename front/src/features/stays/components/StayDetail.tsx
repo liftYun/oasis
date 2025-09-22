@@ -1,37 +1,108 @@
 'use client';
 
-import { useParams } from 'next/navigation';
-import { StayImageSlider, StayBookingBar, StayMap, useStayDetail } from '@/features/stays';
+import { useEffect, useState } from 'react';
+import { useParams, useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { fetchStayDetail } from '@/services/stay.api';
+import { StayReadResponseDto, HostInfoResponseDto } from '@/services/stay.types';
+import { useLanguage } from '@/features/language';
+import { stayDetailLocale } from '@/features/stays/locale';
+import StayImageSlider from './StayImageSlider';
+import StayBookingBar from './StayBookingBar';
+import StayHostBar from './StayHostBar';
+import StayMap from './StayMap';
+import StayDescription from './StayDescription';
+import StayFacilities from './StayFacilities';
+import StayReview from './StayReview';
+import StayHost from './StayHost';
+import { ChevronLeft } from 'lucide-react';
 
 export function StayDetail() {
-  const params = useParams();
-  const id = Number(params.id);
-  const { data, isLoading } = useStayDetail(id);
+  const { lang } = useLanguage();
+  const t = stayDetailLocale[lang];
+  const { id } = useParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  if (isLoading || !data) return <p className="p-10">로딩 중...</p>;
+  const [stay, setStay] = useState<StayReadResponseDto | null>(null);
+  const [loading, setLoading] = useState(true);
+  const handleChatStart = (host: HostInfoResponseDto) => {
+    // host 정보를 쿼리스트링이나 state로 넘김
+    router.push(`/chat?hostId=${host.uuid}&hostName=${host.nickname}`);
+  };
+
+  useEffect(() => {
+    if (!id) return;
+    const load = async () => {
+      try {
+        const res = await fetchStayDetail(Number(id));
+        setStay(res.result);
+      } catch (e) {
+        console.error('숙소 조회 실패:', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [id]);
+
+  if (loading) return <div className="p-6">{t.common.loading}</div>;
+  if (!stay) return <div className="p-6">{t.common.loadError}</div>;
+
+  const isManageMode = pathname.startsWith('/manage') || searchParams.get('from') === 'manage';
 
   return (
-    <div className="pb-28">
-      <StayImageSlider images={data.images} />
+    <section className="overflow-y-auto scrollbar-hide flex flex-1 flex-col relative">
+      <StayImageSlider photos={stay.photos} title={stay.title} />
 
-      {/* <div className="px-6 py-4 space-y-6">
-        <div>
-          <h1 className="text-xl font-semibold">{data.title}</h1>
-          <p className="text-gray-500 text-sm">{data.location}</p>
+      <main className="relative w-full mx-auto px-6 pb-24">
+        <div className="relative text-center justify-between">
+          <button
+            onClick={() => router.back()}
+            className="absolute top-4 left-4 z-20 transition"
+            aria-label="뒤로가기"
+          >
+            <ChevronLeft className="w-7 h-7 text-gray-600" />
+          </button>
+
+          {/* {isManageMode && (
+            <div className="absolute top-4 right-4 group">
+              <button
+                // onClick={() => router.push(`/manage/stay/${stay.stayId}/edit`)}
+                className="p-2 rounded-full hover:bg-gray-100 transition"
+                aria-label="숙소 수정"
+              >
+                <SquarePen className="w-5 h-5 text-gray-600" />
+              </button>
+
+              <span className="absolute top-11 right-0 whitespace-nowrap rounded-md bg-gray-600 text-white text-xs px-3 py-1 opacity-0 group-hover:opacity-100 transition">
+                {t.common.editStay}
+              </span>
+            </div>
+          )} */}
+
+          <h1 className="text-2xl font-bold mt-4">{stay.title}</h1>
+          <p className="text-gray-400 mt-1">
+            {stay.region} · {stay.subRegion}
+          </p>
         </div>
 
-        <div>
-          <h2 className="font-medium mb-2">숙소 설명</h2>
-          <p className="text-sm text-gray-700">{data.description}</p>
-        </div>
+        <StayFacilities facilities={stay.facilities} />
+        <StayDescription description={stay.description} maxGuests={stay.maxGuest} />
+        <StayMap postalCode={stay.postalCode} />
+        <StayReview
+          rating={stay.review.rating}
+          highReviews={stay.review.highRateSummary}
+          lowReviews={stay.review.lowRateSummary}
+          stayId={stay.stayId}
+        />
 
-        <div>
-          <h2 className="font-medium mb-2">숙소 위치</h2>
-          <StayMap latitude={data.latitude} longitude={data.longitude} />
-        </div>
-      </div>
+        {/* <div className="-mx-6 w-screen h-3 bg-gray-100 my-12" /> */}
 
-      <StayBookingBar price={data.pricePerNight} /> */}
-    </div>
+        <StayHost host={stay.host} onChatStart={handleChatStart} />
+      </main>
+
+      {isManageMode ? <StayHostBar stay={stay} /> : <StayBookingBar stay={stay} />}
+    </section>
   );
 }

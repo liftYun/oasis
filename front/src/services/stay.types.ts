@@ -22,6 +22,19 @@ export interface BlockRangeDto {
   end: string; // YYYY-MM-DD
 }
 
+export interface StayRequestDto {
+  detailAddress: string;
+  title: string;
+  content: string;
+  language: 'KOR' | 'ENG';
+}
+
+export interface StayTranslationResultDto {
+  detailAddress: string;
+  title: string;
+  content: string;
+}
+
 export interface CreateStayRequest {
   subRegionId: number;
   title: string;
@@ -38,28 +51,78 @@ export interface CreateStayRequest {
   imageRequestList: ImageRequest[];
   facilities?: number[];
   blockRangeList?: BlockRangeDto[];
+  thumbnail?: string | null;
 }
 
 export interface UpdateStayRequest extends CreateStayRequest {
   id: number;
 }
 
-export interface StayDetailResponse {
-  id: number;
+export type SaveStayRequest =
+  | ({ mode: 'create' } & CreateStayRequest)
+  | ({ mode: 'edit'; id: number } & CreateStayRequest);
+
+export interface StayReadResponseDto {
+  stayId: number;
   title: string;
-  titleEng: string;
+  titleEng?: string;
   description: string;
-  descriptionEng: string;
-  price: number;
-  address: string;
-  addressEng: string;
-  addressDetail: string;
-  addressDetailEng: string;
+  descriptionEng?: string;
+  region: string;
+  subRegion: string;
+  subRegionId?: number;
   postalCode: string;
   maxGuest: number;
-  images: string[];
-  facilities: number[];
-  blockRangeList: BlockRangeDto[];
+  price: number;
+  photos: ImageResponseDto[];
+  review: StayReviewSummaryResponseDto;
+  host: HostInfoResponseDto;
+  facilities: FacilityCategoryResponseDto[];
+  cancellations: StayBlockResponseDto[];
+  reservedDate: ReservedResponseDto[];
+
+  address?: string;
+  addressEng?: string;
+  addressDetail?: string;
+  addressDetailEng?: string;
+}
+
+export interface ImageResponseDto {
+  url: string;
+  sortOrder: number;
+}
+
+export interface StayReviewSummaryResponseDto {
+  rating: number;
+  count: number;
+  highRateSummary: string;
+  lowRateSummary: string;
+}
+
+export interface HostInfoResponseDto {
+  nickname: string;
+  uuid: string;
+  url?: string;
+}
+
+export interface FacilityCategoryResponseDto {
+  category: string;
+  facilities: FacilityResponseDto[];
+}
+
+export interface FacilityResponseDto {
+  id: number;
+  name: string;
+}
+
+export interface StayBlockResponseDto {
+  startDate: string;
+  endDate: string;
+}
+
+export interface ReservedResponseDto {
+  checkIn: string;
+  checkOut: string;
 }
 
 export interface SubRegionDto {
@@ -100,4 +163,13 @@ export interface StayCardByWishDto {
   rating: number;
   price: number;
   wishCount?: number;
+}
+
+export interface StayReviewResponseVo {
+  reviewId: number;
+  reservationId?: string | null;
+  rating: number;
+  createdAt: string; // ISO-8601
+  content: string;
+  nickname: string;
 }
