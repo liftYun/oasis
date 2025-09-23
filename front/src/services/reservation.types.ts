@@ -168,3 +168,12 @@ export interface ReviewResponseVo {
   createdAt: string;
   thumbnail: string;
 }
+
+// 취소 정책 조회
+export interface CancellationPolicyResponseVo {
+  id: number;
+  policy1: number;
+  policy2: number;
+  policy3: number;
+  policy4: number;
+}

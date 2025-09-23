@@ -61,7 +61,7 @@ export function CancelBar({ reservation }: Props) {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ idempotencyKey }),
+          // body: JSON.stringify({ idempotencyKey }),
         }
       );
 

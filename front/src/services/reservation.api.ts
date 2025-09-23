@@ -13,6 +13,7 @@ import type {
   ReviewDetailResponseVo,
   ReviewResponseVo,
   ReservationDetailApiResponse,
+  CancellationPolicyResponseVo,
 } from './reservation.types';
 
 // 예약 등록 (DB에 저장)
@@ -36,6 +37,12 @@ export const fetchReservationDetail = (reservationId: string) =>
 // 예약 취소
 export const cancelReservation = (reservationId: string) =>
   http.put(`/api/v1/reservation/${reservationId}/cancel`);
+
+// 취소 정책 조회
+export const fetchCancellationPolicy = (stayId: number) =>
+  http.get<BaseResponse<CancellationPolicyResponseVo>>(
+    `/api/v1/stay/details/cancellationPolicy/${stayId}`
+  );
 
 // 예약 목록 조회
 export const fetchReservations = () =>

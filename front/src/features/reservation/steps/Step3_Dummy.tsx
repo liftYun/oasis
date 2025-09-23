@@ -28,7 +28,6 @@ export function Step3_Dummy() {
 
   const handleSubmit = async () => {
     if (!agreed) return;
-
     try {
       const result = await store.submit();
 
@@ -116,7 +115,6 @@ export function Step3_Dummy() {
         </div>
       </section>
 
-      {/* Notes */}
       <section className="w-full mt-12 max-w-sm">
         <h2 className="text-lg font-semibold mb-6">{t.step3.notesTitle}</h2>
         <div className="rounded-md bg-gray-100 p-4 text-[13px] leading-6 text-gray-600 font-medium">
@@ -128,7 +126,12 @@ export function Step3_Dummy() {
         </div>
       </section>
 
-      <RefundPolicy />
+      {store.stayId !== undefined && (
+        <RefundPolicy
+          stayId={store.stayId}
+          totalPrice={(store.night ?? 0) * (store.payment ?? 0)}
+        />
+      )}
 
       <div className="mt-12">
         <label className="flex items-start gap-3 text-sm text-gray-600">
