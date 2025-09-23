@@ -39,9 +39,10 @@ public class ReviewServiceImpl implements ReviewService{
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final StayService stayService;
-    private SqsSendService sqsSendService;
+    private final SqsSendService sqsSendService;
 
     @Override
+    @Transactional
     public Long registReview(Long userId, RegistReviewRequestDto registReviewRequestDto) {
         // 1) 예약 존재 확인
         ReservationEntity reservation = reservationRepository.findById(registReviewRequestDto.getReservationId())
