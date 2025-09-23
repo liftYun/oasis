@@ -99,10 +99,24 @@ public enum BaseResponseStatus {
     DUP_PHOTO_KEYS(HttpStatus.BAD_REQUEST, false, 400, "이미지 키가 중복되어 있습니다."),
     DUP_PHOTO_SORT_ORDER(HttpStatus.BAD_REQUEST, false, 400, "이미지 순서가 중복되어 있습니다."),
     BLOCK_OVERLAP_RESERVATION(HttpStatus.BAD_REQUEST, false, 400, "예약 불가능 날짜로 선택할 수 없습니다."),
-    INVALID_BLOCK_RANGE(HttpStatus.BAD_REQUEST, false, 400, "시작 날짜가 끝 날짜보다 이전이어야 합니다.");
+    INVALID_BLOCK_RANGE(HttpStatus.BAD_REQUEST, false, 400, "시작 날짜가 끝 날짜보다 이전이어야 합니다."),
+
+    // Circle API
+    CIRCLE_TIMEOUT(HttpStatus.GATEWAY_TIMEOUT, false, 504, "Circle API 호출 시간 초과"),
+    CIRCLE_AUTH_FAILED(HttpStatus.UNAUTHORIZED, false, 401, "Circle API 인증 실패"),
+    CIRCLE_RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, false, 404, "Circle API 리소스를 찾을 수 없습니다."),
+    CIRCLE_INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "Circle API 처리 중 오류가 발생했습니다."),
+
+    // Web3
+    WEB3_CALL_REVERTED(HttpStatus.BAD_REQUEST, false, 400, "스마트컨트랙트 호출이 revert 되었습니다."),
+    WEB3_GAS_ESTIMATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "가스 추정에 실패했습니다."),
+    WEB3_TX_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "트랜잭션 실행에 실패했습니다."),;
+
     private final HttpStatusCode httpStatusCode;
     private final boolean isSuccess;
     private final int code;
     private final String message;
+
+
 
 }

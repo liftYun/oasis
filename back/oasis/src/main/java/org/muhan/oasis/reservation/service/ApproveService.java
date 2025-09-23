@@ -2,6 +2,8 @@ package org.muhan.oasis.reservation.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.muhan.oasis.common.base.BaseResponseStatus;
+import org.muhan.oasis.common.exception.BaseException;
 import org.muhan.oasis.external.circle.CircleUserApi;
 import org.muhan.oasis.external.circle.CircleUserTokenCache;
 import org.muhan.oasis.reservation.dto.in.ApproveRequestDto;
@@ -42,12 +44,13 @@ public class ApproveService {
                 req.getUserUUID(), req.getAmountUSDC(), req.getFeeUSDC());
 
         if (!StringUtils.hasText(req.getUserUUID())) {
-            throw new IllegalArgumentException("userId is required");
+            throw new BaseException(BaseResponseStatus.NO_EXIST_USER);
         }
 
 
         UserEntity user = userRepository.findByUserUuid(req.getUserUUID())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 UUID 입니다."));
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
         WalletEntity wallet = walletRepository.findByUser(user);
         String walletId = wallet.getWalletId();
         BigInteger amount = req.getAmountUSDC().multiply(BigDecimal.TEN.pow(6)).toBigIntegerExact();
@@ -106,9 +109,8 @@ public class ApproveService {
                         refreshed.getUserToken(),
                         refreshed.getEncryptionKey());
             }
-            throw new ApproveCreateException(
-                    500, "circle approve transaction failed", "circle error: " + ex.getMessage()
-            );
+            throw new BaseException(BaseResponseStatus.CIRCLE_INTERNAL_ERROR);
+
         }
     }
 
@@ -122,18 +124,5 @@ public class ApproveService {
                 || body.contains("\"155105\"")
                 || lower.contains("user token had expired")
                 || lower.contains("usertoken had expired");
-    }
-
-    public static class ApproveCreateException extends RuntimeException {
-        public final int status;
-        public final String messageForUser;
-        public final String result;
-
-        public ApproveCreateException(int status, String messageForUser, String result) {
-            super(messageForUser + " - " + result);
-            this.status = status;
-            this.messageForUser = messageForUser;
-            this.result = result;
-        }
     }
 }
