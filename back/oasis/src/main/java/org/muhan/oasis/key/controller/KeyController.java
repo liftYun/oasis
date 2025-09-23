@@ -19,6 +19,7 @@ import org.muhan.oasis.mqtt.service.MqttPublisherService;
 import org.muhan.oasis.mqtt.vo.in.MqttPublishRequestVo;
 import org.muhan.oasis.security.dto.out.CustomUserDetails;
 import org.muhan.oasis.user.service.UserService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +37,18 @@ public class KeyController {
     private final KeyService keyService;
     private final UserService userService;
     private final MqttPublisherService mqttPublisher;
+
+    @Value("${device.servo.default-action:MOVE}")
+    private String openAction;
+
+    @Value("${device.servo.default-move-angle:90}")
+    private int moveAngle;
+
+    @Value("${device.servo.default-home-angle:0}")
+    private int homeAngle;
+
+    @Value("${device.servo.default-duration-sec:5}")
+    private int durationSec;
 
     public KeyController(KeyService keyService, UserService userService, MqttPublisherService mqttPublisher) {
         this.keyService = keyService;
@@ -99,7 +112,7 @@ public class KeyController {
 
         String payload = """
                 {"action":"%s","moveAngle":%d,"homeAngle":%d,"durationSec":%d, "cmdId":"%s"}
-                """.formatted("MOVE", 90, 0, 1,commandId).replaceAll("\\s+","");
+                """.formatted(openAction, moveAngle, homeAngle, durationSec, commandId).replaceAll("\\s+","");
 
         mqttPublisher.publish(topic, payload, 1, false);
 

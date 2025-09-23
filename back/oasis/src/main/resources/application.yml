@@ -141,3 +141,10 @@ mqtt:
   topic-prefix: cmd
   log:
     directory: ${MQTT_LOG_PATH}
+
+device:
+  servo:
+    default-action: ${DEVICE_OPEN_CMD}
+    default-move-angle: ${DEVICE_MOVE_ANGLE}
+    default-home-angle: ${DEVICE_HOME_ANGLE}
+    default-duration-sec: ${DEVICE_DURATION_SEC}
