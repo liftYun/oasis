@@ -37,8 +37,6 @@ public enum BaseResponseStatus {
      */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "Internal server error"),
     REDIS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "Internal Cache system failure"),
-    DEVICE_OFFLINE(HttpStatus.SERVICE_UNAVAILABLE, false, 503, "디바이스가 오프라인 상태입니다."),
-
 
     /**
      * Service Related Errors
@@ -111,6 +109,10 @@ public enum BaseResponseStatus {
     WEB3_CALL_REVERTED(HttpStatus.BAD_REQUEST, false, 400, "스마트컨트랙트 호출이 revert 되었습니다."),
     WEB3_GAS_ESTIMATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "가스 추정에 실패했습니다."),
     WEB3_TX_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "트랜잭션 실행에 실패했습니다."),;
+
+    // mqtt
+    DEVICE_OFFLINE(HttpStatus.CONFLICT, false, 409, "디바이스가 오프라인 상태입니다.");
+
 
     private final HttpStatusCode httpStatusCode;
     private final boolean isSuccess;
