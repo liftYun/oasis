@@ -19,7 +19,7 @@ export default function EditStayPage({ params }: { params: Promise<{ stayId: str
   const store = useStayStores();
   const didInitRef = useRef(false);
 
-  useStayTranslateSSE();
+  const { disconnect } = useStayTranslateSSE();
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -60,6 +60,14 @@ export default function EditStayPage({ params }: { params: Promise<{ stayId: str
     }
   }, [store.currentStep, stayId, router]);
 
+  const handleComplete = async () => {
+    const success = await store.submit();
+    if (success) {
+      disconnect();
+      router.replace('/my-profile/manage-stay');
+    }
+  };
+
   const renderStep = () => {
     switch (store.currentStep) {
       case 1:
@@ -69,7 +77,7 @@ export default function EditStayPage({ params }: { params: Promise<{ stayId: str
       case 3:
         return <Step3_Amenities_Edit />;
       case 4:
-        return <Step4_Availability_Edit />;
+        return <Step4_Availability_Edit onComplete={handleComplete} />;
       default:
         return <Step1_StayInfo_Edit />;
     }

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuthStore } from '@/stores/useAuthStores';
 import { useStayStores } from '@/stores/useStayStores';
 import type { StayTranslationResultDto } from '@/services/stay.types';
@@ -7,6 +7,7 @@ export function useStayTranslateSSE() {
   const stayStore = useStayStores();
   const authStore = useAuthStore();
   const nickname = authStore.nickname;
+  const esRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
     if (!nickname) {
@@ -14,6 +15,7 @@ export function useStayTranslateSSE() {
     }
 
     const es = new EventSource(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/sse/connect/${nickname}`);
+    esRef.current = es;
 
     // es.onopen = () => {
     //   console.log('SSE 연결 성공');
@@ -32,9 +34,20 @@ export function useStayTranslateSSE() {
       stayStore.setField('descriptionEng', data.content);
     });
 
-    // return () => {
-    //   console.log('SSE 연결 종료');
-    //   es.close();
-    // };
+    return () => {
+      // console.log('SSE 연결 종료 (unmount)');
+      es.close();
+      esRef.current = null;
+    };
   }, [nickname]);
+
+  const disconnect = () => {
+    if (esRef.current) {
+      // console.log('SSE 연결 수동 종료');
+      esRef.current.close();
+      esRef.current = null;
+    }
+  };
+
+  return { disconnect };
 }

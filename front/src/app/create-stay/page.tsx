@@ -17,7 +17,7 @@ export default function CreateStayPage() {
   const store = useStayStores();
   const isReloadRef = useRef(false);
   const didInitRef = useRef(false);
-  useStayTranslateSSE();
+  const { disconnect } = useStayTranslateSSE();
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -70,9 +70,16 @@ export default function CreateStayPage() {
       case 3:
         return <Step3_Amenities />;
       case 4:
-        return <Step4_Availability />;
+        return <Step4_Availability onComplete={handleComplete} />;
       default:
         return <Step1_StayInfo />;
+    }
+  };
+  const handleComplete = async () => {
+    const success = await store.submit();
+    if (success) {
+      disconnect();
+      router.replace('/my-profile/manage-stay');
     }
   };
 

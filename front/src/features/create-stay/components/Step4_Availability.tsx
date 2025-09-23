@@ -13,12 +13,18 @@ import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
 import { ChevronLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useStayTranslateSSE } from '@/features/create-stay/hooks/useStayTranslateSSE';
 
-export function Step4_Availability() {
+type Step4Props = {
+  onComplete?: () => void;
+};
+
+export function Step4_Availability({ onComplete }: Step4Props) {
   const [open, setOpen] = useState(false);
 
   const createStore = useCreateStayStore();
   const stayStore = useStayStores();
+  const { disconnect } = useStayTranslateSSE();
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
   const router = useRouter();
@@ -36,6 +42,7 @@ export function Step4_Availability() {
   const handleSave = async () => {
     const success = await stayStore.submit();
     if (success) {
+      disconnect();
       router.replace(`/my-profile/manage-stay`);
     }
   };
