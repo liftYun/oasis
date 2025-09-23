@@ -35,7 +35,7 @@ public class SseService {
 
     /**
      * sse를 통해 client에 데이터를 전달
-     * id에 해당되는 sse emitter에 event name의 이벤트로 data 전달
+     * id에 해당되는 sse emitter에 event name의 이벤트로 dto 전달
      */
     public void sendToClient(String id, String eventName, Object data) {
         SseEmitter sseEmitter = sseEmitterMap.get(id);

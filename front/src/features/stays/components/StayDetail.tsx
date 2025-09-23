@@ -14,7 +14,11 @@ import StayDescription from './StayDescription';
 import StayFacilities from './StayFacilities';
 import StayReview from './StayReview';
 import StayHost from './StayHost';
-import { StayHeader } from './StayHeader';
+import { ChevronLeft } from 'lucide-react';
+import { useAuthStore } from '@/stores/useAuthStores';
+import { createChatRoom, findExistingChatRoom } from '@/features/chat/api/chat.firestore';
+import { notifyFirebaseUnavailable } from '@/features/chat/api/toastHelpers';
+import { toast } from 'react-hot-toast';
 
 export function StayDetail() {
   const { lang } = useLanguage();
@@ -26,8 +30,64 @@ export function StayDetail() {
 
   const [stay, setStay] = useState<StayReadResponseDto | null>(null);
   const [loading, setLoading] = useState(true);
-  const handleChatStart = (host: HostInfoResponseDto) => {
-    // router.push(`/chat?hostId=${host.uuid}&hostName=${host.nickname}`);
+
+  const { uuid: myUid, profileUrl: myProfileUrl, initialized } = useAuthStore();
+  const [startingChat, setStartingChat] = useState(false);
+
+  const handleChatStart = async (host: HostInfoResponseDto) => {
+    if (startingChat) return;
+
+    // 0) 사전 가드
+    if (!initialized) {
+      toast(t.common.checkingLogin);
+      return;
+    }
+    if (!myUid) {
+      toast.error(t.common.loginRequired);
+      router.push('/register');
+      return;
+    }
+    if (!stay) {
+      toast.error(t.common.stayLoadFailRetry);
+      return;
+    }
+    if (!host?.uuid) {
+      toast.error(t.common.invalidHostInfo);
+      return;
+    }
+
+    setStartingChat(true);
+    try {
+      // 1) 기존 방 조회 (게스트+호스트+숙소)
+      const existingId = await findExistingChatRoom(myUid, host.uuid, stay.stayId);
+      const chatId = existingId
+        ? existingId
+        : await createChatRoom({
+            myUid,
+            myProfileUrl,
+            hostUid: host.uuid,
+            hostProfileUrl: host.url,
+            stayId: stay.stayId,
+          });
+
+      // 2) 숙소 정보와 상대 프로필을 쿼리로 전달 (리스트와 동일 패턴)
+      const title = stay.title;
+      const addr = `${stay.region} · ${stay.subRegion}`;
+      const thumb = stay.photos?.[0]?.url ?? '';
+      const opp = host.url ?? '';
+
+      await router.push(
+        `/chat/${encodeURIComponent(chatId)}?title=${encodeURIComponent(title)}&addr=${encodeURIComponent(
+          addr
+        )}&thumb=${encodeURIComponent(thumb)}&opp=${encodeURIComponent(opp)}`
+      );
+    } catch (e) {
+      if (process.env.NODE_ENV !== 'production') console.error('채팅방 처리 실패:', e);
+      notifyFirebaseUnavailable(lang);
+      toast.error(t.common.chatEnterFailRetry);
+    } finally {
+      setStartingChat(false);
+    }
   };
 
   useEffect(() => {

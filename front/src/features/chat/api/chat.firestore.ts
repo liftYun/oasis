@@ -9,6 +9,7 @@ import {
   orderBy,
   doc,
   addDoc,
+  getDocs,
   updateDoc,
   serverTimestamp,
   type Firestore,
@@ -126,6 +127,9 @@ export async function sendChatMessage(
   if (!content.trim()) return;
 
   const trimmed = content.trim();
+  if (trimmed.length > 500) {
+    throw new Error('MESSAGE_TOO_LONG');
+  }
   const messagesRef = collection(db, 'chats', chatId, 'messages');
   await addDoc(messagesRef, {
     content: trimmed,
@@ -139,4 +143,56 @@ export async function sendChatMessage(
     lastMessage: trimmed,
     updatedAt: serverTimestamp(),
   });
+}
+
+// 기존 채팅방 조회: 내 UUID + 상대 UUID + 숙소 ID 조합으로 단일 방 확인
+export async function findExistingChatRoom(
+  myUid: string,
+  hostUid: string,
+  stayId: number
+): Promise<string | null> {
+  const db = getDb();
+  if (!db) throw new Error('Firestore is not configured');
+
+  const roomsRef = collection(db, 'chats');
+  const q = query(
+    roomsRef,
+    where('memberIds', 'array-contains', myUid),
+    where('stayId', '==', stayId)
+  );
+  const snap = await getDocs(q);
+  for (const d of snap.docs) {
+    const data = d.data() as FirestoreRoom;
+    if (Array.isArray(data.memberIds) && data.memberIds.includes(hostUid)) {
+      return d.id;
+    }
+  }
+  return null;
+}
+
+// 채팅방 생성: 필수 필드 저장 (memberIds, participants, stayId, createdAt/updatedAt)
+export async function createChatRoom(params: {
+  myUid: string;
+  myProfileUrl?: string | null;
+  hostUid: string;
+  hostProfileUrl?: string | null;
+  stayId: number;
+}): Promise<string> {
+  const { myUid, myProfileUrl, hostUid, hostProfileUrl, stayId } = params;
+  const db = getDb();
+  if (!db) throw new Error('Firestore is not configured');
+
+  const roomsRef = collection(db, 'chats');
+  const docRef = await addDoc(roomsRef, {
+    memberIds: [myUid, hostUid],
+    participants: {
+      [myUid]: { profileUrl: myProfileUrl ?? '' },
+      [hostUid]: { profileUrl: hostProfileUrl ?? '' },
+    } as Record<string, { profileUrl: string }>,
+    stayId,
+    lastMessage: '',
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+  return docRef.id;
 }

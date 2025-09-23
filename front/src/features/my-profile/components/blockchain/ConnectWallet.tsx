@@ -11,13 +11,26 @@ interface ConnectWalletProps {
   onConnectSuccess: (address: string, sdkInitData: SdkInitData) => void;
 }
 
+interface JwtPayload {
+  user_uuid?: string;
+  userUuid?: string;
+  sub?: string;
+  uuid?: string;
+  exp?: number;
+  iat?: number;
+  [key: string]: any;
+}
+
 const getUserUuidFromToken = (): string | null => {
-  if (!hasValidToken()) return null;
+  // if (!hasValidToken()) return null;
   const token = getToken();
   if (!token) return null;
 
   const decoded = decodeToken(token);
-  return decoded?.user_uuid || decoded?.userUuid || decoded?.sub || decoded?.uuid || null;
+  if (!decoded) return null;
+
+  const payload = decoded as JwtPayload;
+  return payload.user_uuid || payload.userUuid || payload.sub || payload.uuid || null;
 };
 
 export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) {

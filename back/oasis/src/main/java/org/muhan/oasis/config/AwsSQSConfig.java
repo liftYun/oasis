@@ -1,6 +1,7 @@
 package org.muhan.oasis.config;
 
 import io.awspring.cloud.sqs.config.SqsMessageListenerContainerFactory;
+import io.awspring.cloud.sqs.listener.acknowledgement.handler.AcknowledgementMode;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +12,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 
+import java.time.Duration;
 import java.util.concurrent.Executor;
 
 @Configuration
@@ -51,5 +53,20 @@ public class AwsSQSConfig {
         taskExecutor.setThreadNamePrefix("Async-Task-");
         taskExecutor.initialize();
         return taskExecutor;
+    }
+
+    @Bean
+    public SqsMessageListenerContainerFactory<Object> manualAckSqsListenerContainerFactory(
+            SqsAsyncClient client
+    ) {
+        return SqsMessageListenerContainerFactory.builder()
+                .sqsAsyncClient(client)
+                .configure(options -> options
+                                .acknowledgementMode(AcknowledgementMode.MANUAL)
+                        .messageVisibility(Duration.ofSeconds(120))
+                        .maxMessagesPerPoll(5)
+                        .pollTimeout(Duration.ofSeconds(10))
+                )
+                .build();
     }
 }
