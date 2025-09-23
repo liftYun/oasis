@@ -29,6 +29,7 @@ function mapToSummary(
       opponentProfileUrl: (r.data.participants?.[opponentUid]?.profileUrl || undefined) as
         | string
         | undefined,
+      lastMessage: r.data.lastMessage ?? '',
       lastDate: (() => {
         const ts = r.data.updatedAt?.toDate?.();
         if (!ts) return '';

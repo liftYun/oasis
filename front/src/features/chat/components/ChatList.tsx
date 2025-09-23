@@ -20,6 +20,7 @@ export function ChatList({ items }: ChatListProps) {
           date={c.lastDate}
           thumbnailUrl={c.thumbnailUrl}
           opponentProfileUrl={c.opponentProfileUrl}
+          lastMessage={c.lastMessage}
         />
       ))}
     </div>

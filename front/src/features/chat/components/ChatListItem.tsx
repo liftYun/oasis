@@ -15,6 +15,7 @@ type ChatListItemProps = {
   date: string;
   thumbnailUrl?: string;
   opponentProfileUrl?: string;
+  lastMessage?: string;
 };
 
 export function ChatListItem({
@@ -24,6 +25,7 @@ export function ChatListItem({
   date,
   thumbnailUrl,
   opponentProfileUrl,
+  lastMessage,
 }: ChatListItemProps) {
   const { lang } = useLanguage();
   const t = chatMessages[lang];
@@ -53,7 +55,7 @@ export function ChatListItem({
 
       <div className="min-w-0 flex-1 ms-1">
         <p className="truncate text-base font-bold text-gray-600">{title}</p>
-        <p className="mt-1 truncate text-sm text-gray-400">{location}</p>
+        <p className="mt-1 truncate text-sm text-gray-400">{lastMessage ?? ''}</p>
       </div>
 
       <span className="text-xs text-gray-300 mt-3 mb-auto">{date}</span>
