@@ -73,12 +73,13 @@ export function GuestProfile() {
   return (
     <>
       <div
-        className="flex flex-col items-center px-6 py-8 space-y-6 min-h-screen overflow-y-auto"
+        className="flex flex-col items-center px-6 py-8 min-h-screen overflow-y-auto"
         style={{ paddingBottom: 'var(--safe-bottom, 110px)' }}
       >
         <section
           onClick={handleProfile}
-          className="flex flex-col items-center space-y-2 cursor-pointer"
+          className="flex flex-col items-center space-y-2 cursor-pointer 
+             transition hover:scale-105 rounded-xl p-2"
         >
           {profile?.profileUrl ? (
             <img
@@ -101,7 +102,7 @@ export function GuestProfile() {
 
         <BlockChainWallet />
 
-        <div className="w-full max-w-sm space-y-1">
+        <div className="w-full max-w-sm space-y-1 mt-6">
           <p className="text-sm text-gray-500 mb-2 font-bold">{t.reservation}</p>
           <Link
             href="/my-profile/reservations"
@@ -112,7 +113,7 @@ export function GuestProfile() {
           </Link>
         </div>
 
-        <div className="w-full max-w-sm space-y-1">
+        <div className="w-full max-w-sm space-y-1 mt-6">
           <p className="text-sm text-gray-500 mb-2 font-bold">{t.activity}</p>
           <Link
             href="/my-profile/favorite"
@@ -130,7 +131,7 @@ export function GuestProfile() {
           </Link>
         </div>
 
-        <div className="w-full max-w-sm space-y-1">
+        <div className="w-full max-w-sm space-y-1 mt-6">
           <p className="text-sm text-gray-500 mb-2 font-bold">{t.guide}</p>
           <button
             onClick={() => setLogoutOpen(true)}

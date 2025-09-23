@@ -79,18 +79,19 @@ export function HostProfile() {
   return (
     <>
       <div
-        className="flex flex-col items-center px-6 py-8 space-y-6 min-h-screen overflow-y-auto"
+        className="flex flex-col items-center px-6 py-8 min-h-screen overflow-y-auto"
         style={{ paddingBottom: 'var(--safe-bottom, 110px)' }}
       >
         <section
           onClick={handleProfile}
-          className="flex flex-col items-center space-y-2 cursor-pointer"
+          className="flex flex-col items-center space-y-2 cursor-pointer 
+             transition hover:scale-105 rounded-xl p-2"
         >
           {profile?.profileUrl ? (
             <img
               src={profile.profileUrl}
               alt="프로필 이미지"
-              className="w-20 h-20 rounded-full object-cover"
+              className="w-20 h-20 rounded-full object-cover ring-2 ring-transparent group-hover:ring-blue-400 transition"
             />
           ) : (
             <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">
@@ -107,7 +108,7 @@ export function HostProfile() {
 
         <BlockChainWallet />
 
-        <div className="w-full max-w-sm space-y-1">
+        <div className="w-full max-w-sm space-y-1 mt-6">
           <p className="text-sm text-gray-500 mb-2 font-bold">{t.stayManage}</p>
           <Link
             href="/my-profile/manage-stay"
@@ -125,7 +126,7 @@ export function HostProfile() {
           </Link>
         </div>
 
-        <div className="w-full max-w-sm space-y-1">
+        <div className="w-full max-w-sm space-y-1 mt-6 ">
           <p className="text-sm text-gray-500 mb-2 font-bold">{t.reservation}</p>
           <Link
             href="/my-profile/reservations"
@@ -136,7 +137,7 @@ export function HostProfile() {
           </Link>
         </div>
 
-        <div className="w-full max-w-sm space-y-1">
+        <div className="w-full max-w-sm space-y-1 mt-6">
           <p className="text-sm text-gray-500 mb-2 font-bold">{t.activity}</p>
           <Link
             href="/my-profile/favorite"
@@ -154,7 +155,7 @@ export function HostProfile() {
           </Link> */}
         </div>
 
-        <div className="w-full max-w-sm space-y-1">
+        <div className="w-full max-w-sm space-y-1 mt-6">
           <p className="text-sm text-gray-500 mb-2 font-bold">{t.guide}</p>
           <button
             onClick={handlePolicy}

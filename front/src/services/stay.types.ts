@@ -54,8 +54,9 @@ export interface CreateStayRequest {
   thumbnail?: string | null;
 }
 
-export interface UpdateStayRequest extends CreateStayRequest {
+export interface UpdateStayRequest extends Omit<CreateStayRequest, 'subRegionId'> {
   id: number;
+  subRegionId?: number;
 }
 
 export type SaveStayRequest =

@@ -121,7 +121,7 @@ export const useStayStores = create<StayStore>((set, get) => ({
 
       const updateBody = {
         id: stayId,
-        subRegionId: data.subRegionId,
+        // subRegionId: data.subRegionId,
         title: data.title,
         titleEng: data.titleEng,
         description: data.description,

@@ -209,7 +209,7 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
   const usdc = snapshot?.balances?.USDC;
 
   return (
-    <div className="w-full max-w-sm rounded-2xl p-6 mb-8 bg-gradient-to-r from-[#dbeafe] to-[#e0f2f1]">
+    <div className="w-full max-w-sm rounded-2xl p-6 mt-6 bg-gradient-to-r from-[#dbeafe] to-[#e0f2f1]">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Image src={Usdc} alt="USDC" width={18} height={18} className="rounded-full" />
@@ -260,7 +260,7 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
       </div>
 
       {primary && (
-        <div className="mt-5 p-4 border border-dashed border-gray-200 rounded-xl bg-white/60 backdrop-blur-sm">
+        <div className="mt-6 p-4 border border-dashed border-gray-200 rounded-xl bg-white/60 backdrop-blur-sm">
           <div className="flex flex-col gap-2 py-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-gray-500 w-24">{t.primaryWallet}</span>
@@ -285,8 +285,8 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
                 <span>Polygonscan</span>
 
                 <span
-                  className="absolute right-full mr-2 top-1/2 -translate-y-1/2
-                 whitespace-nowrap rounded-md  bg-black/70 px-3 py-1 
+                  className="absolute top-full mt-1 left-1/2 -translate-x-1/2 
+                 whitespace-nowrap rounded-md bg-black/70 px-3 py-1 
                  text-[10px] text-white shadow-md font-light
                  opacity-0 group-hover:opacity-100 transition-opacity"
                 >
