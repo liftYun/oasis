@@ -71,12 +71,15 @@ export default function ScrollToBottomButton({
     root.addEventListener('scroll', onScroll, { passive: true } as AddEventListenerOptions);
     window.addEventListener('resize', onResize);
 
-    // DOM 변화 감지 (새 메시지 추가 등)
+    // DOM 변화 감지 (새 메시지 추가 등) - 채팅 컨테이너에 한정
     const observer = new MutationObserver(checkVisibility);
-    observer.observe(anchor.parentElement || document.body, {
-      childList: true,
-      subtree: true,
-    });
+    const chatContainer = anchor.parentElement;
+    if (chatContainer) {
+      observer.observe(chatContainer, {
+        childList: true,
+        subtree: false,
+      });
+    }
 
     return () => {
       root.removeEventListener('scroll', onScroll);
