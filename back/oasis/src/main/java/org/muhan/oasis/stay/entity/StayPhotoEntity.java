@@ -30,10 +30,10 @@ public class StayPhotoEntity {
     @Min(1)
     private int sortOrder;
 
-    @Column(name = "photo_url", length = 191, nullable = false)
+    @Column(name = "photo_url", nullable = false)
     private String photoUrl;
 
-    @Column(name = "photo_key", length = 191, nullable = false)
+    @Column(name = "photo_key", nullable = false)
     private String photoKey;
 
     public static StayPhotoEntity from(ImageRequestDto imageRequestDto, StayEntity stay, String url){
