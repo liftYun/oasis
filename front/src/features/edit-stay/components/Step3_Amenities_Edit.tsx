@@ -6,7 +6,7 @@ import { SegmentedTabs } from '@/components/molecules/SegmentedTabs';
 import { MultiSelectChips } from '@/components/molecules/MultiSelectChips';
 import { useAmenitiesQuery } from '@/features/create-stay/hooks/useAmenitiesQuery';
 import type { AmenityCategoryKey } from '@/features/create-stay/constants/amenities';
-import { useStayStores } from '@/stores/useStayEditStroes';
+import { useStayStores } from '@/stores/useStayEditStores';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
 import { ChevronLeft } from 'lucide-react';

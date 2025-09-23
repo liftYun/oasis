@@ -46,7 +46,15 @@ export const useStayStores = create<StayStore>((set, get) => ({
 
   stayId: null,
 
-  setField: (field, value) => set({ [field]: value } as Partial<StayStore>),
+  setField: (field, value) =>
+    set((state) => {
+      if (field === 'imageRequestList') {
+        const firstImage = (value as any[])?.[0] ?? null;
+        return { imageRequestList: value, thumbnail: firstImage };
+      }
+      return { [field]: value } as Partial<StayStore>;
+    }),
+
   setStep: (step) => set({ currentStep: step }),
   setView: (view) => set({ view }),
 

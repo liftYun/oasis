@@ -6,7 +6,7 @@ import { Button } from '@/components/atoms/Button';
 import CalendarSheet from '@/components/organisms/CalendarSheet';
 import CalenderIcon from '@/assets/icons/calender.png';
 import type { DateRange } from 'react-day-picker';
-import { useStayStores } from '@/stores/useStayEditStroes';
+import { useStayStores } from '@/stores/useStayEditStores';
 import { format, parseISO } from 'date-fns';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';

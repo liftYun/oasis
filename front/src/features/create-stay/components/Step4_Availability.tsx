@@ -12,7 +12,7 @@ import { format } from 'date-fns';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
 import { ChevronLeft } from 'lucide-react';
-import { useSaveStayMutation } from '@/features/create-stay/hooks/useSaveStayMutation';
+import { useRouter } from 'next/navigation';
 
 export function Step4_Availability() {
   const [open, setOpen] = useState(false);
@@ -21,6 +21,7 @@ export function Step4_Availability() {
   const stayStore = useStayStores();
   const { lang } = useLanguage();
   const t = createStayMessages[lang];
+  const router = useRouter();
 
   const savedRanges = createStore.formData?.unavailableRanges;
   const [ranges, setRanges] = useState<DateRange[]>(savedRanges || []);
@@ -32,7 +33,12 @@ export function Step4_Availability() {
     }
   };
 
-  const { mutate: createStayMutate } = useSaveStayMutation();
+  const handleSave = async () => {
+    const success = await stayStore.submit();
+    if (success) {
+      router.replace(`/my-profile/manage-stay`);
+    }
+  };
 
   return (
     <div className="max-w-md w-full mx-auto flex flex-1 flex-col min-h-[calc(100vh-100px)] overflow-y-auto">
@@ -121,12 +127,7 @@ export function Step4_Availability() {
         />
 
         <div className="mt-auto pt-4">
-          <Button
-            type="button"
-            onClick={() => createStayMutate()}
-            variant="blue"
-            className="w-full font-bold"
-          >
+          <Button type="button" onClick={handleSave} variant="blue" className="w-full font-bold">
             {t.common.next}
           </Button>
         </div>

@@ -5,7 +5,8 @@ import {
   FinalizeResponse,
   UserSearchResult,
   CancellationPolicyRequest,
-  CancellationPolicyResponse,
+  CancellationPolicyMutationResponse,
+  CancellationPolicyQueryResponse,
   MyStayListResponse,
   ReviewResponseVo,
   ReviewDetailResponseVo,
@@ -37,17 +38,23 @@ export const getUserByNickname = (nickname: string) =>
 
 // 취소 정책 등록
 export const registCancellationPolicy = (body: CancellationPolicyRequest) =>
-  http.post<CancellationPolicyResponse>('/api/v1/user/regist/cancellationPolicy', body);
+  http.post<CancellationPolicyMutationResponse>('/api/v1/user/regist/cancellationPolicy', body);
 
 // 취소 정책 수정
 export const updateCancellationPolicy = (body: CancellationPolicyRequest) =>
-  http.put<CancellationPolicyResponse>('/api/v1/user/update/cancellationPolicy', body);
+  http.put<CancellationPolicyMutationResponse>('/api/v1/user/update/cancellationPolicy', body);
+
+// 취소 정책 조회
+export const getCancellationPolicy = () =>
+  http.get<BaseResponse<CancellationPolicyQueryResponse>>(
+    '/api/v1/user/details/cancellationPolicy'
+  );
 
 // 언어 변경
 export const updateLanguage = (language: string) =>
   http.put<void>(`/api/v1/user/updateLang/${language}`);
 
-// 내 숙소 조회
+// 내 숙소
 export const fetchMyStays = () =>
   http.get<MyStayListResponse>('/api/v1/stay/mystay', {
     headers: { Accept: 'application/json' },

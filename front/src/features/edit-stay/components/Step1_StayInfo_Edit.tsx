@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useStayStores } from '@/stores/useStayEditStroes';
+import { useStayStores } from '@/stores/useStayEditStores';
 import { StayForm_Edit } from '@/features/edit-stay/components/StayForm_Edit';
 import { useCreateStayForm } from '@/features/create-stay/hooks/useCreateStayForm';
 import type { CreateStayInput } from '@/features/create-stay/schema';

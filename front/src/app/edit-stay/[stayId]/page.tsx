@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, use } from 'react';
 import { ProgressBar } from '@/components/molecules/ProgressBar';
-import { useStayStores } from '@/stores/useStayEditStroes';
+import { useStayStores } from '@/stores/useStayEditStores';
 import { useStayTranslateSSE } from '@/features/create-stay/hooks/useStayTranslateSSE';
 import {
   Step1_StayInfo_Edit,

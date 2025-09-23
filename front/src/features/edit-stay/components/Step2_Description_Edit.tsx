@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/atoms/Button';
 import { TextAreaField } from '@/components/molecules/TextAreaField';
-import { useStayStores } from '@/stores/useStayEditStroes';
+import { useStayStores } from '@/stores/useStayEditStores';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
 import { translateStay } from '@/services/stay.api';
