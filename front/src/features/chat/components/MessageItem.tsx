@@ -39,7 +39,7 @@ export default function MessageItem({ message, onClickTranslate, translated }: M
       <div className={`flex ${message.isMine ? 'justify-end' : 'justify-start'}`}>
         <div className={bubbleClass}>{message.content}</div>
 
-        {!message.isMine && !translated && (
+        {!message.isMine && (
           <button
             type="button"
             onClick={() => onClickTranslate?.(message.id)}

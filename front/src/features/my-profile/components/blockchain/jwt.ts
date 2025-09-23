@@ -22,10 +22,9 @@ export const hasValidToken = () => {
 };
 
 export const decodeToken = (token: string) => {
-  return jwtDecode(token);
-  // try {
-  //   return JSON.parse(atob(token.split('.')[1]));
-  // } catch {
-  //   return null;
-  // }
+  try {
+    return jwtDecode(token);
+  } catch {
+    return null;
+  }
 };

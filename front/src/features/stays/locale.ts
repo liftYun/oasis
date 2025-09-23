@@ -1,3 +1,5 @@
+import type { Lang } from '@/types/lang';
+
 export const stayDetailLocale = {
   kor: {
     common: {
@@ -114,4 +116,63 @@ export const stayDetailLocale = {
       SERVICE: 'Nearby',
     },
   },
-} as const;
+} as const satisfies Record<
+  Lang,
+  {
+    common: {
+      loading: string;
+      loadError: string;
+      editStay: string;
+      back: string;
+      edit: string;
+      delete: string;
+      deleteStay: string;
+      deleteConfirm: string;
+      deleteSuccess: string;
+      deleteError: string;
+      checkingLogin: string;
+      loginRequired: string;
+      stayLoadFailRetry: string;
+      invalidHostInfo: string;
+      chatEnterFailRetry: string;
+    };
+    detail: {
+      infoTitle: string;
+      facilitiesTitle: string;
+      mapTitle: string;
+      reviewsTitle: string;
+      hostTitle: string;
+      regionSeparator: string;
+    };
+    description: {
+      more: string;
+      close: string;
+      maxGuests: (count: number) => string;
+    };
+    review: {
+      avgTitle: string;
+      aiSummaryTitle: string;
+      tip: string;
+      highSummary: string;
+      lowSummary: string;
+      ratingUnit: string;
+      seeAll: string;
+      reviewsNot: string;
+    };
+    host: {
+      hostName: string;
+      chatStart: string;
+    };
+    booking: {
+      reserve: string;
+      perNight: string;
+    };
+    facilities: {
+      BATHROOM: string;
+      BEDROOM: string;
+      KITCHEN: string;
+      AMENITY: string;
+      SERVICE: string;
+    };
+  }
+>;

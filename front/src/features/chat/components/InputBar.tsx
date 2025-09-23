@@ -50,7 +50,10 @@ export default function InputBar({ onSend }: InputBarProps) {
   };
 
   return (
-    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-50  py-2">
+    <div
+      id="chat-input-bar"
+      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-50  py-2"
+    >
       <div className="mx-2 rounded-full border border-gray-200 bg-white px-3 pt-2 pb-[calc(env(safe-area-inset-bottom)+10px)] flex items-center gap-2">
         <button
           type="button"
