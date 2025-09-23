@@ -37,8 +37,6 @@ public enum BaseResponseStatus {
      */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "Internal server error"),
     REDIS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "Internal Cache system failure"),
-    DEVICE_OFFLINE(HttpStatus.SERVICE_UNAVAILABLE, false, 503, "디바이스가 오프라인 상태입니다."),
-
 
     /**
      * Service Related Errors
@@ -99,7 +97,11 @@ public enum BaseResponseStatus {
     DUP_PHOTO_KEYS(HttpStatus.BAD_REQUEST, false, 400, "이미지 키가 중복되어 있습니다."),
     DUP_PHOTO_SORT_ORDER(HttpStatus.BAD_REQUEST, false, 400, "이미지 순서가 중복되어 있습니다."),
     BLOCK_OVERLAP_RESERVATION(HttpStatus.BAD_REQUEST, false, 400, "예약 불가능 날짜로 선택할 수 없습니다."),
-    INVALID_BLOCK_RANGE(HttpStatus.BAD_REQUEST, false, 400, "시작 날짜가 끝 날짜보다 이전이어야 합니다.");
+    INVALID_BLOCK_RANGE(HttpStatus.BAD_REQUEST, false, 400, "시작 날짜가 끝 날짜보다 이전이어야 합니다."),
+
+    // mqtt
+    DEVICE_OFFLINE(HttpStatus.CONFLICT, false, 409, "디바이스가 오프라인 상태입니다.");
+
     private final HttpStatusCode httpStatusCode;
     private final boolean isSuccess;
     private final int code;

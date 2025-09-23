@@ -11,6 +11,7 @@ import org.muhan.oasis.key.entity.KeyEntity;
 import org.muhan.oasis.key.entity.KeyOwnerEntity;
 import org.muhan.oasis.key.repository.KeyOwnerRepository;
 import org.muhan.oasis.key.repository.KeyRepository;
+import org.muhan.oasis.mqtt.service.DeviceStatusService;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
 import org.muhan.oasis.stay.repository.DeviceRepository;
@@ -38,6 +39,7 @@ public class KeyServiceImpl implements KeyService {
     private final DeviceRepository deviceRepository;
     private final UserRepository userRepository;
     private final StringRedisTemplate redis;
+    private final DeviceStatusService deviceStatusService;
 
     private static final String K_OWNERS  = "key:owners:";
     private static final String K_VALID   = "key:valid:";
@@ -129,48 +131,35 @@ public class KeyServiceImpl implements KeyService {
 
     @Override
     public String verifyOpenPermission(Long userId, Long keyId) {
-        // TODO) 예약 테이블에서 정상적으로 유효한 예약 내역인지 확인
 
-        // 0) 빠른 경로: Redis 조회
-        Boolean ownerHit = redis.opsForSet().isMember(K_OWNERS + keyId, String.valueOf(userId));
-        String validHit  = redis.opsForValue().get(K_VALID + keyId);
-        String deviceIdS = redis.opsForValue().get(K_DEVICE + keyId);
-
-        if (Boolean.TRUE.equals(ownerHit) && "1".equals(validHit) && deviceIdS != null) {
-            // 디바이스 온라인 즉시 확인
-            ensureDeviceOnline(deviceIdS);
-            return topicFor(deviceIdS);
-        }
-
-        // 1) 레디스에 문제가 있는것 같으면 DB로 검증
+        // 1. 사용자 권한 확인
         KeyOwnerEntity owner = keyOwnerRepository
                 .findByUser_UserIdAndKey_KeyId(userId, keyId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_ACCESS_AUTHORITY));
+                .orElseThrow(() -> {
+                    log.warn("[KEY] 권한 없음 - userId: {}, keyId: {}", userId, keyId);
+                    return new BaseException(BaseResponseStatus.NO_ACCESS_AUTHORITY);
+                });
 
-        KeyEntity key = keyRepository.findById(keyId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_KEY));
-
+        // 2. 키 만료 시간 검증
+        KeyEntity key = owner.getKey();
         if (!key.isValidNow()) {
+            log.warn("[KEY] 키 만료됨 - keyId: {}, activationTime: {}, expirationTime: {}",
+                    keyId, key.getActivationTime(), key.getExpirationTime());
             throw new BaseException(BaseResponseStatus.KEY_NOT_VALID);
         }
 
-        // 2) 디바이스 온라인 체크 (Redis heartbeat)
-        Long deviceId = key.getDevice().getId();
-        ensureDeviceOnline(String.valueOf(deviceId));
+        // 3. 디바이스 온라인 상태 확인
+        DeviceEntity device = key.getDevice();
+        String deviceId = String.valueOf(device.getId());
 
-        // 3) Redis 갱신(리필) — TTL은 만료시각 기준으로 계산
-        Duration ttl = computeTtl(key.getExpirationTime()); // 만료없으면 null
-        // owners
-        redis.opsForSet().add(K_OWNERS + keyId, String.valueOf(owner.getUser().getUserId()));
-        if (ttl != null) redis.expire(K_OWNERS + keyId, ttl);
-        // valid
-        redis.opsForValue().set(K_VALID + keyId, "1");
-        if (ttl != null) redis.expire(K_VALID + keyId, ttl);
-        // device
-        redis.opsForValue().set(K_DEVICE + keyId, String.valueOf(deviceId));
-        if (ttl != null) redis.expire(K_DEVICE + keyId, ttl);
+        if (!deviceStatusService.isDeviceOnline(deviceId)) {
+            log.warn("[KEY] 디바이스 오프라인 - deviceId: {}", deviceId);
+            throw new BaseException(BaseResponseStatus.DEVICE_OFFLINE);
+        }
 
-        // 4) 토픽 반환
+        log.info("[KEY] 권한 검증 성공 - keyId: {}, deviceId: {}", keyId, deviceId);
+
+        // 4. Arduino 코드에 맞는 토픽 반환 (cmd/{deviceId}/open)
         return topicFor(String.valueOf(deviceId));
     }
 
@@ -199,7 +188,7 @@ public class KeyServiceImpl implements KeyService {
 
     private String topicFor(String deviceIdS) {
         // 예: device/{deviceId}/open
-        return "device/" + deviceIdS + "/open";
+        return "cmd/" + deviceIdS + "/open";
     }
 
     private Duration computeTtl(LocalDateTime expirationTime) {
