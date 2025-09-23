@@ -89,7 +89,7 @@ export function Detail() {
               <span>{displayLanguage}</span>
               <button
                 onClick={goLanguage}
-                className="text-blue-500 text-xs bg-blue-50 rounded-full py-1 px-2"
+                className="text-primary text-xs bg-blue-50 rounded-full py-1 px-2"
               >
                 {t.edit}
               </button>

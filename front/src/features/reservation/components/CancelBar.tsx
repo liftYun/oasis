@@ -13,6 +13,8 @@ import type {
 import { getToken } from '@/features/my-profile/components/blockchain/jwt';
 import { useSdkStore } from '@/stores/useSdkStores';
 import { ReservationDetailApiResponse } from '@/services/reservation.types';
+import { toast } from 'react-hot-toast';
+import { CenterModal } from '@/components/organisms/CenterModel';
 
 interface Props {
   reservation: ReservationDetailApiResponse | null;
@@ -27,13 +29,11 @@ export function CancelBar({ reservation }: Props) {
   const [busy, setBusy] = useState(false);
   const { sdkInitData } = useSdkStore();
 
+  // 모달 상태
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
   const handleCancel = async () => {
     if (!sdkInitData) {
-      alert('먼저 지갑을 ConnectWallet로 준비하세요.');
-      return;
-    }
-
-    if (!confirm(t.common.cancelConfirm ?? '정말 예약을 취소하시겠습니까?')) {
+      setWalletModalOpen(true);
       return;
     }
 
@@ -47,12 +47,7 @@ export function CancelBar({ reservation }: Props) {
         encryptionKey: sdkInitData.encryptionKey,
       });
 
-      console.log('sdkInitData', sdkInitData);
-      console.log('reservation', reservation);
-      console.log('백엔드에 cancelWithPolicy 트랜잭션 생성을 요청합니다...');
       const token = getToken();
-      const idempotencyKey = crypto.randomUUID();
-
       const resp = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/reservation/cancel/${reservation?.reservationId}`,
         {
@@ -61,7 +56,6 @@ export function CancelBar({ reservation }: Props) {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          // body: JSON.stringify({ idempotencyKey }),
         }
       );
 
@@ -77,7 +71,6 @@ export function CancelBar({ reservation }: Props) {
         new Promise<void>((resolve, reject) => {
           sdk.execute(id, (error) => {
             if (error) {
-              alert(`실패: ${error.message}`);
               return reject(error);
             }
             resolve();
@@ -98,10 +91,10 @@ export function CancelBar({ reservation }: Props) {
         throw new Error('알 수 없는 응답 형식');
       }
 
-      alert(t.common.cancelSuccess ?? '예약 취소가 완료되었습니다.');
+      toast.success(t.common.cancelSuccess ?? '예약 취소가 완료되었습니다.');
       router.push('/my-profile/reservations');
     } catch (e: any) {
-      alert(`에러: ${e.message ?? String(e)}`);
+      toast.error(e.message ?? '예약 취소 중 오류가 발생했습니다.');
       console.error(e);
     } finally {
       setBusy(false);
@@ -109,16 +102,41 @@ export function CancelBar({ reservation }: Props) {
   };
 
   return (
-    <div className="fixed bottom-0 w-full max-w-[480px] bg-white border-t border-gray-100">
-      <div className="mx-auto px-6 py-4 flex gap-3 mb-6">
-        <button
-          onClick={handleCancel}
-          disabled={busy}
-          className="flex-1 bg-gray-600 text-white rounded-md px-4 py-3 text-base font-medium transition disabled:opacity-50"
-        >
-          {busy ? '처리 중...' : t.common.cancel}
-        </button>
+    <>
+      <div className="fixed bottom-0 w-full max-w-[480px] bg-white border-t border-gray-100">
+        <div className="mx-auto px-6 py-4 flex gap-3 mb-6">
+          <button
+            onClick={handleCancel}
+            disabled={busy}
+            className="flex-1 bg-gray-600 text-white rounded-md px-4 py-3 text-base font-medium transition disabled:opacity-50"
+          >
+            {busy ? t.common.loading : t.common.cancel}
+          </button>
+        </div>
       </div>
-    </div>
+
+      <CenterModal
+        open={walletModalOpen}
+        onClose={() => setWalletModalOpen(false)}
+        title={t.common.cancel}
+        description={t.common.walletRequired}
+      >
+        <button
+          className="h-11 rounded-md bg-gray-100 font-normal text-sm text-gray-600 hover:bg-gray-50 px-4"
+          onClick={() => setWalletModalOpen(false)}
+        >
+          {t.common.back}
+        </button>
+        <button
+          className="h-11 rounded-md bg-gray-600 font-normal text-sm text-white hover:opacity-90 px-4"
+          onClick={async () => {
+            setWalletModalOpen(false);
+            router.push('/my-profile');
+          }}
+        >
+          {t.common.walletButton}
+        </button>
+      </CenterModal>
+    </>
   );
 }

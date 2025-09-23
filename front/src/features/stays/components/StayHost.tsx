@@ -22,7 +22,7 @@ export function StayHost({ host, onChatStart }: StayHostProps) {
   return (
     <section className="my-12">
       <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-        <span className="inline-block w-1.5 h-5 bg-blue-500 rounded-sm" />
+        <span className="inline-block w-1.5 h-5 bg-primary rounded-sm" />
         {t.detail.hostTitle}
       </h2>
 

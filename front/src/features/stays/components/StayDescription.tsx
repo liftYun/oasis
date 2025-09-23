@@ -29,7 +29,7 @@ export function StayDescription({ description, maxGuests }: StayDescriptionProps
   return (
     <section className="mt-12">
       <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-        <span className="inline-block w-1.5 h-5 bg-blue-500 rounded-sm" />
+        <span className="inline-block w-1.5 h-5 bg-primary rounded-sm" />
         {t.detail.infoTitle}
       </h2>
       <div className="inline-flex items-center gap-2 rounded-md mt-2 bg-blue-50 px-3 py-2 text-sm text-primary mb-4">

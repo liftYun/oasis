@@ -22,6 +22,8 @@ export const stayDetailLocale = {
       cancelConfirm: '정말 예약을 취소하시겠습니까?',
       cancelSuccess: '예약 취소가 완료되었습니다.',
       cancelError: '예약 취소 중 오류가 발생했습니다.',
+      walletButton: '지갑 연결하기',
+      walletRequired: '예약을 취소하기 전에 지갑을 연결해주세요.',
     },
     detail: {
       infoTitle: '숙소 세부정보',
@@ -92,6 +94,8 @@ export const stayDetailLocale = {
       cancelConfirm: 'Are you sure you want to cancel this reservation?',
       cancelSuccess: 'Your reservation has been successfully cancelled.',
       cancelError: 'An error occurred while cancelling the reservation.',
+      walletButton: 'Connect Wallet',
+      walletRequired: 'Please connect your wallet to cancel the reservation.',
     },
     detail: {
       infoTitle: 'Stay Details',
@@ -163,6 +167,8 @@ export const stayDetailLocale = {
       cancelConfirm: string;
       cancelSuccess: string;
       cancelError: string;
+      walletButton: string;
+      walletRequired: string;
     };
     detail: {
       infoTitle: string;

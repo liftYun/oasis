@@ -11,7 +11,6 @@ import Calendar from '@/assets/icons/calendar.png';
 import Heart from '@/assets/icons/heart-blue.png';
 import PositiveReview from '@/assets/icons/positive-review.png';
 import SignOut from '@/assets/icons/sign-out.png';
-// import Usdc from '@/assets/icons/usd-circle.png';
 import { useLanguage } from '@/features/language';
 import { profileMessages } from '@/features/my-profile';
 import { useAuthStore } from '@/stores/useAuthStores';

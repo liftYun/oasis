@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { fetchStayDetail } from '@/services/stay.api';
 import { StayReadResponseDto, HostInfoResponseDto } from '@/services/stay.types';
 import { fetchReservationDetail } from '@/services/reservation.api';
@@ -29,8 +29,6 @@ export function ReservationDetail() {
   const t = stayDetailLocale[lang];
   const { id: reservationId } = useParams();
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const [reservation, setReservation] = useState<ReservationDetailApiResponse | null>(null);
   const [stay, setStay] = useState<StayReadResponseDto | null>(null);
@@ -101,7 +99,6 @@ export function ReservationDetail() {
       try {
         const ReservationRes = await fetchReservationDetail(String(reservationId));
         setReservation(ReservationRes.result);
-        console.log(ReservationRes.result);
 
         const StayRes = await fetchStayDetail(Number(ReservationRes.result?.stay.stayId));
         setStay(StayRes.result);

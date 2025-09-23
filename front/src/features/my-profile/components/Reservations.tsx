@@ -49,7 +49,7 @@ export function Reservations() {
           <p className="mt-4 text-center text-gray-500">{t.noReservation}</p>
         </div>
       ) : (
-        <div className="space-y-8 pt-16">
+        <div className="space-y-8 pt-16 pb-10">
           {reservations.map((item) => (
             <div
               key={item.reservationId}

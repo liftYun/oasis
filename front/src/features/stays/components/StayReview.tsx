@@ -29,7 +29,7 @@ export function StayReview({ rating, highReviews, lowReviews, stayId }: StayRevi
     <>
       <section className="mt-12">
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <span className="inline-block w-1.5 h-5 bg-blue-500 rounded-sm" />
+          <span className="inline-block w-1.5 h-5 bg-primary rounded-sm" />
           {t.review.avgTitle}
         </h2>
         <div className="flex items-center justify-between rounded-md mt-2 bg-gray-100 p-4">
@@ -59,7 +59,7 @@ export function StayReview({ rating, highReviews, lowReviews, stayId }: StayRevi
         </div>
 
         <h2 className="text-lg font-semibold mt-12 mb-4 flex items-center gap-2">
-          <span className="inline-block w-1.5 h-5 bg-blue-500 rounded-sm" />
+          <span className="inline-block w-1.5 h-5 bg-primary rounded-sm" />
           {t.review.aiSummaryTitle}
         </h2>
         <div className="rounded-md mt-2 bg-blue-50 px-3 py-2 text-sm text-primary mb-4">
