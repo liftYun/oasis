@@ -150,10 +150,9 @@ public class ReservationController {
             tags = {"예약"}
     )
     @PostMapping("/cancel/{reservationId}")
-    public BaseResponse<CancelReservationResponseVo> cancelReservation(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable String reservationId,
-                                                                       @RequestBody CancelReservationRequestVo vo) {
+    public BaseResponse<CancelReservationResponseVo> cancelReservation(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable String reservationId) {
         String challengeId = reservationService.cancelReservation(
-                customUserDetails.getUserUuid(), reservationId, vo.getIdempotencyKey()
+                customUserDetails.getUserUuid(), reservationId
         ).getChallengeId();
 
         return BaseResponse.of(new CancelReservationResponseVo(challengeId));

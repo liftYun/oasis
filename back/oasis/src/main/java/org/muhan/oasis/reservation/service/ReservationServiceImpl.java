@@ -273,7 +273,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     @Transactional
-    public CancelReservationResponseVo cancelReservation(String userUUID, String resId, UUID idempotencyKey) {
+    public CancelReservationResponseVo cancelReservation(String userUUID, String resId) {
 
         validateResId(resId);
 
@@ -304,6 +304,7 @@ public class ReservationServiceImpl implements ReservationService {
         log.info("[cancelWithPolicy] resId={}, toContract={}", resId, contractAddress);
         log.debug("[cancelWithPolicy] callData(length={}): {}", callData != null ? callData.length() : 0, callData);
 
+        String idempotencyKey = UUID.nameUUIDFromBytes(("cancel-" + resId).getBytes()).toString();
         // Challenge 생성
         String challengeId = cancelReservationTxService.createCancelTx(
                 userUUID,

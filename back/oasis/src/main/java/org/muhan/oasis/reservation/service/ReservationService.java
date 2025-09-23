@@ -18,5 +18,5 @@ public interface ReservationService {
 
     ReservationDetailsResponseDto getReservationDetails(Long userId, Language language, String reservationId);
 
-    CancelReservationResponseVo cancelReservation(String userId, String resId, UUID idempotencyKey);
+    CancelReservationResponseVo cancelReservation(String userId, String resId);
 }
