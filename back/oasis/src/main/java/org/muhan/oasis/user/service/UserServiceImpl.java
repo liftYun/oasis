@@ -188,6 +188,17 @@ public class UserServiceImpl implements UserService {
         return toResponseVo(entity);
     }
 
+    @Override
+    public CancellationPolicyResponseVo getCancellationPolicyByStayId(Long stayId) {
+        Long id = stayRepository.findCancellationPolicyIdByStayId(stayId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY));
+        CancellationPolicyEntity entity = cancellationPolicyRepository
+                .findById(id)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY));
+
+        return toResponseVo(entity);
+    }
+
     private CancellationPolicyResponseVo toResponseVo(CancellationPolicyEntity entity) {
         return CancellationPolicyResponseVo.builder()
                 .id(entity.getId())
