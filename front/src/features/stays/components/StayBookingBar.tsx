@@ -31,7 +31,7 @@ export default function StayBookingBar({ stay }: Props) {
   };
 
   return (
-    <div className="fixed bottom-0 w-full max-w-[480px] bg-white">
+    <div className="fixed bottom-0 w-full max-w-[480px] bg-white border border-gray-100">
       <div className="mx-auto px-6 py-4 flex gap-3 mb-6">
         <div className="flex-1 bg-gray-100 rounded-md px-4 py-3 text-base font-semibold text-gray-600 flex items-center justify-center">
           $ {stay.price.toLocaleString()} / {t.booking.perNight}

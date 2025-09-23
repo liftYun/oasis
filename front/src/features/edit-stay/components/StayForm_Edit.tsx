@@ -11,7 +11,7 @@ import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
 import { useDaumPostcode } from '@/features/create-stay/hooks/useDaumPostCode';
 import { fetchRegions } from '@/services/stay.api';
-import { useStayStores } from '@/stores/useStayStores';
+import { useStayStores } from '@/stores/useStayEditStores';
 
 interface StayFormProps {
   form: UseFormReturn<any>;

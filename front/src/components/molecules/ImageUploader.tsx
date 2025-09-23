@@ -36,7 +36,7 @@ export function ImageUploader({ defaultImages = [], onChange }: ImageUploaderPro
       const mapped = defaultImages.map((img, i) => ({
         key: img.key,
         sortOrder: img.sortOrder ?? i,
-        publicUrl: img.key,
+        publicUrl: img.url ?? img.key,
         uploadUrl: '',
       }));
       setImages(mapped);

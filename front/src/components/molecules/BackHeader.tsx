@@ -33,7 +33,7 @@ export function BackHeaderContent({ title = ' ', className, onBack }: BackHeader
         className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200"
         aria-label="back"
       >
-        <ChevronLeft className="w-7 h-7 text-gray-500" />
+        <ChevronLeft className="w-7 h-7 text-gray-600" />
       </button>
 
       <h1 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-gray-600">

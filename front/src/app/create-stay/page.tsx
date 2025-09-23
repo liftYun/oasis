@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { ProgressBar } from '@/components/molecules/ProgressBar';
 import { useStayStores } from '@/stores/useStayStores';
@@ -14,25 +14,24 @@ import {
 
 export default function CreateStayPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { currentStep, setStep, reset, submit } = useStayStores();
+  const store = useStayStores();
   const isReloadRef = useRef(false);
   const didInitRef = useRef(false);
-  useStayTranslateSSE();
+  const { disconnect } = useStayTranslateSSE();
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (didInitRef.current) return;
     didInitRef.current = true;
-    if (currentStep !== 1) {
-      setStep(1);
+    if (store.currentStep !== 1) {
+      store.setStep(1);
     }
     const params = new URLSearchParams(window.location.search);
     if (params.get('step') !== '1') {
       params.set('step', '1');
       router.replace(`/create-stay?${params.toString()}`, { scroll: false });
     }
-  }, [currentStep, router, setStep]);
+  }, [store.currentStep, router, store.setStep]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -42,10 +41,10 @@ export default function CreateStayPage() {
       (performance.navigation && performance.navigation.type === 1);
     if (isReload) {
       isReloadRef.current = true;
-      reset();
+      store.reset();
       router.replace('/create-stay?step=1', { scroll: false });
     }
-  }, [reset, router]);
+  }, [store.reset, router]);
 
   const didMountRef = useRef(false);
 
@@ -56,26 +55,14 @@ export default function CreateStayPage() {
     }
     const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
     const currentUrlStep = params.get('step');
-    if (currentUrlStep !== currentStep.toString()) {
-      params.set('step', currentStep.toString());
+    if (currentUrlStep !== store.currentStep.toString()) {
+      params.set('step', store.currentStep.toString());
       router.replace(`/create-stay?${params.toString()}`, { scroll: false });
     }
-  }, [currentStep, router]);
-
-  // 상태 변화 로깅
-  // useEffect(() => {
-  //   const unsub = useStayStores.subscribe((state) => {
-  //     console.log('현재 스토어 상태', state);
-  //   });
-  //   return () => unsub();
-  // }, []);
-
-  useEffect(() => {
-    console.log(`Step ${currentStep} 진입`);
-  }, [currentStep]);
+  }, [store.currentStep, router]);
 
   const renderStep = () => {
-    switch (currentStep) {
+    switch (store.currentStep) {
       case 1:
         return <Step1_StayInfo />;
       case 2:
@@ -83,9 +70,16 @@ export default function CreateStayPage() {
       case 3:
         return <Step3_Amenities />;
       case 4:
-        return <Step4_Availability />;
+        return <Step4_Availability onComplete={handleComplete} />;
       default:
         return <Step1_StayInfo />;
+    }
+  };
+  const handleComplete = async () => {
+    const success = await store.submit();
+    if (success) {
+      disconnect();
+      router.replace('/my-profile/manage-stay');
     }
   };
 
@@ -93,7 +87,7 @@ export default function CreateStayPage() {
     <>
       <ProgressBar
         totalSteps={4}
-        currentStep={currentStep}
+        currentStep={store.currentStep}
         className="pt-20 max-w-md mx-auto p-4"
       />
       <div className="flex items-center justify-center">{renderStep()}</div>
