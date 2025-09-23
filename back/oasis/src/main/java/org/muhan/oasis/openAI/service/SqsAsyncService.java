@@ -47,9 +47,9 @@ public class SqsAsyncService {
                 }, threadPoolTaskExecutor)
                 .thenAccept(result -> {
                     String nickname = env.meta().get("nickname");
+                    result.setUuid(env.id());
                     sseService.sendToClient(nickname, "stayTranslate", result);
                     ack.acknowledge();
-                    System.out.println(nickname);
                 })
                 .exceptionally(ex -> {
                     System.out.println(ex.getMessage());
