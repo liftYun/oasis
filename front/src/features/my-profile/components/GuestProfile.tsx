@@ -79,7 +79,8 @@ export function GuestProfile() {
         <section
           onClick={handleProfile}
           className="flex flex-col items-center space-y-2 cursor-pointer 
-             transition hover:scale-105 rounded-xl p-2"
+             rounded-xl p-2
+             transition-transform duration-300 ease-in-out hover:scale-105"
         >
           {profile?.profileUrl ? (
             <img

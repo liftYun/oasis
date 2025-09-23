@@ -15,13 +15,16 @@ interface StayHostProps {
   onChatStart: (host: HostInfoResponseDto) => void;
 }
 
-export default function StayHost({ host, onChatStart }: StayHostProps) {
+export function StayHost({ host, onChatStart }: StayHostProps) {
   const { lang } = useLanguage();
   const t = stayDetailLocale[lang];
 
   return (
     <section className="my-12">
-      <h2 className="text-lg font-semibold mb-3">{t.detail.hostTitle}</h2>
+      <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+        <span className="inline-block w-1.5 h-5 bg-blue-500 rounded-sm" />
+        {t.detail.hostTitle}
+      </h2>
 
       <div className="flex items-center gap-6 rounded-md bg-gray-100 p-4">
         {host.url ? (

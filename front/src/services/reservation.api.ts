@@ -12,6 +12,7 @@ import type {
   StayReviewResponseVo,
   ReviewDetailResponseVo,
   ReviewResponseVo,
+  ReservationDetailApiResponse,
 } from './reservation.types';
 
 // 예약 등록 (DB에 저장)
@@ -28,7 +29,9 @@ export const lockReservation = (body: CreateReservationRequest) =>
 
 // 예약 상세 조회
 export const fetchReservationDetail = (reservationId: string) =>
-  http.get<CreateReservationResponse>(`/api/v1/reservation/${reservationId}`);
+  http.get<BaseResponse<ReservationDetailApiResponse>>(
+    `/api/v1/reservation/details/${reservationId}`
+  );
 
 // 예약 취소
 export const cancelReservation = (reservationId: string) =>

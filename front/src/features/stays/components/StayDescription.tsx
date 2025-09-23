@@ -11,7 +11,7 @@ interface StayDescriptionProps {
   maxGuests: number;
 }
 
-export default function StayDescription({ description, maxGuests }: StayDescriptionProps) {
+export function StayDescription({ description, maxGuests }: StayDescriptionProps) {
   const [expanded, setExpanded] = useState(false);
   const { lang } = useLanguage();
   const t = stayDetailLocale[lang];
@@ -28,7 +28,10 @@ export default function StayDescription({ description, maxGuests }: StayDescript
 
   return (
     <section className="mt-12">
-      <h2 className="text-lg font-semibold mb-2">{t.detail.infoTitle}</h2>
+      <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+        <span className="inline-block w-1.5 h-5 bg-blue-500 rounded-sm" />
+        {t.detail.infoTitle}
+      </h2>
       <div className="inline-flex items-center gap-2 rounded-md mt-2 bg-blue-50 px-3 py-2 text-sm text-primary mb-4">
         <Users className="h-4 w-4" strokeWidth={2} />
         <span>{t.description.maxGuests(maxGuests)}</span>

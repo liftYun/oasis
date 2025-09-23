@@ -1,4 +1,10 @@
 export { StayDetail } from '@/features/stays/components/StayDetail';
-// export { StayBookingBar } from '@/features/stays/components/StayBookingBar';
-// export { StayImageSlider } from '@/features/stays/components/StayImageSlider';
-// export { StayMap } from '@/features/stays/components/StayMap';
+export { StayImageSlider } from '@/features/stays/components/StayImageSlider';
+export { StayBookingBar } from '@/features/stays/components/StayBookingBar';
+export { StayHostBar } from '@/features/stays/components/StayHostBar';
+export { StayMap } from '@/features/stays/components/StayMap';
+export { StayDescription } from '@/features/stays/components/StayDescription';
+export { StayFacilities } from '@/features/stays/components/StayFacilities';
+export { StayReview } from '@/features/stays/components/StayReview';
+export { StayHost } from '@/features/stays/components/StayHost';
+export { StayHeader } from '@/features/stays/components/StayHeader';

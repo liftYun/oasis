@@ -4,32 +4,35 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { fetchStayDetail } from '@/services/stay.api';
 import { StayReadResponseDto, HostInfoResponseDto } from '@/services/stay.types';
+import { fetchReservationDetail } from '@/services/reservation.api';
+import { ReservationDetailApiResponse } from '@/services/reservation.types';
 import { useLanguage } from '@/features/language';
 import { stayDetailLocale } from '@/features/stays/locale';
 import {
-  StayBookingBar,
   StayImageSlider,
   StayMap,
   StayFacilities,
   StayDescription,
   StayReview,
-  StayHostBar,
   StayHost,
   StayHeader,
 } from '@/features/stays';
+import { ReservationInfo } from './ReservationInfo';
+import { CancelBar } from './CancelBar';
 import { useAuthStore } from '@/stores/useAuthStores';
 import { createChatRoom, findExistingChatRoom } from '@/features/chat/api/chat.firestore';
 import { notifyFirebaseUnavailable } from '@/features/chat/api/toastHelpers';
 import { toast } from 'react-hot-toast';
 
-export function StayDetail() {
+export function ReservationDetail() {
   const { lang } = useLanguage();
   const t = stayDetailLocale[lang];
-  const { id } = useParams();
+  const { id: reservationId } = useParams();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const [reservation, setReservation] = useState<ReservationDetailApiResponse | null>(null);
   const [stay, setStay] = useState<StayReadResponseDto | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -93,11 +96,15 @@ export function StayDetail() {
   };
 
   useEffect(() => {
-    if (!id) return;
+    if (!reservationId) return;
     const load = async () => {
       try {
-        const res = await fetchStayDetail(Number(id));
-        setStay(res.result);
+        const ReservationRes = await fetchReservationDetail(String(reservationId));
+        setReservation(ReservationRes.result);
+        console.log(ReservationRes.result);
+
+        const StayRes = await fetchStayDetail(Number(ReservationRes.result?.stay.stayId));
+        setStay(StayRes.result);
       } catch (e) {
         console.error('숙소 조회 실패:', e);
       } finally {
@@ -105,12 +112,10 @@ export function StayDetail() {
       }
     };
     load();
-  }, [id]);
+  }, [reservationId]);
 
   if (loading) return <div className="p-6">{t.common.loading}</div>;
   if (!stay) return <div className="p-6">{t.common.loadError}</div>;
-
-  const isManageMode = pathname.startsWith('/manage') || searchParams.get('from') === 'manage';
 
   return (
     <section className="overflow-y-auto scrollbar-hide flex flex-1 flex-col relative">
@@ -125,6 +130,7 @@ export function StayDetail() {
           </p>
         </div>
 
+        {reservation && <ReservationInfo reservation={reservation} />}
         <StayFacilities facilities={stay.facilities} />
         <StayDescription description={stay.description} maxGuests={stay.maxGuest} />
         <StayMap postalCode={stay.postalCode} />
@@ -140,7 +146,7 @@ export function StayDetail() {
         <StayHost host={stay.host} onChatStart={handleChatStart} />
       </main>
 
-      {isManageMode ? <StayHostBar stay={stay} /> : <StayBookingBar stay={stay} />}
+      <CancelBar stay={stay} />
     </section>
   );
 }

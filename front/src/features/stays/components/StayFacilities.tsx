@@ -19,15 +19,18 @@ interface StayFacilitiesProps {
   facilities: FacilityCategory[];
 }
 
-export default function StayFacilities({ facilities }: StayFacilitiesProps) {
+export function StayFacilities({ facilities }: StayFacilitiesProps) {
   const { lang } = useLanguage();
   const t = stayDetailLocale[lang];
 
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   return (
-    <section className="mt-8">
-      <h2 className="text-lg font-semibold mb-4">{t.detail.facilitiesTitle}</h2>
+    <section className="mt-12">
+      <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+        <span className="inline-block w-1.5 h-5 bg-blue-500 rounded-sm" />
+        {t.detail.facilitiesTitle}
+      </h2>
 
       <div className="flex gap-4 mt-2 flex-wrap">
         {facilities.map((cat, i) => (

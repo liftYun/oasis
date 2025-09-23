@@ -10,7 +10,7 @@ interface Props {
   };
 }
 
-export function StayHostBar({ stay }: Props) {
+export function CancelBar({ stay }: Props) {
   const { lang } = useLanguage();
   const t = stayDetailLocale[lang];
   const router = useRouter();
@@ -26,7 +26,7 @@ export function StayHostBar({ stay }: Props) {
           onClick={handleEdit}
           className="flex-1 bg-gray-600 text-white rounded-md px-4 py-3 text-base font-medium transition"
         >
-          {t.common.edit}
+          {t.common.cancel}
         </button>
       </div>
     </div>

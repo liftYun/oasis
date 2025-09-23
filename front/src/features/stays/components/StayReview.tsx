@@ -14,7 +14,7 @@ interface StayReviewProps {
   stayId: number;
 }
 
-export default function StayReview({ rating, highReviews, lowReviews, stayId }: StayReviewProps) {
+export function StayReview({ rating, highReviews, lowReviews, stayId }: StayReviewProps) {
   const [tab, setTab] = useState<'high' | 'low'>('high');
   const { lang } = useLanguage();
   const t = stayDetailLocale[lang];
@@ -28,7 +28,10 @@ export default function StayReview({ rating, highReviews, lowReviews, stayId }: 
   return (
     <>
       <section className="mt-12">
-        <h2 className="text-lg font-semibold mb-2">{t.review.avgTitle}</h2>
+        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <span className="inline-block w-1.5 h-5 bg-blue-500 rounded-sm" />
+          {t.review.avgTitle}
+        </h2>
         <div className="flex items-center justify-between rounded-md mt-2 bg-gray-100 p-4">
           <div className="flex text-yellow gap-2">
             {Array.from({ length: 5 }).map((_, i) => {
@@ -55,7 +58,10 @@ export default function StayReview({ rating, highReviews, lowReviews, stayId }: 
           </span>
         </div>
 
-        <h2 className="text-lg font-semibold mt-12 mb-2">{t.review.aiSummaryTitle}</h2>
+        <h2 className="text-lg font-semibold mt-12 mb-4 flex items-center gap-2">
+          <span className="inline-block w-1.5 h-5 bg-blue-500 rounded-sm" />
+          {t.review.aiSummaryTitle}
+        </h2>
         <div className="rounded-md mt-2 bg-blue-50 px-3 py-2 text-sm text-primary mb-4">
           <strong>TIP</strong> {t.review.tip}
         </div>
