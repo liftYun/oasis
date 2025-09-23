@@ -9,6 +9,7 @@ import BackHeader from '@/components/molecules/BackHeader';
 import { useLanguage } from '@/features/language';
 import { profileMessages } from '@/features/my-profile';
 import { ReviewDetailBottomSheet } from '@/features/my-profile/components/ReviewDetailBottomSheet';
+import { Lottie } from '@/components/atoms/Lottie';
 
 export function Reviews() {
   const [reviews, setReviews] = useState<ReviewResponseVo[]>([]);
@@ -35,12 +36,27 @@ export function Reviews() {
   }, []);
 
   if (loading) {
-    return <div className="max-w-md mx-auto p-4 text-center text-gray-500">불러오는 중...</div>;
+    return (
+      <>
+        <div className="flex flex-col items-center justify-center p-4 pb-56">
+          <Lottie src="/lotties/spinner.json" className="w-40 h-40" />
+          <p className="mt-2 text-center text-gray-500">{t.loading}</p>
+        </div>
+      </>
+    );
   }
 
   if (reviews.length === 0) {
     return (
-      <div className="max-w-md mx-auto p-4 text-center text-gray-500">작성한 리뷰가 없습니다.</div>
+      <div className="flex flex-col min-h-screen max-w-md mx-auto">
+        <div className="p-4">
+          <BackHeader title={t.myReview} />s
+        </div>
+        <div className="flex flex-col flex-1 items-center justify-center p-4 pb-56">
+          <Lottie src="/lotties/empty.json" className="w-100 h-40" />
+          <p className="mt-4 text-center text-gray-500">{t.noReviews}</p>
+        </div>
+      </div>
     );
   }
 
