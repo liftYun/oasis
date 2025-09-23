@@ -19,6 +19,9 @@ export const stayDetailLocale = {
       invalidHostInfo: '호스트 정보가 올바르지 않습니다.',
       chatEnterFailRetry: '채팅방 진입에 실패했어요. 잠시 후 다시 시도해 주세요.',
       cancel: '예약 취소하기',
+      cancelConfirm: '정말 예약을 취소하시겠습니까?',
+      cancelSuccess: '예약 취소가 완료되었습니다.',
+      cancelError: '예약 취소 중 오류가 발생했습니다.',
     },
     detail: {
       infoTitle: '숙소 세부정보',
@@ -85,7 +88,10 @@ export const stayDetailLocale = {
       stayLoadFailRetry: 'Failed to load stay info. Please try again later.',
       invalidHostInfo: 'Host information is invalid.',
       chatEnterFailRetry: 'Failed to enter the chat. Please try again later.',
-      cancel: 'Cancel reservation',
+      cancel: 'Cancel Reservation',
+      cancelConfirm: 'Are you sure you want to cancel this reservation?',
+      cancelSuccess: 'Your reservation has been successfully cancelled.',
+      cancelError: 'An error occurred while cancelling the reservation.',
     },
     detail: {
       infoTitle: 'Stay Details',
@@ -154,6 +160,9 @@ export const stayDetailLocale = {
       invalidHostInfo: string;
       chatEnterFailRetry: string;
       cancel: string;
+      cancelConfirm: string;
+      cancelSuccess: string;
+      cancelError: string;
     };
     detail: {
       infoTitle: string;

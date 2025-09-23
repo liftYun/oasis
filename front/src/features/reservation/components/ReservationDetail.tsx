@@ -146,7 +146,7 @@ export function ReservationDetail() {
         <StayHost host={stay.host} onChatStart={handleChatStart} />
       </main>
 
-      <CancelBar stay={stay} />
+      <CancelBar reservation={reservation} />
     </section>
   );
 }
