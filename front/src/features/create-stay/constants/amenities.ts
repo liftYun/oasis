@@ -79,6 +79,7 @@ export const AMENITY_LABELS: Record<AmenityOptionKey, { kor: string; eng: string
   around_park: { kor: '🌳 공원', eng: '🌳 Park' },
 };
 
+// 카테고리별 옵션 key
 export const AMENITIES_BY_CATEGORY: Record<AmenityCategoryKey, AmenityOptionKey[]> = {
   bathroom: [
     'bath_bathtub',
@@ -122,6 +123,7 @@ export const AMENITIES_BY_CATEGORY: Record<AmenityCategoryKey, AmenityOptionKey[
   around: ['around_store_mart', 'around_public_transport', 'around_parking', 'around_park'],
 };
 
+// 숫자 ID <-> Key 변환
 export const AMENITY_ID_TO_KEY: Record<number, AmenityOptionKey> = {
   1: 'bath_bathtub',
   2: 'bath_shower_booth',

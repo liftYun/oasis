@@ -27,7 +27,8 @@ export const registerMessages: Record<'kor' | 'eng', RegisterTexts> = {
     moneyTitle: '취소·환불 규정 등록',
     moneySubTitle: '블록체인 기반 스마트 컨트랙트가 \n 규정에 따라 자동 환불을 보장합니다.',
     moneyModalTitle: '규정 변경불가 안내',
-    moneyModalDescription: '환불 규정은 스마트 컨트랙트에 기록되며, \n 이후 변경할 수 없습니다.',
+    moneyModalDescription:
+      '환불 규정은 스마트 컨트랙트에 기록되며, \n 등록 후에도 수정할 수 있습니다.',
     back: '돌아가기',
     successLogin: '로그인 완료!',
     errorPattern: '한글, 영어, 숫자만 사용할 수 있습니다.',
@@ -65,7 +66,8 @@ export const registerMessages: Record<'kor' | 'eng', RegisterTexts> = {
     moneyTitle: 'Cancellation/Refund Registration',
     moneySubTitle: 'Automatically adjust the refund amount \n based on the smart contract.',
     moneyModalTitle: 'Non-change of regulations',
-    moneyModalDescription: 'Once set, the refund amount is locked \n and cannot be changed later.',
+    moneyModalDescription:
+      'The refund policy is recorded on the smart contract \n and can still be updated afterwards.',
     back: 'Back',
     successLogin: 'Login completed!',
     errorPattern: 'Only Korean, English, and numbers.',

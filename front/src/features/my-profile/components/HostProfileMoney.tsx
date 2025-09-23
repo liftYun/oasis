@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/features/language';
 import { registerMessages } from '@/features/register';
@@ -9,9 +9,8 @@ import { BottomSheet } from '@/components/organisms/BottomSheet';
 import { DonutPercentPicker } from '@/features/register/components/DonutPercentPicker';
 import { CenterModal } from '@/components/organisms/CenterModel';
 import { useRouter } from 'next/navigation';
-import { Lottie } from '@/components/atoms/Lottie';
-import { updateCancellationPolicy } from '@/services/user.api';
-import { CancellationPolicyRequest } from '@/services/user.types';
+import { updateCancellationPolicy, getCancellationPolicy } from '@/services/user.api';
+import { CancellationPolicyRequest, CancellationPolicyQueryResponse } from '@/services/user.types';
 import { toast } from 'react-hot-toast';
 import BackHeader from '@/components/molecules/BackHeader';
 
@@ -51,6 +50,32 @@ export function HostProfileMoney({
   const [activeId, setActiveId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  useEffect(() => {
+    const fetchPolicy = async () => {
+      try {
+        const res = await getCancellationPolicy();
+        const data: CancellationPolicyQueryResponse = res.result;
+
+        if (data) {
+          const mappedRules: Rule[] = [
+            { ...DEFAULT_RULES.find((r) => r.id === 'd1')!, value: data.policy1 },
+            { ...DEFAULT_RULES.find((r) => r.id === 'd3')!, value: data.policy2 },
+            { ...DEFAULT_RULES.find((r) => r.id === 'd5')!, value: data.policy3 },
+            { ...DEFAULT_RULES.find((r) => r.id === 'd7')!, value: data.policy4 },
+          ];
+          setRules(mappedRules);
+        }
+      } catch (err: any) {
+        if (err.response?.status === 404) {
+          return;
+        }
+        console.error('취소 정책 조회 실패:', err);
+        toast.error(langKey === 'kor' ? '정책 조회 실패' : 'Failed to load policy');
+      }
+    };
+    fetchPolicy();
+  }, []);
+
   const percentOptions = useMemo(
     () =>
       Array.from({ length: 10 }, (_, i) => i * 10)
@@ -84,29 +109,19 @@ export function HostProfileMoney({
     if (!ok) return;
 
     const body: CancellationPolicyRequest = {
-      policy1: rules.find((r) => r.id === 'd1')?.value ?? 0, // 1~2일 전
-      policy2: rules.find((r) => r.id === 'd3')?.value ?? 0, // 3~5일 전
-      policy3: rules.find((r) => r.id === 'd5')?.value ?? 0, // 5~6일 전
-      policy4: rules.find((r) => r.id === 'd7')?.value ?? 0, // 7일 전
+      policy1: rules.find((r) => r.id === 'd1')?.value ?? 0,
+      policy2: rules.find((r) => r.id === 'd3')?.value ?? 0,
+      policy3: rules.find((r) => r.id === 'd5')?.value ?? 0,
+      policy4: rules.find((r) => r.id === 'd7')?.value ?? 0,
     };
 
     try {
-      const res = await updateCancellationPolicy(body);
-      // toast.success(langKey === 'kor' ? '취소 정책이 등록되었어요.' : 'Policy saved.');
+      await updateCancellationPolicy(body);
       setConfirmOpen(true);
     } catch (err) {
       toast.error(langKey === 'kor' ? '등록 중 오류가 발생했어요.' : 'Failed to save policy.');
     }
   };
-
-  if (submitting) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <Lottie src="/lotties/success.json" className="w-20 h-20" />
-        <p className="text-sm text-gray-500">{t.successLogin}</p>
-      </div>
-    );
-  }
 
   return (
     <main className="flex flex-col w-full px-6 py-10 min-h-screen">
@@ -147,6 +162,7 @@ export function HostProfileMoney({
           {t.confirm}
         </Button>
       </div>
+
       <CenterModal
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
@@ -166,7 +182,7 @@ export function HostProfileMoney({
             setSubmitting(true);
             onConfirm?.(rules);
             await new Promise((r) => setTimeout(r, 1500));
-            router.push('/main');
+            router.push('/my-profile');
           }}
         >
           {t.confirm}

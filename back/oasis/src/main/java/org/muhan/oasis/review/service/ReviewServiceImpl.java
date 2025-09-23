@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 
 import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.common.exception.BaseException;
+import org.muhan.oasis.openAI.dto.in.ReviewListRequestDto;
 import org.muhan.oasis.openAI.dto.in.ReviewRequestDto;
 import org.muhan.oasis.openAI.dto.out.ReviewTranslationResultDto;
 import org.muhan.oasis.openAI.service.SqsSendService;
@@ -20,10 +21,13 @@ import org.muhan.oasis.stay.service.StayService;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.valueobject.Language;
+import org.muhan.oasis.valueobject.Rate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -79,9 +83,29 @@ public class ReviewServiceImpl implements ReviewService{
                     .build());
         }
         sqsSendService.sendReviewTransMessage(new ReviewRequestDto(original, writer.getLanguage()), review.getReviewId());
+
+        List<ReviewEntity> reviews = reviewRepository.findAllByStayIdOrderByCreatedAtDescWithJoins(reservation.getStay().getId());
+        List<ReviewRequestDto> lowRate = new ArrayList<>();
+        List<ReviewRequestDto> highRate = new ArrayList<>();
+        for (ReviewEntity r : reviews) {
+            if(r.getRating().compareTo(BigDecimal.valueOf(3.0)) < 0){
+                lowRate.add(ReviewRequestDto.from(r, writer.getLanguage()));
+            }
+            else{
+                highRate.add(ReviewRequestDto.from(r, writer.getLanguage()));
+            }
+        }
+        ReviewListRequestDto lowRateReviews = new ReviewListRequestDto(lowRate);
+        ReviewListRequestDto highRateReviews = new ReviewListRequestDto(highRate);
+
+        sqsSendService.sendReviewSummaryMessage(lowRateReviews, reservation.getStay().getId(), Rate.LOW_RATE);
+        sqsSendService.sendReviewSummaryMessage(highRateReviews, reservation.getStay().getId(), Rate.HIGH_RATE);
+
         stayService.recalculateRating(reservation.getStay().getId(), registReviewRequestDto.getRating());
         return review.getReviewId();
     }
+
+
 
     @Override
     public List<ReviewResponseVo> getListOfReviews(Long userId) {

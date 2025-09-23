@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.muhan.oasis.chatTranslate.service.TranslateService;
+import org.muhan.oasis.common.base.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,8 +26,12 @@ public class TranslateController {
     public record TranslateRes(String text, String target, String engine) {}
 
     @PostMapping
-    public Mono<TranslateRes> translate(@RequestBody TranslateReq req) {
-        return service.translate(req.text(), req.target(), req.source())
+    public ResponseEntity<BaseResponse<TranslateRes>> translate(@RequestBody TranslateReq req) {
+        Mono<TranslateRes> map = service.translate(req.text(), req.target(), req.source())
                 .map(r -> new TranslateRes(r.text(), r.target(), r.engine()));
+
+        BaseResponse<TranslateRes> response = BaseResponse.of(map.block());
+
+        return ResponseEntity.ok(response);
     }
 }

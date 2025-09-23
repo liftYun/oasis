@@ -3,6 +3,7 @@ package org.muhan.oasis.stay.service;
 import lombok.RequiredArgsConstructor;
 import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.common.exception.BaseException;
+import org.muhan.oasis.openAI.dto.out.ReviewSummaryResultDto;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
 import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.stay.dto.in.*;
@@ -12,6 +13,7 @@ import org.muhan.oasis.stay.repository.*;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.valueobject.Language;
+import org.muhan.oasis.valueobject.Rate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -479,6 +481,20 @@ public class StayServiceImpl implements StayService{
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
 
         return stayRepository.findCardsByUserId(user.getUserId(), user.getLanguage().getDescription());
+    }
+
+    @Override
+    @Transactional
+    public void updateReviewSummary(Long stayId, Rate rate, ReviewSummaryResultDto result) {
+        StayRatingSummaryEntity ratingSummary = stayRatingSummaryRepository.findById(stayId).orElseThrow(() -> new BaseException(NO_STAY));
+        if(rate.equals(Rate.HIGH_RATE)){
+            ratingSummary.setHighRateSummary(result.getKoreanVersion().getSummary());
+            ratingSummary.setHighRateSummaryEng(result.getEnglishVersion().getSummary());
+        }
+        else{
+            ratingSummary.setLowRateSummary(result.getKoreanVersion().getSummary());
+            ratingSummary.setLowRateSummaryEng(result.getEnglishVersion().getSummary());
+        }
     }
 
 }

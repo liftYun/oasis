@@ -98,9 +98,11 @@ cloud:
         access-key: ${AWS_ACCESS_KEY_ID}
         secret-key: ${AWS_SECRET_ACCESS_KEY}
       queue:
-        stay-translation-url: ${SQS_TRANS_STAY}
-        review-translation-url: ${SQS_TRANS_REVIEW}
-        review-summary-url: ${SQS_SUMMARY_REVIEW}
+        stay-translation: ${SQS_TRANS_STAY}
+        review-translation: ${SQS_TRANS_REVIEW}
+        review-summary: ${SQS_SUMMARY_REVIEW}
+        listener:
+          acknowledgement-mode: MANUAL
 
 openai:
   secret-key: ${OPENAI_SECRET_KEY}

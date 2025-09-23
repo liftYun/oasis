@@ -7,7 +7,10 @@ import { useEffect, useState } from 'react';
 import { logout } from '@/services/auth.api';
 import { getMyProfile } from '@/services/user.api';
 import type { MyProfile } from '@/services/user.types';
+import Manage from '@/assets/icons/annoucer.png';
 import Calendar from '@/assets/icons/calendar.png';
+import Heart from '@/assets/icons/heart-blue.png';
+import PositiveReview from '@/assets/icons/positive-review.png';
 import CreateStay from '@/assets/icons/create-stay.png';
 import Policy from '@/assets/icons/dollar.png';
 import SignOut from '@/assets/icons/sign-out.png';
@@ -18,6 +21,7 @@ import { useAuthStore } from '@/stores/useAuthStores';
 import { toast } from 'react-hot-toast';
 import { CenterModal } from '@/components/organisms/CenterModel';
 import { Lottie } from '@/components/atoms/Lottie';
+import { BlockChainWallet } from '@/features/my-profile/components/blockchain/BlockChainWallet';
 
 export function HostProfile() {
   const { lang } = useLanguage();
@@ -102,32 +106,15 @@ export function HostProfile() {
           </div>
         </section>
 
-        <div
-          className="w-full max-w-sm rounded-md p-5 mb-8"
-          style={{ background: 'linear-gradient(to right, #dbeafe, #e0f2f1)' }}
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <Image src={Usdc} alt="USDC Icon" width={15} height={15} />
-            <span className="text-sm text-gray-800 font-medium">{t.usdc}</span>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <p className="text-2xl font-bold text-gray-900">19.0</p>
-            <button className="px-4 py-1.5 rounded-full bg-white font-semibold flex items-center justify-center">
-              <span className="text-xs text-transparent bg-clip-text bg-gradient-to-r from-[#3B87F4] to-[#88D4AF]">
-                {t.balance}
-              </span>
-            </button>
-          </div>
-        </div>
+        <BlockChainWallet />
 
         <div className="w-full max-w-sm space-y-1">
-          <p className="text-sm text-gray-500 mb-2 font-bold">{t.reservation}</p>
+          <p className="text-sm text-gray-500 mb-2 font-bold">{t.stayManage}</p>
           <Link
             href="/my-profile/manage-stay"
             className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
           >
-            <Image src={Calendar} alt="Calendar Icon" width={24} height={24} />
+            <Image src={Manage} alt="Manage Icon" width={22} height={22} />
             <span className="text-gray-800 text-sm">{t.manageStay}</span>
           </Link>
           <Link
@@ -137,6 +124,35 @@ export function HostProfile() {
             <Image src={CreateStay} alt="Create Stay Icon" width={24} height={24} />
             <span className="text-gray-800 text-sm">{t.createStay}</span>
           </Link>
+        </div>
+
+        <div className="w-full max-w-sm space-y-1">
+          <p className="text-sm text-gray-500 mb-2 font-bold">{t.reservation}</p>
+          <Link
+            href="/my-profile/reservations"
+            className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
+          >
+            <Image src={Calendar} alt="Calendar Icon" width={24} height={24} />
+            <span className="text-gray-800 text-sm">{t.reservationHistory}</span>
+          </Link>
+        </div>
+
+        <div className="w-full max-w-sm space-y-1">
+          <p className="text-sm text-gray-500 mb-2 font-bold">{t.activity}</p>
+          <Link
+            href="/my-profile/favorite"
+            className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
+          >
+            <Image src={Heart} alt="Heart Icon" width={24} height={24} />
+            <span className="text-gray-800 text-sm">{t.wishlist}</span>
+          </Link>
+          {/* <Link
+            href="/my-profile/reviews"
+            className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
+          >
+            <Image src={PositiveReview} alt="Positive Review Icon" width={24} height={24} />
+            <span className="text-gray-800 text-sm">{t.reviews}</span>
+          </Link> */}
         </div>
 
         <div className="w-full max-w-sm space-y-1">

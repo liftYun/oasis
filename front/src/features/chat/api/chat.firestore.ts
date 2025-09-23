@@ -3,139 +3,196 @@
 import { getDb } from '@/lib/firebase/client';
 import {
   collection,
-  doc,
-  getDoc,
   onSnapshot,
-  orderBy,
   query,
-  runTransaction,
+  where,
+  orderBy,
+  doc,
+  addDoc,
+  getDocs,
+  updateDoc,
   serverTimestamp,
-  setDoc,
+  type Firestore,
 } from 'firebase/firestore';
 
-// 타입 정의로 any 제거
 interface FirestoreRoom {
-  stay: {
-    id: string;
-    title: string;
-    address: string;
-    thumbnailUrl?: string;
-  };
+  // 참여자 UUID 쿼리용
+  memberIds: string[]; // [uidA, uidB]
+  // 불변 프로필 URL(요구사항: 변경되지 않는 값)
+  participants: Record<string, { profileUrl: string }>;
+  // 백엔드 조회용
+  stayId: number;
+  // 메타
+  lastMessage?: string;
+  createdAt?: { toDate(): Date };
+  updatedAt?: { toDate(): Date };
 }
 
 interface FirestoreMessage {
   content: string;
-  senderId: number;
+  senderUid: string;
   createdAt?: { toDate(): Date };
+  updatedAt?: { toDate(): Date };
 }
 
-const DEFAULT_TEST_STAY: FirestoreRoom['stay'] = {
-  id: 'stay-123',
-  title: '광안 바이브',
-  address: '부산 수영구 민락수변로 7 6층 601호',
-  thumbnailUrl: '/images/stay_example.png',
-};
-
-// 테스트 채팅방 구독: chats/test + chats/test/messages
-export function subscribeTestChat(
-  cb: (data: {
-    stay: { id: string; title: string; address: string; thumbnailUrl?: string };
-    messages: Array<{ id: string; content: string; senderId: number; createdAtMs: number }>;
-  }) => void,
+// 실제 구독: 내 UUID 기준으로 속한 채팅방 목록을 실시간 수신
+export function subscribeMyChatRooms(
+  myUid: string,
+  cb: (rooms: Array<{ id: string; data: FirestoreRoom }>) => void,
   onError?: (error: unknown) => void
 ) {
   const db = getDb();
   if (!db) {
-    const err = new Error('Firestore is not configured');
-    onError?.(err);
+    onError?.(new Error('Firestore is not configured'));
     return () => {};
   }
-
-  const roomRef = doc(db, 'chats', 'test');
-  const msgsRef = collection(db, 'chats', 'test', 'messages');
-
-  let currentStay = DEFAULT_TEST_STAY;
-  let currentMessages: Array<{
-    id: string;
-    content: string;
-    senderId: number;
-    createdAtMs: number;
-  }> = [];
-
-  const unsubRoom = onSnapshot(
-    roomRef,
+  const roomsRef = collection(db, 'chats');
+  const q = query(
+    roomsRef,
+    where('memberIds', 'array-contains', myUid),
+    orderBy('updatedAt', 'desc')
+  );
+  const unsub = onSnapshot(
+    q,
     (snap) => {
-      const rawRoom = snap.data() as FirestoreRoom | undefined;
-      currentStay = rawRoom?.stay ?? DEFAULT_TEST_STAY;
-      cb({ stay: currentStay, messages: currentMessages });
+      const list = snap.docs.map((d) => ({ id: d.id, data: d.data() as FirestoreRoom }));
+      cb(list);
     },
     onError
   );
+  return unsub;
+}
 
-  const unsubMsgs = onSnapshot(
-    query(msgsRef, orderBy('createdAt', 'asc')),
+// 특정 채팅방 메타 구독 (stayId, participants, memberIds 등)
+export function subscribeChatRoom(
+  chatId: string,
+  cb: (room: { id: string; data: FirestoreRoom } | null) => void,
+  onError?: (error: unknown) => void
+) {
+  const db = getDb();
+  if (!db) {
+    onError?.(new Error('Firestore is not configured'));
+    return () => {};
+  }
+  const ref = doc(db, 'chats', chatId);
+  const unsub = onSnapshot(
+    ref,
     (snap) => {
-      currentMessages = snap.docs.map((d) => {
-        const m = d.data() as FirestoreMessage;
-        const ms = m.createdAt?.toDate ? m.createdAt.toDate().getTime() : Date.now();
-        return {
-          id: d.id,
-          content: m.content,
-          senderId: m.senderId,
-          createdAtMs: ms,
-        };
-      });
-      cb({ stay: currentStay, messages: currentMessages });
+      if (!snap.exists()) {
+        cb(null);
+        return;
+      }
+      cb({ id: snap.id, data: snap.data() as FirestoreRoom });
     },
     onError
   );
-
-  return () => {
-    unsubRoom();
-    unsubMsgs();
-  };
+  return unsub;
 }
 
-export async function sendTestMessage(senderId: number, content: string) {
+// 특정 채팅방 메시지 구독 (오름차순)
+export function subscribeChatMessages(
+  chatId: string,
+  cb: (messages: Array<{ id: string; data: FirestoreMessage }>) => void,
+  onError?: (error: unknown) => void
+) {
   const db = getDb();
   if (!db) {
-    throw new Error('Firestore is not configured');
+    onError?.(new Error('Firestore is not configured'));
+    return () => {};
   }
-  try {
-    const msgsRef = collection(db, 'chats', 'test', 'messages');
-    await runTransaction(db, async (transaction) => {
-      const newMsgRef = doc(msgsRef);
-      transaction.set(newMsgRef, { senderId, content, createdAt: serverTimestamp() });
-      transaction.set(
-        doc(db, 'chats', 'test'),
-        {
-          lastMessage: content,
-          updatedAt: serverTimestamp(),
-        },
-        { merge: true }
-      );
-    });
-  } catch (error) {
-    console.error('Failed to send test message:', error);
-    throw error;
-  }
+  const ref = collection(db, 'chats', chatId, 'messages');
+  const q = query(ref, orderBy('createdAt', 'asc'));
+  const unsub = onSnapshot(
+    q,
+    (snap) => {
+      const list = snap.docs.map((d) => ({ id: d.id, data: d.data() as FirestoreMessage }));
+      cb(list);
+    },
+    onError
+  );
+  return unsub;
 }
 
-// 필요 시 테스트 채팅방을 생성/초기화
-export async function ensureTestChat() {
+export type { FirestoreRoom };
+export type { FirestoreMessage };
+
+// 메시지 전송: messages 서브컬렉션에 추가하고, 상위 방 메타 갱신
+export async function sendChatMessage(
+  chatId: string,
+  senderUid: string,
+  content: string
+): Promise<void> {
   const db = getDb();
-  if (!db) {
-    return;
+  if (!db) throw new Error('Firestore is not configured');
+  if (!content.trim()) return;
+
+  const trimmed = content.trim();
+  if (trimmed.length > 500) {
+    throw new Error('MESSAGE_TOO_LONG');
   }
-  const ref = doc(db, 'chats', 'test');
-  const snap = await getDoc(ref);
-  if (!snap.exists()) {
-    await setDoc(ref, {
-      participantIds: [123, 456],
-      stay: DEFAULT_TEST_STAY,
-      lastMessage: '',
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
+  const messagesRef = collection(db, 'chats', chatId, 'messages');
+  await addDoc(messagesRef, {
+    content: trimmed,
+    senderUid,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+
+  const roomRef = doc(db, 'chats', chatId);
+  await updateDoc(roomRef, {
+    lastMessage: trimmed,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+// 기존 채팅방 조회: 내 UUID + 상대 UUID + 숙소 ID 조합으로 단일 방 확인
+export async function findExistingChatRoom(
+  myUid: string,
+  hostUid: string,
+  stayId: number
+): Promise<string | null> {
+  const db = getDb();
+  if (!db) throw new Error('Firestore is not configured');
+
+  const roomsRef = collection(db, 'chats');
+  const q = query(
+    roomsRef,
+    where('memberIds', 'array-contains', myUid),
+    where('stayId', '==', stayId)
+  );
+  const snap = await getDocs(q);
+  for (const d of snap.docs) {
+    const data = d.data() as FirestoreRoom;
+    if (Array.isArray(data.memberIds) && data.memberIds.includes(hostUid)) {
+      return d.id;
+    }
   }
+  return null;
+}
+
+// 채팅방 생성: 필수 필드 저장 (memberIds, participants, stayId, createdAt/updatedAt)
+export async function createChatRoom(params: {
+  myUid: string;
+  myProfileUrl?: string | null;
+  hostUid: string;
+  hostProfileUrl?: string | null;
+  stayId: number;
+}): Promise<string> {
+  const { myUid, myProfileUrl, hostUid, hostProfileUrl, stayId } = params;
+  const db = getDb();
+  if (!db) throw new Error('Firestore is not configured');
+
+  const roomsRef = collection(db, 'chats');
+  const docRef = await addDoc(roomsRef, {
+    memberIds: [myUid, hostUid],
+    participants: {
+      [myUid]: { profileUrl: myProfileUrl ?? '' },
+      [hostUid]: { profileUrl: hostProfileUrl ?? '' },
+    } as Record<string, { profileUrl: string }>,
+    stayId,
+    lastMessage: '',
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+  return docRef.id;
 }

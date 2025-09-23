@@ -15,9 +15,10 @@ export type MessageItemModel = {
 interface MessageItemProps {
   message: MessageItemModel;
   onClickTranslate?: (id: string) => void; // UI만 존재. 동작은 추후
+  translated?: boolean; // 번역 완료 여부에 따라 버튼 숨김
 }
 
-export default function MessageItem({ message, onClickTranslate }: MessageItemProps) {
+export default function MessageItem({ message, onClickTranslate, translated }: MessageItemProps) {
   const { lang } = useLanguage();
   const t = chatMessages[lang];
   const bubbleBase = 'max-w-[78%] px-5 py-4 rounded-2xl text-sm leading-relaxed shadow-sm';

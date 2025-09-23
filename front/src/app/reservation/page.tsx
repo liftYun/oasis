@@ -1,22 +1,71 @@
 'use client';
 
-import BackHeader from '@/components/molecules/BackHeader';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 import { ProgressBar } from '@/components/molecules/ProgressBar';
-import { useReservationStore } from '@/features/reservation/store';
+import { useReservationStore } from '@/stores/useResversionStores';
 import { Step1_Dates, Step3_Dummy, Step2_SmartKey } from '@/features/reservation';
-import { useLanguage } from '@/features/language';
-import { reservationMessages } from '@/features/reservation/locale';
-import { StepFlowProvider } from '@/features/common/step-flow/StepFlowContext';
-import type { ReservationStep } from '@/features/reservation/store';
-import { useCallback, useMemo } from 'react';
 
 export default function ReservationPage() {
-  const { step, setStep } = useReservationStore();
-  const { lang } = useLanguage();
-  const t = reservationMessages[lang];
+  const router = useRouter();
+  const { currentStep, setStep, reset } = useReservationStore();
+  const isReloadRef = useRef(false);
+  const didInitRef = useRef(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (didInitRef.current) return;
+    didInitRef.current = true;
+    if (currentStep !== 1) {
+      setStep(1);
+    }
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('step') !== '1') {
+      params.set('step', '1');
+      router.replace(`/reservation?${params.toString()}`, { scroll: false });
+    }
+  }, [currentStep, router, setStep]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const entries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+    const isReload =
+      entries?.[0]?.type === 'reload' ||
+      (performance.navigation && performance.navigation.type === 1);
+
+    if (isReload && !isReloadRef.current) {
+      isReloadRef.current = true;
+      // reset();
+      router.replace('/reservation?step=1', { scroll: false });
+    }
+  }, [reset, router]);
+
+  const didMountRef = useRef(false);
+
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+    const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    const currentUrlStep = params.get('step');
+    if (currentUrlStep !== currentStep.toString()) {
+      params.set('step', currentStep.toString());
+      router.replace(`/reservation?${params.toString()}`, { scroll: false });
+    }
+  }, [currentStep, router]);
+
+  // useEffect(() => {
+  //   const unsub = useReservationStore.subscribe((state) => {
+  //     console.log('ReservationStore 변경됨:', state);
+  //   });
+  //   return () => unsub();
+  // }, []);
 
   const renderStep = () => {
-    switch (step) {
+    const state = useReservationStore.getState();
+    console.log(state);
+    switch (currentStep) {
       case 1:
         return <Step1_Dates />;
       case 2:
@@ -28,25 +77,14 @@ export default function ReservationPage() {
     }
   };
 
-  const goPrevStep = useCallback(() => {
-    const prev: ReservationStep = step === 3 ? 2 : 1;
-    setStep(prev);
-  }, [step, setStep]);
-
-  const stepFlowValue = useMemo(
-    () => ({ currentStep: step, canGoPrev: step >= 2, goPrevStep }),
-    [step, goPrevStep]
-  );
-
   return (
-    <StepFlowProvider value={stepFlowValue}>
-      <main className="flex flex-col flex-1 bg-white">
-        <BackHeader title={t.header.title} />
-        <div className="fixed left-1/2 -translate-x-1/2 top-[calc(env(safe-area-inset-top)+56px)] w-full max-w-[480px] z-[60] bg-white">
-          <ProgressBar totalSteps={3} currentStep={step} className="max-w-md mx-auto p-4" />
-        </div>
-        <div className="flex flex-col flex-grow pt-[120px] px-2 sm:px-4">{renderStep()}</div>
-      </main>
-    </StepFlowProvider>
+    <>
+      <ProgressBar
+        totalSteps={3}
+        currentStep={currentStep}
+        className="pt-20 max-w-md mx-auto p-4"
+      />
+      <div className="flex flex-1 w-full items-center justify-center px-8 py-4">{renderStep()}</div>
+    </>
   );
 }

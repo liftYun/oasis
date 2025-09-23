@@ -36,7 +36,7 @@ export interface UserSearchResult {
   profileImageUrl?: string;
 }
 
-// 취소 정책 등록/수정
+// 등록/수정 요청
 export interface CancellationPolicyRequest {
   policy1: number; // 1~2일 전
   policy2: number; // 3~5일 전
@@ -44,9 +44,59 @@ export interface CancellationPolicyRequest {
   policy4: number; // 7일 전
 }
 
-export interface CancellationPolicyResponse {
+// 등록/수정 응답
+export interface CancellationPolicyMutationResponse {
   id: number;
   daysBefore: number;
   refundRate: number;
   createdAt: string;
+}
+
+// 조회 응답
+export interface CancellationPolicyQueryResponse {
+  id: number;
+  policy1: number;
+  policy2: number;
+  policy3: number;
+  policy4: number;
+}
+// 내 숙소 카드 뷰 타입
+export interface StayCardView {
+  stayId: number;
+  title: string;
+  thumbnail: string;
+  rating: number;
+  price: number;
+}
+
+export interface MyStayListResponse {
+  status: number;
+  success: boolean;
+  message: string;
+  code: string;
+  result: StayCardView[];
+}
+
+export interface ReviewResponseVo {
+  reviewId: number;
+  reservationId?: string;
+  rating: number;
+  createdAt: string;
+  thumbnail: string;
+}
+
+export interface ReviewDetailResponseVo {
+  reviewId: number;
+  reservationId?: string;
+  rating: number;
+  createdAt: string;
+  content: string;
+}
+
+export interface BaseResponse<T> {
+  status: number;
+  success: boolean;
+  message: string;
+  code: string;
+  result: T;
 }

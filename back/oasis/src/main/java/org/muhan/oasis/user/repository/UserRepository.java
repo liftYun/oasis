@@ -54,11 +54,13 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
         update UserEntity u
            set u.nickname = :nickname,
                u.language = :language,
-               u.role     = :role
+               u.role     = :role,
+               u.firstLogin = :firstLogin
          where u.userId = :userId
     """)
     void updateUserById(@Param("userId") Long userId,
                           @Param("nickname") String nickname,
                           @Param("language") Language language,
-                          @Param("role") Role role);
+                          @Param("role") Role role,
+                        @Param("firstLogin")  Boolean firstLogin);
 }

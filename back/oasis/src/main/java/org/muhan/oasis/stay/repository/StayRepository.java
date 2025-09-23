@@ -165,5 +165,12 @@ public interface StayRepository extends JpaRepository<StayEntity, Long> {
       order by s.id desc
     """)
     List<StayCardView> findCardsByUserId(@Param("userId") Long userId, @Param("lang") String lang);
+
+    @Query(value = """
+        select cancellation_policy_id
+        from stays
+        where stay_id = :stayId
+        """, nativeQuery = true)
+    Optional<Long> findCancellationPolicyIdByStayId(@Param("stayId") Long stayId);
 }
 

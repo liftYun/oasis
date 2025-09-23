@@ -19,6 +19,7 @@ export function ChatUserThumbnail({
   className,
 }: ChatUserThumbnailProps) {
   const wrapperStyle: CSSProperties = { width: size, height: size };
+  const safeSrc = src && typeof src === 'string' && src.length > 0 ? src : undefined;
 
   return (
     <div
@@ -30,7 +31,7 @@ export function ChatUserThumbnail({
     >
       {/* Next/Image fill 사용: 기본 이미지 */}
       <Image
-        src={src ?? PreviewUser}
+        src={safeSrc ?? PreviewUser}
         alt={alt}
         fill
         sizes={`${size}px`}

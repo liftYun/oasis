@@ -10,6 +10,5 @@ export default function MyProfilePage() {
   if (role === 'host') {
     return <HostProfile />;
   }
-
   return <GuestProfile />;
 }

@@ -1,153 +1,147 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import StayInfoCard from '@/features/chat/components/StayInfoCard';
-import MessageItem, { type MessageItemModel } from '@/features/chat/components/MessageItem';
+import MessageItem from '@/features/chat/components/MessageItem';
 import InputBar from '@/features/chat/components/InputBar';
-import { useChatDetail, type ChatDetailData } from '@/features/chat/hooks/useChatDetail';
-import { notifyFirebaseUnavailable } from '@/features/chat/api/toastHelpers';
-import {
-  ensureTestChat,
-  subscribeTestChat,
-  sendTestMessage,
-} from '@/features/chat/api/chat.firestore';
-import { getFirebaseInitError } from '@/lib/firebase/client';
+import { useChatDetail } from '@/features/chat/hooks/useChatDetail';
+import { sendChatMessage } from '@/features/chat/api/chat.firestore';
+import { useAuthStore } from '@/stores/useAuthStores';
 import { useLanguage } from '@/features/language';
-import { chatMessages } from '@/features/chat/locale';
+import { notifySendFail, notifyTooLong } from '@/features/chat/api/toastHelpers';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { translateMessage } from '@/services/chat.api';
+import ScrollToBottomButton from '@/features/chat/components/ScrollToBottomButton';
 
 interface ChatDetailPageProps {
   chatId: string;
 }
 
-const TEST_SENDER_ID = 123; // 테스트용 내 사용자 ID
-
 export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
-  const isTest = chatId === 'test';
-  const initError = getFirebaseInitError();
-  const { lang } = useLanguage();
-  const t = chatMessages[lang];
-
-  // 기존 더미/실제 API 훅 (테스트가 아닐 때 사용)
   const { data, isLoading } = useChatDetail(chatId);
-
-  // 테스트 방 전용 상태
-  const [testData, setTestData] = useState<ChatDetailData | null>(null);
-  const [isTestLoading, setIsTestLoading] = useState<boolean>(isTest);
-  const [testError, setTestError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!isTest) return;
-
-    let unsubscribe: (() => void) | undefined;
-    (async () => {
-      try {
-        await ensureTestChat();
-        unsubscribe = subscribeTestChat(
-          ({ stay, messages }) => {
-            // 분 단위로 묶어서 같은 분의 첫 메시지에만 타임스탬프를 붙인다
-            let lastMinuteKey: string | null = null;
-            const mapped: MessageItemModel[] = messages.map((m) => {
-              const date = new Date(m.createdAtMs);
-              const y = String(date.getFullYear()).slice(-2);
-              const mo = String(date.getMonth() + 1).padStart(2, '0');
-              const d = String(date.getDate()).padStart(2, '0');
-              const hour24 = date.getHours();
-              const mm = String(date.getMinutes()).padStart(2, '0');
-              const minuteKey = `${y}-${mo}-${d} ${hour24}:${mm}`; // 그룹핑용 키(24h)
-              const showTime = lastMinuteKey !== minuteKey;
-              if (showTime) lastMinuteKey = minuteKey;
-
-              const period = hour24 < 12 ? t.am : t.pm;
-              const hour12Raw = hour24 % 12;
-              const hour12 = String(hour12Raw === 0 ? 12 : hour12Raw).padStart(2, '0');
-              const timeText =
-                lang === 'kor'
-                  ? `${y}.${mo}.${d} ${period} ${hour12}:${mm}`
-                  : `${mo}/${d}/${y} ${period} ${hour12}:${mm}`;
-
-              return {
-                id: m.id,
-                content: m.content,
-                isMine: m.senderId === TEST_SENDER_ID,
-                timestamp: showTime ? timeText : undefined,
-              };
-            });
-            setTestData({ stay, messages: mapped });
-            setIsTestLoading(false);
-          },
-          (err) => {
-            setTestError(err instanceof Error ? err.message : '알 수 없는 오류');
-            setIsTestLoading(false);
-          }
-        );
-      } catch (e) {
-        setTestError(e instanceof Error ? e.message : '알 수 없는 오류');
-        setIsTestLoading(false);
-      }
-    })();
-
-    return () => unsubscribe?.();
-  }, [isTest]);
+  const { uuid: myUid } = useAuthStore();
+  const { lang } = useLanguage();
+  const [translations, setTranslations] = useState<Record<string, string>>({});
+  const [showOriginal, setShowOriginal] = useState<Record<string, boolean>>({});
+  const storageKey = useMemo(() => `chat:translated:${chatId}`, [chatId]);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const didInitialScrollRef = useRef(false);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!isTest) return;
-    if (initError || testError) {
-      notifyFirebaseUnavailable(lang);
-    }
-  }, [isTest, initError, testError, lang]);
-
-  const displayData = isTest ? testData : data;
-  const loading = isTest ? isTestLoading : isLoading;
-
-  const handleTranslate = (id: string) => {
-    // 현재 표시 중인 메시지에서 원문을 찾아 언어 탐지
-    const all = (isTest ? testData?.messages : data?.messages) ?? [];
-    const target = all.find((m) => m.id === id);
-    const text = target?.content ?? '';
-    import('@/features/chat/utils/languageDetection').then(
-      ({ detectLanguage, getTargetLanguage }) => {
-        const lang = detectLanguage(text);
-        const targetLang = getTargetLanguage(lang);
-        console.log('[Translation Detect]', { id, lang, targetLang, text });
+    try {
+      const saved = sessionStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved) as Record<string, string>;
+        setTranslations(parsed);
       }
-    );
-  };
+    } catch {}
+  }, [storageKey]);
 
-  const handleSend = (text: string) => {
-    if (!text.trim()) return;
-    if (isTest) {
-      void sendTestMessage(TEST_SENDER_ID, text.trim());
+  useEffect(() => {
+    const clear = () => sessionStorage.removeItem(storageKey);
+    window.addEventListener('beforeunload', clear);
+    return () => {
+      window.removeEventListener('beforeunload', clear);
+      clear();
+    };
+  }, [storageKey]);
+
+  // 채팅방 진입 시 최초 한 번, 최신 메시지(하단)로 즉시 스크롤 (이전 단계로 원복)
+  useLayoutEffect(() => {
+    if (!data || didInitialScrollRef.current) return;
+    const scrollToBottom = () =>
+      bottomRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
+    scrollToBottom();
+    requestAnimationFrame(() => {
+      scrollToBottom();
+    });
+    didInitialScrollRef.current = true;
+  }, [data?.messages?.length, data]);
+
+  // 채팅방 이동 시 초기 스크롤 상태 초기화
+  useEffect(() => {
+    didInitialScrollRef.current = false;
+  }, [chatId]);
+
+  const handleTranslate = async (id: string) => {
+    // 이미 번역된 내용이 있으면 원문/번역문 토글
+    if (translations[id]) {
+      setShowOriginal((prev) => ({ ...prev, [id]: !prev[id] }));
       return;
     }
-    console.log('send message:', text.trim(), 'in chat:', chatId);
+    const original = data?.messages.find((m) => m.id === id)?.content ?? '';
+    if (!original) return;
+    const { detectLanguage, getTargetLanguage } = await import(
+      '@/features/chat/utils/languageDetection'
+    );
+    const detected = detectLanguage(original); // 'ko' | 'en' | 'unknown'
+    const target = getTargetLanguage(detected) ?? 'en'; // API: 'ko' | 'en'
+    const source = detected === 'ko' ? 'ko' : detected === 'en' ? 'en' : undefined; // 명세 준수
+    try {
+      const res = await translateMessage(
+        source ? { text: original, target, source } : { text: original, target }
+      );
+      const translatedText = res.text;
+      setTranslations((prev) => {
+        const next = { ...prev, [id]: translatedText };
+        sessionStorage.setItem(storageKey, JSON.stringify(next));
+        return next;
+      });
+      setShowOriginal((prev) => ({ ...prev, [id]: false }));
+    } catch (e) {
+      if (process.env.NODE_ENV !== 'production') console.error('번역 실패:', e);
+    }
   };
 
-  if (loading) {
-    return <main className="flex flex-col w-full min-h-screen bg-white" />;
-  }
+  const handleSend = async (text: string) => {
+    const msg = text.trim();
+    if (!msg || !myUid) return;
+    if (msg.length > 500) {
+      notifyTooLong(lang);
+      return;
+    }
+    try {
+      await sendChatMessage(chatId, myUid, msg);
+    } catch (e) {
+      if (e instanceof Error && e.message === 'MESSAGE_TOO_LONG') {
+        notifyTooLong(lang);
+        return;
+      }
+      if (process.env.NODE_ENV !== 'production') console.error(e);
+      notifySendFail(lang);
+    }
+  };
 
-  // 오류 시: 빈 화면만 표시 (토스트는 상단 effect에서 한 번만 노출)
-  if (isTest && (initError || testError)) {
-    return <main className="flex flex-col w-full min-h-screen bg-white" />;
-  }
-
-  if (!displayData) {
+  if (isLoading || !data) {
     return <main className="flex flex-col w-full min-h-screen bg-white" />;
   }
 
   return (
     <main className="flex flex-col w-full min-h-screen bg-white">
       <section className="px-4">
-        <StayInfoCard stay={displayData.stay} />
+        <StayInfoCard stay={data.stay} />
       </section>
 
       <section className="flex-1 px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+88px)]">
-        {displayData.messages.map((m) => (
-          <MessageItem key={m.id} message={m} onClickTranslate={handleTranslate} />
-        ))}
+        {data.messages.map((m) => {
+          const override = translations[m.id];
+          const hasTranslation = typeof override === 'string' && override.length > 0;
+          const isShowingOriginal = showOriginal[m.id] === true;
+          const display = hasTranslation && !isShowingOriginal ? { ...m, content: override } : m;
+          return (
+            <MessageItem
+              key={m.id}
+              message={display}
+              translated={hasTranslation && !isShowingOriginal}
+              onClickTranslate={handleTranslate}
+            />
+          );
+        })}
+        <div ref={bottomRef} />
       </section>
 
       <InputBar onSend={handleSend} />
+      <ScrollToBottomButton anchorRef={bottomRef} />
     </main>
   );
 }
