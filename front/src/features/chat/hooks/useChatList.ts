@@ -13,6 +13,14 @@ import { notifyFirebaseUnavailable } from '@/features/chat/api/toastHelpers';
 
 type FirestoreRoomWithId = { id: string; data: FirestoreRoom };
 
+const formatLastDate = (timestamp: Date | undefined): string => {
+  if (!timestamp) return '';
+  const y = String(timestamp.getFullYear()).slice(-2);
+  const mo = String(timestamp.getMonth() + 1).padStart(2, '0');
+  const d = String(timestamp.getDate()).padStart(2, '0');
+  return `${y}.${mo}.${d}`;
+};
+
 function mapToSummary(
   rooms: FirestoreRoomWithId[],
   stayMap: Map<number, ChatListItem>,
@@ -34,16 +42,8 @@ function mapToSummary(
         | string
         | undefined,
       lastMessage: r.data.lastMessage ?? '',
-      lastDate: (() => {
-        const ts = updatedAt;
-        if (!ts) return '';
-        const y = String(ts.getFullYear()).slice(-2);
-        const mo = String(ts.getMonth() + 1).padStart(2, '0');
-        const d = String(ts.getDate()).padStart(2, '0');
-        return `${y}.${mo}.${d}`;
-      })(),
+      lastDate: formatLastDate(updatedAt),
       unreadCount: myUnread,
-      isUnread: myUnread > 0,
     } satisfies ChatSummary;
   });
 }

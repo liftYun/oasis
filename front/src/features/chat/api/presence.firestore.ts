@@ -36,10 +36,14 @@ export async function enterChatRoom(chatId: string, userUid: string): Promise<vo
   const db = getDb();
   if (!db) throw new Error('Firestore is not configured');
   const ref = doc(db, 'chats', chatId, 'presence', userUid);
-  await setDoc(ref, {
-    status: 'online',
-    updatedAt: serverTimestamp(),
-  });
+  await setDoc(
+    ref,
+    {
+      status: 'online',
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
 }
 
 export async function exitChatRoom(chatId: string, userUid: string): Promise<void> {

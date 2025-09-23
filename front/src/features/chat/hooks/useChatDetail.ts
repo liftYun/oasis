@@ -92,19 +92,27 @@ export function useChatDetail(chatId: string) {
   // 방 입장/퇴장 + 읽음 처리 (입장/이탈 모두에서 보정)
   useEffect(() => {
     if (!chatId || !myUid) return;
-    (async () => {
+    const currentMyUid = myUid;
+    const currentChatId = chatId;
+
+    const enterPromise = (async () => {
       try {
-        await enterChatRoom(chatId, myUid);
-        await markChatAsRead(chatId, myUid);
+        await enterChatRoom(currentChatId, currentMyUid);
+        await markChatAsRead(currentChatId, currentMyUid);
       } catch (e) {
         if (process.env.NODE_ENV !== 'production') console.warn('presence/read init failed', e);
       }
     })();
+
     return () => {
-      if (!myUid) return;
+      if (!currentMyUid) return;
       // 이탈 시에도 읽음 처리하여 잔여 카운트 방지
-      markChatAsRead(chatId, myUid).catch(() => {});
-      exitChatRoom(chatId, myUid).catch(() => {});
+      enterPromise
+        .catch(() => {})
+        .finally(() => {
+          markChatAsRead(currentChatId, currentMyUid).catch(() => {});
+          exitChatRoom(currentChatId, currentMyUid).catch(() => {});
+        });
     };
   }, [chatId, myUid]);
 

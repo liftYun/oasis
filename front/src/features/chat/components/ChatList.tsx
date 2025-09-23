@@ -22,7 +22,6 @@ export function ChatList({ items }: ChatListProps) {
           opponentProfileUrl={c.opponentProfileUrl}
           lastMessage={c.lastMessage}
           unreadCount={c.unreadCount}
-          isUnread={c.isUnread}
         />
       ))}
     </div>

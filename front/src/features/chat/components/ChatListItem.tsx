@@ -18,7 +18,6 @@ type ChatListItemProps = {
   opponentProfileUrl?: string;
   lastMessage?: string;
   unreadCount?: number;
-  isUnread?: boolean;
 };
 
 export function ChatListItem({
@@ -30,11 +29,10 @@ export function ChatListItem({
   opponentProfileUrl,
   lastMessage,
   unreadCount,
-  isUnread,
 }: ChatListItemProps) {
   const { lang } = useLanguage();
   const t = chatMessages[lang];
-  const showEmphasis = (unreadCount && unreadCount > 0) || isUnread === true;
+  const showEmphasis = (unreadCount ?? 0) > 0;
 
   return (
     <Link
@@ -66,17 +64,19 @@ export function ChatListItem({
         >
           {title}
         </p>
-        <p className={`mt-1 truncate text-sm ${showEmphasis ? 'text-gray-600' : 'text-gray-400'}`}>
-          {lastMessage ?? ''}
-        </p>
+        {lastMessage && (
+          <p
+            className={`mt-1 truncate text-sm ${showEmphasis ? 'text-gray-600' : 'text-gray-400'}`}
+          >
+            {lastMessage}
+          </p>
+        )}
       </div>
 
       {/* 오른쪽 날짜 + 뱃지 (숫자 배지 제거, Dot만 표시) */}
       <div className="flex flex-col items-end gap-1 mt-1 mb-auto flex-shrink-0">
         <span className="text-xs text-gray-300">{date}</span>
-        {(!!unreadCount && unreadCount > 0) || isUnread ? (
-          <Dot className="text-primary" size={24} strokeWidth={8} />
-        ) : null}
+        {showEmphasis ? <Dot className="text-primary" size={24} strokeWidth={8} /> : null}
       </div>
     </Link>
   );

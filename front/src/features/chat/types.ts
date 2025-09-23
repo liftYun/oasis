@@ -8,7 +8,6 @@ export type ChatSummary = {
   lastDate: string; // ISO or YYYY.MM.DD string for now
   // unread meta (optional to avoid breaking existing consumers)
   unreadCount?: number;
-  isUnread?: boolean;
 };
 
 export type ChatListResponse = ChatSummary[];
