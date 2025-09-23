@@ -95,6 +95,7 @@ export function useChatDetail(chatId: string) {
     const currentMyUid = myUid;
     const currentChatId = chatId;
 
+    // 1) 입장 시 presence 등록 및 읽음 처리
     const enterPromise = (async () => {
       try {
         await enterChatRoom(currentChatId, currentMyUid);
@@ -104,15 +105,54 @@ export function useChatDetail(chatId: string) {
       }
     })();
 
-    return () => {
-      if (!currentMyUid) return;
-      // 이탈 시에도 읽음 처리하여 잔여 카운트 방지
+    // 2) 조기 정리를 위한 베스트 에포트 클린업 (중복 호출 방지)
+    let cleaned = false;
+    const performBestEffortCleanup = () => {
+      if (cleaned || !currentMyUid) return;
+      cleaned = true;
       enterPromise
         .catch(() => {})
         .finally(() => {
-          markChatAsRead(currentChatId, currentMyUid).catch(() => {});
-          exitChatRoom(currentChatId, currentMyUid).catch(() => {});
+          // 순서 보장: 읽음 처리 후 presence 제거
+          markChatAsRead(currentChatId, currentMyUid)
+            .catch(() => {})
+            .finally(() => {
+              exitChatRoom(currentChatId, currentMyUid).catch(() => {});
+            });
         });
+    };
+
+    // 3) 페이지 가려짐/페이지 종료 시 가능한 일찍 정리 시도
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        performBestEffortCleanup();
+      }
+    };
+    const onPageHide = () => {
+      performBestEffortCleanup();
+    };
+    const onBeforeUnload = () => {
+      performBestEffortCleanup();
+    };
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', onVisibilityChange);
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('pagehide', onPageHide);
+      window.addEventListener('beforeunload', onBeforeUnload);
+    }
+
+    // 4) 리액트 언마운트 시에도 최종 보정
+    return () => {
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+      }
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('pagehide', onPageHide);
+        window.removeEventListener('beforeunload', onBeforeUnload);
+      }
+      performBestEffortCleanup();
     };
   }, [chatId, myUid]);
 

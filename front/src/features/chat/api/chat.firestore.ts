@@ -33,7 +33,6 @@ interface FirestoreRoom {
   updatedAt?: { toDate(): Date };
   // optional unread metadata (for UI only)
   unreadCounts?: Record<string, number>;
-  lastReadAt?: Record<string, { toDate(): Date }>;
 }
 
 interface FirestoreMessage {
@@ -197,7 +196,6 @@ export async function markChatAsRead(chatId: string, userUid: string): Promise<v
     throw new Error('User is not a member of this chat');
   }
   await updateDoc(roomRef, {
-    [`lastReadAt.${userUid}`]: serverTimestamp(),
     [`unreadCounts.${userUid}`]: 0,
   });
 }
