@@ -8,8 +8,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class StayTranslationResultDto {
+    private String uuid;
     private String detailAddress;
     private String title;
     private String content;
     private String address;
+
+    public void setUUid(String uuid){
+        this.uuid = uuid;
+    }
 }

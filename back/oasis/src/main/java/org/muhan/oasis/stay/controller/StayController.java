@@ -462,15 +462,15 @@ public class StayController {
             )
     })
     @PostMapping("/translate")
-    public ResponseEntity<BaseResponse<Void>> translateStay(
+    public ResponseEntity<BaseResponse<?>> translateStay(
             @RequestBody StayRequestDto stayRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ){
 
-        sqsSendService.sendStayTransMessage(stayRequest, userDetails.getUserNickname());
-        System.out.println(userDetails.getUserNickname());
+        StayTranslateIdDto uuid = sqsSendService.sendStayTransMessage(stayRequest, userDetails.getUserNickname());
+        BaseResponse<StayTranslateIdDto> body = BaseResponse.of(uuid);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(BaseResponse.ok());
+                .body(body);
     }
 
     @Operation(
