@@ -10,9 +10,13 @@ import {
   doc,
   addDoc,
   getDocs,
+  getDoc,
   updateDoc,
+  increment,
+  writeBatch,
   serverTimestamp,
   type Firestore,
+  type FieldValue,
 } from 'firebase/firestore';
 
 interface FirestoreRoom {
@@ -24,8 +28,11 @@ interface FirestoreRoom {
   stayId: number;
   // 메타
   lastMessage?: string;
+  lastSenderUid?: string; // 누가 마지막 메시지를 보냈는지 식별
   createdAt?: { toDate(): Date };
   updatedAt?: { toDate(): Date };
+  // optional unread metadata (for UI only)
+  unreadCounts?: Record<string, number>;
 }
 
 interface FirestoreMessage {
@@ -131,17 +138,65 @@ export async function sendChatMessage(
     throw new Error('MESSAGE_TOO_LONG');
   }
   const messagesRef = collection(db, 'chats', chatId, 'messages');
-  await addDoc(messagesRef, {
+  const roomRef = doc(db, 'chats', chatId);
+
+  // 배치 시작: 메시지 생성 + 방 메타 업데이트 + 미읽음 카운트 증가를 하나의 커밋으로
+  const batch = writeBatch(db);
+
+  // 새 메시지 문서 참조(자동 ID)
+  const messageDocRef = doc(messagesRef);
+  batch.set(messageDocRef, {
     content: trimmed,
     senderUid,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
 
-  const roomRef = doc(db, 'chats', chatId);
-  await updateDoc(roomRef, {
+  // 기본 메타 업데이트 데이터
+  const roomUpdateData: Record<string, any> = {
     lastMessage: trimmed,
     updatedAt: serverTimestamp(),
+    lastSenderUid: senderUid,
+  };
+
+  // 수신자에게만 unread 카운트 증가 (presence에 없는 사용자만 증가)
+  try {
+    const roomSnap = await getDoc(roomRef);
+    const roomData = roomSnap.data() as FirestoreRoom | undefined;
+    if (roomData) {
+      const presenceRef = collection(db, 'chats', chatId, 'presence');
+      const presenceSnap = await getDocs(presenceRef);
+      const onlineUserIds = new Set(presenceSnap.docs.map((d) => d.id));
+
+      for (const uid of roomData.memberIds ?? []) {
+        if (uid === senderUid) continue;
+        if (!onlineUserIds.has(uid)) {
+          roomUpdateData[`unreadCounts.${uid}`] = increment(1);
+        }
+      }
+    }
+  } catch (e) {
+    // presence/room 조회 실패 시에도 메시지와 기본 메타 업데이트는 진행
+    console.error('[chat] failed to prepare unreadCounts updates:', e);
+  }
+
+  batch.update(roomRef, roomUpdateData);
+  await batch.commit();
+}
+
+// 사용자가 방에 들어와 내용을 확인한 시점 기록 및 카운트 초기화
+export async function markChatAsRead(chatId: string, userUid: string): Promise<void> {
+  const db = getDb();
+  if (!db) throw new Error('Firestore is not configured');
+  const roomRef = doc(db, 'chats', chatId);
+  // 멤버십 검증: 방 구성원이 아닌 경우 메타 갱신 불가
+  const snap = await getDoc(roomRef);
+  const room = snap.data() as FirestoreRoom | undefined;
+  if (!room?.memberIds?.includes(userUid)) {
+    throw new Error('User is not a member of this chat');
+  }
+  await updateDoc(roomRef, {
+    [`unreadCounts.${userUid}`]: 0,
   });
 }
 
