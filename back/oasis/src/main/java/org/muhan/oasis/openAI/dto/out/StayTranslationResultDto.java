@@ -14,7 +14,7 @@ public class StayTranslationResultDto {
     private String content;
     private String address;
 
-    public void setUUid(String uuid){
+    public void setUuid(String uuid){
         this.uuid = uuid;
     }
 }
