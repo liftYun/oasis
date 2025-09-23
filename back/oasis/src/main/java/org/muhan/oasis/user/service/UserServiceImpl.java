@@ -127,6 +127,7 @@ public class UserServiceImpl implements UserService {
                 .policy2(dto.getPolicy2())
                 .policy3(dto.getPolicy3())
                 .policy4(dto.getPolicy4())
+                .active(true)
                 .build();
         cancellationPolicyRepository.save(policy);
     }
