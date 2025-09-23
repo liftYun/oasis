@@ -32,8 +32,8 @@ public class StayRatingSummaryEntity {
     @Column(name = "rating_cnt", nullable = false, columnDefinition = "INT DEFAULT 0")
     private Integer ratingCnt;
 
-    @Column(name = "rating_sum", precision = 2, scale = 1, nullable = false,
-            columnDefinition = "DECIMAL(2,1) DEFAULT 0.0")
+    @Column(name = "rating_sum", precision = 10, scale = 1, nullable = false,
+            columnDefinition = "DECIMAL(10,1) DEFAULT 0.0")
     private BigDecimal ratingSum;
 
     @Column(name = "avg_rating", precision = 2, scale = 1, nullable = false,
