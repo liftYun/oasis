@@ -2,6 +2,8 @@ package org.muhan.oasis.reservation.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.muhan.oasis.common.base.BaseResponseStatus;
+import org.muhan.oasis.common.exception.BaseException;
 import org.muhan.oasis.external.circle.CircleUserApi;
 import org.muhan.oasis.external.circle.CircleUserTokenCache;
 import org.muhan.oasis.reservation.dto.in.LockRequestDto;
@@ -55,7 +57,7 @@ public class LockService {
         log.debug("UserToken acquired: {}", tokenEntry.getUserToken());
 
         UserEntity client = userRepository.findByUserUuid(req.getUserUUID())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 UUID 입니다."));
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
         WalletEntity clientWallet = walletRepository.findByUser(client);
         String clientWalletId = clientWallet.getWalletId();
 
@@ -66,7 +68,7 @@ public class LockService {
         WalletEntity hostWallet = walletRepository.findByUser(host);
         String hostWalletAddress = hostWallet.getAddress();
         if (!StringUtils.hasText(hostWalletAddress) || !hostWalletAddress.startsWith("0x") || hostWalletAddress.length() != 42)
-            throw new IllegalArgumentException("host must be 0x-prefixed EVM address");
+            throw new BaseException(BaseResponseStatus.INVALID_PARAMETER);
 
         BigInteger amount = req.getAmountUSDC().multiply(BigDecimal.TEN.pow(6)).toBigIntegerExact();
         BigInteger fee    = req.getFeeUSDC().multiply(BigDecimal.TEN.pow(6)).toBigIntegerExact();
@@ -141,23 +143,33 @@ public class LockService {
                         refreshed.getEncryptionKey()
                 );
             }
-            throw new LockCreateException(
-                    500, "circle create transaction failed", "circle error: " + ex.getMessage()
-            );
+            if (ex.status == 401 || ex.status == 403) {
+                throw new BaseException(BaseResponseStatus.CIRCLE_AUTH_FAILED);
+            } else if (ex.status == 404) {
+                throw new BaseException(BaseResponseStatus.CIRCLE_RESOURCE_NOT_FOUND);
+            } else if (ex.status == 504) {
+                throw new BaseException(BaseResponseStatus.CIRCLE_TIMEOUT);
+            } else {
+                throw new BaseException(BaseResponseStatus.CIRCLE_INTERNAL_ERROR);
+            }
         } catch (RuntimeException ex) {
-            throw new LockCreateException(500, "circle create transaction failed", ex.getMessage());
-        }
+            throw new BaseException(BaseResponseStatus.CIRCLE_INTERNAL_ERROR);        }
     }
 
     public record Result(String challengeId, String userToken, String encryptionKey) {}
 
     private static void validateInputs(LockRequestDto req) {
-        if (!StringUtils.hasText(req.getUserUUID())) throw new IllegalArgumentException("userId is required");
+        if (!StringUtils.hasText(req.getUserUUID())) {
+            throw new BaseException(BaseResponseStatus.INVALID_PARAMETER);
+        }
 
-        if (!StringUtils.hasText(req.getReservationId()) || !isHex32(req.getReservationId()))
-            throw new IllegalArgumentException("resId must be 0x + 32-byte hex string");
-        if (req.getCheckIn() <= 0 || req.getCheckOut() <= 0 || req.getCheckIn() >= req.getCheckOut())
-            throw new IllegalArgumentException("checkIn/checkOut are invalid");
+        if (!StringUtils.hasText(req.getReservationId()) || !isHex32(req.getReservationId())) {
+            throw new BaseException(BaseResponseStatus.INVALID_PARAMETER);
+        }
+
+        if (req.getCheckIn() <= 0 || req.getCheckOut() <= 0 || req.getCheckIn() >= req.getCheckOut()) {
+            throw new BaseException(BaseResponseStatus.INVALID_PARAMETER);
+        }
     }
 
     private static boolean isHex32(String hex) {
@@ -175,15 +187,4 @@ public class LockService {
                 || lower.contains("usertoken had expired");
     }
 
-    public static class LockCreateException extends RuntimeException {
-        public final int status;
-        public final String messageForUser;
-        public final String result;
-        public LockCreateException(int status, String messageForUser, String result) {
-            super(messageForUser + " - " + result);
-            this.status = status;
-            this.messageForUser = messageForUser;
-            this.result = result;
-        }
-    }
 }

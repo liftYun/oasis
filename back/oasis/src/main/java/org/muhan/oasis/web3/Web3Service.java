@@ -1,6 +1,8 @@
 package org.muhan.oasis.web3;
 
 import jakarta.validation.Valid;
+import org.muhan.oasis.common.base.BaseResponseStatus;
+import org.muhan.oasis.common.exception.BaseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.web3j.abi.FunctionEncoder;
@@ -53,7 +55,7 @@ public class Web3Service {
                 DefaultBlockParameterName.LATEST
         ).send();
         if (dry.isReverted()) {
-            throw new RuntimeException("eth_call reverted: " + dry.getRevertReason());
+            throw new BaseException(BaseResponseStatus.WEB3_CALL_REVERTED);
         }
 
         // 가스 추정
@@ -61,17 +63,20 @@ public class Web3Service {
         EthEstimateGas est = web3j.ethEstimateGas(
                 Transaction.createFunctionCallTransaction(from, null, gasPrice, null, contractAddress, data)
         ).send();
-        if (est.hasError()) throw new RuntimeException("eth_estimateGas error: " + est.getError().getMessage());
+        if (est.hasError()) {
+            throw new BaseException(BaseResponseStatus.WEB3_GAS_ESTIMATE_FAILED);
+        }
         BigInteger gasLimit = est.getAmountUsed().multiply(BigInteger.valueOf(12)).divide(BigInteger.TEN);
 
         EthSendTransaction sent = txManager.sendTransaction(gasPrice, gasLimit, contractAddress, data, BigInteger.ZERO);
-        if (sent.hasError()) throw new RuntimeException("send error: " + sent.getError().getMessage());
-
+        if (sent.hasError()) {
+            throw new BaseException(BaseResponseStatus.WEB3_TX_FAILED);
+        }
         TransactionReceiptProcessor proc = new PollingTransactionReceiptProcessor(web3j, 3_000, 40); // 3s 간격, 최대 40회(≈2분)
         TransactionReceipt receipt = proc.waitForTransactionReceipt(sent.getTransactionHash());
 
         if (!"0x1".equals(receipt.getStatus())) {
-            throw new RuntimeException("tx failed: " + receipt.getTransactionHash());
+            throw new BaseException(BaseResponseStatus.WEB3_TX_FAILED);
         }
         return receipt.getTransactionHash();
     }
