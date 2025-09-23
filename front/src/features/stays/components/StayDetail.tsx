@@ -15,6 +15,7 @@ import StayFacilities from './StayFacilities';
 import StayReview from './StayReview';
 import StayHost from './StayHost';
 import { ChevronLeft } from 'lucide-react';
+import { StayHeader } from './StayHeader';
 import { useAuthStore } from '@/stores/useAuthStores';
 import { createChatRoom, findExistingChatRoom } from '@/features/chat/api/chat.firestore';
 import { notifyFirebaseUnavailable } from '@/features/chat/api/toastHelpers';
