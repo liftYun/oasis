@@ -21,6 +21,8 @@ export function ChatList({ items }: ChatListProps) {
           thumbnailUrl={c.thumbnailUrl}
           opponentProfileUrl={c.opponentProfileUrl}
           lastMessage={c.lastMessage}
+          unreadCount={c.unreadCount}
+          isUnread={c.isUnread}
         />
       ))}
     </div>

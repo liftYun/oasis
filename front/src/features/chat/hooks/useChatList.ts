@@ -21,6 +21,10 @@ function mapToSummary(
   return rooms.map((r) => {
     const opponentUid = r.data.memberIds.find((u) => u !== myUid) ?? '';
     const stay = stayMap.get(r.data.stayId);
+    const myUnread = r.data.unreadCounts?.[myUid] ?? 0;
+
+    const updatedAt = r.data.updatedAt?.toDate?.();
+
     return {
       id: r.id,
       title: stay?.title ?? '',
@@ -31,13 +35,15 @@ function mapToSummary(
         | undefined,
       lastMessage: r.data.lastMessage ?? '',
       lastDate: (() => {
-        const ts = r.data.updatedAt?.toDate?.();
+        const ts = updatedAt;
         if (!ts) return '';
         const y = String(ts.getFullYear()).slice(-2);
         const mo = String(ts.getMonth() + 1).padStart(2, '0');
         const d = String(ts.getDate()).padStart(2, '0');
         return `${y}.${mo}.${d}`;
       })(),
+      unreadCount: myUnread,
+      isUnread: myUnread > 0,
     } satisfies ChatSummary;
   });
 }

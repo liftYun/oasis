@@ -5,8 +5,10 @@ import type { MessageItemModel } from '@/features/chat/components/MessageItem';
 import {
   subscribeChatMessages,
   subscribeChatRoom,
+  markChatAsRead,
   type FirestoreRoom,
 } from '@/features/chat/api/chat.firestore';
+import { enterChatRoom, exitChatRoom } from '@/features/chat/api/presence.firestore';
 import { useAuthStore } from '@/stores/useAuthStores';
 import { useLanguage } from '@/features/language';
 import { notifyFirebaseUnavailable } from '@/features/chat/api/toastHelpers';
@@ -85,6 +87,25 @@ export function useChatDetail(chatId: string) {
       }
     );
     return () => unsub();
+  }, [chatId, myUid]);
+
+  // 방 입장/퇴장 + 읽음 처리 (입장/이탈 모두에서 보정)
+  useEffect(() => {
+    if (!chatId || !myUid) return;
+    (async () => {
+      try {
+        await enterChatRoom(chatId, myUid);
+        await markChatAsRead(chatId, myUid);
+      } catch (e) {
+        if (process.env.NODE_ENV !== 'production') console.warn('presence/read init failed', e);
+      }
+    })();
+    return () => {
+      if (!myUid) return;
+      // 이탈 시에도 읽음 처리하여 잔여 카운트 방지
+      markChatAsRead(chatId, myUid).catch(() => {});
+      exitChatRoom(chatId, myUid).catch(() => {});
+    };
   }, [chatId, myUid]);
 
   // 라우터 쿼리에서 리스트 데이터 수신 (제목/주소/썸네일/상대썸네일)

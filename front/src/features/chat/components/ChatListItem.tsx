@@ -7,6 +7,7 @@ import StayImage from '@/assets/images/stay_example.png';
 import { useLanguage } from '@/features/language';
 import { chatMessages } from '@/features/chat/locale';
 import { ChatUserThumbnail } from '@/components/atoms/ChatUserThumbnail';
+import { Dot } from 'lucide-react';
 
 type ChatListItemProps = {
   id: string;
@@ -16,6 +17,8 @@ type ChatListItemProps = {
   thumbnailUrl?: string;
   opponentProfileUrl?: string;
   lastMessage?: string;
+  unreadCount?: number;
+  isUnread?: boolean;
 };
 
 export function ChatListItem({
@@ -26,9 +29,13 @@ export function ChatListItem({
   thumbnailUrl,
   opponentProfileUrl,
   lastMessage,
+  unreadCount,
+  isUnread,
 }: ChatListItemProps) {
   const { lang } = useLanguage();
   const t = chatMessages[lang];
+  const showEmphasis = (unreadCount && unreadCount > 0) || isUnread === true;
+
   return (
     <Link
       href={{
@@ -54,11 +61,23 @@ export function ChatListItem({
       </div>
 
       <div className="min-w-0 flex-1 ms-1">
-        <p className="truncate text-base font-bold text-gray-600">{title}</p>
-        <p className="mt-1 truncate text-sm text-gray-400">{lastMessage ?? ''}</p>
+        <p
+          className={`truncate text-base font-bold ${showEmphasis ? 'text-gray-900' : 'text-gray-600'}`}
+        >
+          {title}
+        </p>
+        <p className={`mt-1 truncate text-sm ${showEmphasis ? 'text-gray-600' : 'text-gray-400'}`}>
+          {lastMessage ?? ''}
+        </p>
       </div>
 
-      <span className="text-xs text-gray-300 mt-3 mb-auto">{date}</span>
+      {/* 오른쪽 날짜 + 뱃지 (숫자 배지 제거, Dot만 표시) */}
+      <div className="flex flex-col items-end gap-1 mt-1 mb-auto flex-shrink-0">
+        <span className="text-xs text-gray-300">{date}</span>
+        {(!!unreadCount && unreadCount > 0) || isUnread ? (
+          <Dot className="text-primary" size={24} strokeWidth={8} />
+        ) : null}
+      </div>
     </Link>
   );
 }

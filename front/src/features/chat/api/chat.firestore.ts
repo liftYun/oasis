@@ -10,7 +10,9 @@ import {
   doc,
   addDoc,
   getDocs,
+  getDoc,
   updateDoc,
+  increment,
   serverTimestamp,
   type Firestore,
 } from 'firebase/firestore';
@@ -24,8 +26,12 @@ interface FirestoreRoom {
   stayId: number;
   // 메타
   lastMessage?: string;
+  lastSenderUid?: string; // 누가 마지막 메시지를 보냈는지 식별
   createdAt?: { toDate(): Date };
   updatedAt?: { toDate(): Date };
+  // optional unread metadata (for UI only)
+  unreadCounts?: Record<string, number>;
+  lastReadAt?: Record<string, { toDate(): Date }>;
 }
 
 interface FirestoreMessage {
@@ -142,6 +148,44 @@ export async function sendChatMessage(
   await updateDoc(roomRef, {
     lastMessage: trimmed,
     updatedAt: serverTimestamp(),
+    lastSenderUid: senderUid,
+  });
+
+  // 수신자에게만 unread 카운트 증가 (presence에 없는 사용자만 증가)
+  try {
+    const roomSnap = await getDoc(roomRef);
+    const roomData = roomSnap.data() as FirestoreRoom | undefined;
+    if (!roomData) return;
+
+    // presence 읽기
+    const presenceRef = collection(db, 'chats', chatId, 'presence');
+    const presenceSnap = await getDocs(presenceRef);
+    const onlineUserIds = new Set(presenceSnap.docs.map((d) => d.id));
+
+    const updates: Record<string, any> = {};
+    for (const uid of roomData.memberIds ?? []) {
+      if (uid === senderUid) continue;
+      // 방 안에 없는 사용자만 카운트 증가
+      if (!onlineUserIds.has(uid)) {
+        updates[`unreadCounts.${uid}`] = increment(1);
+      }
+    }
+    if (Object.keys(updates).length > 0) {
+      await updateDoc(roomRef, updates as any);
+    }
+  } catch (e) {
+    if (process.env.NODE_ENV !== 'production') console.warn('unread update skipped:', e);
+  }
+}
+
+// 사용자가 방에 들어와 내용을 확인한 시점 기록 및 카운트 초기화
+export async function markChatAsRead(chatId: string, userUid: string): Promise<void> {
+  const db = getDb();
+  if (!db) throw new Error('Firestore is not configured');
+  const roomRef = doc(db, 'chats', chatId);
+  await updateDoc(roomRef, {
+    [`lastReadAt.${userUid}`]: serverTimestamp(),
+    [`unreadCounts.${userUid}`]: 0,
   });
 }
 
