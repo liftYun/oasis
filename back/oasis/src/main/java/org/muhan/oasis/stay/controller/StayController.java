@@ -25,6 +25,7 @@ import org.muhan.oasis.stay.repository.RegionEngRepository;
 import org.muhan.oasis.stay.repository.RegionRepository;
 import org.muhan.oasis.stay.service.StayService;
 import org.muhan.oasis.user.service.UserService;
+import org.muhan.oasis.user.vo.out.CancellationPolicyResponseVo;
 import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.valueobject.Role;
 import org.springframework.http.HttpStatus;
@@ -591,6 +592,18 @@ public class StayController {
         BaseResponse<List<StayChatResponseDto>> body = new BaseResponse<>(chatResponseDto);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
+    }
+    @Operation(
+            summary = "취소 정책 조회",
+            description = """
+                stayId로 등록 된 취소 정책을 조회합니다.
+                """,
+            tags = {"예약"}
+    )
+    @GetMapping("/details/cancellationPolicy/{stayId}")
+    public BaseResponse<?> getCancellationPolicy(@PathVariable("stayId") Long stayId){
+        CancellationPolicyResponseVo vo = userService.getCancellationPolicyByStayId(stayId);
+        return BaseResponse.of(vo);
     }
 
     private String contentTypeToExt(String contentType) {

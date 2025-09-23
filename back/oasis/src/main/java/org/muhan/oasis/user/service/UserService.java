@@ -29,4 +29,6 @@ public interface UserService {
     String getUserEmailByUuid(String userUuid);
 
     CancellationPolicyResponseVo getCancellationPolicy(Long userId);
+
+    CancellationPolicyResponseVo getCancellationPolicyByStayId(Long stayId);
 }
