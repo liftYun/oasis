@@ -11,6 +11,7 @@ import type { StayCardView } from '@/services/user.types';
 import Logo from '@/assets/logos/oasis-logo-512.png';
 import Star from '@/assets/icons/star.png';
 import Usdc from '@/assets/icons/usd-circle.png';
+import { Lottie } from '@/components/atoms/Lottie';
 
 export function ManageStayList() {
   const { lang } = useLanguage();
@@ -32,13 +33,24 @@ export function ManageStayList() {
     load();
   }, []);
 
-  if (loading) return <div className="p-6 text-gray-500">Loading...</div>;
+  if (loading)
+    return (
+      <>
+        <div className="flex flex-col items-center justify-center p-4 pb-56">
+          <Lottie src="/lotties/spinner.json" className="w-40 h-40" />
+          <p className="mt-2 text-center text-gray-500">{t.loading}</p>
+        </div>
+      </>
+    );
 
   return (
     <main className="flex flex-col w-full px-6 py-10 min-h-screen">
       <BackHeader title={t.manageStay} />
       {stays.length === 0 ? (
-        <p className="mt-20 text-center text-gray-400 text-sm">등록된 숙소가 없습니다.</p>
+        <div className="flex flex-col flex-1 items-center justify-center p-4 pb-56">
+          <Lottie src="/lotties/empty.json" className="w-100 h-40" />
+          <p className="mt-4 text-center text-gray-500">{t.noStay}</p>
+        </div>
       ) : (
         <div className="mt-10 grid grid-cols-2 place-items-center gap-6 mb-20">
           {stays.map((stay) => (

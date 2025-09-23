@@ -60,7 +60,7 @@ export default function AuthCallbackPage() {
       fallback={
         <div className="flex flex-col items-center justify-center py-10">
           <Lottie src="/lotties/spinner.json" className="w-20 h-20" />
-          <p className="text-sm text-gray-500 mt-2">{t.loading}</p>
+          <p className="text-sm text-gray-500 mt-2">로딩 중...</p>
         </div>
       }
     >
