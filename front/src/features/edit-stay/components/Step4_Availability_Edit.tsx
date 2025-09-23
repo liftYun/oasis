@@ -18,7 +18,7 @@ type Step4Props = {
   onComplete?: () => void;
 };
 
-export function Step4_Availability({ onComplete }: Step4Props) {
+export function Step4_Availability_Edit({ onComplete }: Step4Props) {
   const [open, setOpen] = useState(false);
 
   const stayStore = useStayStores();
