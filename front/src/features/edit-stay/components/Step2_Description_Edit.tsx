@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/atoms/Button';
 import { TextAreaField } from '@/components/molecules/TextAreaField';
-import { useStayStores } from '@/stores/useStayStores';
+import { useStayStores } from '@/stores/useStayEditStores';
 import { useLanguage } from '@/features/language';
 import { createStayMessages } from '@/features/create-stay/locale';
 import { translateStay } from '@/services/stay.api';
@@ -28,10 +28,13 @@ export function Step2_Description_Edit() {
     if (store.description && store.description !== description) {
       setDescription(store.description);
     }
-    if (store.maxGuest && store.maxGuest !== maxGuest) {
+  }, [store.description]);
+
+  useEffect(() => {
+    if (store.maxGuest) {
       setMaxGuest(store.maxGuest);
     }
-  }, [store.description, store.maxGuest]);
+  }, []);
 
   const handleChange: React.ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     const isComposing = (e.nativeEvent as any)?.isComposing;
@@ -86,14 +89,11 @@ export function Step2_Description_Edit() {
       </div>
 
       <div className="p-4 flex flex-col flex-1">
-        <h1 className="text-xl font-bold mb-6 pt-2">{t.step2.title}</h1>
-
-        <div className="bg-primary/10 text-primary text-xs p-2 me-auto mb-6 rounded-md">
-          <span className="text-primary font-bold">{t.step2.tipTitle}</span> {t.step2.tipText}
-        </div>
-
-        {/* ✅ 게스트 수 */}
         <div className="mb-6">
+          <h1 className="text-xl font-bold mb-2 pt-2">{t.step2.title}</h1>
+          <div className="bg-primary/10 text-primary text-xs p-2 px-4 mx-auto mb-6 rounded-md">
+            <span className="text-primary font-bold">{t.step2.tipTitle}</span> {t.step2.tipText}
+          </div>
           <label className="block text-sm font-medium text-gray-600 mb-2">
             {t.step2.maxGuestLabel}
           </label>
@@ -122,16 +122,17 @@ export function Step2_Description_Edit() {
           </div>
         </div>
 
-        {/* ✅ 설명 */}
-        <TextAreaField
-          label={t.step2.descriptionLabel}
-          id="description"
-          value={description}
-          onChange={handleChange}
-          placeholder={t.step2.descriptionPlaceholder}
-          maxLength={MAX_LEN}
-          length={length}
-        />
+        <div className="mb-6">
+          <TextAreaField
+            label={t.step2.descriptionLabel}
+            id="description"
+            value={description}
+            onChange={handleChange}
+            placeholder={t.step2.descriptionPlaceholder}
+            maxLength={MAX_LEN}
+            length={length}
+          />
+        </div>
 
         <div className="mt-auto pt-4">
           <Button

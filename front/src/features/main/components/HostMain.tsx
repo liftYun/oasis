@@ -24,6 +24,7 @@ import {
   deleteWish,
 } from '@/services/stay.api';
 import { StayCardByWishDto, WishResponseDto } from '@/services/stay.types';
+import { FooterInfo } from '@/components/organisms/FooterInfo';
 
 function ScrollableRoomList({
   rooms,
@@ -83,7 +84,7 @@ function ScrollableRoomList({
                 <div className="flex items-center gap-1.5 mx-1 mt-1">
                   <Image src={Usdc} alt="usdc" width={16} height={16} className="shrink-0" />
                   <p className="text-sm text-gray-600 font-medium truncate">
-                    {room.price.toLocaleString()} 원
+                    {room.price.toLocaleString()}
                   </p>
                 </div>
               </Link>
@@ -254,6 +255,12 @@ export function HostMain() {
           </div>
         </div>
         <MainCard />
+      </section>
+
+      <div className="-mx-6 w-screen h-3 bg-gray-100 my-8" />
+
+      <section className="mb-20">
+        <FooterInfo />
       </section>
     </main>
   );
