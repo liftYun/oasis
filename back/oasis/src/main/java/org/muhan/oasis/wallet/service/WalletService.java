@@ -3,6 +3,8 @@ package org.muhan.oasis.wallet.service;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.muhan.oasis.common.base.BaseResponseStatus;
+import org.muhan.oasis.common.exception.BaseException;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.wallet.dto.circle.out.*;
@@ -61,7 +63,7 @@ public class WalletService {
         } catch (Exception e) {
             log.error("❌ [INIT] Circle App ID 가져오기 실패! API Key나 네트워크 연결을 확인하세요.", e);
             // 애플리케이션 시작을 중단시키기 위해 예외를 다시 던짐
-            throw new RuntimeException("CircleApiService 초기화 실패: App ID를 가져올 수 없습니다.", e);
+            throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -80,7 +82,7 @@ public class WalletService {
             // 2) userToken 발급
             UserTokenResponseDto tokenResp = issueUserToken(userId).block(Duration.ofSeconds(10));
             if (tokenResp == null || tokenResp.getData() == null) {
-                throw new RuntimeException("UserToken 발급 실패: 응답이 null입니다.");
+                throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
             }
 
             final String userToken = tokenResp.getData().getUserToken();
@@ -98,7 +100,7 @@ public class WalletService {
                 // 신규 사용자: 초기화 실행
                 InitializeUserResponseDto initResp = initializeUser(userToken).block(Duration.ofSeconds(15));
                 if (initResp == null || initResp.getData() == null) {
-                    throw new RuntimeException("User 초기화 실패: 응답이 null입니다.");
+                    throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
                 }
 
                 log.info("✅ /user/initialize 응답 수신: challengeId = {}", initResp.getData().getChallengeId());
@@ -145,15 +147,14 @@ public class WalletService {
         } catch (Exception e) {
             log.error("❌ createAndInitializeWalletSync 처리 중 예외 발생", e);
 
-            // 구체적인 에러 메시지 제공
             if (e.getCause() instanceof java.util.concurrent.TimeoutException) {
-                throw new RuntimeException("Circle API 호출 시간 초과", e);
-            } else if (e.getMessage().contains("401") || e.getMessage().contains("403")) {
-                throw new RuntimeException("Circle API 인증 실패", e);
-            } else if (e.getMessage().contains("404")) {
-                throw new RuntimeException("Circle API 리소스를 찾을 수 없습니다", e);
+                throw new BaseException(BaseResponseStatus.CIRCLE_TIMEOUT);
+            } else if (e.getMessage() != null && (e.getMessage().contains("401") || e.getMessage().contains("403"))) {
+                throw new BaseException(BaseResponseStatus.CIRCLE_AUTH_FAILED);
+            } else if (e.getMessage() != null && e.getMessage().contains("404")) {
+                throw new BaseException(BaseResponseStatus.CIRCLE_RESOURCE_NOT_FOUND);
             } else {
-                throw new RuntimeException("지갑 초기화 처리 중 오류가 발생했습니다: " + e.getMessage(), e);
+                throw new BaseException(BaseResponseStatus.CIRCLE_INTERNAL_ERROR);
             }
         }
     }
@@ -190,7 +191,7 @@ public class WalletService {
 
         if (!exists) {
             UserEntity user = userRepository.findByUserUuid(userUuid)
-                    .orElseThrow(() -> new IllegalStateException("❌ UserEntity 없음: userUuid=" + userUuid));
+                    .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
 
             // 1) 엔티티 생성
             WalletEntity walletEntity = WalletEntity.builder()
@@ -332,7 +333,7 @@ public class WalletService {
             // 1) userToken 발급 (항상 멱등)
             UserTokenResponseDto tokenResp = issueUserToken(userId).block(Duration.ofSeconds(10));
             if (tokenResp == null || tokenResp.getData() == null) {
-                throw new RuntimeException("UserToken 발급 실패: 응답이 null입니다.");
+                throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
             }
             final String userToken = tokenResp.getData().getUserToken();
 
@@ -393,15 +394,14 @@ public class WalletService {
         } catch (Exception e) {
             log.error("getWalletSync 처리 중 예외 발생", e);
 
-            // 구체적인 에러 메시지 제공
             if (e.getCause() instanceof java.util.concurrent.TimeoutException) {
-                throw new RuntimeException("Circle API 호출 시간 초과", e);
+                throw new BaseException(BaseResponseStatus.CIRCLE_TIMEOUT);
             } else if (e.getMessage() != null && e.getMessage().contains("401")) {
-                throw new RuntimeException("Circle API 인증 실패", e);
+                throw new BaseException(BaseResponseStatus.CIRCLE_AUTH_FAILED);
             } else if (e.getMessage() != null && e.getMessage().contains("404")) {
-                throw new RuntimeException("Circle API 리소스를 찾을 수 없습니다", e);
+                throw new BaseException(BaseResponseStatus.CIRCLE_RESOURCE_NOT_FOUND);
             } else {
-                throw new RuntimeException("지갑 조회 중 오류가 발생했습니다: " + e.getMessage(), e);
+                throw new BaseException(BaseResponseStatus.CIRCLE_INTERNAL_ERROR);
             }
         }
     }

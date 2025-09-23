@@ -277,10 +277,14 @@ public class ReservationServiceImpl implements ReservationService {
 
         validateResId(resId);
 
+        UserEntity user = userRepository.findByUserUuid(userUUID)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
         CircleUserTokenCache.Entry tokenEntry = circle.ensureUserToken(userUUID);
 
-        UserEntity user = userRepository.findByUserUuid(userUUID)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 UUID 입니다."));
+        reservationRepository.findByUserAndReservationId(user, resId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_RESERVATION));
+
         WalletEntity wallet = walletRepository.findByUser(user);
         String walletId = wallet.getWalletId();
 
@@ -297,11 +301,10 @@ public class ReservationServiceImpl implements ReservationService {
 
         String callData = FunctionEncoder.encode(fn);
 
-        // 로깅 (디버깅에 충분하도록)
         log.info("[cancelWithPolicy] resId={}, toContract={}", resId, contractAddress);
         log.debug("[cancelWithPolicy] callData(length={}): {}", callData != null ? callData.length() : 0, callData);
 
-        // 5) Challenge 생성
+        // Challenge 생성
         String challengeId = cancelReservationTxService.createCancelTx(
                 userUUID,
                 walletId,      // walletId
@@ -313,7 +316,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         log.info("[cancelWithPolicy] challengeId={}", challengeId);
 
-        // 6) 호환 응답 (reactive)
+        // 호환 응답 (reactive)
         return new CancelReservationResponseVo(challengeId);
     }
 

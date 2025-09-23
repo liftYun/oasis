@@ -8,6 +8,7 @@ import org.muhan.oasis.openAI.dto.in.MessageEnvelope;
 import org.muhan.oasis.openAI.dto.in.ReviewListRequestDto;
 import org.muhan.oasis.openAI.dto.in.ReviewRequestDto;
 import org.muhan.oasis.openAI.dto.in.StayRequestDto;
+import org.muhan.oasis.stay.dto.out.StayTranslateIdDto;
 import org.muhan.oasis.valueobject.MessageType;
 import org.muhan.oasis.valueobject.Rate;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Map;
@@ -25,8 +27,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class SqsSendService {
-    private final ObjectMapper objectMapper;
-    private final SqsAsyncClient sqsAsyncClient;
     private final SqsTemplate sqsTemplate;
 
     @Value("${cloud.aws.sqs.queue.stay-translation}")
@@ -37,10 +37,10 @@ public class SqsSendService {
     private String reviewSummaryQueue;
 
 
-    public void sendStayTransMessage(StayRequestDto stayRequest, String userNickname) {
-
+    public StayTranslateIdDto sendStayTransMessage(StayRequestDto stayRequest, String userNickname) {
+        String uuid = UUID.randomUUID().toString();
         var message = new MessageEnvelope<>(
-                UUID.randomUUID().toString(),
+                uuid,
                 MessageType.STAY_TRANSLATE,
                 1,
                 UUID.randomUUID().toString(),
@@ -48,6 +48,7 @@ public class SqsSendService {
                 stayRequest);
 
         sqsTemplate.send(stayTransQueue, message);
+        return new StayTranslateIdDto(uuid);
     }
 
     public void sendReviewTransMessage(ReviewRequestDto reviewRequestDto, Long reviewId) {
@@ -64,7 +65,7 @@ public class SqsSendService {
 
     public void sendReviewSummaryMessage(ReviewListRequestDto reviewRequestDto, Long stayId, Rate rate) {
         var message = new MessageEnvelope<>(
-                stayId + ":" + rate + ":" + LocalDate.now(),
+                stayId + ":" + rate,
                 MessageType.REVIEW_SUMMARIZE,
                 1,
                 UUID.randomUUID().toString(),
@@ -75,6 +76,7 @@ public class SqsSendService {
                 .queue(reviewSummaryQueue)
                 .payload(message)
                 .messageGroupId("review-summary-"+stayId)
-                .messageDeduplicationId(message.id()));
+                .messageDeduplicationId(message.id())
+                .delaySeconds(5 * 60));
     }
 }
