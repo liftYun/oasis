@@ -5,8 +5,10 @@ import type { MessageItemModel } from '@/features/chat/components/MessageItem';
 import {
   subscribeChatMessages,
   subscribeChatRoom,
+  markChatAsRead,
   type FirestoreRoom,
 } from '@/features/chat/api/chat.firestore';
+import { enterChatRoom, exitChatRoom } from '@/features/chat/api/presence.firestore';
 import { useAuthStore } from '@/stores/useAuthStores';
 import { useLanguage } from '@/features/language';
 import { notifyFirebaseUnavailable } from '@/features/chat/api/toastHelpers';
@@ -85,6 +87,74 @@ export function useChatDetail(chatId: string) {
       }
     );
     return () => unsub();
+  }, [chatId, myUid]);
+
+  // 방 입장/퇴장 + 읽음 처리 (입장/이탈 모두에서 보정)
+  useEffect(() => {
+    if (!chatId || !myUid) return;
+    const currentMyUid = myUid;
+    const currentChatId = chatId;
+
+    // 1) 입장 시 presence 등록 및 읽음 처리
+    const enterPromise = (async () => {
+      try {
+        await enterChatRoom(currentChatId, currentMyUid);
+        await markChatAsRead(currentChatId, currentMyUid);
+      } catch (e) {
+        if (process.env.NODE_ENV !== 'production') console.warn('presence/read init failed', e);
+      }
+    })();
+
+    // 2) 조기 정리를 위한 베스트 에포트 클린업 (중복 호출 방지)
+    let cleaned = false;
+    const performBestEffortCleanup = () => {
+      if (cleaned || !currentMyUid) return;
+      cleaned = true;
+      enterPromise
+        .catch(() => {})
+        .finally(async () => {
+          // 순서 보장: 읽음 처리 후 presence 제거
+          try {
+            await markChatAsRead(currentChatId, currentMyUid);
+          } catch {}
+          try {
+            await exitChatRoom(currentChatId, currentMyUid);
+          } catch {}
+        });
+    };
+
+    // 3) 페이지 가려짐/페이지 종료 시 가능한 일찍 정리 시도
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        performBestEffortCleanup();
+      }
+    };
+    const onPageHide = () => {
+      performBestEffortCleanup();
+    };
+    const onBeforeUnload = () => {
+      performBestEffortCleanup();
+    };
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', onVisibilityChange);
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('pagehide', onPageHide);
+      window.addEventListener('beforeunload', onBeforeUnload);
+    }
+
+    // 4) 리액트 언마운트 시에도 최종 보정
+    return () => {
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+      }
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('pagehide', onPageHide);
+        window.removeEventListener('beforeunload', onBeforeUnload);
+      }
+      performBestEffortCleanup();
+    };
   }, [chatId, myUid]);
 
   // 라우터 쿼리에서 리스트 데이터 수신 (제목/주소/썸네일/상대썸네일)
