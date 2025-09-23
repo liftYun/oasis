@@ -112,13 +112,14 @@ export function useChatDetail(chatId: string) {
       cleaned = true;
       enterPromise
         .catch(() => {})
-        .finally(() => {
+        .finally(async () => {
           // 순서 보장: 읽음 처리 후 presence 제거
-          markChatAsRead(currentChatId, currentMyUid)
-            .catch(() => {})
-            .finally(() => {
-              exitChatRoom(currentChatId, currentMyUid).catch(() => {});
-            });
+          try {
+            await markChatAsRead(currentChatId, currentMyUid);
+          } catch {}
+          try {
+            await exitChatRoom(currentChatId, currentMyUid);
+          } catch {}
         });
     };
 
