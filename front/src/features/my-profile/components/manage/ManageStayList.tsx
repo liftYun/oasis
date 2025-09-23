@@ -40,7 +40,7 @@ export function ManageStayList() {
       {stays.length === 0 ? (
         <p className="mt-20 text-center text-gray-400 text-sm">등록된 숙소가 없습니다.</p>
       ) : (
-        <div className="mt-10 grid grid-cols-2 place-items-center gap-6">
+        <div className="mt-10 grid grid-cols-2 place-items-center gap-6 mb-20">
           {stays.map((stay) => (
             <Link
               key={stay.stayId}

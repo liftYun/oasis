@@ -14,7 +14,6 @@ import PositiveReview from '@/assets/icons/positive-review.png';
 import CreateStay from '@/assets/icons/create-stay.png';
 import Policy from '@/assets/icons/dollar.png';
 import SignOut from '@/assets/icons/sign-out.png';
-import Usdc from '@/assets/icons/usd-circle.png';
 import { useLanguage } from '@/features/language';
 import { profileMessages } from '@/features/my-profile';
 import { useAuthStore } from '@/stores/useAuthStores';
