@@ -1,18 +1,22 @@
 import { makeReservationId } from '@/utils/makeReservationId';
 import { createReservation, approveReservation, lockReservation } from '@/services/reservation.api';
 import type { CreateReservationRequest } from '@/services/reservation.types';
-import { W3SSdk } from '@circle-fin/w3s-pw-web-sdk';
 import { useRouter } from 'next/navigation';
 
+// 최소한의 Circle SDK 인터페이스 (정적 import 방지)
+type CircleSdk = {
+  execute: (challengeId: string, cb: (error?: unknown) => void) => void;
+  setAppSettings: (args: { appId: string }) => void;
+  setAuthentication: (args: { userToken: string; encryptionKey: string }) => void;
+};
+
 // Circle SDK PIN 입력 처리
-async function executeChallenge(sdk: W3SSdk, challengeId: string, label: string) {
+async function executeChallenge(sdk: CircleSdk, challengeId: string, label: string) {
   return new Promise<void>((resolve, reject) => {
-    sdk.execute(challengeId, (error) => {
+    sdk.execute(challengeId, (error?: unknown) => {
       if (error) {
-        // console.error(`${label} 실패:`, error.message);
-        return reject(error);
+        return reject(error instanceof Error ? error : new Error(String(error)));
       }
-      // console.log(`${label} 완료`);
       resolve();
     });
   });
@@ -27,8 +31,9 @@ export async function submitReservation(
     throw new Error('먼저 ConnectWallet로 SDK를 준비하세요.');
   }
 
-  // 1. SDK 준비
-  const sdk = new W3SSdk();
+  // 1. SDK 준비 (클라이언트에서만 동적 로드)
+  const { W3SSdk } = await import('@circle-fin/w3s-pw-web-sdk');
+  const sdk = new W3SSdk() as unknown as CircleSdk;
   sdk.setAppSettings({ appId: sdkInitData.appId });
   sdk.setAuthentication({
     userToken: sdkInitData.userToken,

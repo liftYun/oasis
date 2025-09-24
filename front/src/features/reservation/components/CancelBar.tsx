@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '@/features/language';
 import { stayDetailLocale } from '@/features/stays/locale';
 import { useRouter } from 'next/navigation';
-import { W3SSdk } from '@circle-fin/w3s-pw-web-sdk';
+// import { W3SSdk } from '@circle-fin/w3s-pw-web-sdk'; // 제거 - dynamic import에서 로드
 import type {
   SdkInitData,
   BaseResponse,
@@ -25,9 +25,25 @@ export function CancelBar({ reservation }: Props) {
   const t = stayDetailLocale[lang];
   const router = useRouter();
 
-  const sdkRef = useRef<W3SSdk | null>(null);
+  const sdkRef = useRef<any>(null); // W3SSdk 타입 대신 any 사용 (dynamic import이므로)
   const [busy, setBusy] = useState(false);
   const { sdkInitData } = useSdkStore();
+  const [W3SSdk, setW3SSdk] = useState<any>(null); // SDK 클래스 상태 관리
+
+  // 클라이언트에서만 SDK 로드
+  useEffect(() => {
+    const loadSDK = async () => {
+      if (typeof window !== 'undefined') {
+        try {
+          const { W3SSdk: SDKClass } = await import('@circle-fin/w3s-pw-web-sdk');
+          setW3SSdk(SDKClass);
+        } catch (error) {
+          console.error('Failed to load W3SSdk:', error);
+        }
+      }
+    };
+    loadSDK();
+  }, []);
 
   // 모달 상태
   const [walletModalOpen, setWalletModalOpen] = useState(false);
@@ -37,9 +53,16 @@ export function CancelBar({ reservation }: Props) {
       return;
     }
 
+    if (!W3SSdk) {
+      toast.error('지갑 SDK가 아직 로드되지 않았습니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+
     setBusy(true);
     try {
-      if (!sdkRef.current) sdkRef.current = new W3SSdk();
+      if (!sdkRef.current) {
+        sdkRef.current = new W3SSdk();
+      }
       const sdk = sdkRef.current;
       sdk.setAppSettings({ appId: sdkInitData.appId });
       sdk.setAuthentication({
@@ -69,9 +92,9 @@ export function CancelBar({ reservation }: Props) {
 
       const runOne = (id: string, label?: string) =>
         new Promise<void>((resolve, reject) => {
-          sdk.execute(id, (error) => {
+          sdk.execute(id, (error: unknown) => {
             if (error) {
-              return reject(error);
+              return reject(error instanceof Error ? error : new Error(String(error)));
             }
             resolve();
           });
@@ -100,6 +123,22 @@ export function CancelBar({ reservation }: Props) {
       setBusy(false);
     }
   };
+
+  // SDK가 로드되지 않았으면 로딩 표시
+  if (!W3SSdk) {
+    return (
+      <div className="fixed bottom-0 w-full max-w-[480px] bg-white border-t border-gray-100">
+        <div className="mx-auto px-6 py-4 flex gap-3 mb-6">
+          <button
+            disabled
+            className="flex-1 bg-gray-300 text-gray-500 rounded-md px-4 py-3 text-base font-medium cursor-not-allowed"
+          >
+            SDK 로딩 중...
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

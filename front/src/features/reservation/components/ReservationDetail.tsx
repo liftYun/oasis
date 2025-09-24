@@ -18,6 +18,9 @@ import {
   StayHeader,
 } from '@/features/stays';
 import { ReservationInfo } from './ReservationInfo';
+import dynamic from 'next/dynamic';
+
+// CancelBar import - 이미 내부에서 Circle SDK를 동적 로드하므로 SSR 안전함
 import { CancelBar } from './CancelBar';
 import { useAuthStore } from '@/stores/useAuthStores';
 import { createChatRoom, findExistingChatRoom } from '@/features/chat/api/chat.firestore';
