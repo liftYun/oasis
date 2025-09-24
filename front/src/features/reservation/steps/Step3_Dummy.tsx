@@ -1,16 +1,15 @@
 'use client';
 
-import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/atoms/Button';
 import { useLanguage } from '@/features/language';
 import { reservationMessages } from '@/features/reservation/locale';
 import { useReservationStore } from '@/stores/useResversionStores';
-import Usdc from '@/assets/icons/usd-circle.png';
 import { RefundPolicy } from '@/features/reservation/components/RefundPolicy';
 import { ChevronLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { BlockChainWallet } from '@/features/my-profile/components/blockchain/BlockChainWallet';
 
 export function Step3_Dummy() {
   const { lang } = useLanguage();
@@ -28,7 +27,6 @@ export function Step3_Dummy() {
 
   const handleSubmit = async () => {
     if (!agreed) return;
-
     try {
       const result = await store.submit();
 
@@ -72,31 +70,17 @@ export function Step3_Dummy() {
       </div>
 
       <div className="w-full flex flex-col flex-1">
-        <div className="mb-6">
-          <h1 className="text-xl font-bold mb-2 pt-2">{t.step3.title}</h1>
-        </div>
+        <h1 className="text-xl font-bold mb-2 pt-2">{t.step3.title}</h1>
       </div>
 
-      <div
-        className="w-full max-w-sm rounded-md p-5"
-        style={{ background: 'linear-gradient(to right, #dbeafe, #e0f2f1)' }}
-      >
-        <div className="flex items-center gap-2 mb-3">
-          <Image src={Usdc} alt="USDC Icon" width={15} height={15} />
-          <span className="text-sm text-gray-800 font-medium">USDC</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <p className="text-2xl font-bold text-gray-900">19.0</p>
-          <button className="px-4 py-1.5 rounded-full bg-white font-semibold flex items-center justify-center">
-            <span className="text-xs text-transparent bg-clip-text bg-gradient-to-r from-[#3B87F4] to-[#88D4AF]">
-              {t.step3.topUp}
-            </span>
-          </button>
-        </div>
-      </div>
+      <BlockChainWallet />
 
       <section className="w-full mt-12 max-w-sm">
-        <h2 className="text-lg font-semibold mb-6">{t.step3.summaryTitle}</h2>
+        <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
+          <span className="inline-block w-1.5 h-5 bg-primary rounded-sm" />
+          {t.step3.summaryTitle}
+        </h2>
+
         <div className="rounded-md border border-gray-100 overflow-hidden font-bold">
           <div className="flex items-center justify-between px-4 py-3 bg-gray-100">
             <span className="text-base text-gray-600">{t.step3.labels.nights}</span>
@@ -116,9 +100,11 @@ export function Step3_Dummy() {
         </div>
       </section>
 
-      {/* Notes */}
       <section className="w-full mt-12 max-w-sm">
-        <h2 className="text-lg font-semibold mb-6">{t.step3.notesTitle}</h2>
+        <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
+          <span className="inline-block w-1.5 h-5 bg-primary rounded-sm" />
+          {t.step3.notesTitle}
+        </h2>
         <div className="rounded-md bg-gray-100 p-4 text-[13px] leading-6 text-gray-600 font-medium">
           <ol className="list-decimal pl-5 space-y-1">
             {t.step3.notes.map((note, idx) => (
@@ -128,7 +114,12 @@ export function Step3_Dummy() {
         </div>
       </section>
 
-      <RefundPolicy />
+      {store.stayId !== undefined && (
+        <RefundPolicy
+          stayId={store.stayId}
+          totalPrice={(store.night ?? 0) * (store.payment ?? 0)}
+        />
+      )}
 
       <div className="mt-12">
         <label className="flex items-start gap-3 text-sm text-gray-600">

@@ -7,14 +7,17 @@ interface StayMapProps {
   postalCode: string;
 }
 
-export default function StayMap({ postalCode }: StayMapProps) {
+export function StayMap({ postalCode }: StayMapProps) {
   const { lang } = useLanguage();
   const t = stayDetailLocale[lang];
   const mapUrl = `https://www.google.com/maps?q=${postalCode}&hl=ko&z=16&output=embed`;
 
   return (
     <section className="mt-12">
-      <h2 className="text-lg font-semibold mb-4">{t.detail.mapTitle}</h2>
+      <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+        <span className="inline-block w-1.5 h-5 bg-primary rounded-sm" />
+        {t.detail.mapTitle}
+      </h2>
 
       <div className="w-full mt-2 overflow-hidden rounded-md">
         <iframe

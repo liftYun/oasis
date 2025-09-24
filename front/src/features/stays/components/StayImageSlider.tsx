@@ -14,7 +14,7 @@ interface Props {
   title: string;
 }
 
-export default function StayImageSlider({ photos, title }: Props) {
+export function StayImageSlider({ photos, title }: Props) {
   const [current, setCurrent] = useState(1);
   if (!photos || photos.length === 0) return null;
 

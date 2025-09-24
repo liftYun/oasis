@@ -111,7 +111,7 @@ export function RegisterCheck() {
               inputRef.current?.click();
             }
           }}
-          className="relative h-24 w-24 rounded-full mb-8 bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center cursor-pointer group focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="relative h-24 w-24 rounded-full mb-8 bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center cursor-pointer group focus:outline-none focus:ring-2 focus:ring-primary"
         >
           {hasPreview ? (
             <img src={preview!} alt="Profile preview" className="h-full w-full object-cover" />

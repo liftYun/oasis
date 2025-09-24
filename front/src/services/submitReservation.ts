@@ -44,6 +44,7 @@ export async function submitReservation(
   const checkOut = checkIn + 1 * 24 * 3600; // 1박
 
   const resId = makeReservationId();
+  console.log('resId', resId);
 
   const reservationVo: CreateReservationRequest = {
     reservationId: resId,
@@ -60,34 +61,34 @@ export async function submitReservation(
   if (!dbRes.isSuccess) {
     throw new Error(dbRes.message || '예약 DB 등록 실패');
   }
-  // console.log('예약 DB 등록 완료');
+  console.log('예약 DB 등록 완료');
 
   // 4. Approve
-  // console.log('Approve 트랜잭션 요청...');
+  console.log('Approve 트랜잭션 요청...');
   const approveRes = await approveReservation(reservationVo);
   const approveResult = approveRes.result;
   if (approveResult?.challengeId) {
-    // console.log('Approve PIN 입력 대기...');
+    console.log('Approve PIN 입력 대기...');
     await executeChallenge(sdk, approveResult.challengeId, 'Approve');
   } else {
     throw new Error('Approve ChallengeId 없음');
   }
 
-  const router = useRouter();
+  // const router = useRouter();
 
   // 5. Lock
-  // console.log('Lock 트랜잭션 요청...');
+  console.log('Lock 트랜잭션 요청...');
   const lockRes = await lockReservation(reservationVo);
   const lockResult = lockRes.result;
   if (lockResult?.challengeId) {
-    // console.log('Lock PIN 입력 대기...');
+    console.log('Lock PIN 입력 대기...');
     await executeChallenge(sdk, lockResult.challengeId, 'Lock');
   } else {
     throw new Error('Lock ChallengeId 없음');
   }
 
   // console.log('예약 전체 완료 (DB + Approve + Lock)');
-  router.push('/my-profile/reservations');
+  // router.push('/my-profile/reservations');
 
   return dbRes.result;
 }

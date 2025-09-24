@@ -2,14 +2,16 @@
 
 import Image from 'next/image';
 import Logo from '@/assets/logos/oasis-logo-512.png';
+import DefaultAvatar from '@/assets/icons/preview-user.png';
 import { useRouter } from 'next/navigation';
-import { Bell } from 'lucide-react';
+import { useAuthStore } from '@/stores/useAuthStores';
 
 export const Header = () => {
   const router = useRouter();
+  const { nickname, profileUrl } = useAuthStore();
 
   return (
-    <header className="w-full bg-white border-b border-gray-100">
+    <header className="w-full bg-white0">
       <div className="flex items-center justify-between h-14 px-6">
         <button
           onClick={() => router.push('/main')}
@@ -21,8 +23,19 @@ export const Header = () => {
           </span>
         </button>
 
-        <button className="p-2 rounded-md hover:bg-gray-100 transition">
-          <Bell size={20} className="text-gray-600" />
+        <button
+          onClick={() => router.push('/my-profile')}
+          className="p-[3px] rounded-full bg-gradient-to-r from-primary to-green hover:opacity-90 transition"
+        >
+          <div className="w-8 h-8 rounded-full overflow-hidden bg-white">
+            <Image
+              src={profileUrl || DefaultAvatar}
+              alt={nickname || 'User Profile'}
+              width={32}
+              height={32}
+              className="object-cover w-full h-full"
+            />
+          </div>
         </button>
       </div>
     </header>

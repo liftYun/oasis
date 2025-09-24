@@ -77,6 +77,7 @@ export default function CreateStayPage() {
   };
   const handleComplete = async () => {
     const success = await store.submit();
+    console.log('success', success);
     if (success) {
       disconnect();
       router.replace('/my-profile/manage-stay');

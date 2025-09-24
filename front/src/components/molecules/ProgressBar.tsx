@@ -12,7 +12,7 @@ export function ProgressBar({ totalSteps, currentStep, className }: ProgressBarP
       {Array.from({ length: totalSteps }, (_, i) => (
         <div
           key={i}
-          className={`h-1 rounded-full flex-1 ${i === currentStep - 1 ? 'bg-blue-500' : 'bg-gray-200'}`}
+          className={`h-1 rounded-full flex-1 ${i === currentStep - 1 ? 'bg-primary' : 'bg-gray-200'}`}
         />
       ))}
     </div>

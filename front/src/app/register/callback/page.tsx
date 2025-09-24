@@ -6,11 +6,15 @@ import { useAuthStore } from '@/stores/useAuthStores';
 import { useRegisterStore } from '@/features/register';
 import { http } from '@/apis/httpClient';
 import { Lottie } from '@/components/atoms/Lottie';
+import { useLanguage } from '@/features/language';
+import { profileMessages } from '@/features/my-profile';
 
 function CallbackInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setUser = useAuthStore((s) => s.setUser);
+  const { lang } = useLanguage();
+  const t = profileMessages[lang];
 
   useEffect(() => {
     const issueToken = async () => {
@@ -30,7 +34,6 @@ function CallbackInner() {
           useRegisterStore.getState().setEmail(email);
           useRegisterStore.getState().setProfileUrl(profileUrl);
           const next = needProfileUpdate ? '/language' : '/main';
-          // const next = '/language';
           router.replace(next);
         } else {
           router.replace('/');
@@ -46,7 +49,7 @@ function CallbackInner() {
   return (
     <div className="flex flex-col items-center justify-center py-10">
       <Lottie src="/lotties/spinner.json" className="w-20 h-20" />
-      <p className="text-sm text-gray-500 mt-2">로그인 처리 중...</p>
+      <p className="text-sm text-gray-500 mt-2">{t.loading}</p>
     </div>
   );
 }

@@ -30,3 +30,16 @@ export interface BackendInitData extends SdkInitData {
   wallets?: WalletInfo[];
   balances?: Record<string, string>;
 }
+
+export type ChallengeResp =
+  | { challengeId: string }
+  | { challengeIds: string[] }
+  | { steps: Array<{ challengeId: string; label?: string }> };
+
+export type BaseResponse<T> = {
+  httpStatus: number;
+  isSuccess: boolean;
+  message: string;
+  code: number;
+  result: T;
+};
