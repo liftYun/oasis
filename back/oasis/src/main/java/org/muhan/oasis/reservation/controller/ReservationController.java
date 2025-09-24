@@ -6,11 +6,13 @@ import org.muhan.oasis.common.base.BaseResponse;
 import org.muhan.oasis.reservation.dto.in.ApproveRequestDto;
 import org.muhan.oasis.reservation.dto.in.LockRequestDto;
 import org.muhan.oasis.reservation.dto.in.RegistReservationRequestDto;
+import org.muhan.oasis.reservation.dto.in.TransactionConfirmRequestDto;
 import org.muhan.oasis.reservation.service.ApproveService;
 import org.muhan.oasis.reservation.service.LockService;
 import org.muhan.oasis.reservation.service.ReservationService;
 import org.muhan.oasis.reservation.vo.in.CancelReservationRequestVo;
 import org.muhan.oasis.reservation.vo.in.RegistReservationRequestVo;
+import org.muhan.oasis.reservation.vo.in.TransactionConfirmRequestVo;
 import org.muhan.oasis.reservation.vo.out.CancelReservationResponseVo;
 import org.muhan.oasis.reservation.vo.out.ListOfReservationResponseVo;
 import org.muhan.oasis.reservation.vo.out.ReservationDetailsResponseVo;
@@ -156,5 +158,21 @@ public class ReservationController {
         ).getChallengeId();
 
         return BaseResponse.of(new CancelReservationResponseVo(challengeId));
+    }
+
+    @PostMapping("/approve/confirm")
+    public BaseResponse<?> confirmApproveTransaction(
+            @RequestBody TransactionConfirmRequestVo request
+    ) {
+        approveService.confirmApprove(TransactionConfirmRequestDto.from(request));
+        return BaseResponse.of("Approve 상태 업데이트 완료");
+    }
+
+    @PostMapping("/lock/confirm")
+    public BaseResponse<?> confirmLockTransaction(
+            @RequestBody TransactionConfirmRequestVo request
+    ) {
+        lockService.confirmLock(TransactionConfirmRequestDto.from(request));
+        return BaseResponse.of("Lock 상태 업데이트 완료");
     }
 }
