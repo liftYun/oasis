@@ -24,6 +24,7 @@ import org.muhan.oasis.stay.entity.RegionEntity;
 import org.muhan.oasis.stay.repository.RegionEngRepository;
 import org.muhan.oasis.stay.repository.RegionRepository;
 import org.muhan.oasis.stay.service.StayService;
+import org.muhan.oasis.stay.vo.out.DetailsOfStayResponseVo;
 import org.muhan.oasis.user.service.UserService;
 import org.muhan.oasis.user.vo.out.CancellationPolicyResponseVo;
 import org.muhan.oasis.valueobject.Language;
@@ -175,12 +176,12 @@ public class StayController {
             @ApiResponse(responseCode = "404", description = "숙소가 존재하지 않음", content = @Content),
     })
     @GetMapping("/{stayId}")
-    public ResponseEntity<BaseResponse<StayReadResponseDto>> readStay(
+    public ResponseEntity<BaseResponse<DetailsOfStayResponseVo>> readStay(
             @PathVariable Long stayId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ){
-        StayReadResponseDto stayResponse = stayService.getStayById(stayId, userDetails.getLanguage());
-        BaseResponse<StayReadResponseDto> body = new BaseResponse<>(stayResponse);
+        DetailsOfStayResponseVo stayResponse = stayService.getStayById(stayId, userDetails.getLanguage());
+        BaseResponse<DetailsOfStayResponseVo> body = new BaseResponse<>(stayResponse);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
     }
