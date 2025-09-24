@@ -96,7 +96,7 @@ export function Reservations() {
                 <div className="absolute inset-0 bg-black/60 rounded-md flex flex-col items-center justify-center text-white">
                   <p className="mb-2">이용 완료한 숙소 입니다.</p>
                   <div className="flex space-x-4">
-                    {item.isReviewed && (
+                    {!item.isReviewed && (
                       <button
                         onClick={() => {
                           setSelectedReservationId(item.reservationId);
