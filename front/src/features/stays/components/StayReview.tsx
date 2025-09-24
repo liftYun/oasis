@@ -101,11 +101,7 @@ export function StayReview({ rating, highReviews, lowReviews, stayId }: StayRevi
         </button>
       </section>
 
-      <ReviewModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        stayId={stayId} // ✅ 숙소 ID만 전달
-      />
+      <ReviewModal open={modalOpen} onClose={() => setModalOpen(false)} stayId={stayId} />
     </>
   );
 }

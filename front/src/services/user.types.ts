@@ -78,6 +78,7 @@ export interface MyStayListResponse {
 }
 
 export interface ReviewResponseVo {
+  title: string;
   reviewId: number;
   reservationId?: string;
   rating: number;

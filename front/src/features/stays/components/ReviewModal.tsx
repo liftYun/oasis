@@ -57,12 +57,13 @@ export default function ReviewModal({ open, onClose, stayId }: ReviewModalProps)
           />
 
           <motion.div
-            className="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl shadow-xl h-[80vh] flex flex-col"
+            className="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl max-w-[480px] mx-auto shadow-xl h-[85vh] flex flex-col"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           >
+            <div className="h-1.5 w-12 rounded-full bg-gray-200 mx-auto absolute left-1/2 -translate-x-1/2 -top-2" />
             <div className="flex items-center justify-between p-4">
               <h2 className="text-lg font-semibold">{t.review.seeAll}</h2>
               <button onClick={onClose}>
@@ -70,7 +71,7 @@ export default function ReviewModal({ open, onClose, stayId }: ReviewModalProps)
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {loading && <p className="text-center text-gray-400">{t.common.loading}</p>}
 
               {!loading && reviews.length === 0 && (

@@ -1,7 +1,5 @@
 'use client';
 
-import Image from 'next/image';
-import TranslateIcon from '@/assets/icons/translate.png';
 import { useLanguage } from '@/features/language';
 import { chatMessages } from '@/features/chat/locale';
 import { Globe } from 'lucide-react';
@@ -22,7 +20,7 @@ interface MessageItemProps {
 export default function MessageItem({ message, onClickTranslate, translated }: MessageItemProps) {
   const { lang } = useLanguage();
   const t = chatMessages[lang];
-  const bubbleBase = 'max-w-[72%] px-3 py-2.5 rounded-lg text-sm leading-snug shadow';
+  const bubbleBase = 'max-w-[72%] px-3 py-2.5 rounded-lg text-sm leading-snug';
 
   const bubbleClass = message.isMine
     ? `${bubbleBase} bg-primary text-white rounded-br-none`

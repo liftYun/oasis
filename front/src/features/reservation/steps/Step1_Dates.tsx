@@ -56,10 +56,10 @@ export function Step1_Dates() {
   const canNext = Boolean(checkinDate && checkoutDate && nights >= 1);
 
   return (
-    <div className="max-w-md flex flex-1 flex-col w-full min-h-[calc(100vh-100px)] p-4 overflow-y-auto">
+    <div className="max-w-md flex flex-1 flex-col w-full min-h-[calc(100vh-135px)] p-4 overflow-y-auto">
       <BackHeader title={t.header.title} />
       <div className="mb-6">
-        <h1 className="text-xl font-bold mb-2 pt-2">{t.step1.datePlaceholder}</h1>
+        <h1 className="text-xl font-bold mb-2">{t.step1.datePlaceholder}</h1>
         <p className="text-gray-400 text-sm">{t.step1.guide}</p>
       </div>
 
