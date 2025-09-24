@@ -23,7 +23,7 @@ export function FormField({ label, registration, error, children, ...props }: Fo
   }, [error?.message]);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 w-full">
       <Label htmlFor={inputId}>{label}</Label>
       <div className="relative">
         <Input id={inputId} {...props} {...registration} />

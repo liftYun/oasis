@@ -80,7 +80,7 @@ export function Step1_StayInfo() {
   return (
     <div className="max-w-md flex flex-1 flex-col w-full min-h-[calc(100vh-100px)] p-4 overflow-y-auto">
       <BackHeader title={t.createStay} />
-      <h1 className="text-xl font-bold mb-6 pt-2">{t.step1.title}</h1>
+      <h1 className="text-xl font-bold mb-6 pt-2 w-full">{t.step1.title}</h1>
       <StayForm
         form={form}
         handleSubmit={handleSubmit}
