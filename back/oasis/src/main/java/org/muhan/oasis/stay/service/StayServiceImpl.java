@@ -10,6 +10,7 @@ import org.muhan.oasis.stay.dto.in.*;
 import org.muhan.oasis.stay.dto.out.*;
 import org.muhan.oasis.stay.entity.*;
 import org.muhan.oasis.stay.repository.*;
+import org.muhan.oasis.stay.vo.out.DetailsOfStayResponseVo;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.valueobject.Language;
@@ -176,13 +177,13 @@ public class StayServiceImpl implements StayService{
 
     @Override
     @Transactional(readOnly = true)
-    public StayReadResponseDto getStayById(Long stayId, Language language) {
+    public DetailsOfStayResponseVo getStayById(Long stayId, Language language) {
         StayEntity stay = stayRepository.findDetailForRead(stayId).orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY));
         List<StayFacilityEntity> facilities = stayFacilityRepository.findWithFacilityByStayId(stayId);
         LocalDate cutoff = LocalDate.now(ZoneId.of("Asia/Seoul"));
         List<StayBlockEntity> blcokList = stayBlockRepository.findAllByStayIdAndEndDateAfterOrderByStartDateAsc(stayId, cutoff);
         List<ReservedResponseDto> reservedList = reservationRepository.findAllReservedByStayId(stayId);
-        return StayReadResponseDto.from(stay, facilities, language, blcokList, reservedList);
+        return DetailsOfStayResponseVo.from(stay, facilities, language, blcokList, reservedList);
     }
 
     @Override
