@@ -132,7 +132,7 @@ export interface ReservationResponseDto {
   addressLineEng: string;
   isSettlemented: boolean; // 정산 완료 여부
   isReviewed: boolean; // 리뷰 작성 여부
-  isCancled: boolean; // 취소 여부 (오탈자 포함)
+  isCanceled: boolean; // 취소 여부
 }
 
 // 리뷰 작성 요청
