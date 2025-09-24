@@ -113,8 +113,11 @@ public class ReviewServiceImpl implements ReviewService{
         List<ReviewEntity> entities =
                 reviewRepository.findAllByUser_UserIdOrderByCreatedAtDesc(userId);
 
+        UserEntity user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
         return entities.stream()
-                .map(ReviewResponseVo::fromEntity)
+                .map(e -> ReviewResponseVo.fromEntity(e, user.getLanguage()))
                 .toList();
     }
 
@@ -144,7 +147,6 @@ public class ReviewServiceImpl implements ReviewService{
         Language language = user.getLanguage();
 
         List<ReviewEntity> entities =
-//                reviewRepository.findAllByStayIdOrderByCreatedAtDesc(stayId);
                 reviewRepository.findAllByStayIdOrderByCreatedAtDescWithJoins(stayId);
 
         return entities.stream()
