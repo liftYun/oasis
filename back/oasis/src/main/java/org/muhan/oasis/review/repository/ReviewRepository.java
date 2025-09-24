@@ -12,6 +12,13 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
     boolean existsByReservation_ReservationIdAndUser_UserId(String reservationId, Long userId);
     // 작성자 기준으로 최신순 조회
+    @Query("""
+        select r
+        from ReviewEntity r
+        join fetch r.reservation res
+        where r.user.userId = :userId
+        order by r.createdAt desc
+    """)
     List<ReviewEntity> findAllByUser_UserIdOrderByCreatedAtDesc(Long userId);
 
 //    List<ReviewEntity> findAllByStayIdOrderByCreatedAtDesc(Long stayId);

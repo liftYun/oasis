@@ -40,6 +40,7 @@ export const reservationMessages = {
         nights: '숙박 일자',
         fee: '수수료',
       },
+      nightUnit: '박',
       notes: [
         '모든 결제는 블록체인 스마트컨트랙트로 안전하게 처리됩니다.',
         '예약 및 결제 내역은 블록체인에 기록되어 위·변조가 불가능합니다.',
@@ -107,6 +108,7 @@ export const reservationMessages = {
         nights: 'Nights',
         fee: 'Fee',
       },
+      nightUnit: ' nights',
       notes: [
         'All payments are securely processed via blockchain smart contracts.',
         'Reservation and payment records are stored on the blockchain and cannot be tampered with.',

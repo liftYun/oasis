@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.muhan.oasis.reservation.enums.ReservationStatus;
 import org.muhan.oasis.stay.entity.StayEntity;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.springframework.data.annotation.CreatedDate;
@@ -56,8 +57,17 @@ public class ReservationEntity {
 
     @Column(name = "stay_title_eng", nullable = false)
     private String stayTitleEng;
+
+    @Column(name = "status", length = 50, nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ReservationStatus status; // 상태 관리를 위한 ENUM 타입 필드
+
+    @Column(name = "challenge_id", length = 191)
+    private String challengeId; // Circle 트랜잭션 추적을 위한 ID
+
     @Builder
-    public ReservationEntity(String reservationId, UserEntity user, StayEntity stay, LocalDateTime checkinDate, LocalDateTime checkoutDate, LocalDateTime reservationDate, boolean isSettlemented, boolean isReviewed, int payment, boolean isCanceled, String stayTitle, String stayTitleEng) {
+    public ReservationEntity(String reservationId, UserEntity user, StayEntity stay, LocalDateTime checkinDate, LocalDateTime checkoutDate, LocalDateTime reservationDate, boolean isSettlemented, boolean isReviewed, int payment, boolean isCanceled, String stayTitle, String stayTitleEng,
+                             ReservationStatus status, String challengeId) {
         this.reservationId = reservationId;
         this.user = user;
         this.stay = stay;
@@ -70,9 +80,20 @@ public class ReservationEntity {
         this.isCanceled = isCanceled;
         this.stayTitle = stayTitle;
         this.stayTitleEng = stayTitleEng;
+        this.status = status; // 값 할당
+        this.challengeId = challengeId;
     }
 
     public String getThumbnail(){
         return this.getStay().getThumbnail();
     }
+    public void setStatus(ReservationStatus status) {
+        this.status = status;
+    }
+
+    public void setChallengeId(String challengeId) {
+        this.challengeId = challengeId;
+    }
+
+    public void setReviewed(){this.isReviewed = true;}
 }

@@ -20,13 +20,13 @@ public class CancelReservationTxService {
     private final @Qualifier("circleWebClient") WebClient circleWebClient;
 
     public String createCancelTx(String userId, String walletId, String contractAddress,
-                                 String callData, String userToken, UUID idempotencyKey) {
+                                 String callData, String userToken, String idempotencyKey) {
         // 요청 Body 구성 (명확히 타입 지정)
         Map<String, Object> body = new HashMap<>();
         body.put("walletId", walletId);
         body.put("contractAddress", contractAddress);
         body.put("callData", callData);
-        body.put("idempotencyKey", idempotencyKey.toString());
+        body.put("idempotencyKey", idempotencyKey);
         body.put("feeLevel", "MEDIUM");
 
         log.info("[CancelReservationTxService] userId={}, walletId={}, contract={}, callData={}",
@@ -50,7 +50,7 @@ public class CancelReservationTxService {
         }
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> data = (Map<String, Object>) resp.get("dto");
+        Map<String, Object> data = (Map<String, Object>) resp.get("data");
 
         if (data == null || data.get("challengeId") == null) {
             throw new RuntimeException("❌ missing challengeId: " + resp);

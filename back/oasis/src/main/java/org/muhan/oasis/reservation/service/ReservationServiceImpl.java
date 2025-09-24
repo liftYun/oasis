@@ -11,6 +11,7 @@ import org.muhan.oasis.reservation.dto.in.RegistReservationRequestDto;
 import org.muhan.oasis.reservation.dto.out.ReservationDetailsResponseDto;
 import org.muhan.oasis.reservation.dto.out.ReservationResponseDto;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
+import org.muhan.oasis.reservation.enums.ReservationStatus;
 import org.muhan.oasis.reservation.repository.ReservationPeriodRow;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
 import org.muhan.oasis.reservation.vo.out.CancelReservationResponseVo;
@@ -71,7 +72,7 @@ public class ReservationServiceImpl implements ReservationService {
         StayEntity stay = stayRepository.findById(dto.getStayId())
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY));;
 
-        ReservationEntity reservationEntity = RegistReservationRequestDto.to(user, stay, dto);
+        ReservationEntity reservationEntity = RegistReservationRequestDto.to(user, stay, dto, ReservationStatus.PENDING);
 
         return reservationRepository.save(reservationEntity).getReservationId();
     }
@@ -273,14 +274,18 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     @Transactional
-    public CancelReservationResponseVo cancelReservation(String userUUID, String resId, UUID idempotencyKey) {
+    public CancelReservationResponseVo cancelReservation(String userUUID, String resId) {
 
         validateResId(resId);
 
+        UserEntity user = userRepository.findByUserUuid(userUUID)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
         CircleUserTokenCache.Entry tokenEntry = circle.ensureUserToken(userUUID);
 
-        UserEntity user = userRepository.findByUserUuid(userUUID)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 UUID 입니다."));
+        reservationRepository.findByUserAndReservationId(user, resId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_RESERVATION));
+
         WalletEntity wallet = walletRepository.findByUser(user);
         String walletId = wallet.getWalletId();
 
@@ -297,11 +302,11 @@ public class ReservationServiceImpl implements ReservationService {
 
         String callData = FunctionEncoder.encode(fn);
 
-        // 로깅 (디버깅에 충분하도록)
         log.info("[cancelWithPolicy] resId={}, toContract={}", resId, contractAddress);
         log.debug("[cancelWithPolicy] callData(length={}): {}", callData != null ? callData.length() : 0, callData);
 
-        // 5) Challenge 생성
+        String idempotencyKey = UUID.nameUUIDFromBytes(("cancel-" + resId).getBytes()).toString();
+        // Challenge 생성
         String challengeId = cancelReservationTxService.createCancelTx(
                 userUUID,
                 walletId,      // walletId
@@ -313,7 +318,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         log.info("[cancelWithPolicy] challengeId={}", challengeId);
 
-        // 6) 호환 응답 (reactive)
+        // 호환 응답 (reactive)
         return new CancelReservationResponseVo(challengeId);
     }
 

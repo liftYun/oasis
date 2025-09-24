@@ -2,9 +2,15 @@ package org.muhan.oasis.reservation.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.muhan.oasis.common.base.BaseResponseStatus;
+import org.muhan.oasis.common.exception.BaseException;
 import org.muhan.oasis.external.circle.CircleUserApi;
 import org.muhan.oasis.external.circle.CircleUserTokenCache;
 import org.muhan.oasis.reservation.dto.in.ApproveRequestDto;
+import org.muhan.oasis.reservation.dto.in.TransactionConfirmRequestDto;
+import org.muhan.oasis.reservation.entity.ReservationEntity;
+import org.muhan.oasis.reservation.enums.ReservationStatus;
+import org.muhan.oasis.reservation.repository.ReservationRepository;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.wallet.entity.WalletEntity;
@@ -26,6 +32,7 @@ public class ApproveService {
     private final CircleUserTokenCache cache;
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
+    private final ReservationRepository reservationRepository;
 
 
     @Value("${usdc.address}")
@@ -42,12 +49,16 @@ public class ApproveService {
                 req.getUserUUID(), req.getAmountUSDC(), req.getFeeUSDC());
 
         if (!StringUtils.hasText(req.getUserUUID())) {
-            throw new IllegalArgumentException("userId is required");
+            throw new BaseException(BaseResponseStatus.NO_EXIST_USER);
         }
 
-
         UserEntity user = userRepository.findByUserUuid(req.getUserUUID())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 UUID 입니다."));
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
+        // DB 상태 검증: PENDING 상태인지 확인
+        ReservationEntity reservation = reservationRepository.findByUserAndReservationId(user, req.getReservationId())
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_RESERVATION));
+
         WalletEntity wallet = walletRepository.findByUser(user);
         String walletId = wallet.getWalletId();
         BigInteger amount = req.getAmountUSDC().multiply(BigDecimal.TEN.pow(6)).toBigIntegerExact();
@@ -79,6 +90,11 @@ public class ApproveService {
                     "approve:" + totalUSDC
             );
 
+            reservation.setStatus(ReservationStatus.PENDING_APPROVED);
+            reservation.setChallengeId(ch.getData().getChallengeId());
+            reservationRepository.save(reservation);
+
+
             log.info("Approve challenge created successfully. challengeId={}", ch.getData().getChallengeId());
 
 
@@ -106,10 +122,28 @@ public class ApproveService {
                         refreshed.getUserToken(),
                         refreshed.getEncryptionKey());
             }
-            throw new ApproveCreateException(
-                    500, "circle approve transaction failed", "circle error: " + ex.getMessage()
-            );
+            throw new BaseException(BaseResponseStatus.CIRCLE_INTERNAL_ERROR);
+
         }
+    }
+
+    public void confirmApprove(TransactionConfirmRequestDto request) {
+        ReservationEntity reservation = reservationRepository
+                .findByChallengeId(request.getChallengeId())
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_RESERVATION));
+
+        if (request.isSuccess()) {
+            reservation.setStatus(ReservationStatus.APPROVED);
+            log.info("Approve 트랜잭션 성공 확인: challengeId={}", request.getChallengeId());
+        } else if (request.isFailed()) {
+            reservation.setStatus(ReservationStatus.PENDING); // Approve 실패 시 PENDING으로 롤백
+            log.warn("Approve 트랜잭션 실패 확인: challengeId={}", request.getChallengeId());
+        } else {
+            log.error("알 수 없는 트랜잭션 상태: status={}", request.getStatus());
+            throw new BaseException(BaseResponseStatus.INVALID_PARAMETER);
+        }
+
+        reservationRepository.save(reservation);
     }
 
     public record Result(String challengeId, String userToken, String encryptionKey) {}
@@ -122,18 +156,5 @@ public class ApproveService {
                 || body.contains("\"155105\"")
                 || lower.contains("user token had expired")
                 || lower.contains("usertoken had expired");
-    }
-
-    public static class ApproveCreateException extends RuntimeException {
-        public final int status;
-        public final String messageForUser;
-        public final String result;
-
-        public ApproveCreateException(int status, String messageForUser, String result) {
-            super(messageForUser + " - " + result);
-            this.status = status;
-            this.messageForUser = messageForUser;
-            this.result = result;
-        }
     }
 }

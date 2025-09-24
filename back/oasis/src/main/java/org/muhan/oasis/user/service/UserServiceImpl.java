@@ -127,6 +127,7 @@ public class UserServiceImpl implements UserService {
                 .policy2(dto.getPolicy2())
                 .policy3(dto.getPolicy3())
                 .policy4(dto.getPolicy4())
+                .active(true)
                 .build();
         cancellationPolicyRepository.save(policy);
     }
@@ -183,6 +184,17 @@ public class UserServiceImpl implements UserService {
     public CancellationPolicyResponseVo getCancellationPolicy(Long userId) {
         CancellationPolicyEntity entity = cancellationPolicyRepository
                 .findTopByUser_UserIdAndActiveTrueOrderByIdDesc(userId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY));
+
+        return toResponseVo(entity);
+    }
+
+    @Override
+    public CancellationPolicyResponseVo getCancellationPolicyByStayId(Long stayId) {
+        Long id = stayRepository.findCancellationPolicyIdByStayId(stayId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY));
+        CancellationPolicyEntity entity = cancellationPolicyRepository
+                .findById(id)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY));
 
         return toResponseVo(entity);

@@ -2,6 +2,7 @@ package org.muhan.oasis.reservation.repository;
 
 import org.muhan.oasis.reservation.entity.ReservationEntity;
 import org.muhan.oasis.stay.dto.out.ReservedResponseDto;
+import org.muhan.oasis.user.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<ReservationEntity, String> {
@@ -65,4 +67,7 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
     boolean existsConfirmedOverlap(@Param("stayId") Long stayId,
                                    @Param("start") LocalDateTime start,
                                    @Param("end") LocalDateTime end);
+    Optional<ReservationEntity> findByUserAndReservationId(UserEntity user, String resId);
+
+    Optional<ReservationEntity> findByChallengeId(String challengeId);
 }

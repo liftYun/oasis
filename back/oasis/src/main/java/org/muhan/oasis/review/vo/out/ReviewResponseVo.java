@@ -4,12 +4,15 @@ import lombok.Builder;
 import lombok.Getter;
 import org.muhan.oasis.review.dto.out.ReviewResponseDto;
 import org.muhan.oasis.review.entity.ReviewEntity;
+import org.muhan.oasis.valueobject.Language;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 @Getter
 @Builder
 public class ReviewResponseVo {
+    private String title;
+
     private Long reviewId;
 
     private String reservationId;
@@ -22,6 +25,7 @@ public class ReviewResponseVo {
 
     public static ReviewResponseVo from(ReviewResponseDto dto) {
         return ReviewResponseVo.builder()
+                .title(dto.getTitle())
                 .reviewId(dto.getReviewId())
                 .reservationId(dto.getReservationId())
                 .rating(dto.getRating())
@@ -30,9 +34,18 @@ public class ReviewResponseVo {
                 .build();
     }
 
-    public static ReviewResponseVo fromEntity(ReviewEntity e) {
+    public static ReviewResponseVo fromEntity(ReviewEntity e, Language language) {
+
+        String title;
+        if(language.equals(Language.KOR)) {
+            title = e.getReservation().getStayTitle();
+        }
+        else {
+            title = e.getReservation().getStayTitleEng();
+        }
 
         ReviewResponseDto dto = ReviewResponseDto.builder()
+                .title(title)
                 .reviewId(e.getReviewId())
                 .reservationId(
                         e.getReservation() != null && e.getReservation().getReservationId() != null

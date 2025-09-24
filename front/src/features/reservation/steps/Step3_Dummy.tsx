@@ -113,7 +113,8 @@ export function Step3_Dummy() {
           <div className="flex items-center justify-between px-4 py-3 bg-gray-100">
             <span className="text-base text-gray-600">{t.step3.labels.nights}</span>
             <span className="text-base text-gray-600">
-              {store.night}박 x ${(store.payment ?? 0).toFixed(2)}
+              {store.night}
+              {t.step3.nightUnit} x ${(store.payment ?? 0).toFixed(2)}
             </span>
           </div>
           <div className="flex items-center justify-between px-4 py-3 bg-gray-100">

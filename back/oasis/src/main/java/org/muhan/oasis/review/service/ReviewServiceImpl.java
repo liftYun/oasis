@@ -39,9 +39,10 @@ public class ReviewServiceImpl implements ReviewService{
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final StayService stayService;
-    private SqsSendService sqsSendService;
+    private final SqsSendService sqsSendService;
 
     @Override
+    @Transactional
     public Long registReview(Long userId, RegistReviewRequestDto registReviewRequestDto) {
         // 1) 예약 존재 확인
         ReservationEntity reservation = reservationRepository.findById(registReviewRequestDto.getReservationId())
@@ -101,6 +102,8 @@ public class ReviewServiceImpl implements ReviewService{
         sqsSendService.sendReviewSummaryMessage(lowRateReviews, reservation.getStay().getId(), Rate.LOW_RATE);
         sqsSendService.sendReviewSummaryMessage(highRateReviews, reservation.getStay().getId(), Rate.HIGH_RATE);
 
+        reservation.setReviewed();
+
         stayService.recalculateRating(reservation.getStay().getId(), registReviewRequestDto.getRating());
         return review.getReviewId();
     }
@@ -112,8 +115,11 @@ public class ReviewServiceImpl implements ReviewService{
         List<ReviewEntity> entities =
                 reviewRepository.findAllByUser_UserIdOrderByCreatedAtDesc(userId);
 
+        UserEntity user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
         return entities.stream()
-                .map(ReviewResponseVo::fromEntity)
+                .map(e -> ReviewResponseVo.fromEntity(e, user.getLanguage()))
                 .toList();
     }
 
@@ -133,7 +139,7 @@ public class ReviewServiceImpl implements ReviewService{
 
         if(!entity.getUser().getUserId().equals(userId)) throw new BaseException(BaseResponseStatus.NO_ACCESS_AUTHORITY);
 
-        return ReviewDetailResponseVo.fromEntity(entity);
+        return ReviewDetailResponseVo.fromEntity(entity, entity.getUser().getLanguage());
     }
 
     @Override
@@ -143,7 +149,6 @@ public class ReviewServiceImpl implements ReviewService{
         Language language = user.getLanguage();
 
         List<ReviewEntity> entities =
-//                reviewRepository.findAllByStayIdOrderByCreatedAtDesc(stayId);
                 reviewRepository.findAllByStayIdOrderByCreatedAtDescWithJoins(stayId);
 
         return entities.stream()
