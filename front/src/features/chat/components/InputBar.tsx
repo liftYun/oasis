@@ -71,7 +71,7 @@ export default function InputBar({ onSend }: InputBarProps) {
       id="chat-input-bar"
       className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-50 pb-10 pt-5 px-4 bg-blue-50"
     >
-      <div className="mx-2 rounded-full shadow bg-white px-3 py-2 flex items-center gap-2">
+      <div className="mx-2 rounded-full border border-gray-200 bg-white px-3 py-2 flex items-center gap-2">
         <button
           type="button"
           onClick={() => setShowEmojiPicker(!showEmojiPicker)}
