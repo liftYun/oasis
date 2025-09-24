@@ -2,6 +2,8 @@ package org.muhan.oasis.stay.repository;
 
 import org.muhan.oasis.stay.entity.StayBlockEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -14,4 +16,8 @@ public interface StayBlockRepository extends JpaRepository<StayBlockEntity, Long
             Long stay_id, LocalDate endDate);
 
     void deleteByStayId(Long stayId);
+
+    @Modifying
+    @Query("delete from StayBlockEntity b where b.stay.id = :stayId")
+    int deleteByStay_Id(Long stayId);
 }
