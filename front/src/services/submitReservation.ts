@@ -1,3 +1,4 @@
+import { http } from '@/apis/httpClient';
 import { makeReservationId } from '@/utils/makeReservationId';
 import { createReservation, approveReservation, lockReservation } from '@/services/reservation.api';
 import type { CreateReservationRequest } from '@/services/reservation.types';
@@ -9,12 +10,28 @@ async function executeChallenge(sdk: W3SSdk, challengeId: string, label: string)
   return new Promise<void>((resolve, reject) => {
     sdk.execute(challengeId, (error) => {
       if (error) {
-        // console.error(`${label} 실패:`, error.message);
+        console.error(`${label} 실패:`, error.message);
+        notifyTransactionFailed(challengeId, label); // 새로 추가
         return reject(error);
       }
       // console.log(`${label} 완료`);
       resolve();
     });
+  });
+}
+
+// 블록체인 처리한다고 따로 파일 만들어서 로컬로 날렸었는데 서버쪽으로 post날릴 수 잇도록 확인하고 수정해줘
+async function notifyTransactionSuccess(challengeId: string, type: string) {
+  await http.post(`/api/v1/reservation/${type.toLowerCase()}/confirm`, {
+    challengeId,
+    status: 'SUCCESS',
+  });
+}
+
+async function notifyTransactionFailed(challengeId: string, type: string) {
+  await http.post(`/api/v1/reservation/${type.toLowerCase()}/confirm`, {
+    challengeId,
+    status: 'FAILED',
   });
 }
 
