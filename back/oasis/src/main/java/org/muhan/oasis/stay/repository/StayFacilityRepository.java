@@ -23,4 +23,7 @@ public interface StayFacilityRepository extends JpaRepository<StayFacilityEntity
     @Query("delete from StayFacilityEntity sf where sf.stay.id = :stayId and sf.facility.id in :facilityIds")
     void deleteByStayIdAndFacilityIds(@Param("stayId") Long stayId, @Param("facilityIds") Collection<Long> facilityIds);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from StayFacilityEntity sf where sf.stay.id = :stayId")
+    int deleteByStayId(Long stayId);
 }
