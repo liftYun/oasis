@@ -17,6 +17,7 @@ import {
   StayReviewResponseVo,
   SaveStayRequest,
   ReviewDetailResponseVo,
+  TranslateStayResponse,
 } from './stay.types';
 
 // 숙소 등록
@@ -45,7 +46,8 @@ export const getPresignedUrls = (imageInfos: PresignedRequest[]) =>
   http.post<BaseResponse<PresignedResponse[]>>('/api/v1/stay/photos/upload-url', { imageInfos });
 
 // 숙소 번역
-export const translateStay = (body: StayRequestDto) => http.post('/api/v1/stay/translate', body);
+export const translateStay = (body: StayRequestDto) =>
+  http.post<BaseResponse<TranslateStayResponse>>('/api/v1/stay/translate', body);
 
 // 숙소 검색
 export const searchStays = (params?: Record<string, any>) =>
