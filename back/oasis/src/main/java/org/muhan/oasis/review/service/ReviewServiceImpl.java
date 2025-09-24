@@ -137,7 +137,7 @@ public class ReviewServiceImpl implements ReviewService{
 
         if(!entity.getUser().getUserId().equals(userId)) throw new BaseException(BaseResponseStatus.NO_ACCESS_AUTHORITY);
 
-        return ReviewDetailResponseVo.fromEntity(entity);
+        return ReviewDetailResponseVo.fromEntity(entity, entity.getUser().getLanguage());
     }
 
     @Override

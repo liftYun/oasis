@@ -35,16 +35,21 @@ public class ReviewDetailResponseVo {
                 .build();
     }
 
-    public static ReviewDetailResponseVo fromEntity(ReviewEntity e) {
+    public static ReviewDetailResponseVo fromEntity(ReviewEntity e, Language lan) {
         Language language = e.getOriginalLang();
         String content;
         String title;
         if(language.equals(Language.KOR)) {
             content = e.getContent();
-            title = e.getReservation().getStayTitle();
         }
         else {
             content = e.getContentEng();
+        }
+
+        if(lan.equals(Language.KOR)) {
+            title = e.getReservation().getStayTitle();
+        }
+        else {
             title = e.getReservation().getStayTitleEng();
         }
 
