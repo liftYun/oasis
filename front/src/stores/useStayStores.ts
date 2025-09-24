@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 import { createStay } from '@/services/stay.api';
 import type { CreateStayRequest } from '@/services/stay.types';
-import type { AxiosResponse } from 'axios';
+import { toast } from 'react-hot-toast';
 
 type ViewMode = 'form' | 'searchAddress';
 
@@ -92,6 +92,9 @@ export const useStayStores = create<StayStore>((set, get) => ({
     }),
 
   submit: async () => {
+    const { loading } = get();
+    if (loading) return false;
+
     set({ loading: true, error: null });
     try {
       const {
@@ -106,27 +109,30 @@ export const useStayStores = create<StayStore>((set, get) => ({
         ...payload
       } = get();
 
-      console.log(translateStayUuid, sseUuid);
       if (!translateStayUuid || !sseUuid || translateStayUuid !== sseUuid) {
-        set({ loading: false, error: '번역이 완료되지 않았습니다. 다시 시도해주세요.' });
+        const msg = '번역이 완료되지 않았습니다. 다시 시도해주세요.';
+        toast.error(msg);
+        set({ loading: false, error: msg });
         return false;
       }
 
       const res = await createStay(payload as CreateStayRequest);
 
       if (res.isSuccess) {
+        toast.success('숙소가 생성되었습니다!');
         set({ loading: false });
         return true;
       }
 
-      set({ loading: false, error: '숙소 생성에 실패했습니다.' });
+      const msg = '숙소 생성에 실패했습니다.';
+      toast.error(msg);
+      set({ loading: false, error: msg });
       return false;
     } catch (err: any) {
       console.error(err);
-      set({
-        loading: false,
-        error: err.response?.data?.message || '숙소 저장에 실패했습니다.',
-      });
+      const msg = err.response?.data?.message || '숙소 저장에 실패했습니다.';
+      toast.error(msg);
+      set({ loading: false, error: msg });
       return null;
     }
   },

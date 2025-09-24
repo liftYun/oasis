@@ -68,7 +68,7 @@ export function Reservations() {
 
                 <Link
                   href={`/reservation-detail/${item.reservationId}` as Route}
-                  className="flex flex-col justify-center pl-8 pr-3 py-3 flex-1 gap-2 cursor-pointer"
+                  className="flex flex-col justify-center pl-4 pr-3 py-3 flex-1 gap-2 cursor-pointer"
                 >
                   <div className="flex justify-between">
                     <h2 className="font-semibold text-gray-600">{item.stayTitle}</h2>

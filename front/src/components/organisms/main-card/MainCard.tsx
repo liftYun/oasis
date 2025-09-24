@@ -10,9 +10,11 @@ import { messages } from './locale';
 
 const promoBase = [
   { img: PromoBlockchain, bg: 'bg-blue-50' },
-  { img: PromoReview, bg: 'bg-yellow/20' },
+  // { img: PromoReview, bg: 'bg-yellow/20' },
+  { img: PromoReview, bg: 'bg-blue-50' },
   { img: PromoHouse, bg: 'bg-blue-50' },
-  { img: PromoCharge, bg: 'bg-red/10' },
+  // { img: PromoCharge, bg: 'bg-red/10' },
+  { img: PromoCharge, bg: 'bg-blue-50' },
 ];
 
 export default function MainCard() {
