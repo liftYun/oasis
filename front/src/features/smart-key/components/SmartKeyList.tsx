@@ -1,43 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { useState } from 'react';
+import { motion, useMotionValue } from 'framer-motion';
+import type { KeyResponseDto } from '@/services/smartKey.types';
+import { openSmartKey } from '@/services/smartKey.api';
+import { toast } from 'react-hot-toast';
 
-const cards = [
-  {
-    id: 1,
-    name: '광안 바이브',
-    address: '부산 수영구 민락수변로 7 6층 601호',
-    color: 'from-[#A9C9FF] to-[#FFE6F7]',
-  },
-  {
-    id: 2,
-    name: '사무실 키',
-    address: '서울 강남구 테헤란로 123',
-    color: 'from-[#B5EAD7] to-[#FFF5BA]',
-  },
-  {
-    id: 3,
-    name: '별장 키',
-    address: '강원 양양군 해변로 22',
-    color: 'from-[#FFF5BA] to-[#CDEAFF]',
-  },
-  {
-    id: 4,
-    name: '리조트 키',
-    address: '제주 서귀포시 해안로 55',
-    color: 'from-[#FFF5BA] to-[#C6F6D5]',
-  },
-  {
-    id: 5,
-    name: '휴양 키',
-    address: '전남 여수시 오션로 77',
-    color: 'from-[#E0BBE4] to-[#FFDFD3]',
-  },
-];
+interface SmartKeyListProps {
+  keys: KeyResponseDto[];
+}
 
-export function SmartKeyList() {
-  const [windowWidth, setWindowWidth] = useState(0);
+export function SmartKeyList({ keys }: SmartKeyListProps) {
   const [openCard, setOpenCard] = useState<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -45,27 +18,33 @@ export function SmartKeyList() {
   const cardWidth = 350;
   const gap = 24;
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setWindowWidth(window.innerWidth);
-      const handleResize = () => setWindowWidth(window.innerWidth);
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-  }, []);
-
   const handleDragEnd = (_: any, info: { offset: { x: number } }) => {
     const direction = info.offset.x < 0 ? 1 : -1;
     let newIndex = activeIndex + direction;
 
     if (newIndex < 0) newIndex = 0;
-    if (newIndex > cards.length - 1) newIndex = cards.length - 1;
+    if (newIndex > keys.length - 1) newIndex = keys.length - 1;
 
     setActiveIndex(newIndex);
 
     const targetX = -newIndex * (cardWidth + gap);
     x.stop();
     x.set(targetX);
+  };
+
+  const handleOpenDoor = async (keyId: number) => {
+    try {
+      const res = await openSmartKey(keyId);
+
+      if (res.code === 200 && res.result) {
+        toast.success(`문이 열렸습니다!`);
+      } else {
+        toast.error(res.message || '문 열기에 실패했습니다.');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('문 열기 요청 중 오류가 발생했습니다.');
+    }
   };
 
   return (
@@ -77,27 +56,27 @@ export function SmartKeyList() {
           className="flex gap-6 p-5 pt-8 cursor-grab active:cursor-grabbing"
           drag="x"
           dragConstraints={{
-            left: -(cards.length - 1) * (cardWidth + gap),
+            left: -(keys.length - 1) * (cardWidth + gap),
             right: 0,
           }}
           style={{ x }}
           onDragEnd={handleDragEnd}
         >
-          {cards.map((card) => {
-            const isFlipped = openCard === card.id;
+          {keys.map((key) => {
+            const isFlipped = openCard === key.keyId;
             return (
               <motion.div
-                key={card.id}
+                key={key.keyId}
                 className="relative flex-shrink-0 w-[350px] h-[430px] [perspective:1000px]"
               >
                 <motion.div
-                  onClick={() => setOpenCard(isFlipped ? null : card.id)}
+                  onClick={() => setOpenCard(isFlipped ? null : key.keyId)}
                   animate={{ rotateY: isFlipped ? 180 : 0 }}
                   transition={{ duration: 0.6 }}
                   className="relative w-full h-full rounded-2xl shadow-lg [transform-style:preserve-3d]"
                 >
                   <div
-                    className={`absolute inset-0 card-face p-8 rounded-2xl shadow-lg bg-gradient-to-br ${card.color} text-gray-800 flex flex-col justify-between`}
+                    className={`absolute inset-0 card-face p-8 rounded-2xl shadow-lg bg-gradient-to-br from-[#A9C9FF] to-[#FFE6F7] text-gray-800 flex flex-col justify-between`}
                     style={{
                       backfaceVisibility: 'hidden',
                       WebkitBackfaceVisibility: 'hidden',
@@ -106,17 +85,22 @@ export function SmartKeyList() {
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="text-lg font-semibold">{card.name}</h3>
-                        <p className="text-sm text-gray-600">{card.address}</p>
+                        <h3 className="text-lg font-semibold">{key.stayName}</h3>
+                        <p className="text-sm text-gray-600">{key.stayNameEng}</p>
                       </div>
                       <span className="px-3 py-1 rounded-full bg-white/30 backdrop-blur-sm border border-white/40 text-gray-800 text-xs shadow-sm">
-                        활성
+                        {key.status}
                       </span>
                     </div>
 
                     <button
-                      onClick={() => console.log('문 열기 클릭')}
-                      className="w-32 h-32 mx-auto rounded-full bg-white/30 backdrop-blur-sm border border-white/40 text-gray-800 text-lg font-semibold flex items-center justify-center shadow-inner hover:bg-white/50 hover:scale-105 transition"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenDoor(key.keyId);
+                      }}
+                      className="w-32 h-32 mx-auto rounded-full bg-white/30 backdrop-blur-sm border border-white/40 
+             text-gray-800 text-lg font-semibold flex items-center justify-center shadow-inner 
+             hover:bg-white/50 hover:scale-105 transition"
                     >
                       문 열기
                     </button>
@@ -128,7 +112,7 @@ export function SmartKeyList() {
                   </div>
 
                   <div
-                    className={`absolute inset-0 card-face rounded-2xl shadow-md bg-gradient-to-br ${card.color} p-4 flex flex-col`}
+                    className={`absolute inset-0 card-face rounded-2xl shadow-md bg-gradient-to-br from-[#A9C9FF] to-[#FFE6F7] p-4 flex flex-col`}
                     style={{
                       backfaceVisibility: 'hidden',
                       WebkitBackfaceVisibility: 'hidden',
@@ -138,12 +122,12 @@ export function SmartKeyList() {
                     <div className="flex flex-col flex-1">
                       <div className="flex gap-4 items-start bg-white rounded-lg p-4">
                         <img
-                          src="https://via.placeholder.com/60"
+                          src={key.thumbnailUrl ?? ''}
                           className="w-16 h-16 rounded-lg object-cover"
                         />
                         <div className="flex-1">
-                          <h3 className="font-semibold text-gray-800">{card.name}</h3>
-                          <p className="text-sm text-gray-600">{card.address}</p>
+                          <h3 className="font-semibold text-gray-800">{key.stayName}</h3>
+                          <p className="text-sm text-gray-600">{key.stayNameEng}</p>
                           <button className="text-xs text-blue-600 underline mt-1">
                             자세히 보기
                           </button>
@@ -153,20 +137,12 @@ export function SmartKeyList() {
                       <div className="flex justify-between mt-4 text-sm bg-white rounded-lg p-6">
                         <div className="text-left flex-1">
                           <p className="text-gray-500 mb-1">활성화 시간</p>
-                          <p className="font-medium">
-                            25.09.01 (월)
-                            <br />
-                            오후 3:00
-                          </p>
+                          <p className="font-medium">{key.activationTime}</p>
                         </div>
                         <div className="w-px bg-gray-200"></div>
                         <div className="text-right flex-1">
                           <p className="text-gray-500 mb-1">만료 시간</p>
-                          <p className="font-medium">
-                            25.09.08 (월)
-                            <br />
-                            오전 11:00
-                          </p>
+                          <p className="font-medium">{key.expirationTime ?? '-'}</p>
                         </div>
                       </div>
 
@@ -193,9 +169,9 @@ export function SmartKeyList() {
       </div>
 
       <div className="flex justify-center gap-2 mt-6">
-        {cards.map((c, i) => (
+        {keys.map((k, i) => (
           <div
-            key={c.id}
+            key={k.keyId}
             className={`h-2 rounded-full transition-all duration-300 ${
               i === activeIndex ? 'w-5 bg-gray-800' : 'w-2 bg-gray-300'
             }`}

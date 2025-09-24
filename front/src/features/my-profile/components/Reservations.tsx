@@ -96,7 +96,7 @@ export function Reservations() {
                 <div className="absolute inset-0 bg-black/60 rounded-md flex flex-col items-center justify-center text-white">
                   <p className="mb-2">이용 완료한 숙소 입니다.</p>
                   <div className="flex space-x-4">
-                    {item.isReviewed && (
+                    {!item.isReviewed && (
                       <button
                         onClick={() => {
                           setSelectedReservationId(item.reservationId);
@@ -112,6 +112,21 @@ export function Reservations() {
                         <span>리뷰 작성하기</span>
                       </button>
                     )}
+                    <Link
+                      href={`/reservation-detail/${item.reservationId}` as Route}
+                      className="flex items-center space-x-1 text-sm"
+                    >
+                      <ClipboardList size={16} />
+                      <span>내역 확인하기</span>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {item.isCanceled && (
+                <div className="absolute inset-0 bg-black/60 rounded-md flex flex-col items-center justify-center text-white">
+                  <p className="mb-2">취소된 예약입니다.</p>
+                  <div className="flex space-x-4">
                     <Link
                       href={`/reservation-detail/${item.reservationId}` as Route}
                       className="flex items-center space-x-1 text-sm"

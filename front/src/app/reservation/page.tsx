@@ -57,7 +57,6 @@ export default function ReservationPage() {
 
   const renderStep = () => {
     const state = useReservationStore.getState();
-    console.log(state);
     switch (currentStep) {
       case 1:
         return <Step1_Dates />;
