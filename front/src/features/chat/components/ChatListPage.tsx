@@ -14,7 +14,7 @@ export function ChatListPage() {
     <main className="flex flex-col w-full pt-10 pb-28">
       <h1 className="text-2xl font-extrabold text-gray-600 mt-2">{t.titleChat}</h1>
 
-      <div className="mt-6">
+      <div className="mt-6 min-h-screen">
         {isLoading ? (
           <div className="py-10 text-center text-gray-300">{t.loading}</div>
         ) : (

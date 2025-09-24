@@ -240,7 +240,7 @@ export function GuestMain() {
         />
       </section>
 
-      <div className="-mx-6 w-screen h-3 bg-gray-100 my-8" />
+      {/* <div className="-mx-6 w-screen h-3 bg-gray-100 my-8" /> */}
 
       <section className="mt-10">
         <div className="flex items-center gap-4 px-1 mb-10">
@@ -253,9 +253,9 @@ export function GuestMain() {
         <MainCard />
       </section>
 
-      <div className="-mx-6 w-screen h-3 bg-gray-100 my-8" />
+      {/* <div className="-mx-6 w-screen h-3 bg-gray-100 my-8" /> */}
 
-      <section className="mb-20">
+      <section className="mb-20 w-full">
         <FooterInfo />
       </section>
     </main>
