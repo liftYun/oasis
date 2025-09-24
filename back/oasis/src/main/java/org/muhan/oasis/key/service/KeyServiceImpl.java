@@ -21,12 +21,14 @@ import org.muhan.oasis.stay.entity.StayEntity;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -60,6 +62,7 @@ public class KeyServiceImpl implements KeyService {
     }
 
     @Override
+    @Transactional
     public Long issueKeysForAllUsers(ShareKeyRequestDto shareKeyRequestDto) {
         // 1) 예약 조회
         ReservationEntity reservation = reservationRepository.findById(shareKeyRequestDto.getReservationId())
@@ -67,39 +70,42 @@ public class KeyServiceImpl implements KeyService {
 
         // 2) 숙소/디바이스
         StayEntity stay = reservation.getStay();
-        DeviceEntity device = deviceRepository.findByStayId(stay.getId());
+
+        // devices의 PK는 stay_id(= @MapsId)이므로 보통 findById(stayId) 형태가 자연스럽습니다.
+        // 현재 사용하시는 findByStayId(...)가 있다면 그대로 사용해도 됩니다.
+        DeviceEntity device = deviceRepository.findById(stay.getId())
+                .orElseGet(() -> deviceRepository.findByStayId(stay.getId())); // 둘 중 제공되는 쪽 사용
         if (device == null) throw new IllegalStateException("해당 숙소에는 도어락이 존재하지 않습니다.");
 
-        // 3) 키 생성
+        // 3) 키 생성 (device_id까지 채움)
         KeyEntity saved = keyRepository.save(
                 KeyEntity.builder()
-                        .device(device)
+                        .device(device)                                    // stay_id 채움
+                        .deviceId(device.getDeviceId())                    // device_id 채움 (NOT NULL 대응)
                         .activationTime(reservation.getCheckinDate().minusMinutes(30))
                         .expirationTime(reservation.getCheckoutDate().plusMinutes(30))
                         .build()
         );
-        log.info("발급된 디지털 키: {}", saved);
+        log.info("발급된 디지털 키: keyId={}, stayId={}, deviceId={}",
+                saved.getKeyId(), device.getId(), device.getDeviceId());
 
-        // 닉네임 중복 제거
+        // 닉네임 정제
         List<String> nicknames = shareKeyRequestDto.getUserNicknames().stream()
                 .map(String::trim)
                 .filter(s -> !s.isBlank())
                 .distinct()
                 .toList();
 
-        // 한 번에 사용자 조회
+        // 사용자 일괄 조회 및 검증
         List<UserEntity> users = userRepository.findAllByNicknameIn(nicknames);
-
-        // 누락 닉네임 검증
-        var foundNickSet = users.stream().map(UserEntity::getNickname).collect(java.util.stream.Collectors.toSet());
+        var foundNickSet = users.stream().map(UserEntity::getNickname).collect(Collectors.toSet());
         List<String> missing = nicknames.stream().filter(n -> !foundNickSet.contains(n)).toList();
         if (!missing.isEmpty()) {
             throw new IllegalStateException("존재하지 않는 유저 닉네임: " + String.join(", ", missing));
         }
 
-        // KeyOwner 저장 + Redis 추가를 한 번에
+        // KeyOwner 저장
         for (UserEntity user : users) {
-            // 중복 소유 방지
             boolean exists = keyOwnerRepository.existsByKey_KeyIdAndUser_UserId(saved.getKeyId(), user.getUserId());
             if (!exists) {
                 KeyOwnerEntity owner = KeyOwnerEntity.builder()
@@ -110,23 +116,11 @@ public class KeyServiceImpl implements KeyService {
                 keyOwnerRepository.save(owner);
                 log.info("공유된 디지털 키: keyId={}, userId={}", saved.getKeyId(), user.getUserId());
             }
-
-            // Redis owners 세트에 추가
-            redis.opsForSet().add(K_OWNERS + saved.getKeyId(), String.valueOf(user.getUserId()));
         }
-
-        // TTL/valid/device 캐시
-        Duration ttl = computeTtl(saved.getExpirationTime());
-        if (ttl != null) redis.expire(K_OWNERS + saved.getKeyId(), ttl);
-
-        redis.opsForValue().set(K_VALID + saved.getKeyId(), "1");
-        if (ttl != null) redis.expire(K_VALID + saved.getKeyId(), ttl);
-
-        redis.opsForValue().set(K_DEVICE + saved.getKeyId(), String.valueOf(device.getId()));
-        if (ttl != null) redis.expire(K_DEVICE + saved.getKeyId(), ttl);
 
         return saved.getKeyId();
     }
+
 
 
     @Override
