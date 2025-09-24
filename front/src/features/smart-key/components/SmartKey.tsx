@@ -4,8 +4,13 @@ import { useEffect, useState } from 'react';
 import { SmartKeyEmpty, SmartKeyList } from '@/features/smart-key';
 import { fetchSmartKeyList } from '@/services/smartKey.api';
 import type { KeyResponseDto } from '@/services/smartKey.types';
+import { useLanguage } from '@/features/language';
+import { profileMessages } from '@/features/my-profile/locale';
+import { Lottie } from '@/components/atoms/Lottie';
 
 export function SmartKey() {
+  const { lang } = useLanguage();
+  const t = profileMessages[lang];
   const [keys, setKeys] = useState<KeyResponseDto[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,8 +36,9 @@ export function SmartKey() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-full text-gray-500 text-sm">
-        로딩 중...
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Lottie src="/lotties/spinner.json" className="w-20 h-20" />
+        <p className="text-gray-400">{t.loading}</p>
       </div>
     );
   }
