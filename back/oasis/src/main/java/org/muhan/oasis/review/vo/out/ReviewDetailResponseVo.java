@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class ReviewDetailResponseVo {
+    private String title;
+
     private Long reviewId;
 
     private String reservationId;
@@ -24,6 +26,7 @@ public class ReviewDetailResponseVo {
 
     public static ReviewDetailResponseVo from(ReviewDetailResponseDto dto) {
         return ReviewDetailResponseVo.builder()
+                .title(dto.getTitle())
                 .reviewId(dto.getReviewId())
                 .reservationId(dto.getReservationId())
                 .rating(dto.getRating())
@@ -32,13 +35,26 @@ public class ReviewDetailResponseVo {
                 .build();
     }
 
-    public static ReviewDetailResponseVo fromEntity(ReviewEntity e) {
+    public static ReviewDetailResponseVo fromEntity(ReviewEntity e, Language lan) {
         Language language = e.getOriginalLang();
         String content;
-        if(language.equals(Language.KOR)) content = e.getContent();
-        else content = e.getContentEng();
+        String title;
+        if(language.equals(Language.KOR)) {
+            content = e.getContent();
+        }
+        else {
+            content = e.getContentEng();
+        }
+
+        if(lan.equals(Language.KOR)) {
+            title = e.getReservation().getStayTitle();
+        }
+        else {
+            title = e.getReservation().getStayTitleEng();
+        }
 
         ReviewDetailResponseDto dto = ReviewDetailResponseDto.builder()
+                .title(title)
                 .reviewId(e.getReviewId())
                 .reservationId(
                         e.getReservation() != null && e.getReservation().getReservationId() != null
