@@ -53,7 +53,10 @@ export function RefundPolicy({ stayId, totalPrice }: { stayId: number; totalPric
 
   return (
     <section className="w-full mt-12 max-w-sm">
-      <h2 className="text-lg font-semibold mb-6">{t.refund.title}</h2>
+      <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
+        <span className="inline-block w-1.5 h-5 bg-primary rounded-sm" />
+        {t.refund.title}
+      </h2>
 
       <div className="overflow-hidden rounded-md border border-gray-200">
         <table className="w-full text-sm">

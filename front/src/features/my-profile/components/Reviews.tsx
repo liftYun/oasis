@@ -81,43 +81,34 @@ export function Reviews() {
                 />
               </div>
 
-              <div className="flex flex-col justify-center pl-8 pr-3 py-3 flex-1 gap-2">
-                <h2 className="font-semibold text-gray-600">
-                  {item.reservationId ?? '예약 정보 없음'}
-                </h2>
+              <div className="flex flex-col justify-center px-5 py-3 flex-1 gap-2">
+                <h2 className="font-semibold text-gray-600">{item.title ?? '예약 정보 없음'}</h2>
 
-                <div className="flex items-center mt-1 mb-1 gap-1">
-                  <svg width="0" height="0">
-                    <defs>
-                      <linearGradient id="half">
-                        <stop offset="50%" stopColor="#FBE264" />
-                        <stop offset="50%" stopColor="white" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
+                <div className="flex items-center justify-between">
+                  <div className="flex text-yellow gap-2">
+                    {Array.from({ length: 5 }).map((_, i) => {
+                      const full = i + 1 <= Math.floor(item.rating);
+                      const half = i + 1 === Math.ceil(item.rating) && item.rating % 1 >= 0.5;
 
-                  {Array.from({ length: 5 }).map((_, i) => {
-                    const full = i + 1;
-                    const half = i + 0.5;
-                    const current = item.rating;
-                    let fill = 'white';
-
-                    if (current >= full) fill = '#FBE264';
-                    else if (current >= half) fill = 'url(#half)';
-
-                    return (
-                      <Star
-                        key={i}
-                        size={16}
-                        strokeWidth={1.5}
-                        stroke="#FBE264"
-                        fill={fill}
-                        className="pointer-events-none"
-                      />
-                    );
-                  })}
-
-                  <span className="ml-4 text-xs text-gray-600 rounded-full bg-yellow/50 px-2 py-0.5">
+                      return (
+                        <div key={i} className="relative w-4 h-4">
+                          <Star className="text-white fill-white" size={18} />
+                          {full && (
+                            <Star
+                              className="text-yellow fill-yellow absolute top-0 left-0"
+                              size={18}
+                            />
+                          )}
+                          {half && (
+                            <div className="absolute top-0 left-0 w-1/2 overflow-hidden">
+                              <Star className="text-yellow fill-yellow" size={18} />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <span className="px-3 py-0.5 rounded-full bg-yellow/30 text-gray-600 font-medium text-sm">
                     {item.rating.toFixed(1)}
                   </span>
                 </div>
@@ -142,6 +133,7 @@ export function Reviews() {
         open={open}
         onClose={() => setOpen(false)}
         reviewId={selectedReview?.reviewId ?? 0}
+        reservationId={selectedReview?.reservationId ?? ''}
       />
     </div>
   );

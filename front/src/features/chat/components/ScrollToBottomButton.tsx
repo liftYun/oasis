@@ -100,9 +100,9 @@ export default function ScrollToBottomButton({
       type="button"
       onClick={scrollToBottom}
       aria-label="scroll-to-bottom"
-      className="fixed bottom-[110px] left-1/2 -translate-x-1/2 z-40 rounded-full bg-white/70 p-2 hover:bg-white/80"
+      className="fixed bottom-[120px] left-1/2 -translate-x-1/2 z-40 rounded-full bg-white/60 p-2 hover:bg-white/80"
     >
-      <ArrowDownToLine className="w-7 h-7 text-gray-300" />
+      <ArrowDownToLine className="w-6 h-6 m-1 text-gray-300 hover:text-gray-400" />
     </button>
   );
 }

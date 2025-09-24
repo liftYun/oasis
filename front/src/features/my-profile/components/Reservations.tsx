@@ -60,7 +60,7 @@ export function Reservations() {
     ${!item.isSettlemented ? 'hover:scale-105 transition-transform duration-300 ease-in-out' : ''}`}
             >
               <div className="flex">
-                <div className="relative w-28 h-28 flex-shrink-0">
+                <div className="relative w-36 h-36 flex-shrink-0">
                   <Image
                     src={item.thumbnail}
                     alt={item.stayTitle}

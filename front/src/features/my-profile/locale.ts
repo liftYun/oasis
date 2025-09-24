@@ -46,6 +46,7 @@ export const profileMessages = {
     language: '사용 언어',
     policy: '취소 수수료 관리',
     profile: '프로필 정보',
+    loadingError: '로딩 중 오류가 발생했습니다.',
   },
   eng: {
     guest: 'Guest',
@@ -95,5 +96,6 @@ export const profileMessages = {
     language: 'Use Language',
     policy: 'Cancellation Policy',
     profile: 'Profile',
+    loadingError: 'Error loading',
   },
 } as const;

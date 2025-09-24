@@ -56,6 +56,7 @@ export function ReviewBottomSheet({
       onClose();
       setRating(0);
       setText('');
+      router.push('/my-profile/reservations');
     } catch (err: any) {
       toast.error(err?.message || '리뷰 등록 실패');
     } finally {

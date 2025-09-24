@@ -72,6 +72,10 @@ export interface ReservationDetailApiResponse {
     members: any[];
   };
   stay: {
+    addrDetail: string;
+    addrDetailEng: string;
+    addressLine: string;
+    addressLineEng: string;
     stayId: number;
     title: string;
     titleEng: string;

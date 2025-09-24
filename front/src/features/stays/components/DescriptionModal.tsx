@@ -28,7 +28,7 @@ export default function DescriptionModal({ open, onClose, description }: Descrip
           />
 
           <motion.div
-            className="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl max-w-[480px] mx-auto shadow-xl h-[70vh] flex flex-col"
+            className="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl max-w-[480px] mx-auto shadow-xl h-[85vh] flex flex-col"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
@@ -42,7 +42,7 @@ export default function DescriptionModal({ open, onClose, description }: Descrip
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto p-6">
               <p className="text-gray-600 bg-gray-100 rounded-md p-4 whitespace-pre-line">
                 {description}
               </p>
