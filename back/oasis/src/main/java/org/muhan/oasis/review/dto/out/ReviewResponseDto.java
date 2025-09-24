@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 public class ReviewResponseDto {
+    private String title;
     private Long reviewId;
 
     private String reservationId;
