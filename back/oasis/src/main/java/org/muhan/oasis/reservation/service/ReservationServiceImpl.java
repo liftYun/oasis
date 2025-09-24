@@ -11,6 +11,7 @@ import org.muhan.oasis.reservation.dto.in.RegistReservationRequestDto;
 import org.muhan.oasis.reservation.dto.out.ReservationDetailsResponseDto;
 import org.muhan.oasis.reservation.dto.out.ReservationResponseDto;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
+import org.muhan.oasis.reservation.enums.ReservationStatus;
 import org.muhan.oasis.reservation.repository.ReservationPeriodRow;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
 import org.muhan.oasis.reservation.vo.out.CancelReservationResponseVo;
@@ -71,7 +72,7 @@ public class ReservationServiceImpl implements ReservationService {
         StayEntity stay = stayRepository.findById(dto.getStayId())
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY));;
 
-        ReservationEntity reservationEntity = RegistReservationRequestDto.to(user, stay, dto);
+        ReservationEntity reservationEntity = RegistReservationRequestDto.to(user, stay, dto, ReservationStatus.PENDING);
 
         return reservationRepository.save(reservationEntity).getReservationId();
     }

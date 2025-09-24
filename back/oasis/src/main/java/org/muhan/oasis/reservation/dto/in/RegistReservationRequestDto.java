@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
+import org.muhan.oasis.reservation.enums.ReservationStatus;
 import org.muhan.oasis.reservation.vo.in.RegistReservationRequestVo;
 import org.muhan.oasis.stay.entity.StayEntity;
 import org.muhan.oasis.user.entity.UserEntity;
@@ -26,7 +27,7 @@ public class RegistReservationRequestDto {
 
     private int payment;
 
-    public static ReservationEntity to(UserEntity user, StayEntity stay, RegistReservationRequestDto dto) {
+    public static ReservationEntity to(UserEntity user, StayEntity stay, RegistReservationRequestDto dto, ReservationStatus status) {
         return ReservationEntity.builder()
                 .reservationId(dto.getReservationId())
                 .user(user)
@@ -40,6 +41,7 @@ public class RegistReservationRequestDto {
                 .isCanceled(false)
                 .stayTitle(stay.getTitle())
                 .stayTitleEng(stay.getTitleEng())
+                .status(status)
                 .build();
     }
 
