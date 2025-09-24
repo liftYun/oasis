@@ -28,12 +28,13 @@ export default function DescriptionModal({ open, onClose, description }: Descrip
           />
 
           <motion.div
-            className="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl shadow-xl h-[70vh] flex flex-col"
+            className="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl max-w-[480px] mx-auto shadow-xl h-[70vh] flex flex-col"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           >
+            <div className="h-1.5 w-12 rounded-full bg-gray-200 mx-auto absolute left-1/2 -translate-x-1/2 -top-2" />
             <div className="flex items-center justify-between p-4">
               <h2 className="text-lg font-semibold">{t.detail.infoTitle}</h2>
               <button onClick={onClose}>

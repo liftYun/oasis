@@ -32,27 +32,29 @@ export function StayFacilities({ facilities }: StayFacilitiesProps) {
         {t.detail.facilitiesTitle}
       </h2>
 
-      <div className="flex gap-4 mt-2 flex-wrap">
-        {facilities.map((cat, i) => (
-          <button
-            key={i}
-            onClick={() => setSelectedIndex(i)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium border transition
-              ${
-                selectedIndex === i
-                  ? 'bg-primary text-white border-primary'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-100'
-              }`}
-          >
-            {t.facilities[cat.category as keyof typeof t.facilities] ?? cat.category}
-          </button>
-        ))}
+      <div className="overflow-x-auto no-scrollbar">
+        <div className="flex gap-3 flex-nowrap">
+          {facilities.map((cat, i) => (
+            <button
+              key={i}
+              onClick={() => setSelectedIndex(i)}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium border shrink-0 transition
+          ${
+            selectedIndex === i
+              ? 'bg-primary text-white border-primary'
+              : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-100'
+          }`}
+            >
+              {t.facilities[cat.category as keyof typeof t.facilities] ?? cat.category}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-4 mt-4">
         {(facilities[selectedIndex]?.facilities ?? []).map((f) => {
           const key = facilityMap[f.id];
-          const display = key ? facilityLocale[key][lang] : f.name; // 매핑 없으면 원래 이름 사용
+          const display = key ? facilityLocale[key][lang] : f.name;
           return (
             <span
               key={f.id}
