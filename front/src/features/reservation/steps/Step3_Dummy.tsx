@@ -49,16 +49,17 @@ export function Step3_Dummy() {
         reservationId: reservationId,
         userNicknames: store.selectedUsers.map((u) => u.nickname.trim()),
       });
+      console.log('keyRes', keyRes);
 
-      if (keyRes.status === 200 && keyRes.result) {
-        toast.success(`스마트키 발급 완료! (keyId: ${keyRes.result})`);
+      if (keyRes.code === 200 && keyRes.result) {
+        toast.success(`스마트키 발급 완료!`);
       } else {
         toast.error(keyRes.message || '스마트키 발급 실패');
       }
 
       // 3. 상태 초기화 + 이동
       store.reset();
-      router.push('/main');
+      router.push('/smart-key');
     } catch (err) {
       console.error(err);
       toast.error(

@@ -6,7 +6,7 @@ export interface IssueSmartKeyRequest {
 
 // 스마트키 발급 응답
 export interface IssueSmartKeyResponse {
-  status: number;
+  code: number;
   message: string;
   result: number | null;
 }
