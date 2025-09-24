@@ -173,7 +173,7 @@ export function HostProfile() {
             <span className="text-gray-800 text-sm">{t.policy}</span>
           </button>
           <button
-            onClick={handleLogout}
+            onClick={() => setLogoutOpen(true)}
             className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
           >
             <Image src={SignOut} alt="Sign Out Icon" width={24} height={24} />
