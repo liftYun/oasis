@@ -14,7 +14,7 @@ import { getToken } from '@/features/my-profile/components/blockchain/jwt';
 import { useSdkStore } from '@/stores/useSdkStores';
 import { ReservationDetailApiResponse } from '@/services/reservation.types';
 import { toast } from 'react-hot-toast';
-import { CenterModal } from '@/components/organisms/CenterModel';
+import { CenterModal } from '@/components/organisms/CenterModal';
 
 interface Props {
   reservation: ReservationDetailApiResponse | null;
