@@ -3,7 +3,6 @@ import { makeReservationId } from '@/utils/makeReservationId';
 import { createReservation, approveReservation, lockReservation } from '@/services/reservation.api';
 import type { CreateReservationRequest } from '@/services/reservation.types';
 import { W3SSdk } from '@circle-fin/w3s-pw-web-sdk';
-import { useRouter } from 'next/navigation';
 
 // Circle SDK PIN 입력 처리
 async function executeChallenge(sdk: W3SSdk, challengeId: string, label: string) {
@@ -11,16 +10,17 @@ async function executeChallenge(sdk: W3SSdk, challengeId: string, label: string)
     sdk.execute(challengeId, (error) => {
       if (error) {
         console.error(`${label} 실패:`, error.message);
-        notifyTransactionFailed(challengeId, label); // 새로 추가
+        notifyTransactionFailed(challengeId, label);
         return reject(error);
+      } else {
+        console.log(`${label} 완료`);
+        notifyTransactionSuccess(challengeId, label);
+        return resolve();
       }
-      // console.log(`${label} 완료`);
-      resolve();
     });
   });
 }
 
-// 블록체인 처리한다고 따로 파일 만들어서 로컬로 날렸었는데 서버쪽으로 post날릴 수 잇도록 확인하고 수정해줘
 async function notifyTransactionSuccess(challengeId: string, type: string) {
   await http.post(`/api/v1/reservation/${type.toLowerCase()}/confirm`, {
     challengeId,
@@ -61,7 +61,6 @@ export async function submitReservation(
   const checkOut = checkIn + 1 * 24 * 3600; // 1박
 
   const resId = makeReservationId();
-  console.log('resId', resId);
 
   const reservationVo: CreateReservationRequest = {
     reservationId: resId,
@@ -78,20 +77,18 @@ export async function submitReservation(
   if (!dbRes.isSuccess) {
     throw new Error(dbRes.message || '예약 DB 등록 실패');
   }
-  console.log('예약 DB 등록 완료');
+  // console.log('예약 DB 등록 완료');
 
   // 4. Approve
-  console.log('Approve 트랜잭션 요청...');
+  // console.log('Approve 트랜잭션 요청...');
   const approveRes = await approveReservation(reservationVo);
   const approveResult = approveRes.result;
   if (approveResult?.challengeId) {
-    console.log('Approve PIN 입력 대기...');
+    // console.log('Approve PIN 입력 대기...');
     await executeChallenge(sdk, approveResult.challengeId, 'Approve');
   } else {
     throw new Error('Approve ChallengeId 없음');
   }
-
-  // const router = useRouter();
 
   // 5. Lock
   console.log('Lock 트랜잭션 요청...');
@@ -105,7 +102,6 @@ export async function submitReservation(
   }
 
   // console.log('예약 전체 완료 (DB + Approve + Lock)');
-  // router.push('/my-profile/reservations');
 
   return dbRes.result;
 }
