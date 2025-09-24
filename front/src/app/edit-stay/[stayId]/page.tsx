@@ -90,7 +90,7 @@ export default function EditStayPage({ params }: { params: Promise<{ stayId: str
         currentStep={store.currentStep}
         className="pt-20 max-w-md mx-auto p-4"
       />
-      <div className="flex items-center justify-center">{renderStep()}</div>
+      <div className="flex items-center justify-center w-full">{renderStep()}</div>
     </>
   );
 }
