@@ -76,7 +76,6 @@ public class SqsSendService {
                 .queue(reviewSummaryQueue)
                 .payload(message)
                 .messageGroupId("review-summary-"+stayId)
-                .messageDeduplicationId(message.id())
-                .delaySeconds(5 * 60));
+                .messageDeduplicationId(message.id()));
     }
 }
