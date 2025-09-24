@@ -77,6 +77,7 @@ export interface ReservationDetailApiResponse {
     titleEng: string;
     description: string;
     descriptionEng?: string;
+    photos?: string[];
   };
   host: {
     nickname: string;

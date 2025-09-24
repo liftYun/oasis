@@ -25,6 +25,7 @@ export const profileMessages = {
     createStay: '내 숙소 등록',
     noStay: '등록된 숙소가 없습니다.',
     myReview: '내가 쓴 리뷰',
+    noReview: '작성한 리뷰가 없습니다.',
     reviewDetail: '자세히 보기',
     writeReview: '리뷰 작성하기',
     writeReviewDescription: '리뷰를 작성하고 다른 사용자들과 경험을 공유해보세요!',
@@ -40,6 +41,7 @@ export const profileMessages = {
     edit: '수정',
     language: '사용 언어',
     policy: '취소 수수료 관리',
+    profile: '프로필 정보',
   },
   eng: {
     guest: 'Guest',
@@ -68,6 +70,7 @@ export const profileMessages = {
     createStay: 'Create a stay',
     noStay: 'No manage Stay',
     myReview: 'My reviews',
+    noReview: 'No reviews yet.',
     reviewDetail: 'Learn more',
     writeReview: 'Write a review',
     writeReviewDescription: 'Share your experience with other travelers!',
@@ -83,5 +86,6 @@ export const profileMessages = {
     edit: 'Edit',
     language: 'Use Language',
     policy: 'Cancellation Policy',
+    profile: 'Profile',
   },
 } as const;

@@ -5,6 +5,7 @@ import { getMyProfile } from '@/services/user.api';
 import { Lottie } from '@/components/atoms/Lottie';
 import { useLanguage } from '@/features/language';
 import { profileMessages } from '@/features/my-profile';
+import BackHeader from '@/components/molecules/BackHeader';
 
 interface UserProfile {
   profileUrl: string;
@@ -65,7 +66,8 @@ export function Detail() {
 
   return (
     <div className="flex flex-col items-center min-h-screen">
-      <section className="flex flex-col items-center mt-10 mb-6">
+      <BackHeader title={t.detail} />
+      <section className="flex flex-col items-center mt-20 mb-6">
         <img
           src={user.profileUrl}
           alt="프로필 이미지"
@@ -74,7 +76,7 @@ export function Detail() {
         <h2 className="text-xl font-semibold">{user.nickname}</h2>
       </section>
 
-      <div className="w-full max-w-md h-3 bg-gray-100 my-6" />
+      <div className="-mx-6 w-screen h-3 bg-gray-100 my-12" />
 
       <section className="w-full max-w-md px-6 py-5 space-y-4">
         <h3 className="text-lg text-gray-600 font-semibold mb-6">{t.detail}</h3>

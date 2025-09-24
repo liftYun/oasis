@@ -25,15 +25,17 @@ export const Header = () => {
 
         <button
           onClick={() => router.push('/my-profile')}
-          className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 hover:ring-2 hover:ring-primary transition"
+          className="p-[3px] rounded-full bg-gradient-to-r from-primary to-green hover:opacity-90 transition"
         >
-          <Image
-            src={profileUrl || DefaultAvatar}
-            alt={nickname || 'User Profile'}
-            width={32}
-            height={32}
-            className="object-cover"
-          />
+          <div className="w-8 h-8 rounded-full overflow-hidden bg-white">
+            <Image
+              src={profileUrl || DefaultAvatar}
+              alt={nickname || 'User Profile'}
+              width={32}
+              height={32}
+              className="object-cover w-full h-full"
+            />
+          </div>
         </button>
       </div>
     </header>

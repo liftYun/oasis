@@ -67,7 +67,7 @@ export const getMyReviews = () =>
   });
 
 // 내가 작성한 리뷰 상세 조회
-export const getMyReviewDetail = () =>
-  http.get<BaseResponse<ReviewDetailResponseVo[]>>('/api/v1/review/list', {
+export const getMyReviewDetail = (reviewId: number) =>
+  http.get<BaseResponse<ReviewDetailResponseVo>>(`/api/v1/review/detail/${reviewId}`, {
     headers: { Accept: 'application/json' },
   });
