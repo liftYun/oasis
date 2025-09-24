@@ -1,4 +1,3 @@
-// 채팅 리스트 아이템 컴포넌트
 'use client';
 
 import Image from 'next/image';
@@ -7,7 +6,7 @@ import StayImage from '@/assets/images/stay_example.png';
 import { useLanguage } from '@/features/language';
 import { chatMessages } from '@/features/chat/locale';
 import { ChatUserThumbnail } from '@/components/atoms/ChatUserThumbnail';
-import { Dot } from 'lucide-react';
+import { Bell } from 'lucide-react';
 
 type ChatListItemProps = {
   id: string;
@@ -72,10 +71,20 @@ export function ChatListItem({
         )}
       </div>
 
-      {/* 오른쪽 날짜 + 뱃지 (숫자 배지 제거, Dot만 표시) */}
       <div className="flex flex-col items-end gap-1 mt-1 mb-auto flex-shrink-0">
         <span className="text-xs text-gray-300">{date}</span>
-        {showEmphasis ? <Dot className="text-primary" size={24} strokeWidth={8} /> : null}
+
+        <div className="relative mt-2">
+          {showEmphasis && (
+            <span
+              className="flex h-6 min-w-[1.5rem] items-center justify-center
+                 rounded-full bg-gradient-to-r from-primary to-green text-white
+                 text-[12px] font-medium px-2"
+            >
+              {unreadCount && unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </div>
       </div>
     </Link>
   );

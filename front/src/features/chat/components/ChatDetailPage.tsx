@@ -51,6 +51,8 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
     if (!data || didInitialScrollRef.current) return;
     const scrollToBottom = () =>
       bottomRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
+    bottomRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
+
     scrollToBottom();
     requestAnimationFrame(() => {
       scrollToBottom();
@@ -117,31 +119,32 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
   }
 
   return (
-    <main className="flex flex-col w-full min-h-screen bg-blue-50">
-      <section className="px-4">
+    <>
+      <section className="px-4 sticky top-0 z-10 bg-blue-50">
         <StayInfoCard stay={data.stay} />
       </section>
+      <main className="flex flex-col w-full min-h-screen bg-blue-50">
+        <section className="flex-1 px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+100px)]">
+          {data.messages.map((m) => {
+            const override = translations[m.id];
+            const hasTranslation = typeof override === 'string' && override.length > 0;
+            const isShowingOriginal = showOriginal[m.id] === true;
+            const display = hasTranslation && !isShowingOriginal ? { ...m, content: override } : m;
+            return (
+              <MessageItem
+                key={m.id}
+                message={display}
+                translated={hasTranslation && !isShowingOriginal}
+                onClickTranslate={handleTranslate}
+              />
+            );
+          })}
+          <div ref={bottomRef} />
+        </section>
 
-      <section className="flex-1 px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+88px)]">
-        {data.messages.map((m) => {
-          const override = translations[m.id];
-          const hasTranslation = typeof override === 'string' && override.length > 0;
-          const isShowingOriginal = showOriginal[m.id] === true;
-          const display = hasTranslation && !isShowingOriginal ? { ...m, content: override } : m;
-          return (
-            <MessageItem
-              key={m.id}
-              message={display}
-              translated={hasTranslation && !isShowingOriginal}
-              onClickTranslate={handleTranslate}
-            />
-          );
-        })}
-        <div ref={bottomRef} />
-      </section>
-
-      <InputBar onSend={handleSend} />
-      <ScrollToBottomButton anchorRef={bottomRef} />
-    </main>
+        <InputBar onSend={handleSend} />
+        <ScrollToBottomButton anchorRef={bottomRef} />
+      </main>
+    </>
   );
 }
