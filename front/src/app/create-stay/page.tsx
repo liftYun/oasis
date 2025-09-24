@@ -61,6 +61,22 @@ export default function CreateStayPage() {
     }
   }, [store.currentStep, router]);
 
+  const isSubmittingRef = useRef(false);
+
+  const handleComplete = async () => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
+    const success = await store.submit();
+    if (success) {
+      disconnect();
+      router.replace('/my-profile/manage-stay');
+      store.reset();
+    }
+
+    isSubmittingRef.current = false;
+  };
+
   const renderStep = () => {
     switch (store.currentStep) {
       case 1:
@@ -73,13 +89,6 @@ export default function CreateStayPage() {
         return <Step4_Availability onComplete={handleComplete} />;
       default:
         return <Step1_StayInfo />;
-    }
-  };
-  const handleComplete = async () => {
-    const success = await store.submit();
-    if (success) {
-      disconnect();
-      router.replace('/my-profile/manage-stay');
     }
   };
 
