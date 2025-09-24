@@ -7,6 +7,7 @@ import org.muhan.oasis.stay.dto.in.StayChatRequestDto;
 import org.muhan.oasis.stay.dto.in.StayQueryRequestDto;
 import org.muhan.oasis.stay.dto.in.UpdateStayRequestDto;
 import org.muhan.oasis.stay.dto.out.*;
+import org.muhan.oasis.stay.vo.out.DetailsOfStayResponseVo;
 import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.valueobject.Rate;
 
@@ -16,7 +17,7 @@ import java.util.List;
 public interface StayService {
     StayResponseDto registStay(CreateStayRequestDto stayRequest, String userUuid);
 
-    StayReadResponseDto getStayById(Long stayId, Language language);
+    DetailsOfStayResponseVo getStayById(Long stayId, Language language);
 
     StayReadResponseDto updateStay(Long stayId, UpdateStayRequestDto stayRequest, String userUuid);
 

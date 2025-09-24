@@ -3,7 +3,6 @@
 import type { UseFormReturn } from 'react-hook-form';
 import { useWatch } from 'react-hook-form';
 import { FormField } from '@/components/molecules/FormField';
-import { ImageUploader } from '@/components/molecules/ImageUploader';
 import { Button } from '@/components/atoms/Button';
 import { AddressField } from '@/components/molecules/AddressField';
 import { PriceField } from '@/components/molecules/PriceField';
@@ -12,6 +11,7 @@ import { createStayMessages } from '@/features/create-stay/locale';
 import { useDaumPostcode } from '@/features/create-stay/hooks/useDaumPostCode';
 import { fetchRegions } from '@/services/stay.api';
 import { useStayStores } from '@/stores/useStayEditStores';
+import { ImageUploader_Edit } from './ImageUploader_Edit';
 
 interface StayFormProps {
   form: UseFormReturn<any>;
@@ -128,7 +128,7 @@ export function StayForm_Edit({ form, handleSubmit, isSubmitting }: StayFormProp
         })}
       />
 
-      <ImageUploader
+      <ImageUploader_Edit
         defaultImages={store.imageRequestList}
         onChange={(imageRequestList) => {
           form.setValue('imageRequestList', imageRequestList, { shouldValidate: true });

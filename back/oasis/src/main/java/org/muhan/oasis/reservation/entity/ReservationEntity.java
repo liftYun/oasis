@@ -94,4 +94,6 @@ public class ReservationEntity {
     public void setChallengeId(String challengeId) {
         this.challengeId = challengeId;
     }
+
+    public void setReviewed(){this.isReviewed = true;}
 }

@@ -84,7 +84,7 @@ export function ReviewBottomSheet({
             onClick={() => router.push(`/stays/${stayId}`)}
           >
             <Image src={ZoomIn} alt="zoom" width={12} height={12} />
-            자세히 보기
+            {t.reviewDetail}
           </button>
         </div>
       </div>

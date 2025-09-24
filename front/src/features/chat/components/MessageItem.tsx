@@ -4,6 +4,7 @@ import Image from 'next/image';
 import TranslateIcon from '@/assets/icons/translate.png';
 import { useLanguage } from '@/features/language';
 import { chatMessages } from '@/features/chat/locale';
+import { Globe } from 'lucide-react';
 
 export type MessageItemModel = {
   id: string;
@@ -21,13 +22,14 @@ interface MessageItemProps {
 export default function MessageItem({ message, onClickTranslate, translated }: MessageItemProps) {
   const { lang } = useLanguage();
   const t = chatMessages[lang];
-  const bubbleBase = 'max-w-[78%] px-5 py-4 rounded-2xl text-sm leading-relaxed shadow-sm';
+  const bubbleBase = 'max-w-[72%] px-3 py-2.5 rounded-lg text-sm leading-snug shadow';
+
   const bubbleClass = message.isMine
-    ? `${bubbleBase} bg-black text-white rounded-br-md`
-    : `${bubbleBase} bg-gray-100 text-gray-600 rounded-bl-md`;
+    ? `${bubbleBase} bg-primary text-white rounded-br-none`
+    : `${bubbleBase} bg-white text-gray-600 rounded-bl-none`;
 
   return (
-    <div className="mb-6">
+    <div className="mb-3">
       {message.timestamp && (
         <div
           className={`mb-2 text-[10px] text-gray-300 ${message.isMine ? 'text-right pr-4' : 'text-left pl-4'}`}
@@ -40,14 +42,34 @@ export default function MessageItem({ message, onClickTranslate, translated }: M
         <div className={bubbleClass}>{message.content}</div>
 
         {!message.isMine && (
-          <button
-            type="button"
-            onClick={() => onClickTranslate?.(message.id)}
-            className="ml-2 mt-auto mb-2 p-1 rounded hover:bg-gray-100 active:bg-gray-200"
-            aria-label={t.seeMore}
-          >
-            <Image src={TranslateIcon} alt={t.seeMore} width={22} height={22} />
-          </button>
+          <div className="relative group ml-2 mt-auto mb-2">
+            <button
+              type="button"
+              onClick={() => !translated && onClickTranslate?.(message.id)}
+              className={`p-1 rounded-full
+        ${
+          translated
+            ? 'bg-gradient-to-r from-primary to-green text-white pointer-events-none'
+            : 'active:bg-gray-200'
+        }`}
+              aria-label={t.seeMore}
+            >
+              <Globe
+                size={18}
+                className={translated ? 'text-white' : 'text-gray-300 hover:text-gray-600'}
+              />
+            </button>
+
+            {!translated && (
+              <span
+                className="absolute top-full mt-1 left-1/2 -translate-x-1/2
+               whitespace-nowrap rounded-md bg-black/80 px-2 py-1 text-xs text-white
+               opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                {t.tooltipTranslate ?? '번역하기'}
+              </span>
+            )}
+          </div>
         )}
       </div>
     </div>

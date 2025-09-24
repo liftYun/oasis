@@ -60,7 +60,7 @@ export function Reservations() {
     ${!item.isSettlemented ? 'hover:scale-105 transition-transform duration-300 ease-in-out' : ''}`}
             >
               <div className="flex">
-                <div className="relative w-36 h-36 flex-shrink-0">
+                <div className="relative w-28 h-28 flex-shrink-0">
                   <Image
                     src={item.thumbnail}
                     alt={item.stayTitle}
@@ -71,7 +71,7 @@ export function Reservations() {
 
                 <Link
                   href={`/reservation-detail/${item.reservationId}` as Route}
-                  className="flex flex-col justify-center pl-4 pr-3 py-3 flex-1 gap-2 cursor-pointer"
+                  className="flex flex-col justify-center px-5 py-3 flex-1 gap-2 cursor-pointer"
                 >
                   <div className="flex justify-between">
                     <h2 className="font-semibold text-gray-600">{item.stayTitle}</h2>
@@ -99,7 +99,7 @@ export function Reservations() {
                 <div className="absolute inset-0 bg-black/60 rounded-md flex flex-col items-center justify-center text-white">
                   <p className="mb-2">{t.usedStay}</p>
                   <div className="flex space-x-4">
-                    {item.isReviewed && (
+                    {!item.isReviewed && (
                       <button
                         onClick={() => {
                           setSelectedReservationId(item.reservationId);
@@ -121,6 +121,21 @@ export function Reservations() {
                     >
                       <ClipboardList size={16} />
                       <span>{t.viewDetails}</span>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {item.isCanceled && (
+                <div className="absolute inset-0 bg-black/60 rounded-md flex flex-col items-center justify-center text-white">
+                  <p className="mb-2">취소된 예약입니다.</p>
+                  <div className="flex space-x-4">
+                    <Link
+                      href={`/reservation-detail/${item.reservationId}` as Route}
+                      className="flex items-center space-x-1 text-sm"
+                    >
+                      <ClipboardList size={16} />
+                      <span>내역 확인하기</span>
                     </Link>
                   </div>
                 </div>

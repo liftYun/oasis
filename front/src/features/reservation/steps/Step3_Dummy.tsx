@@ -29,42 +29,50 @@ export function Step3_Dummy() {
   const handleSubmit = async () => {
     if (!agreed) return;
 
+    // 로딩 토스트 시작
+    const toastId = toast.loading(lang === 'kor' ? '예약 요청 중...' : 'Requesting reservation...');
+
     try {
       // 1. 예약 요청 먼저
       const result = await store.submit();
 
       if (!result) {
-        toast.error(lang === 'kor' ? '예약 요청에 실패했습니다.' : 'Reservation request failed.');
+        toast.error(lang === 'kor' ? '예약 요청에 실패했습니다.' : 'Reservation request failed.', {
+          id: toastId,
+        });
         return;
       }
 
       // 예약 성공 → reservationId 확보
-      const reservationId = result.reservationId;
-      toast.success(
-        lang === 'kor' ? '예약 요청이 완료되었습니다.' : 'Reservation requested successfully.'
-      );
+      const reservationId = typeof result === 'string' ? result : result.reservationId;
 
       // 2. 스마트키 발급 요청
       const keyRes = await issueSmartKey({
-        reservationId: reservationId,
+        reservationId,
         userNicknames: store.selectedUsers.map((u) => u.nickname.trim()),
       });
 
-      if (keyRes.status === 200 && keyRes.result) {
-        toast.success(`스마트키 발급 완료! (keyId: ${keyRes.result})`);
+      if (keyRes.code === 200 && keyRes.result) {
+        toast.success(
+          lang === 'kor'
+            ? '예약 + 스마트키 발급 완료!'
+            : 'Reservation + SmartKey issued successfully!',
+          { id: toastId }
+        );
       } else {
-        toast.error(keyRes.message || '스마트키 발급 실패');
+        toast.error(keyRes.message || '스마트키 발급 실패', { id: toastId });
       }
 
       // 3. 상태 초기화 + 이동
       store.reset();
-      router.push('/main');
+      router.push('/smart-key');
     } catch (err) {
       console.error(err);
       toast.error(
         lang === 'kor'
           ? '예약 요청 중 오류가 발생했습니다.'
-          : 'An error occurred while requesting reservation.'
+          : 'An error occurred while requesting reservation.',
+        { id: toastId }
       );
     }
   };
