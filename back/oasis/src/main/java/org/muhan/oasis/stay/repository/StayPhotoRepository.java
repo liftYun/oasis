@@ -13,10 +13,4 @@ import java.util.List;
 public interface StayPhotoRepository extends JpaRepository<StayPhotoEntity, Long> {
     List<StayPhotoEntity> findAllByStay(StayEntity stay);
 
-    @Query("select sp.photoKey from StayPhotoEntity sp where sp.stay.id = :stayId")
-    List<String> findPhotoKeysByStayId(Long stayId);
-
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("delete from StayPhotoEntity sp where sp.stay.id = :stayId")
-    int deleteByStayId(Long stayId);
 }

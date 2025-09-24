@@ -434,16 +434,11 @@ public class StayServiceImpl implements StayService{
 
         // (B) 연관 엔티티 선삭제
         // 1) Block
-        stayBlockRepository.deleteByStayId(stayId);
+        stayBlockRepository.deleteByStayIdAll(stayId);
 
         // 2) Facilities (현재 연결된 facility id 전부 삭제)
-        List<StayFacilityEntity> currentFacilities = stayFacilityRepository.findWithFacilityByStayId(stayId);
-        if (!currentFacilities.isEmpty()) {
-            Set<Long> facilityIds = currentFacilities.stream()
-                    .map(sf -> sf.getFacility().getId())
-                    .collect(Collectors.toSet());
-            stayFacilityRepository.deleteByStayIdAndFacilityIds(stayId, facilityIds);
-        }
+        stayFacilityRepository.deleteByStayId(stayId);
+        stayFacilityRepository.flush();
 
         // 3) Photos (DB 삭제)
         if (!photos.isEmpty()) {
@@ -452,15 +447,10 @@ public class StayServiceImpl implements StayService{
         }
 
         // 4) RatingSummary (@MapsId → PK=stayId)
-        if (stayRatingSummaryRepository.findById(stayId).isPresent()) {
-            stayRatingSummaryRepository.deleteById(stayId);
-        }
+        stayRatingSummaryRepository.deleteByStayId(stayId);
 
         // 5) Device (1:1) — 연관 로딩해서 삭제
-        DeviceEntity device = stay.getDevice();
-        if (device != null) {
-            deviceRepository.delete(device);
-        }
+        deviceRepository.deleteByStayId(stayId);
 
         // (C) 본체 삭제
         stayRepository.delete(stay);
