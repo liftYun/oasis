@@ -21,14 +21,12 @@ import {
 } from './stay.types';
 
 // 숙소 등록
-export const createStay = (body: CreateStayRequest): Promise<AxiosResponse> => {
-  return http.post('/api/v1/stay', body);
-};
+export const createStay = (body: CreateStayRequest) =>
+  http.post<BaseResponse<{ stayId: number }>>('/api/v1/stay', body);
 
 // 숙소 수정
-export const updateStay = (stayId: number, body: UpdateStayRequest): Promise<AxiosResponse> => {
-  return http.put(`/api/v1/stay/${stayId}`, body);
-};
+export const updateStay = (stayId: number, body: UpdateStayRequest) =>
+  http.put<BaseResponse<{ stayId: number }>>(`/api/v1/stay/${stayId}`, body);
 
 // 숙소 삭제
 export const deleteStay = (stayId: number) =>
@@ -83,10 +81,10 @@ export const fetchReviewDetail = (reviewId: number) =>
   http.get<BaseResponse<ReviewDetailResponseVo>>(`/api/v1/review/detail/${reviewId}`);
 
 // 숙소 등록/수정 (통합)
-export const saveStay = (body: SaveStayRequest): Promise<AxiosResponse> => {
+export const saveStay = (body: SaveStayRequest) => {
   if (body.mode === 'create') {
-    return createStay(body);
+    return createStay(body as CreateStayRequest);
   } else {
-    return updateStay(body.id, body);
+    return updateStay(body.id, body as UpdateStayRequest);
   }
 };

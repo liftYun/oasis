@@ -112,7 +112,8 @@ export const useStayStores = create<StayStore>((set, get) => ({
         return false;
       }
 
-      const res: AxiosResponse = await createStay(payload as CreateStayRequest);
+      const res = await createStay(payload as CreateStayRequest);
+
       if (res.isSuccess) {
         set({ loading: false });
         return true;
