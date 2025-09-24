@@ -2,7 +2,6 @@
 
 import { Globe } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 type Props = {
@@ -47,29 +46,19 @@ export default function LanguageToggle({ label }: Props) {
         </span>
       </button>
 
-      <AnimatePresence>
-        <motion.div
-          key={label}
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: [0, -3, 0] }}
-          exit={{ opacity: 0, y: 4 }}
-          transition={{
-            duration: 0.2,
-            y: { duration: 2, repeat: Infinity, ease: 'easeInOut' },
-          }}
-          className="absolute right-0 mt-2"
-        >
-          <div className="relative w-max rounded-sm bg-black/70 text-white text-xs font-light px-3 py-1 shadow">
+      {label && (
+        <div className="absolute right-0 mt-2 animate-bounce">
+          <div className="relative w-max rounded-md bg-gray-600 text-white text-xs font-light px-3 py-1 shadow">
             {label}
             <div
               className="absolute -top-1 right-3 
-               w-0 h-0
-               border-l-4 border-r-4 border-b-4
-               border-l-transparent border-r-transparent border-b-black/70"
+         w-0 h-0
+         border-l-4 border-r-4 border-b-4
+         border-l-transparent border-r-transparent border-b-gray-600"
             />
           </div>
-        </motion.div>
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 }

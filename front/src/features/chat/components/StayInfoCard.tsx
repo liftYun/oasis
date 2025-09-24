@@ -26,19 +26,12 @@ export default function StayInfoCard({ stay }: StayInfoCardProps) {
   const t = chatMessages[lang];
 
   const goDetail = () => {
-    // 추후 실제 숙소 상세 경로로 연결 예정
     router.push(`/stays/${encodeURIComponent(stay.id)}`);
   };
 
   return (
-    <button
-      type="button"
-      onClick={goDetail}
-      className="w-full text-left rounded-xl shadow-md border border-white px-3"
-      aria-label="go-stay-detail"
-    >
-      <div className="flex items-center gap-6 py-2 hover:bg-gray-50">
-        {/* 래퍼 분리: 아바타가 이미지 밖으로 자연스럽게 튀어나오도록 */}
+    <button type="button" className="w-full text-left rounded-md px-3" aria-label="go-stay-detail">
+      <div className="flex items-center gap-4 rounded-md bg-white p-6 shadow-sm mt-4">
         <div className="relative h-16 w-16 flex-shrink-0">
           <div className="relative h-full w-full rounded overflow-hidden bg-gray-100">
             <Image
@@ -64,14 +57,17 @@ export default function StayInfoCard({ stay }: StayInfoCardProps) {
           </div>
         </div>
 
-        <div className="min-w-0 flex-1 ms-1 items-center">
+        <div className="min-w-0 flex-1 ms-2 items-center">
           <p className="truncate text-base font-bold text-gray-600">{stay.title}</p>
           <p className=" truncate text-sm text-gray-400">{stay.address}</p>
 
-          <div className="mt-2 text-xs text-gray-500 inline-flex items-center gap-2">
-            <Image src={ZoomIn} alt={t.seeMore} width={14} height={14} />
-            <span>{t.seeMore}</span>
-          </div>
+          <button
+            className="mt-2 flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"
+            onClick={goDetail}
+          >
+            <Image src={ZoomIn} alt="zoom" width={12} height={12} />
+            {t.seeMore}
+          </button>
         </div>
       </div>
     </button>

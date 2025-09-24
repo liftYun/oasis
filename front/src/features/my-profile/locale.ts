@@ -71,7 +71,7 @@ export const profileMessages = {
     noStay: 'No manage Stay',
     myReview: 'My reviews',
     noReview: 'No reviews yet.',
-    reviewDetail: 'Learn more',
+    reviewDetail: 'See more',
     writeReview: 'Write a review',
     writeReviewDescription: 'Share your experience with other travelers!',
     uploadReview: 'Upload review',
