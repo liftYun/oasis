@@ -195,7 +195,7 @@ export function useChatDetail(chatId: string) {
   return { data: detail, isLoading: !detail && !error, error };
 }
 
-function formatTs(date: Date, t: typeof chatMessages.kor): string {
+function formatTs(date: Date, t: { am: string; pm: string }): string {
   const hours = date.getHours();
   const minutes = String(date.getMinutes()).padStart(2, '0');
   const ampm = hours < 12 ? t.am : t.pm;
