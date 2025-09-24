@@ -102,6 +102,8 @@ public class ReviewServiceImpl implements ReviewService{
         sqsSendService.sendReviewSummaryMessage(lowRateReviews, reservation.getStay().getId(), Rate.LOW_RATE);
         sqsSendService.sendReviewSummaryMessage(highRateReviews, reservation.getStay().getId(), Rate.HIGH_RATE);
 
+        reservation.setReviewed();
+
         stayService.recalculateRating(reservation.getStay().getId(), registReviewRequestDto.getRating());
         return review.getReviewId();
     }
