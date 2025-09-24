@@ -68,4 +68,6 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
                                    @Param("start") LocalDateTime start,
                                    @Param("end") LocalDateTime end);
     Optional<ReservationEntity> findByUserAndReservationId(UserEntity user, String resId);
+
+    Optional<ReservationEntity> findByChallengeId(String challengeId);
 }

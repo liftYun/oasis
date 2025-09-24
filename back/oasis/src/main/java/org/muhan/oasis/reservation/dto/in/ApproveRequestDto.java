@@ -12,12 +12,14 @@ public class ApproveRequestDto {
     private String userUUID;
     private BigDecimal amountUSDC;  // "100.00" (소수점 2자리까지)
     private BigDecimal feeUSDC;
+    private String reservationId;
 
     public static ApproveRequestDto from(RegistReservationRequestVo vo, String userUUID) {
         return ApproveRequestDto.builder()
                 .userUUID(userUUID)
                 .amountUSDC(BigDecimal.valueOf(vo.getPayment()))
                 .feeUSDC(BigDecimal.ZERO) //수수료
+                .reservationId(vo.getReservationId())
                 .build();
     }
 }
