@@ -18,7 +18,7 @@ public class KeyEntity {
     private Long keyId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "device_id", nullable = false)
+    @JoinColumn(name = "stay_id", nullable = false)
     private DeviceEntity device;   // 도어락 ID (FK)
 
     @Column(name = "activation_time")
