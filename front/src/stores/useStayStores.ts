@@ -15,7 +15,10 @@ interface StayStore extends CreateStayRequest {
   error: string | null;
   thumbnail: any | null;
 
-  setField: (field: keyof CreateStayRequest, value: any) => void;
+  translateStayUuid: string;
+  sseUuid: string;
+
+  setField: (field: keyof StayStore, value: any) => void;
   setStep: (step: number) => void;
   setView: (view: ViewMode) => void;
   reset: () => void;
@@ -47,13 +50,16 @@ export const useStayStores = create<StayStore>((set, get) => ({
   loading: false,
   error: null,
 
+  translateStayUuid: '',
+  sseUuid: '',
+
   setField: (field, value) =>
-    set(() => {
+    set((state) => {
       if (field === 'imageRequestList') {
         const firstImage = (value as any[])?.[0] ?? null;
         return { imageRequestList: value, thumbnail: firstImage };
       }
-      return { [field]: value } as Partial<StayStore>;
+      return { ...state, [field]: value };
     }),
 
   setStep: (step) => set({ currentStep: step }),
@@ -81,12 +87,30 @@ export const useStayStores = create<StayStore>((set, get) => ({
       view: 'form',
       loading: false,
       error: null,
+      translateStayUuid: '',
+      sseUuid: '',
     }),
 
   submit: async () => {
     set({ loading: true, error: null });
     try {
-      const { thumbnail, currentStep, view, loading, error, stayId, ...payload } = get();
+      const {
+        thumbnail,
+        currentStep,
+        view,
+        loading,
+        error,
+        stayId,
+        translateStayUuid,
+        sseUuid,
+        ...payload
+      } = get();
+
+      console.log(translateStayUuid, sseUuid);
+      if (!translateStayUuid || !sseUuid || translateStayUuid !== sseUuid) {
+        set({ loading: false, error: '번역이 완료되지 않았습니다. 다시 시도해주세요.' });
+        return false;
+      }
 
       const res: AxiosResponse = await createStay(payload as CreateStayRequest);
       if (res.isSuccess) {
