@@ -42,6 +42,7 @@ export const profileMessages = {
     language: '사용 언어',
     policy: '취소 수수료 관리',
     profile: '프로필 정보',
+    loadingError: '로딩 중 오류가 발생했습니다.',
   },
   eng: {
     guest: 'Guest',
@@ -71,7 +72,7 @@ export const profileMessages = {
     noStay: 'No manage Stay',
     myReview: 'My reviews',
     noReview: 'No reviews yet.',
-    reviewDetail: 'Learn more',
+    reviewDetail: 'See more',
     writeReview: 'Write a review',
     writeReviewDescription: 'Share your experience with other travelers!',
     uploadReview: 'Upload review',
@@ -87,5 +88,6 @@ export const profileMessages = {
     language: 'Use Language',
     policy: 'Cancellation Policy',
     profile: 'Profile',
+    loadingError: 'Error loading',
   },
 } as const;

@@ -26,6 +26,7 @@ import { useAuthStore } from '@/stores/useAuthStores';
 import { createChatRoom, findExistingChatRoom } from '@/features/chat/api/chat.firestore';
 import { notifyFirebaseUnavailable } from '@/features/chat/api/toastHelpers';
 import { toast } from 'react-hot-toast';
+import { Lottie } from '@/components/atoms/Lottie';
 
 export function ReservationDetail() {
   const { lang } = useLanguage();
@@ -114,7 +115,13 @@ export function ReservationDetail() {
     load();
   }, [reservationId]);
 
-  if (loading) return <div className="p-6">{t.common.loading}</div>;
+  if (loading)
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen py-10">
+        <Lottie src="/lotties/spinner.json" className="w-20 h-20" />
+        <p className="text-sm text-gray-500 mt-2">{t.common.loading}</p>
+      </div>
+    );
   if (!stay) return <div className="p-6">{t.common.loadError}</div>;
 
   return (

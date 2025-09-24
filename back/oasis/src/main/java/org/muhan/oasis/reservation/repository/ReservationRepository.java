@@ -70,4 +70,8 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
     Optional<ReservationEntity> findByUserAndReservationId(UserEntity user, String resId);
 
     Optional<ReservationEntity> findByChallengeId(String challengeId);
+
+    @Modifying
+    @Query("delete from ReservationEntity rs where rs.stay.id = :stayId")
+    int deleteByStay_Id(Long stayId);
 }

@@ -7,7 +7,7 @@ import type {
 } from '@/services/reservation.types';
 import { submitReservation } from '@/services/submitReservation';
 import { useSdkStore } from '@/stores/useSdkStores';
-import type { UserSearchItem } from '@/services/reservation.types'; // Step2에서 쓰는 타입
+import type { UserSearchItem } from '@/services/reservation.types';
 
 type ViewMode = 'form' | 'searchAddress';
 
@@ -74,7 +74,7 @@ export const useReservationStore = create<ReservationStore>((set, get) => ({
       cancled: false,
       settlemented: false,
       reservation: null,
-      currentStep: 1,
+      // currentStep: 1,
       view: 'form',
       loading: false,
       error: null,

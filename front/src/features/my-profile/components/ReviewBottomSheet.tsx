@@ -56,6 +56,7 @@ export function ReviewBottomSheet({
       onClose();
       setRating(0);
       setText('');
+      router.push('/my-profile/reservations');
     } catch (err: any) {
       toast.error(err?.message || '리뷰 등록 실패');
     } finally {
@@ -84,7 +85,7 @@ export function ReviewBottomSheet({
             onClick={() => router.push(`/stays/${stayId}`)}
           >
             <Image src={ZoomIn} alt="zoom" width={12} height={12} />
-            자세히 보기
+            {t.reviewDetail}
           </button>
         </div>
       </div>

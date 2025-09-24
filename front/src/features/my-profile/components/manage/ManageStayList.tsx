@@ -36,8 +36,8 @@ export function ManageStayList() {
   if (loading)
     return (
       <>
-        <div className="flex flex-col items-center justify-center p-4 pb-56">
-          <Lottie src="/lotties/spinner.json" className="w-40 h-40" />
+        <div className="flex flex-col min-h-screen items-center justify-center p-4 pb-56">
+          <Lottie src="/lotties/spinner.json" className="w-20 h-20" />
           <p className="mt-2 text-center text-gray-500">{t.loading}</p>
         </div>
       </>

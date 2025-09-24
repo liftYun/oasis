@@ -12,9 +12,11 @@ import lombok.*;
 @AllArgsConstructor
 public class DeviceEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "device_id")
+    @Column(name = "stay_id")
     private Long id;
+
+    @Column(name = "device_id", nullable = false)
+    private Long deviceId;
 
     @Column(name = "stay_name", nullable = false)
     private String stayName;
@@ -23,6 +25,7 @@ public class DeviceEntity {
     private String stayNameEng;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "stay_id", nullable = false, unique = true)
+    @MapsId
+    @JoinColumn(name = "stay_id")
     private StayEntity stay;
 }

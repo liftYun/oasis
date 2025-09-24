@@ -4,14 +4,6 @@ import Usdc from '@/assets/icons/usd-circle.png';
 import { useLanguage } from '@/features/language';
 import { stayDetailLocale } from '@/features/stays/locale';
 
-// const mockParticipants = {
-//   count: 6,
-//   members: Array.from({ length: 6 }).map(() => ({
-//     nickname: '이민희',
-//     profileImageUrl: '',
-//   })),
-// };
-
 interface ReservationInfoProps {
   reservation: ReservationDetailApiResponse;
 }
@@ -86,7 +78,7 @@ export function ReservationInfo({ reservation }: ReservationInfoProps) {
                 alt={m.nickname}
                 width={48}
                 height={48}
-                className="rounded-full border border-gray-200 bg-gray-50"
+                className="w-12 h-12 rounded-full border border-gray-200 bg-gray-50 object-cover"
               />
               <span className="truncate mt-1 text-gray-600 font-medium">{m.nickname}</span>
             </div>
