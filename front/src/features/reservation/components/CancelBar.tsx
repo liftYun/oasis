@@ -15,6 +15,7 @@ import { useSdkStore } from '@/stores/useSdkStores';
 import { ReservationDetailApiResponse } from '@/services/reservation.types';
 import { toast } from 'react-hot-toast';
 import { CenterModal } from '@/components/organisms/CenterModel';
+import { getW3SSdkClass, initW3SSdk, type CircleSdk, preloadW3SSdk } from '@/lib/circle/sdk';
 
 interface Props {
   reservation: ReservationDetailApiResponse | null;
@@ -25,24 +26,21 @@ export function CancelBar({ reservation }: Props) {
   const t = stayDetailLocale[lang];
   const router = useRouter();
 
-  const sdkRef = useRef<any>(null); // W3SSdk 타입 대신 any 사용 (dynamic import이므로)
+  const sdkRef = useRef<CircleSdk | null>(null);
   const [busy, setBusy] = useState(false);
   const { sdkInitData } = useSdkStore();
-  const [W3SSdk, setW3SSdk] = useState<any>(null); // SDK 클래스 상태 관리
+  const [SdkClassReady, setSdkClassReady] = useState(false);
 
   // 클라이언트에서만 SDK 로드
   useEffect(() => {
-    const loadSDK = async () => {
-      if (typeof window !== 'undefined') {
-        try {
-          const { W3SSdk: SDKClass } = await import('@circle-fin/w3s-pw-web-sdk');
-          setW3SSdk(SDKClass);
-        } catch (error) {
-          console.error('Failed to load W3SSdk:', error);
-        }
-      }
-    };
-    loadSDK();
+    if (typeof window === 'undefined') return;
+    preloadW3SSdk();
+    getW3SSdkClass()
+      .then(() => setSdkClassReady(true))
+      .catch((err) => {
+        console.error('Failed to load W3SSdk:', err);
+        setSdkClassReady(false);
+      });
   }, []);
 
   // 모달 상태
@@ -53,22 +51,18 @@ export function CancelBar({ reservation }: Props) {
       return;
     }
 
-    if (!W3SSdk) {
+    if (!SdkClassReady) {
       toast.error('지갑 SDK가 아직 로드되지 않았습니다. 잠시 후 다시 시도해주세요.');
       return;
     }
 
     setBusy(true);
     try {
-      if (!sdkRef.current) {
-        sdkRef.current = new W3SSdk();
-      }
-      const sdk = sdkRef.current;
-      sdk.setAppSettings({ appId: sdkInitData.appId });
-      sdk.setAuthentication({
+      const sdk = (sdkRef.current = await initW3SSdk({
+        appId: sdkInitData.appId,
         userToken: sdkInitData.userToken,
         encryptionKey: sdkInitData.encryptionKey,
-      });
+      }));
 
       const token = getToken();
       const resp = await fetch(
@@ -125,7 +119,7 @@ export function CancelBar({ reservation }: Props) {
   };
 
   // SDK가 로드되지 않았으면 로딩 표시
-  if (!W3SSdk) {
+  if (!SdkClassReady) {
     return (
       <div className="fixed bottom-0 w-full max-w-[480px] bg-white border-t border-gray-100">
         <div className="mx-auto px-6 py-4 flex gap-3 mb-6">
