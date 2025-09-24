@@ -30,9 +30,11 @@ export interface StayRequestDto {
 }
 
 export interface StayTranslationResultDto {
+  uuid: string;
   detailAddress: string;
   title: string;
   content: string;
+  address: string;
 }
 
 export interface CreateStayRequest {
@@ -183,4 +185,9 @@ export interface ReviewDetailResponseVo {
   rating: number;
   createdAt: string; // ISO-8601
   content: string; // 원문 기준
+}
+
+// 번역 응답
+export interface TranslateStayResponse {
+  uuid: string;
 }

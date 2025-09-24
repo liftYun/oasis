@@ -52,12 +52,17 @@ export function Step2_Description() {
     store.setField('description', description.trim());
     store.setField('maxGuest', maxGuest);
 
-    await translateStay({
+    const res = await translateStay({
       detailAddress: store.addressDetail,
       title: store.title,
       content: description.trim(),
       language: lang.toUpperCase() as 'KOR' | 'ENG',
     });
+
+    console.log('translateStay res', res);
+    if (res?.result?.uuid) {
+      store.setField('translateStayUuid', res.result.uuid);
+    }
 
     store.setStep(store.currentStep + 1);
   };
@@ -95,7 +100,6 @@ export function Step2_Description() {
           <span className="text-primary font-bold">{t.step2.tipTitle}</span> {t.step2.tipText}
         </div>
 
-        {/* ✅ 게스트 수 */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-600 mb-2">
             {t.step2.maxGuestLabel}
