@@ -99,6 +99,7 @@ public class StayServiceImpl implements StayService{
                 .stayName(stayRequest.getTitle())
                 .stayNameEng(stayRequest.getTitleEng())
                 .stay(stay)
+                .deviceId(29L)
                 .build());
 
 
