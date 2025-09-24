@@ -128,14 +128,14 @@ export function Reservations() {
 
               {item.isCanceled && (
                 <div className="absolute inset-0 bg-black/60 rounded-md flex flex-col items-center justify-center text-white">
-                  <p className="mb-2">취소된 예약입니다.</p>
+                  <p className="mb-2">{t.canceledReservation}</p>
                   <div className="flex space-x-4">
                     <Link
                       href={`/reservation-detail/${item.reservationId}` as Route}
                       className="flex items-center space-x-1 text-sm"
                     >
                       <ClipboardList size={16} />
-                      <span>내역 확인하기</span>
+                      <span>{t.viewDetails}</span>
                     </Link>
                   </div>
                 </div>
