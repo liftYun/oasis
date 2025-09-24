@@ -54,6 +54,52 @@ export interface BlockChainReservationResponse {
   };
 }
 
+// 예약 상세 조회 응답 타입
+// 서버 원본 응답
+export interface ReservationDetailApiResponse {
+  reservationId: string;
+  reservationDate: string;
+  payment: number;
+  reviewed: boolean;
+  canceled: boolean;
+  settlemented: boolean;
+  schedule: {
+    checkinDate: string;
+    checkoutDate: string;
+  };
+  participants: {
+    count: number;
+    members: any[];
+  };
+  stay: {
+    stayId: number;
+    title: string;
+    titleEng: string;
+    description: string;
+    descriptionEng?: string;
+    photos?: string[];
+  };
+  host: {
+    nickname: string;
+    uuid: string;
+    profileImageUrl?: string;
+  };
+}
+
+// 프론트에서 쓰는 DTO
+export interface ReservationDetailResponseDto {
+  reservationId: string;
+  stayId: number;
+  checkinDate: string;
+  checkoutDate: string;
+  reservationDate: string;
+  guestCount: number;
+  totalPrice: number;
+  isReviewed: boolean;
+  isCancled: boolean;
+  isSettlemented: boolean;
+}
+
 export interface UserSearchItem {
   id: number;
   nickname: string;
@@ -122,4 +168,13 @@ export interface ReviewResponseVo {
   rating: number;
   createdAt: string;
   thumbnail: string;
+}
+
+// 취소 정책 조회
+export interface CancellationPolicyResponseVo {
+  id: number;
+  policy1: number;
+  policy2: number;
+  policy3: number;
+  policy4: number;
 }

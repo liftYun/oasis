@@ -89,10 +89,9 @@ export const useStayStores = create<StayStore>((set, get) => ({
       const { thumbnail, currentStep, view, loading, error, stayId, ...payload } = get();
 
       const res: AxiosResponse = await createStay(payload as CreateStayRequest);
-
-      if (res.data?.isSuccess) {
+      if (res.isSuccess) {
         set({ loading: false });
-        return true; // 성공 여부만 반환
+        return true;
       }
 
       set({ loading: false, error: '숙소 생성에 실패했습니다.' });

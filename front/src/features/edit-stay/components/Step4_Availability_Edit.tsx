@@ -51,6 +51,7 @@ export function Step4_Availability_Edit({ onComplete }: Step4Props) {
     const id = await stayStore.submit();
     if (id) {
       disconnect();
+      onComplete?.();
       router.replace(`/my-profile/manage-stay`);
     }
   };

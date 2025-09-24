@@ -16,6 +16,7 @@ import {
   StayRequestDto,
   StayReviewResponseVo,
   SaveStayRequest,
+  ReviewDetailResponseVo,
 } from './stay.types';
 
 // 숙소 등록
@@ -74,6 +75,10 @@ export const deleteWish = (wishId: number) =>
 // 숙소 리뷰 목록 조회
 export const fetchStayReviews = (stayId: number) =>
   http.get<BaseResponse<StayReviewResponseVo[]>>(`/api/v1/review/${stayId}`);
+
+// 리뷰 상세 조회 (본인만 가능)
+export const fetchReviewDetail = (reviewId: number) =>
+  http.get<BaseResponse<ReviewDetailResponseVo>>(`/api/v1/review/detail/${reviewId}`);
 
 // 숙소 등록/수정 (통합)
 export const saveStay = (body: SaveStayRequest): Promise<AxiosResponse> => {

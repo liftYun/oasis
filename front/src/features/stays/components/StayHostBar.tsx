@@ -10,7 +10,7 @@ interface Props {
   };
 }
 
-export default function StayHostBar({ stay }: Props) {
+export function StayHostBar({ stay }: Props) {
   const { lang } = useLanguage();
   const t = stayDetailLocale[lang];
   const router = useRouter();

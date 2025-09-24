@@ -18,6 +18,12 @@ export const stayDetailLocale = {
       stayLoadFailRetry: '숙소 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.',
       invalidHostInfo: '호스트 정보가 올바르지 않습니다.',
       chatEnterFailRetry: '채팅방 진입에 실패했어요. 잠시 후 다시 시도해 주세요.',
+      cancel: '예약 취소하기',
+      cancelConfirm: '정말 예약을 취소하시겠습니까?',
+      cancelSuccess: '예약 취소가 완료되었습니다.',
+      cancelError: '예약 취소 중 오류가 발생했습니다.',
+      walletButton: '지갑 연결하기',
+      walletRequired: '예약을 취소하기 전에 지갑을 연결해주세요.',
     },
     detail: {
       infoTitle: '숙소 세부정보',
@@ -57,6 +63,14 @@ export const stayDetailLocale = {
       AMENITY: '편의',
       SERVICE: '주변',
     },
+    reservation: {
+      reservationDetail: '예약 세부정보',
+      checkin: '체크인',
+      checkout: '체크아웃',
+      smartKey: '스마트 키',
+      participants: '명',
+      payment: '결제한 금액',
+    },
   },
 
   eng: {
@@ -76,6 +90,12 @@ export const stayDetailLocale = {
       stayLoadFailRetry: 'Failed to load stay info. Please try again later.',
       invalidHostInfo: 'Host information is invalid.',
       chatEnterFailRetry: 'Failed to enter the chat. Please try again later.',
+      cancel: 'Cancel Reservation',
+      cancelConfirm: 'Are you sure you want to cancel this reservation?',
+      cancelSuccess: 'Your reservation has been successfully cancelled.',
+      cancelError: 'An error occurred while cancelling the reservation.',
+      walletButton: 'Connect Wallet',
+      walletRequired: 'Please connect your wallet to cancel the reservation.',
     },
     detail: {
       infoTitle: 'Stay Details',
@@ -115,6 +135,14 @@ export const stayDetailLocale = {
       AMENITY: 'Amenities',
       SERVICE: 'Nearby',
     },
+    reservation: {
+      reservationDetail: 'Reservation Details',
+      checkin: 'Check-in',
+      checkout: 'Check-out',
+      smartKey: 'Smart Key',
+      participants: 'guests',
+      payment: 'Payment Amount',
+    },
   },
 } as const satisfies Record<
   Lang,
@@ -135,6 +163,12 @@ export const stayDetailLocale = {
       stayLoadFailRetry: string;
       invalidHostInfo: string;
       chatEnterFailRetry: string;
+      cancel: string;
+      cancelConfirm: string;
+      cancelSuccess: string;
+      cancelError: string;
+      walletButton: string;
+      walletRequired: string;
     };
     detail: {
       infoTitle: string;
@@ -173,6 +207,14 @@ export const stayDetailLocale = {
       KITCHEN: string;
       AMENITY: string;
       SERVICE: string;
+    };
+    reservation: {
+      reservationDetail: string;
+      checkin: string;
+      checkout: string;
+      smartKey: string;
+      participants: string;
+      payment: string;
     };
   }
 >;

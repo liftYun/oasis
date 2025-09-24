@@ -14,7 +14,7 @@ interface Props {
   };
 }
 
-export default function StayBookingBar({ stay }: Props) {
+export function StayBookingBar({ stay }: Props) {
   const { lang } = useLanguage();
   const t = stayDetailLocale[lang];
   const router = useRouter();

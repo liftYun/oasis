@@ -54,8 +54,9 @@ export interface CreateStayRequest {
   thumbnail?: string | null;
 }
 
-export interface UpdateStayRequest extends CreateStayRequest {
+export interface UpdateStayRequest extends Omit<CreateStayRequest, 'subRegionId'> {
   id: number;
+  subRegionId?: number;
 }
 
 export type SaveStayRequest =
@@ -165,6 +166,7 @@ export interface StayCardByWishDto {
   wishCount?: number;
 }
 
+// 리뷰 목록 조회
 export interface StayReviewResponseVo {
   reviewId: number;
   reservationId?: string | null;
@@ -172,4 +174,13 @@ export interface StayReviewResponseVo {
   createdAt: string; // ISO-8601
   content: string;
   nickname: string;
+}
+
+// 리뷰 상세 조회
+export interface ReviewDetailResponseVo {
+  reviewId: number;
+  reservationId?: string | null;
+  rating: number;
+  createdAt: string; // ISO-8601
+  content: string; // 원문 기준
 }

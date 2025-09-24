@@ -50,6 +50,24 @@ export const reservationMessages = {
         '거래 내역은 영구적으로 기록되어 언제든 조회·검증 가능합니다.',
         '네트워크 혼잡 시 결제 처리에 일시적 지연이 발생할 수 있습니다.',
       ],
+      sub1: '체크인 1~2일 전',
+      sub2: '체크인 3~5일 전',
+      sub3: '체크인 5~6일 전',
+      sub4: '체크인 7일 전',
+    },
+    refund: {
+      title: '환불 정책',
+      table: {
+        date: '날짜',
+        rate: '환불율',
+        amount: '환불 금액',
+      },
+      description: [
+        '본 환불 정책은 {highlight}에 등록되어',
+        '중간 과정 개입 없이 정확하고 투명하게 이행됩니다.',
+        '게스트와 호스트 모두 신뢰할 수 있는 안전한 거래 환경을 보장합니다.',
+      ],
+      highlight: '블록체인 스마트 컨트랙트',
     },
   },
   eng: {
@@ -99,6 +117,24 @@ export const reservationMessages = {
         'Transaction history is permanently recorded and can be viewed and verified at any time.',
         'In case of network congestion, there may be a temporary delay in processing the payment.',
       ],
+      sub1: '1~2 days before',
+      sub2: '3~5 days before',
+      sub3: '5~6 days before',
+      sub4: '7 days before',
+    },
+    refund: {
+      title: 'Refund Policy',
+      table: {
+        date: 'Date',
+        rate: 'Refund Rate',
+        amount: 'Refund Amount',
+      },
+      description: [
+        'This refund policy is recorded on the {highlight},',
+        'executed transparently without intermediaries.',
+        'It guarantees a safe and trustworthy environment for both guests and hosts.',
+      ],
+      highlight: 'blockchain smart contract',
     },
   },
 } as const;

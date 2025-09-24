@@ -113,6 +113,7 @@ export default function LockWithCircle({
 
       append('Approve 트랜잭션 요청...');
       const approveResp = await apiPost('/approve', reservationVo);
+      console.log('approveResp:', approveResp);
       const approveResult = approveResp.result;
       if (approveResult?.challengeId) {
         append('Approve PIN 입력 대기...');
@@ -123,6 +124,7 @@ export default function LockWithCircle({
 
       append('Lock 트랜잭션 요청...');
       const lockResp = await apiPost('/lock', reservationVo);
+      console.log('lockResp full:', lockResp);
       const lockResult = lockResp.result;
       if (lockResult?.challengeId) {
         append('Lock PIN 입력 대기...');

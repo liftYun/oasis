@@ -35,7 +35,7 @@ export function ImageUploader({ defaultImages = [], onChange }: ImageUploaderPro
     if (defaultImages.length > 0) {
       const mapped = defaultImages.map((img, i) => ({
         key: img.key,
-        sortOrder: img.sortOrder ?? i,
+        sortOrder: i + 1,
         publicUrl: img.url ?? img.key,
         uploadUrl: '',
       }));
@@ -50,7 +50,7 @@ export function ImageUploader({ defaultImages = [], onChange }: ImageUploaderPro
       const newIndex = images.findIndex((p) => p.key === over.id);
       const newOrder = arrayMove(images, oldIndex, newIndex).map((img, i) => ({
         ...img,
-        sortOrder: i,
+        sortOrder: i + 1,
       }));
       setImages(newOrder);
       onChange(newOrder.map(({ key, sortOrder }) => ({ key, sortOrder })));
@@ -61,8 +61,8 @@ export function ImageUploader({ defaultImages = [], onChange }: ImageUploaderPro
     if (!files.length) return;
 
     try {
-      const presignReq: PresignedRequest[] = files.map((f, i) => ({
-        sortOrder: images.length + i + 1,
+      const presignReq: PresignedRequest[] = files.map((f) => ({
+        sortOrder: 0, // 일단 0, 나중에 다시 매김
         contentType: f.type,
       }));
       const res = await getPresignedUrls(presignReq);
@@ -78,7 +78,11 @@ export function ImageUploader({ defaultImages = [], onChange }: ImageUploaderPro
         })
       );
 
-      const newImages = [...images, ...presigned];
+      // 새 이미지 합쳐서 1부터 sortOrder 재배정
+      const newImages = [...images, ...presigned].map((img, i) => ({
+        ...img,
+        sortOrder: i + 1,
+      }));
       setImages(newImages);
       onChange(newImages.map(({ key, sortOrder }) => ({ key, sortOrder })));
     } catch (err) {
@@ -90,7 +94,7 @@ export function ImageUploader({ defaultImages = [], onChange }: ImageUploaderPro
   const removeImage = (index: number) => {
     const filtered = images
       .filter((_, i) => i !== index)
-      .map((img, i) => ({ ...img, sortOrder: i }));
+      .map((img, i) => ({ ...img, sortOrder: i + 1 }));
     setImages(filtered);
     onChange(filtered.map(({ key, sortOrder }) => ({ key, sortOrder })));
   };

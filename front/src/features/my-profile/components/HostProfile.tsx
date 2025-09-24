@@ -7,14 +7,13 @@ import { useEffect, useState } from 'react';
 import { logout } from '@/services/auth.api';
 import { getMyProfile } from '@/services/user.api';
 import type { MyProfile } from '@/services/user.types';
+import Profile from '@/assets/icons/edit-profile.png';
 import Manage from '@/assets/icons/annoucer.png';
 import Calendar from '@/assets/icons/calendar.png';
 import Heart from '@/assets/icons/heart-blue.png';
-import PositiveReview from '@/assets/icons/positive-review.png';
 import CreateStay from '@/assets/icons/create-stay.png';
 import Policy from '@/assets/icons/dollar.png';
 import SignOut from '@/assets/icons/sign-out.png';
-import Usdc from '@/assets/icons/usd-circle.png';
 import { useLanguage } from '@/features/language';
 import { profileMessages } from '@/features/my-profile';
 import { useAuthStore } from '@/stores/useAuthStores';
@@ -80,18 +79,20 @@ export function HostProfile() {
   return (
     <>
       <div
-        className="flex flex-col items-center px-6 py-8 space-y-6 min-h-screen overflow-y-auto"
+        className="flex flex-col items-center px-6 py-8 min-h-screen overflow-y-auto mb-20"
         style={{ paddingBottom: 'var(--safe-bottom, 110px)' }}
       >
         <section
           onClick={handleProfile}
-          className="flex flex-col items-center space-y-2 cursor-pointer"
+          className="flex flex-col items-center space-y-2 cursor-pointer 
+             rounded-xl p-2
+             transition-transform duration-300 ease-in-out hover:scale-105 mb-2"
         >
           {profile?.profileUrl ? (
             <img
               src={profile.profileUrl}
               alt="프로필 이미지"
-              className="w-20 h-20 rounded-full object-cover"
+              className="w-20 h-20 rounded-full object-cover ring-2 ring-transparent group-hover:ring-blue-400 transition"
             />
           ) : (
             <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">
@@ -108,7 +109,7 @@ export function HostProfile() {
 
         <BlockChainWallet />
 
-        <div className="w-full max-w-sm space-y-1">
+        <div className="w-full max-w-sm space-y-1 mt-12">
           <p className="text-sm text-gray-500 mb-2 font-bold">{t.stayManage}</p>
           <Link
             href="/my-profile/manage-stay"
@@ -126,7 +127,7 @@ export function HostProfile() {
           </Link>
         </div>
 
-        <div className="w-full max-w-sm space-y-1">
+        <div className="w-full max-w-sm space-y-1 mt-12">
           <p className="text-sm text-gray-500 mb-2 font-bold">{t.reservation}</p>
           <Link
             href="/my-profile/reservations"
@@ -137,7 +138,7 @@ export function HostProfile() {
           </Link>
         </div>
 
-        <div className="w-full max-w-sm space-y-1">
+        <div className="w-full max-w-sm space-y-1 mt-12">
           <p className="text-sm text-gray-500 mb-2 font-bold">{t.activity}</p>
           <Link
             href="/my-profile/favorite"
@@ -155,8 +156,15 @@ export function HostProfile() {
           </Link> */}
         </div>
 
-        <div className="w-full max-w-sm space-y-1">
+        <div className="w-full max-w-sm space-y-1 mt-12">
           <p className="text-sm text-gray-500 mb-2 font-bold">{t.guide}</p>
+          <Link
+            href="/my-profile/detail"
+            className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
+          >
+            <Image src={Profile} alt="Profile Icon" width={24} height={24} />
+            <span className="text-gray-800 text-sm">{t.profile}</span>
+          </Link>
           <button
             onClick={handlePolicy}
             className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
