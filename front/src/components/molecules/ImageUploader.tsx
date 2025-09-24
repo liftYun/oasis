@@ -61,8 +61,8 @@ export function ImageUploader({ defaultImages = [], onChange }: ImageUploaderPro
     if (!files.length) return;
 
     try {
-      const presignReq: PresignedRequest[] = files.map((f) => ({
-        sortOrder: 0, // 일단 0, 나중에 다시 매김
+      const presignReq: PresignedRequest[] = files.map((f, i) => ({
+        sortOrder: i + 1,
         contentType: f.type,
       }));
       const res = await getPresignedUrls(presignReq);

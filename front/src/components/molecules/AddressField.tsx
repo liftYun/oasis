@@ -28,7 +28,7 @@ export function AddressField({ register, errors, watch, onSearchClick }: Address
   } as const;
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 w-full">
       <Label>{t.form.addressLabel}</Label>
       <div className="flex flex-col gap-2">
         {postalCodeValue && addressValue ? (
