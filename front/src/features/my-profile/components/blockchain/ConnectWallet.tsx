@@ -13,6 +13,14 @@ import Polygon from '@/assets/logos/polygon-logo.png';
 import { useLanguage } from '@/features/language/hooks/useLanguage';
 import { walletMessages } from './locale';
 
+type WalletStatusKey =
+  | 'notConnected'
+  | 'loading'
+  | 'error'
+  | 'success'
+  | 'noWallet'
+  | 'snapshotError';
+
 interface ConnectWalletProps {
   onConnectSuccess: (address: string, sdkInitData: SdkInitData) => void;
 }
@@ -42,7 +50,7 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
   const { lang } = useLanguage();
   const t = walletMessages[lang];
 
-  const [status, setStatus] = useState<string>(t.notConnected);
+  const [status, setStatus] = useState<WalletStatusKey>('notConnected');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [snapshot, setSnapshot] = useState<WalletSnapshot | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -56,9 +64,9 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
   const copy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      toast.success(t.copy + ' 완료');
+      toast.success(t.copySuccess);
     } catch {
-      toast.error(t.copy + ' 실패');
+      toast.error(t.copyFailed);
     }
   };
 
@@ -69,7 +77,7 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
     try {
       const userUuid = getUserUuidFromToken();
       if (!userUuid) {
-        throw new Error('JWT 토큰 없음');
+        throw new Error(t.noJwtToken);
       }
 
       const token = getToken();
@@ -83,7 +91,7 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
       });
       if (!resp.ok) {
         const text = await resp.text();
-        throw new Error(`init-session 실패: HTTP ${resp.status} - ${text}`);
+        throw new Error(`${t.initSessionFailed}: HTTP ${resp.status} - ${text}`);
       }
 
       const raw = await resp.json();
@@ -91,7 +99,7 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
       setSdkInitData(backendData);
 
       if (!backendData.appId || !backendData.userToken || !backendData.encryptionKey) {
-        throw new Error('init-session 응답에 필수값 없음');
+        throw new Error(t.missingRequiredValues);
       }
 
       lastInitRef.current = backendData;
@@ -106,16 +114,16 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
       });
 
       if (backendData.challengeId) {
-        toast.success('PIN 설정 필요');
+        toast.success(t.pinSetupRequired);
         sdk.execute(backendData.challengeId, async (error, result) => {
           if (error) {
             setError(error.message);
-            toast.error('PIN 설정 실패');
+            toast.error(t.pinSetupFailed);
             setIsLoading(false);
             return;
           }
           if (result) {
-            toast.success('PIN 설정 완료!');
+            toast.success(t.pinSetupComplete);
             await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/wallet/snapshot`, {
               method: 'GET',
               headers: {
@@ -138,7 +146,7 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
         const addr = snap.primaryWallet?.address;
         if (addr) {
           onConnectSuccess(addr, backendData);
-          setStatus(t.success);
+          setStatus('success');
         } else {
           await refreshSnapshotAndNotify(backendData);
         }
@@ -146,7 +154,7 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
       }
     } catch (e) {
       setError((e as Error).message);
-      setStatus(t.error);
+      setStatus('error');
       setIsLoading(false);
     }
   }
@@ -159,7 +167,7 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
     }
     try {
       setIsLoading(true);
-      setStatus(t.loading);
+      setStatus('loading');
       await refreshSnapshotAndNotify(initData);
     } catch (e) {
       setError((e as Error).message);
@@ -182,7 +190,7 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
       });
       if (!resp.ok) {
         const text = await resp.text();
-        throw new Error(`GET /wallets 실패: HTTP ${resp.status} - ${text}`);
+        throw new Error(`${t.getWalletsFailed}: HTTP ${resp.status} - ${text}`);
       }
       const raw = await resp.json();
       const data: WalletSnapshot = raw.result ?? raw;
@@ -190,17 +198,17 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
 
       const address = data?.primaryWallet?.address;
       if (!address) {
-        setStatus(t.noWallet);
+        setStatus('noWallet');
         setIsLoading(false);
         return;
       }
 
       onConnectSuccess(address, initData);
-      setStatus(t.success);
+      setStatus('success');
       setIsLoading(false);
     } catch (e) {
       setError((e as Error).message);
-      setStatus(t.snapshotError);
+      setStatus('snapshotError');
       setIsLoading(false);
     }
   }
@@ -219,9 +227,9 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
           className={`px-2.5 py-0.5 text-xs font-medium rounded-full 
           backdrop-blur-md bg-white/30 border border-white/20 shadow-sm
           ${isLoading ? 'text-gray-600' : error ? 'text-red-600' : 'text-green-700'}`}
-          title={status}
+          title={isLoading ? t.loading : error ? t.error : t[status]}
         >
-          {isLoading ? t.loading : error ? t.error : t.success}
+          {isLoading ? t.loading : error ? t.error : t[status]}
         </span>
       </div>
 
@@ -229,7 +237,7 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
         <span
           className={`inline-flex items-center gap-3 px-2.5 py-0.5 text-xs font-medium rounded-full
           backdrop-blur-md bg-white/30 border border-white/20 shadow-sm transition-colors`}
-          title={status}
+          title={isLoading ? t.loading : error ? `${t.error} — ${error}` : status}
         >
           {isLoading && <span className="w-2 h-2 rounded-full bg-green animate-pulse" />}
           {error && <span className="w-2 h-2 rounded-full bg-red" />}
