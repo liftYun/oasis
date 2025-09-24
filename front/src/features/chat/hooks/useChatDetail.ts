@@ -11,6 +11,7 @@ import {
 import { enterChatRoom, exitChatRoom } from '@/features/chat/api/presence.firestore';
 import { useAuthStore } from '@/stores/useAuthStores';
 import { useLanguage } from '@/features/language';
+import { chatMessages } from '@/features/chat/locale';
 import { notifyFirebaseUnavailable } from '@/features/chat/api/toastHelpers';
 
 interface StayInfo {
@@ -33,6 +34,7 @@ export function useChatDetail(chatId: string) {
   const [header, setHeader] = useState<StayInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { lang } = useLanguage();
+  const t = chatMessages[lang];
 
   // 방 메타 구독
   useEffect(() => {
@@ -62,14 +64,14 @@ export function useChatDetail(chatId: string) {
             const prevCreated = idx > 0 ? arr[idx - 1].data.createdAt?.toDate?.() : undefined;
             const showTime = (() => {
               if (!created) return '';
-              if (!prevCreated) return formatTs(created);
+              if (!prevCreated) return formatTs(created, t);
               const sameMinute =
                 created.getFullYear() === prevCreated.getFullYear() &&
                 created.getMonth() === prevCreated.getMonth() &&
                 created.getDate() === prevCreated.getDate() &&
                 created.getHours() === prevCreated.getHours() &&
                 created.getMinutes() === prevCreated.getMinutes();
-              return sameMinute ? '' : formatTs(created);
+              return sameMinute ? '' : formatTs(created, t);
             })();
             return {
               id: m.id,
@@ -87,7 +89,7 @@ export function useChatDetail(chatId: string) {
       }
     );
     return () => unsub();
-  }, [chatId, myUid]);
+  }, [chatId, myUid, t]);
 
   // 방 입장/퇴장 + 읽음 처리 (입장/이탈 모두에서 보정)
   useEffect(() => {
@@ -193,10 +195,10 @@ export function useChatDetail(chatId: string) {
   return { data: detail, isLoading: !detail && !error, error };
 }
 
-function formatTs(date: Date): string {
+function formatTs(date: Date, t: typeof chatMessages.kor): string {
   const hours = date.getHours();
   const minutes = String(date.getMinutes()).padStart(2, '0');
-  const ampm = hours < 12 ? '오전' : '오후';
+  const ampm = hours < 12 ? t.am : t.pm;
   const h12 = hours % 12 === 0 ? 12 : hours % 12;
   const y = String(date.getFullYear()).slice(-2);
   const mo = String(date.getMonth() + 1).padStart(2, '0');
