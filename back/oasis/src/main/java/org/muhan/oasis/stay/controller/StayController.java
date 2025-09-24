@@ -156,9 +156,9 @@ public class StayController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ){
         stayService.deleteStay(stayId, userDetails.getUserUuid());
+
         return BaseResponse.ok();
     }
-
 
     @Operation(
             summary = "숙소 상세 조회",

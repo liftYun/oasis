@@ -1,8 +1,11 @@
 package org.muhan.oasis.stay.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.common.exception.BaseException;
+import org.muhan.oasis.key.repository.KeyOwnerRepository;
+import org.muhan.oasis.key.repository.KeyRepository;
 import org.muhan.oasis.openAI.dto.out.ReviewSummaryResultDto;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
 import org.muhan.oasis.s3.service.S3StorageService;
@@ -32,6 +35,7 @@ import java.util.stream.Collectors;
 
 import static org.muhan.oasis.common.base.BaseResponseStatus.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StayServiceImpl implements StayService{
@@ -48,6 +52,8 @@ public class StayServiceImpl implements StayService{
     private final StayRepository stayRepository;
     private final S3StorageService s3StorageService;
     private final ReservationRepository reservationRepository;
+    private final KeyRepository keyRepository;
+    private final KeyOwnerRepository keyOwnerRepository;
 
     @Override
     @Transactional
@@ -422,8 +428,8 @@ public class StayServiceImpl implements StayService{
         StayEntity stay = stayRepository.findById(stayId)
                 .orElseThrow(() -> new BaseException(NO_STAY));
 
-        if(!stay.getUser().getUserUuid().equals(userUuid))
-            throw new BaseException(NO_ACCESS_AUTHORITY);
+//        if(!stay.getUser().getUserUuid().equals(userUuid))
+//            throw new BaseException(NO_ACCESS_AUTHORITY);
 
         // (A) S3 키 미리 수집
         List<StayPhotoEntity> photos = stayPhotoRepository.findAllByStay(stay);
@@ -440,6 +446,7 @@ public class StayServiceImpl implements StayService{
         stayFacilityRepository.deleteByStayId(stayId);
         stayFacilityRepository.flush();
 
+
         // 3) Photos (DB 삭제)
         if (!photos.isEmpty()) {
             stayPhotoRepository.deleteAllInBatch(photos);
@@ -449,10 +456,15 @@ public class StayServiceImpl implements StayService{
         // 4) RatingSummary (@MapsId → PK=stayId)
         stayRatingSummaryRepository.deleteByStayId(stayId);
 
+        List<Long> keyIds = keyRepository.findIdsByStayId(stayId);
+        if (!keyIds.isEmpty()) {
+            keyOwnerRepository.deleteByKeyIds(keyIds);   // 3) KeyOwner
+            keyRepository.deleteByStayId(stayId); // 4) DigitalKey
+        }
         // 5) Device (1:1) — 연관 로딩해서 삭제
         deviceRepository.deleteByStayId(stayId);
 
-        // (C) 본체 삭제
+        // (C) 숙소 삭제
         stayRepository.delete(stay);
 
         // (D) 커밋 이후 S3 오브젝트 삭제 (DB 롤백 시 파일 삭제 방지)

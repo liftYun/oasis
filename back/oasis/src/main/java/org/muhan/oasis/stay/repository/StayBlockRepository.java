@@ -19,5 +19,5 @@ public interface StayBlockRepository extends JpaRepository<StayBlockEntity, Long
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("delete from StayBlockEntity sb where sb.stay.id = :stayId")
-    void deleteByStayIdAll(Long stayId);
+    int deleteByStayIdAll(Long stayId);
 }

@@ -2,9 +2,11 @@ package org.muhan.oasis.key.repository;
 
 import org.muhan.oasis.key.entity.KeyOwnerEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,4 +30,8 @@ public interface KeyOwnerRepository extends JpaRepository<KeyOwnerEntity, Long> 
     java.util.List<KeyOwnerEntity> findActiveKeysForGuest(@Param("userId") Long userId,
                                                           @Param("now") java.time.LocalDateTime now);
 
+    /** key_id IN (...) 로 일괄 삭제 */
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from KeyOwnerEntity ko where ko.key.keyId in :keyIds")
+    int deleteByKeyIds(Collection<Long> keyIds);
 }
