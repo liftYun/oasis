@@ -5,11 +5,11 @@ export type Slide = {
   desc: string;
 };
 
-export type OnboardSliderProps = {
-  slides: readonly Slide[];
+export interface OnboardSliderProps {
+  slides: ReadonlyArray<{ title: string; desc: string }>;
   initialIndex?: number;
   loop?: boolean;
-  autoPlayMs?: number | null;
-  onChange?: (index: number) => void;
+  autoPlayMs?: number;
+  onChange?: (index: number, go: (i: number, dir: number) => void) => void;
   className?: string;
-};
+}

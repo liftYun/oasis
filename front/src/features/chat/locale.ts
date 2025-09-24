@@ -16,6 +16,7 @@ export const chatMessages = {
     emptySubtitle: '첫 메시지를 보내 대화를 시작해 보세요.',
     loadError: '채팅 정보를 불러올 수 없습니다.',
     retry: '다시 시도',
+    tooltipTranslate: '번역하기',
   },
   eng: {
     titleChat: 'Chat',
@@ -34,6 +35,7 @@ export const chatMessages = {
     emptySubtitle: 'Send the first message to start the conversation.',
     loadError: 'Unable to load chat info.',
     retry: 'Retry',
+    tooltipTranslate: 'Translate',
   },
 } as const;
 

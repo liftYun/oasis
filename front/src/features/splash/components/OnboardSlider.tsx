@@ -45,7 +45,7 @@ export function OnboardSlider({
       setDirection(dir);
       const clamped = clampIndex(next);
       setIndex(clamped);
-      onChange?.(clamped);
+      onChange?.(clamped, go);
     },
     [clampIndex, onChange]
   );
@@ -98,7 +98,7 @@ export function OnboardSlider({
         className="absolute right-0 top-0 h-full w-1/5 z-10"
       />
 
-      <div className="relative h-[clamp(300px,60vh,420px)] overflow-hidden">
+      <div className="relative h-[clamp(300px,60vh,420px)] overflow-hidden flex items-center justify-center">
         <AnimatePresence custom={direction} mode="sync" initial={false}>
           <motion.div
             key={index}
@@ -119,35 +119,18 @@ export function OnboardSlider({
                 offset.x < 0 ? next() : prev();
               }
             }}
-            className="absolute inset-0 px-6 transform-gpu will-change-transform"
+            className="absolute inset-0 px-6 flex flex-col justify-center items-center text-center"
           >
-            <div className="mt-10 min-h-[100px] flex flex-col justify-start">
-              <h2 className="text-2xl font-bold text-center">{slide.title}</h2>
-              <p className="mt-2 text-gray-600 whitespace-pre-line text-center">{slide.desc}</p>
+            <div className="max-w-md">
+              <h2 className="text-2xl font-bold">{slide.title}</h2>
+              <p className="mt-2 text-gray-600 whitespace-pre-line">{slide.desc}</p>
             </div>
 
-            <div className="h-[clamp(160px,30vh,256px)] flex items-center justify-center">
+            <div className="mt-6 h-[clamp(200px,40vh,320px)] flex items-center justify-center">
               {defaultBodies[index]}
             </div>
           </motion.div>
         </AnimatePresence>
-      </div>
-
-      <div className="mt-14 mb-10 flex justify-center gap-2" aria-label="Slide indicators">
-        {slides.map((_, i) => {
-          const active = i === index;
-          return (
-            <button
-              key={i}
-              aria-label={`Go to slide ${i + 1}`}
-              aria-current={active ? 'true' : undefined}
-              onClick={() => go(i, i > index ? 1 : -1)}
-              className={`h-2 rounded-full transition
-                ${active ? 'bg-gray-700 w-6 scale-100' : 'bg-gray-300 w-2 hover:bg-gray-400 hover:scale-110'}
-              `}
-            />
-          );
-        })}
       </div>
     </section>
   );

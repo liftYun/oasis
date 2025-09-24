@@ -39,9 +39,8 @@ export function ChatListItem({
         },
       }}
       aria-label={`${t.ariaOpenChat}: ${title}`}
-      className="flex items-center gap-4 py-5 hover:bg-gray-50"
+      className="flex items-center gap-4 px-5 py-7 hover:bg-gray-50"
     >
-      {/* 래퍼 분리: 아바타가 이미지 밖으로 자연스럽게 튀어나오도록 */}
       <div className="relative h-16 w-16 flex-shrink-0">
         <div className="relative h-full w-full rounded overflow-hidden bg-gray-100">
           <Image src={thumbnailUrl || StayImage} alt={title} fill className="object-cover" />

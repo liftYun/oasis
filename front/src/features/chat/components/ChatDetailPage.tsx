@@ -117,7 +117,7 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
   }
 
   return (
-    <main className="flex flex-col w-full min-h-screen bg-white">
+    <main className="flex flex-col w-full min-h-screen bg-blue-50">
       <section className="px-4">
         <StayInfoCard stay={data.stay} />
       </section>

@@ -57,7 +57,7 @@ export function Reservations() {
     ${!item.isSettlemented ? 'hover:scale-105 transition-transform duration-300 ease-in-out' : ''}`}
             >
               <div className="flex">
-                <div className="relative w-36 h-36 flex-shrink-0">
+                <div className="relative w-28 h-28 flex-shrink-0">
                   <Image
                     src={item.thumbnail}
                     alt={item.stayTitle}
@@ -68,7 +68,7 @@ export function Reservations() {
 
                 <Link
                   href={`/reservation-detail/${item.reservationId}` as Route}
-                  className="flex flex-col justify-center pl-4 pr-3 py-3 flex-1 gap-2 cursor-pointer"
+                  className="flex flex-col justify-center px-5 py-3 flex-1 gap-2 cursor-pointer"
                 >
                   <div className="flex justify-between">
                     <h2 className="font-semibold text-gray-600">{item.stayTitle}</h2>
