@@ -10,6 +10,7 @@ import { RefundPolicy } from '@/features/reservation/components/RefundPolicy';
 import { ChevronLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { BlockChainWallet } from '@/features/my-profile/components/blockchain/BlockChainWallet';
+import { issueSmartKey } from '@/services/smartKey.api';
 
 export function Step3_Dummy() {
   const { lang } = useLanguage();
@@ -27,18 +28,37 @@ export function Step3_Dummy() {
 
   const handleSubmit = async () => {
     if (!agreed) return;
+
     try {
+      // 1. 예약 요청 먼저
       const result = await store.submit();
 
-      if (result) {
-        toast.success(
-          lang === 'kor' ? '예약 요청이 완료되었습니다.' : 'Reservation requested successfully.'
-        );
-        // store.reset();
-        router.push('/main');
-      } else {
+      if (!result) {
         toast.error(lang === 'kor' ? '예약 요청에 실패했습니다.' : 'Reservation request failed.');
+        return;
       }
+
+      // 예약 성공 → reservationId 확보
+      const reservationId = result.reservationId;
+      toast.success(
+        lang === 'kor' ? '예약 요청이 완료되었습니다.' : 'Reservation requested successfully.'
+      );
+
+      // 2. 스마트키 발급 요청
+      const keyRes = await issueSmartKey({
+        reservationId: reservationId,
+        userNicknames: store.selectedUsers.map((u) => u.nickname.trim()),
+      });
+
+      if (keyRes.status === 200 && keyRes.result) {
+        toast.success(`스마트키 발급 완료! (keyId: ${keyRes.result})`);
+      } else {
+        toast.error(keyRes.message || '스마트키 발급 실패');
+      }
+
+      // 3. 상태 초기화 + 이동
+      store.reset();
+      router.push('/main');
     } catch (err) {
       console.error(err);
       toast.error(

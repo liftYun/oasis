@@ -9,37 +9,10 @@ import { reservationMessages } from '@/features/reservation/locale';
 import { useAuthStore } from '@/stores/useAuthStores';
 import { useReservationStore } from '@/stores/useResversionStores';
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, ChevronLeft } from 'lucide-react';
 import { searchUsers } from '@/services/reservation.api';
 import type { UserSearchItem } from '@/services/reservation.types';
 import { toast } from 'react-hot-toast';
-import { ChevronLeft } from 'lucide-react';
-
-// async function searchUsers(
-//   query: string,
-//   page: number,
-//   size: number
-// ): Promise<{ status: number; result: { users: UserSearchItem[] } }> {
-//   const mockUsers: UserSearchItem[] = [
-//     { id: 1, nickname: '홍길동', profileUrl: 'hong@test.com' },
-//     { id: 2, nickname: '김철수', profileUrl: 'kim@test.com' },
-//     { id: 3, nickname: '이영희', profileUrl: 'lee@test.com' },
-//     { id: 4, nickname: '박민수', profileUrl: 'park@test.com' },
-//     { id: 5, nickname: '최수진', profileUrl: 'choi@test.com' },
-//     { id: 6, nickname: '정우성', profileUrl: 'jung@test.com' },
-//   ];
-
-//   const filtered = mockUsers.filter((u) => u.nickname.includes(query));
-//   const start = page * size;
-//   const end = start + size;
-
-//   return {
-//     status: 200,
-//     result: {
-//       users: filtered.slice(start, end),
-//     },
-//   };
-// }
 
 export function Step2_SmartKey() {
   const { lang } = useLanguage();
@@ -114,8 +87,13 @@ export function Step2_SmartKey() {
 
   const filteredResults = results.filter((u) => !selectedUsers.some((sel) => sel.id === u.id));
 
+  const handleNext = () => {
+    store.setSelectedUsers(selectedUsers);
+    store.setStep(3);
+  };
+
   return (
-    <div className="max-w-md w-full mx-auto flex flex-1 flex-col min-h-[calc(100vh-100px)] overflow-y-auto">
+    <div className="max-w-md w-full mx-auto flex flex-1 flex-col min-h-[calc(100vh-100px)] p-4 overflow-y-auto">
       <div className="fixed left-1/2 -translate-x-1/2 top-[env(safe-area-inset-top)] w-full max-w-[480px] z-[70]">
         <header className="relative h-14 bg-white px-2 flex items-center justify-between border-x border-gray-100">
           <button
@@ -221,11 +199,7 @@ export function Step2_SmartKey() {
       )}
 
       <div className="mt-auto pb-2">
-        <Button
-          variant={canNext ? 'blue' : 'blueLight'}
-          disabled={!canNext}
-          onClick={() => store.setStep(3)}
-        >
+        <Button variant={canNext ? 'blue' : 'blueLight'} disabled={!canNext} onClick={handleNext}>
           {t.step2.next}
         </Button>
       </div>

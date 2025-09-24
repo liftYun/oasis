@@ -8,6 +8,7 @@ import type {
 import { submitReservation } from '@/services/submitReservation';
 import { W3SSdk } from '@circle-fin/w3s-pw-web-sdk';
 import { useSdkStore } from '@/stores/useSdkStores';
+import type { UserSearchItem } from '@/services/reservation.types'; // Step2에서 쓰는 타입
 
 const sdk = new W3SSdk();
 
@@ -20,9 +21,12 @@ interface ReservationStore extends CreateReservationRequest {
   error: string | null;
   reservation: CreateReservationResponse['result'] | null;
 
+  selectedUsers: UserSearchItem[];
+
   setField: (field: keyof CreateReservationRequest, value: any) => void;
   setStep: (step: number) => void;
   setView: (view: ViewMode) => void;
+  setSelectedUsers: (users: UserSearchItem[]) => void;
   reset: () => void;
   submit: () => Promise<CreateReservationResponse['result'] | null>;
 }
@@ -48,12 +52,15 @@ export const useReservationStore = create<ReservationStore>((set, get) => ({
   loading: false,
   error: null,
 
+  selectedUsers: [],
+
   sdkInitData: null,
 
   setField: (field, value) => set({ [field]: value } as Partial<ReservationStore>),
 
   setStep: (step) => set({ currentStep: step }),
   setView: (view) => set({ view }),
+  setSelectedUsers: (users) => set({ selectedUsers: users }),
 
   reset: () =>
     set({
@@ -74,6 +81,7 @@ export const useReservationStore = create<ReservationStore>((set, get) => ({
       view: 'form',
       loading: false,
       error: null,
+      selectedUsers: [],
     }),
 
   submit: async () => {
