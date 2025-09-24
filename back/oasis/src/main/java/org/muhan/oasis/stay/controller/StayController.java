@@ -151,16 +151,14 @@ public class StayController {
             @ApiResponse(responseCode = "404", description = "존재하지 않는 숙소", content = @Content),
     })
     @DeleteMapping("/{stayId}")
-    public ResponseEntity<BaseResponse<?>> deleteStay(
+    public BaseResponse<Void> deleteStay(
             @PathVariable Long stayId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ){
         stayService.deleteStay(stayId, userDetails.getUserUuid());
-        BaseResponse<Void> body = new BaseResponse<>();
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(body);
+        return BaseResponse.ok();
     }
+
 
     @Operation(
             summary = "숙소 상세 조회",

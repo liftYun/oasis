@@ -409,6 +409,13 @@ public class StayServiceImpl implements StayService{
         ratingSummary.recalculate(rating);
     }
 
+    /**
+     * 숙소 삭제:
+     * 1) 권한 확인
+     * 2) 연관 엔티티 선삭제 (BLOCK → FACILITY → PHOTO → RATING_SUMMARY → DEVICE)
+     * 3) 본체(STAY) 삭제
+     * 4) 커밋 후 S3 사진 삭제
+     */
     @Override
     @Transactional
     public void deleteStay(Long stayId, String userUuid) {
@@ -418,7 +425,44 @@ public class StayServiceImpl implements StayService{
         if(!stay.getUser().getUserUuid().equals(userUuid))
             throw new BaseException(NO_ACCESS_AUTHORITY);
 
+        // (A) S3 키 미리 수집
+        List<StayPhotoEntity> photos = stayPhotoRepository.findAllByStay(stay);
+        List<String> s3Keys = photos.stream()
+                .map(StayPhotoEntity::getPhotoKey)
+                .filter(Objects::nonNull)
+                .toList();
+
+        // (B) 연관 엔티티 선삭제
+        // 1) Block
+        stayBlockRepository.deleteByStayIdAll(stayId);
+
+        // 2) Facilities (현재 연결된 facility id 전부 삭제)
+        stayFacilityRepository.deleteByStayId(stayId);
+        stayFacilityRepository.flush();
+
+        // 3) Photos (DB 삭제)
+        if (!photos.isEmpty()) {
+            stayPhotoRepository.deleteAllInBatch(photos);
+            stayPhotoRepository.flush();
+        }
+
+        // 4) RatingSummary (@MapsId → PK=stayId)
+        stayRatingSummaryRepository.deleteByStayId(stayId);
+
+        // 5) Device (1:1) — 연관 로딩해서 삭제
+        deviceRepository.deleteByStayId(stayId);
+
+        // (C) 본체 삭제
         stayRepository.delete(stay);
+
+        // (D) 커밋 이후 S3 오브젝트 삭제 (DB 롤백 시 파일 삭제 방지)
+        if (!s3Keys.isEmpty()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override public void afterCommit() {
+                    s3Keys.forEach(s3StorageService::delete);
+                }
+            });
+        }
     }
 
     @Override
