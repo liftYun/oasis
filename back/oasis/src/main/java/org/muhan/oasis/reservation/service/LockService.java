@@ -7,6 +7,10 @@ import org.muhan.oasis.common.exception.BaseException;
 import org.muhan.oasis.external.circle.CircleUserApi;
 import org.muhan.oasis.external.circle.CircleUserTokenCache;
 import org.muhan.oasis.reservation.dto.in.LockRequestDto;
+import org.muhan.oasis.reservation.dto.in.TransactionConfirmRequestDto;
+import org.muhan.oasis.reservation.entity.ReservationEntity;
+import org.muhan.oasis.reservation.enums.ReservationStatus;
+import org.muhan.oasis.reservation.repository.ReservationRepository;
 import org.muhan.oasis.stay.entity.CancellationPolicyEntity;
 import org.muhan.oasis.stay.entity.StayEntity;
 import org.muhan.oasis.stay.repository.CancellationPolicyRepository;
@@ -36,6 +40,7 @@ public class LockService {
     private final CancellationPolicyRepository cancellationPolicyRepository;
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
+    private final ReservationRepository reservationRepository;
 
 
     @Value("${circle.default-fee-level:MEDIUM}")
@@ -58,6 +63,10 @@ public class LockService {
 
         UserEntity client = userRepository.findByUserUuid(req.getUserUUID())
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
+        ReservationEntity reservation = reservationRepository.findByUserAndReservationId(client, req.getReservationId())
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_RESERVATION));
+
         WalletEntity clientWallet = walletRepository.findByUser(client);
         String clientWalletId = clientWallet.getWalletId();
 
@@ -115,6 +124,11 @@ public class LockService {
                     "lock:" + req.getReservationId()
             );
             log.info("Circle API success: challengeId={}", ch.getData().getChallengeId());
+
+            reservation.setStatus(ReservationStatus.PENDING_LOCK);
+            reservation.setChallengeId(ch.getData().getChallengeId());
+            reservationRepository.save(reservation);
+
             return new Result(
                     ch.getData().getChallengeId(),
                     tokenEntry.getUserToken(),
@@ -153,7 +167,31 @@ public class LockService {
                 throw new BaseException(BaseResponseStatus.CIRCLE_INTERNAL_ERROR);
             }
         } catch (RuntimeException ex) {
+            log.error("Lock API 호출 실패: ", ex);
+
+            // API 호출 실패 시 DB 상태를 'CANCELED'로 변경
+            reservation.setStatus(ReservationStatus.CANCELED);
+            reservationRepository.save(reservation);
             throw new BaseException(BaseResponseStatus.CIRCLE_INTERNAL_ERROR);        }
+    }
+
+    public void confirmLock(TransactionConfirmRequestDto request) {
+        ReservationEntity reservation = reservationRepository
+                .findByChallengeId(request.getChallengeId())
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_RESERVATION));
+
+        if (request.isSuccess()) {
+            reservation.setStatus(ReservationStatus.LOCKED);
+            log.info("Lock 트랜잭션 성공 확인: challengeId={}", request.getChallengeId());
+        } else if (request.isFailed()) {
+            reservation.setStatus(ReservationStatus.APPROVED); // 롤백
+            log.warn("Lock 트랜잭션 실패 확인: challengeId={}", request.getChallengeId());
+        } else {
+            log.error("알 수 없는 트랜잭션 상태: status={}", request.getStatus());
+            throw new BaseException(BaseResponseStatus.INVALID_PARAMETER);
+        }
+
+        reservationRepository.save(reservation);
     }
 
     public record Result(String challengeId, String userToken, String encryptionKey) {}
