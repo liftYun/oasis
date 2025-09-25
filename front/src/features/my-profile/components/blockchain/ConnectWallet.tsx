@@ -12,6 +12,7 @@ import Usdc from '@/assets/icons/usd-circle.png';
 import Polygon from '@/assets/logos/polygon-logo.png';
 import { useLanguage } from '@/features/language/hooks/useLanguage';
 import { walletMessages } from './locale';
+import { useRouter } from 'next/navigation';
 
 type WalletStatusKey =
   | 'notConnected'
@@ -60,6 +61,8 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
 
   const shorten = (addr?: string) => (addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '-');
   const { setSdkInitData } = useSdkStore();
+
+  const router = useRouter();
 
   const copy = async (text: string) => {
     try {
@@ -336,7 +339,7 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
 
           <div className="mt-8">
             <button
-              onClick={() => console.log('지갑 충전하기')}
+              onClick={() => router.push('/my-profile/blockchain')}
               className="w-full py-3 rounded-full bg-gradient-to-r from-primary to-green text-white font-medium text-sm shadow hover:opacity-90 active:scale-95 transition"
             >
               {t.topupWallet ?? '지갑 충전하기'}
