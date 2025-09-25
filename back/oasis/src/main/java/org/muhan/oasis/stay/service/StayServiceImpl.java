@@ -222,44 +222,60 @@ public class StayServiceImpl implements StayService{
             stay.setPrice(stayRequest.getPrice());
         }
 
-        //address + postalcode
-        if(stayRequest.getAddress() != null && stayRequest.getAddressEng() != null
-            && stayRequest.getPostalCode() != null) {
+        // ---- 주소(부분 갱신) ----
+        // 프론트는 도로명 주소를 address(=addressLine), 영문 도로명을 addressEng로 보냄
+        if (stayRequest.getAddress() != null) {
             stay.setAddressLine(stayRequest.getAddress());
+        }
+        if (stayRequest.getAddressEng() != null) {
             stay.setAddressLineEng(stayRequest.getAddressEng());
+        }
+        if (stayRequest.getPostalCode() != null) {
             stay.setPostalCode(stayRequest.getPostalCode());
         }
 
-        //addressDetail
-        if(stayRequest.getAddressDetail() != null && stayRequest.getAddressDetailEng() != null){
+        // ---- 상세 주소(부분 갱신) ----
+        if (stayRequest.getAddressDetail() != null) {
             stay.setAddrDetail(stayRequest.getAddressDetail());
+        }
+        if (stayRequest.getAddressDetailEng() != null) {
             stay.setAddrDetailEng(stayRequest.getAddressDetailEng());
         }
 
-        //maxGuest
-        if(stayRequest.getMaxGuest() != null){
+        // ---- 최대 인원 ----
+        if (stayRequest.getMaxGuest() != null) {
             stay.setMaxGuests(stayRequest.getMaxGuest());
         }
 
-        //imageRequestList
-        replaceStayPhotos(stay, stayRequest.getImageRequestList());
+        // ---- 이미지 (key 기준 동기화) ----
+        // 클라이언트는 {key, sortOrder} 배열을 보냄. 기존 key는 재사용, 신규 key만 추가.
+        if (stayRequest.getImageRequestList() != null) {
+            replaceStayPhotos(stay, stayRequest.getImageRequestList());
+        }
 
-        //facilities
-        updateFacilities(stay, stayRequest.getFacilities());
+        // ---- 편의시설 ----
+        if (stayRequest.getFacilities() != null) {
+            updateFacilities(stay, stayRequest.getFacilities());
+        }
 
-        //blockRangeList
-        replaceStayBlocks(stay, stayRequest.getBlockRangeList());
+        // ---- 예약불가 블록 ----
+        if (stayRequest.getBlockRangeList() != null) {
+            replaceStayBlocks(stay, stayRequest.getBlockRangeList());
+        }
 
-        //subRegionId
-        if(stayRequest.getSubRegionId() != null){
-            SubRegionEntity subRegion = subRegionRepository.findById(stayRequest.getSubRegionId()).orElseThrow(() -> new BaseException(NO_EXIST_SUBREGION));
-            SubRegionEngEntity subRegionEng = subRegionEngRepository.findById(stayRequest.getSubRegionId()).orElseThrow(() -> new BaseException(NO_EXIST_SUBREGION));
+        // ---- 지역 매핑 ----
+        if (stayRequest.getSubRegionId() != null) {
+            SubRegionEntity subRegion = subRegionRepository.findById(stayRequest.getSubRegionId())
+                    .orElseThrow(() -> new BaseException(NO_EXIST_SUBREGION));
+            SubRegionEngEntity subRegionEng = subRegionEngRepository.findById(stayRequest.getSubRegionId())
+                    .orElseThrow(() -> new BaseException(NO_EXIST_SUBREGION));
             stay.setSubRegionEntity(subRegion);
             stay.setSubRegionEngEntity(subRegionEng);
         }
 
         return StayReadResponseDto.builder()
-                .stayId(stay.getId()).build();
+                .stayId(stay.getId())
+                .build();
     }
 
     @Transactional
@@ -358,11 +374,64 @@ public class StayServiceImpl implements StayService{
         }
     }
 
+//    @Transactional
+//    public void replaceStayPhotos(StayEntity stay, List<ImageRequestDto> requested) {
+//        List<ImageRequestDto> req = Optional.ofNullable(requested).orElseGet(List::of);
+//
+//        // 0) 검증: key/정렬 중복 방지
+//        var dupKeys = req.stream()
+//                .collect(Collectors.groupingBy(ImageRequestDto::key, Collectors.counting()))
+//                .entrySet().stream().filter(e -> e.getValue() > 1).map(Map.Entry::getKey).toList();
+//        if (!dupKeys.isEmpty()) throw new BaseException(BaseResponseStatus.DUP_PHOTO_KEYS);
+//
+//        var dupOrders = req.stream()
+//                .collect(Collectors.groupingBy(ImageRequestDto::sortOrder, Collectors.counting()))
+//                .entrySet().stream().filter(e -> e.getValue() > 1).map(Map.Entry::getKey).toList();
+//        if (!dupOrders.isEmpty()) throw new BaseException(BaseResponseStatus.DUP_PHOTO_SORT_ORDER);
+//
+//        // 1) 기존 키 보관 (DB 커밋 후 S3 삭제용)
+//        List<StayPhotoEntity> existing = stayPhotoRepository.findAllByStay(stay);
+//        Set<String> oldKeys = existing.stream().map(StayPhotoEntity::getPhotoKey).collect(Collectors.toSet());
+//
+//        // 2) 새 엔티티 목록 구성 (요청 정렬 그대로 사용)
+//        List<StayPhotoEntity> newPhotos = req.stream()
+//                .sorted(Comparator.comparingInt(ImageRequestDto::sortOrder))
+//                .map(dto -> StayPhotoEntity.builder()
+//                        .stay(stay)                                        // FK 세팅
+//                        .photoKey(dto.key())
+//                        .photoUrl(s3StorageService.toPublicUrl(dto.key()))
+//                        .sortOrder(dto.sortOrder())
+//                        .build())
+//                .toList();
+//
+//        Set<String> newKeys = newPhotos.stream().map(StayPhotoEntity::getPhotoKey).collect(Collectors.toSet());
+//        List<String> keysToDelete = oldKeys.stream().filter(k -> !newKeys.contains(k)).toList();
+//
+//        // 3) DB: 모두 삭제 → 모두 삽입 (유니크 충돌/오더 업데이트 이슈 無)
+//        stayPhotoRepository.deleteAllInBatch(existing); // 또는 custom: deleteByStayId(stay.getId())
+//        stayPhotoRepository.flush();
+//
+//        List<StayPhotoEntity> persisted = stayPhotoRepository.saveAll(newPhotos);
+//
+//        // 4) 메모리 컬렉션 동기화 (세터 금지, 편의 메서드/컬렉션 조작)
+//        stay.getStayPhotoEntities().clear();
+//        persisted.forEach(stay::addPhoto);
+//
+//        // 5) S3 삭제는 커밋 이후
+//        if (!keysToDelete.isEmpty()) {
+//            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+//                @Override public void afterCommit() {
+//                    keysToDelete.forEach(s3StorageService::delete);
+//                }
+//            });
+//        }
+//    }
     @Transactional
     public void replaceStayPhotos(StayEntity stay, List<ImageRequestDto> requested) {
+        // 0) NPE 방지
         List<ImageRequestDto> req = Optional.ofNullable(requested).orElseGet(List::of);
 
-        // 0) 검증: key/정렬 중복 방지
+        // 1) 검증: key/정렬 중복 방지
         var dupKeys = req.stream()
                 .collect(Collectors.groupingBy(ImageRequestDto::key, Collectors.counting()))
                 .entrySet().stream().filter(e -> e.getValue() > 1).map(Map.Entry::getKey).toList();
@@ -373,35 +442,62 @@ public class StayServiceImpl implements StayService{
                 .entrySet().stream().filter(e -> e.getValue() > 1).map(Map.Entry::getKey).toList();
         if (!dupOrders.isEmpty()) throw new BaseException(BaseResponseStatus.DUP_PHOTO_SORT_ORDER);
 
-        // 1) 기존 키 보관 (DB 커밋 후 S3 삭제용)
+        // 2) 현재 상태 로딩 (지연로딩 대비)
         List<StayPhotoEntity> existing = stayPhotoRepository.findAllByStay(stay);
-        Set<String> oldKeys = existing.stream().map(StayPhotoEntity::getPhotoKey).collect(Collectors.toSet());
+        Map<String, StayPhotoEntity> existingByKey = existing.stream()
+                .collect(Collectors.toMap(StayPhotoEntity::getPhotoKey, Function.identity()));
 
-        // 2) 새 엔티티 목록 구성 (요청 정렬 그대로 사용)
-        List<StayPhotoEntity> newPhotos = req.stream()
+        // 3) 요청 정렬 기준 정리
+        List<ImageRequestDto> sortedReq = req.stream()
                 .sorted(Comparator.comparingInt(ImageRequestDto::sortOrder))
-                .map(dto -> StayPhotoEntity.builder()
-                        .stay(stay)                                        // FK 세팅
-                        .photoKey(dto.key())
-                        .photoUrl(s3StorageService.toPublicUrl(dto.key()))
-                        .sortOrder(dto.sortOrder())
-                        .build())
                 .toList();
 
-        Set<String> newKeys = newPhotos.stream().map(StayPhotoEntity::getPhotoKey).collect(Collectors.toSet());
-        List<String> keysToDelete = oldKeys.stream().filter(k -> !newKeys.contains(k)).toList();
+        // 4) upsert 대상과 삭제 대상 계산
+        Set<String> requestKeys = sortedReq.stream().map(ImageRequestDto::key).collect(Collectors.toSet());
+        Set<String> existingKeys = existing.stream().map(StayPhotoEntity::getPhotoKey).collect(Collectors.toSet());
+        List<String> keysToDelete = existingKeys.stream().filter(k -> !requestKeys.contains(k)).toList();
 
-        // 3) DB: 모두 삭제 → 모두 삽입 (유니크 충돌/오더 업데이트 이슈 無)
-        stayPhotoRepository.deleteAllInBatch(existing); // 또는 custom: deleteByStayId(stay.getId())
-        stayPhotoRepository.flush();
+        // 5) upsert: 기존은 sort만 갱신, 신규는 publicUrl 생성 후 추가
+        List<StayPhotoEntity> next = new ArrayList<>(sortedReq.size());
+        for (ImageRequestDto dto : sortedReq) {
+            StayPhotoEntity kept = existingByKey.get(dto.key());
+            if (kept != null) {
+                // 기존 사진 재사용
+                kept.setSortOrder(dto.sortOrder());
+                next.add(kept);
+            } else {
+                // 신규 사진 생성 (DB에는 항상 public URL을 저장)
+                String publicUrl = s3StorageService.toPublicUrl(dto.key());
+                StayPhotoEntity created = StayPhotoEntity.builder()
+                        .stay(stay)
+                        .photoKey(dto.key())
+                        .photoUrl(publicUrl)
+                        .sortOrder(dto.sortOrder())
+                        .build();
+                next.add(created);
+            }
+        }
 
-        List<StayPhotoEntity> persisted = stayPhotoRepository.saveAll(newPhotos);
+        // 6) JPA 컬렉션 동기화 (orphanRemoval=true 이므로 제거된 것은 delete)
+        //    - 먼저 제거
+        var toRemove = new ArrayList<StayPhotoEntity>();
+        for (StayPhotoEntity ex : existing) {
+            if (!requestKeys.contains(ex.getPhotoKey())) toRemove.add(ex);
+        }
+        toRemove.forEach(stay::removePhoto); // mappedBy 컬렉션에서 제거 → orphanRemoval로 DELETE
 
-        // 4) 메모리 컬렉션 동기화 (세터 금지, 편의 메서드/컬렉션 조작)
-        stay.getStayPhotoEntities().clear();
-        persisted.forEach(stay::addPhoto);
+        //    - 신규 추가
+        for (StayPhotoEntity p : next) {
+            if (p.getId() == null) stay.addPhoto(p); // 신규만 add; 기존은 이미 영속 상태
+        }
 
-        // 5) S3 삭제는 커밋 이후
+        // 정렬만 바꾼 기존 엔티티는 flush 시 UPDATE 됨
+
+        // 7) 썸네일(선택): sortOrder 가장 작은 URL로 유지
+        next.stream().min(Comparator.comparingInt(StayPhotoEntity::getSortOrder))
+                .ifPresent(first -> stay.setThumbnail(first.getPhotoUrl()));
+
+        // 8) S3 삭제는 "커밋 이후"에만 실행 (롤백 시 삭제 금지)
         if (!keysToDelete.isEmpty()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override public void afterCommit() {

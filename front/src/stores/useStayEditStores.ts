@@ -67,10 +67,17 @@ export const useStayStores = create<StayStore>((set, get) => ({
       postalCode: detail.postalCode,
       maxGuest: detail.maxGuest,
 
-      address: `${detail.region ?? ''} ${detail.subRegion ?? ''}`.trim(),
-      addressEng: '',
-      addressDetail: '',
-      addressDetailEng: '',
+      // address: `${detail.region ?? ''} ${detail.subRegion ?? ''}`.trim(),
+      // addressEng: '',
+      // addressDetail: '',
+      // addressDetailEng: '',
+      // 👉 실제 도로명 주소 / 상세주소
+      address: detail.address ?? '',
+      addressEng: detail.addressEng ?? '',
+      addressDetail: detail.addressDetail ?? '',
+      addressDetailEng: detail.addressDetailEng ?? '',
+
+      subRegionId: detail.subRegionId,
 
       imageRequestList: detail.photos.map((p) => ({
         key: p.url,
