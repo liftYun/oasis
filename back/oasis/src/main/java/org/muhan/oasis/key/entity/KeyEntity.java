@@ -18,8 +18,11 @@ public class KeyEntity {
     private Long keyId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "device_id", nullable = false)
+    @JoinColumn(name = "stay_id", nullable = false, referencedColumnName = "stay_id")
     private DeviceEntity device;   // 도어락 ID (FK)
+
+    @Column(name = "device_id", nullable = false)
+    private Long deviceId;
 
     @Column(name = "activation_time")
     private LocalDateTime activationTime;
@@ -28,9 +31,10 @@ public class KeyEntity {
     private LocalDateTime expirationTime;
 
     @Builder
-    public KeyEntity(Long keyId, DeviceEntity device, LocalDateTime activationTime, LocalDateTime expirationTime) {
+    public KeyEntity(Long keyId, DeviceEntity device, Long deviceId, LocalDateTime activationTime, LocalDateTime expirationTime) {
         this.keyId = keyId;
         this.device = device;
+        this.deviceId = deviceId;
         this.activationTime = activationTime;
         this.expirationTime = expirationTime;
     }

@@ -6,11 +6,8 @@ import type {
   CreateReservationResponse,
 } from '@/services/reservation.types';
 import { submitReservation } from '@/services/submitReservation';
-import { W3SSdk } from '@circle-fin/w3s-pw-web-sdk';
 import { useSdkStore } from '@/stores/useSdkStores';
 import type { UserSearchItem } from '@/services/reservation.types';
-
-const sdk = new W3SSdk();
 
 type ViewMode = 'form' | 'searchAddress';
 

@@ -1,10 +1,14 @@
 package org.muhan.oasis.stay.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.common.exception.BaseException;
+import org.muhan.oasis.key.repository.KeyOwnerRepository;
+import org.muhan.oasis.key.repository.KeyRepository;
 import org.muhan.oasis.openAI.dto.out.ReviewSummaryResultDto;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
+import org.muhan.oasis.review.repository.ReviewRepository;
 import org.muhan.oasis.s3.service.S3StorageService;
 import org.muhan.oasis.stay.dto.in.*;
 import org.muhan.oasis.stay.dto.out.*;
@@ -15,6 +19,7 @@ import org.muhan.oasis.user.entity.UserEntity;
 import org.muhan.oasis.user.repository.UserRepository;
 import org.muhan.oasis.valueobject.Language;
 import org.muhan.oasis.valueobject.Rate;
+import org.muhan.oasis.wish.repository.WishRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -32,6 +37,7 @@ import java.util.stream.Collectors;
 
 import static org.muhan.oasis.common.base.BaseResponseStatus.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StayServiceImpl implements StayService{
@@ -48,6 +54,10 @@ public class StayServiceImpl implements StayService{
     private final StayRepository stayRepository;
     private final S3StorageService s3StorageService;
     private final ReservationRepository reservationRepository;
+    private final ReviewRepository reviewRepository;
+    private final WishRepository wishRepository;
+    private final KeyRepository keyRepository;
+    private final KeyOwnerRepository keyOwnerRepository;
 
     @Override
     @Transactional
@@ -412,13 +422,53 @@ public class StayServiceImpl implements StayService{
     @Override
     @Transactional
     public void deleteStay(Long stayId, String userUuid) {
+        // 1) 존재/소유자 검증
         StayEntity stay = stayRepository.findById(stayId)
                 .orElseThrow(() -> new BaseException(NO_STAY));
 
-        if(!stay.getUser().getUserUuid().equals(userUuid))
-            throw new BaseException(NO_ACCESS_AUTHORITY);
+//        if (!stay.getUser().getUserUuid().equals(userUuid)) {
+//            throw new BaseException(NO_ACCESS_AUTHORITY);
+//        }
 
+        // 1-1) S3 삭제 대상(사진 키) 미리 수집 — 부모 삭제 전!
+        List<String> photoKeysToDelete = stayPhotoRepository.findAllByStay(stay).stream()
+                .map(StayPhotoEntity::getPhotoKey)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+
+        // 2) 참조 데이터 삭제 (자식 → 부모 순서)
+        // 2-1) 리뷰(Review) → 예약(Reservation)
+        reviewRepository.deleteByReservation_Stay_Id(stayId);
+        reservationRepository.deleteByStay_Id(stayId);
+
+        // 2-2) 키 소유자(KeyOwner) → 디지털 키(DigitalKey)
+        List<Long> keyIds = keyRepository.findKeyIdsByStayId(stayId);
+        if (!keyIds.isEmpty()) {
+            keyOwnerRepository.deleteByKey_KeyIdIn(keyIds);
+            keyRepository.deleteByDevice_Id(stayId);
+        }
+
+        // 2-3) 위시(Wish)
+        wishRepository.deleteByStay_Id(stayId);
+
+        // 2-4) 블록(StayBlock)
+        stayBlockRepository.deleteByStay_Id(stayId);
+
+        // 3) 부모(Stay) 삭제 — 사진/시설/디바이스/평점요약은 cascade+orphanRemoval로 정리
         stayRepository.delete(stay);
+
+        // 4) 트랜잭션 커밋 후 S3에서 사진 삭제
+        if (!photoKeysToDelete.isEmpty()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override public void afterCommit() {
+                    photoKeysToDelete.forEach(s3StorageService::delete);
+                }
+            });
+        }
+
+        log.info("[StayService] stay deleted. stayId={}", stayId);
     }
 
     @Override

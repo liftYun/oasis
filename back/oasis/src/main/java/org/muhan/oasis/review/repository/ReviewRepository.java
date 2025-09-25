@@ -4,6 +4,7 @@ import org.muhan.oasis.reservation.entity.ReservationEntity;
 import org.muhan.oasis.review.entity.ReviewEntity;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -32,4 +33,8 @@ public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
     order by r.createdAt desc
     """)
     List<ReviewEntity> findAllByStayIdOrderByCreatedAtDescWithJoins(@Param("stayId") Long stayId);
+
+    @Modifying
+    @Query("delete from ReviewEntity r where r.reservation.stay.id = :stayId")
+    int deleteByReservation_Stay_Id(Long stayId);
 }

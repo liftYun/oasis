@@ -2,19 +2,22 @@ import { http } from '@/apis/httpClient';
 import { makeReservationId } from '@/utils/makeReservationId';
 import { createReservation, approveReservation, lockReservation } from '@/services/reservation.api';
 import type { CreateReservationRequest } from '@/services/reservation.types';
-import { W3SSdk } from '@circle-fin/w3s-pw-web-sdk';
+import { initW3SSdk, type CircleSdk } from '@/lib/circle/sdk';
 
 // Circle SDK PIN 입력 처리
-async function executeChallenge(sdk: W3SSdk, challengeId: string, label: string) {
+async function executeChallenge(sdk: CircleSdk, challengeId: string, label: string) {
   return new Promise<void>((resolve, reject) => {
-    sdk.execute(challengeId, (error) => {
+    sdk.execute(challengeId, (error?: unknown) => {
       if (error) {
-        console.error(`${label} 실패:`, error.message);
-        notifyTransactionFailed(challengeId, label);
-        return reject(error);
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(`${label} 실패:`, message);
+        // 서버에 실패 상태 통지 (대기하지 않음)
+        void notifyTransactionFailed(challengeId, label);
+        return reject(error instanceof Error ? error : new Error(message));
       } else {
         console.log(`${label} 완료`);
-        notifyTransactionSuccess(challengeId, label);
+        // 서버에 성공 상태 통지 (대기하지 않음)
+        void notifyTransactionSuccess(challengeId, label);
         return resolve();
       }
     });
@@ -44,10 +47,9 @@ export async function submitReservation(
     throw new Error('먼저 ConnectWallet로 SDK를 준비하세요.');
   }
 
-  // 1. SDK 준비
-  const sdk = new W3SSdk();
-  sdk.setAppSettings({ appId: sdkInitData.appId });
-  sdk.setAuthentication({
+  // 1. SDK 준비 (싱글턴 + 캐시)
+  const sdk: CircleSdk = await initW3SSdk({
+    appId: sdkInitData.appId,
     userToken: sdkInitData.userToken,
     encryptionKey: sdkInitData.encryptionKey,
   });
