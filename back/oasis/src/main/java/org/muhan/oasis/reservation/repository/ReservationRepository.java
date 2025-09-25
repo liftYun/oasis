@@ -1,6 +1,7 @@
 package org.muhan.oasis.reservation.repository;
 
 import org.muhan.oasis.reservation.entity.ReservationEntity;
+import org.muhan.oasis.reservation.enums.ReservationStatus;
 import org.muhan.oasis.stay.dto.out.ReservedResponseDto;
 import org.muhan.oasis.user.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,17 +36,25 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
 
     @Modifying
     @Transactional
-    @Query("UPDATE ReservationEntity r SET r.isCanceled = true WHERE r.reservationId = :reservationId")
-    void markCanceled(@Param("reservationId") String reservationId);
-    // ✅ 정산 안 된 예약 전체 조회
-    List<ReservationEntity> findByIsSettlementedFalseAndCheckoutDateBefore(LocalDateTime now);
+    @Query("UPDATE ReservationEntity r " +
+            "SET r.isCanceled = true, r.status = :status " +
+            "WHERE r.reservationId = :reservationId")
+    void markCanceled(@Param("reservationId") String reservationId, @Param("status") ReservationStatus status);
+
+    // 정산 안 된 예약 전체 조회
+    @Query("SELECT r FROM ReservationEntity r " +
+            "WHERE r.isSettlemented = false " +
+            "AND r.checkoutDate < :now " +
+            "AND r.status IN (:statuses)")
+    List<ReservationEntity> findUnsettledByStatuses
+    (@Param("now") LocalDateTime now, @Param("statuses") List<ReservationStatus> statuses);
 
 
-    // ✅ 특정 예약 정산 처리 (settlement = true 업데이트)
+    // 특정 예약 정산 처리 (settlement = true 업데이트)
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
-    @Query("update ReservationEntity r set r.isSettlemented = true where r.reservationId = :resId")
-    int markSettled(String resId);
+    @Query("update ReservationEntity r set r.isSettlemented = true, r.status = :status where r.reservationId = :resId")
+    int markSettled(@Param("resId") String resId, @Param("status") ReservationStatus status);
 
     @Query("""
       select new org.muhan.oasis.stay.dto.out.ReservedResponseDto(
