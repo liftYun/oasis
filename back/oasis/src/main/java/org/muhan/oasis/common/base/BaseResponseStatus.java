@@ -113,7 +113,11 @@ public enum BaseResponseStatus {
     WEB3_TX_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 500, "트랜잭션 실행에 실패했습니다."),
 
     // mqtt
-    DEVICE_OFFLINE(HttpStatus.CONFLICT, false, 409, "디바이스가 오프라인 상태입니다.");
+    DEVICE_OFFLINE(HttpStatus.CONFLICT, false, 409, "디바이스가 오프라인 상태입니다."),
+
+
+    //지갑
+    NO_WALLET(HttpStatus.BAD_REQUEST, false, 400, "지갑이 없습니다.");
 
 
     private final HttpStatusCode httpStatusCode;
