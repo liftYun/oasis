@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import { useEffect, useState } from 'react';
 import { Star, ClipboardList } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import BackHeader from '@/components/molecules/BackHeader';
 import { useLanguage } from '@/features/language';
 import { profileMessages } from '@/features/my-profile';
@@ -18,6 +19,7 @@ import { Lottie } from '@/components/atoms/Lottie';
 export function Reservations() {
   const { lang } = useLanguage();
   const t = profileMessages[lang];
+  const locale = lang === 'kor' ? 'ko-KR' : 'en-US';
 
   const [reservations, setReservations] = useState<ReservationResponseDto[]>([]);
   const [open, setOpen] = useState(false);
@@ -34,6 +36,7 @@ export function Reservations() {
         setReservations(res.result?.reservations ?? []);
       } catch (err) {
         console.error('예약 내역 조회 실패', err);
+        toast.error(t.loadReservationsFail);
       }
     };
     loadReservations();
@@ -85,16 +88,16 @@ export function Reservations() {
                       height={14}
                       className="shrink-0"
                     />
-                    <span>{new Date(item.checkinDate).toLocaleDateString()}</span>
+                    <span>{new Date(item.checkinDate).toLocaleDateString(locale)}</span>
                     <span>~</span>
-                    <span>{new Date(item.checkoutDate).toLocaleDateString()}</span>
+                    <span>{new Date(item.checkoutDate).toLocaleDateString(locale)}</span>
                   </div>
                 </Link>
               </div>
 
               {item.isSettlemented && (
                 <div className="absolute inset-0 bg-black/60 rounded-md flex flex-col items-center justify-center text-white">
-                  <p className="mb-2">이용 완료한 숙소 입니다.</p>
+                  <p className="mb-2">{t.usedStay}</p>
                   <div className="flex space-x-4">
                     {!item.isReviewed && (
                       <button
@@ -109,7 +112,7 @@ export function Reservations() {
                         className="flex items-center space-x-1 text-sm"
                       >
                         <Star size={16} />
-                        <span>리뷰 작성하기</span>
+                        <span>{t.writeReview}</span>
                       </button>
                     )}
                     <Link
@@ -117,7 +120,7 @@ export function Reservations() {
                       className="flex items-center space-x-1 text-sm"
                     >
                       <ClipboardList size={16} />
-                      <span>내역 확인하기</span>
+                      <span>{t.viewDetails}</span>
                     </Link>
                   </div>
                 </div>
@@ -125,14 +128,14 @@ export function Reservations() {
 
               {item.isCanceled && (
                 <div className="absolute inset-0 bg-black/60 rounded-md flex flex-col items-center justify-center text-white">
-                  <p className="mb-2">취소된 예약입니다.</p>
+                  <p className="mb-2">{t.canceledReservation}</p>
                   <div className="flex space-x-4">
                     <Link
                       href={`/reservation-detail/${item.reservationId}` as Route}
                       className="flex items-center space-x-1 text-sm"
                     >
                       <ClipboardList size={16} />
-                      <span>내역 확인하기</span>
+                      <span>{t.viewDetails}</span>
                     </Link>
                   </div>
                 </div>
