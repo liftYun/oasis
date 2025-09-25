@@ -30,7 +30,11 @@ export default function StayInfoCard({ stay }: StayInfoCardProps) {
   };
 
   return (
-    <button type="button" className="w-full text-left rounded-md px-3" aria-label="go-stay-detail">
+    <div
+      className="w-full text-left rounded-md px-3 cursor-pointer hover:bg-gray-50 transition-colors"
+      onClick={goDetail}
+      aria-label="go-stay-detail"
+    >
       <div className="flex items-center gap-4 rounded-md bg-white p-6 shadow-sm mt-4">
         <div className="relative h-16 w-16 flex-shrink-0">
           <div className="relative h-full w-full rounded overflow-hidden bg-gray-100">
@@ -63,13 +67,16 @@ export default function StayInfoCard({ stay }: StayInfoCardProps) {
 
           <button
             className="mt-2 flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"
-            onClick={goDetail}
+            onClick={(e) => {
+              e.stopPropagation();
+              goDetail();
+            }}
           >
             <Image src={ZoomIn} alt="zoom" width={12} height={12} />
             {t.seeMore}
           </button>
         </div>
       </div>
-    </button>
+    </div>
   );
 }
