@@ -87,7 +87,7 @@ export default function InputBar({ onSend }: InputBarProps) {
           value={text}
           onChange={handleTextChange}
           onKeyDown={handleKeyDown}
-          className="flex-1 min-w-0 bg-transparent outline-none text-sm px-1"
+          className="flex-1 min-w-0 bg-transparent outline-none text-sm px-1 text-base"
           placeholder={t.inputPlaceholder}
           maxLength={500}
         />
@@ -104,10 +104,10 @@ export default function InputBar({ onSend }: InputBarProps) {
       </div>
 
       {showEmojiPicker && (
-        <div ref={emojiRef} className="absolute bottom-20 left-2 right-2 z-[60]">
+        <div ref={emojiRef} className="absolute bottom-24 left-0 right-0 px-4 z-[60]">
           <EmojiPicker
             onEmojiClick={handleEmojiClick}
-            width="80%"
+            width="100%"
             height={350} // 크기 줄임
             searchDisabled={false}
             skinTonesDisabled={false}
