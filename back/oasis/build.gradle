@@ -64,8 +64,6 @@ dependencies {
 
     // mattermost
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-    implementation 'org.apache.httpcomponents:httpcore:4.4.15'
-    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
 
     // WebSocket (실시간 알림용)
     implementation 'org.springframework.boot:spring-boot-starter-websocket'

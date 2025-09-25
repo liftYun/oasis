@@ -53,28 +53,4 @@ public class SseController {
         return sseService.subscribe(nickname);
     }
 
-
-    @PostMapping("/test")
-    public ResponseEntity<?> test(
-            @AuthenticationPrincipal CustomUserDetails writer
-            ){
-        List<ReviewEntity> reviews = reviewRepository.findAllByStayIdOrderByCreatedAtDescWithJoins(59L);
-        List<ReviewRequestDto> lowRate = new ArrayList<>();
-        List<ReviewRequestDto> highRate = new ArrayList<>();
-        for (ReviewEntity r : reviews) {
-            if(r.getRating().compareTo(BigDecimal.valueOf(3.0)) < 0){
-                lowRate.add(ReviewRequestDto.from(r, writer.getLanguage()));
-            }
-            else{
-                highRate.add(ReviewRequestDto.from(r, writer.getLanguage()));
-            }
-        }
-        ReviewListRequestDto lowRateReviews = new ReviewListRequestDto(lowRate);
-        ReviewListRequestDto highRateReviews = new ReviewListRequestDto(highRate);
-
-        sqsSendService.sendReviewSummaryMessage(lowRateReviews, 59L, Rate.LOW_RATE);
-        sqsSendService.sendReviewSummaryMessage(highRateReviews, 59L, Rate.HIGH_RATE);
-
-        return ResponseEntity.ok().build();
-    }
 }
