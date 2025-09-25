@@ -6,5 +6,6 @@ public enum ReservationStatus {
     APPROVED, //결제 승인
     PENDING_LOCK,
     LOCKED,   // 결제 완료 (Approve, Lock 트랜잭션 모두 성공)
-    CANCELED  // 결제 실패 또는 취소
+    CANCELED,  // 결제 실패 또는 취소
+    SETTLEMENTED
 }

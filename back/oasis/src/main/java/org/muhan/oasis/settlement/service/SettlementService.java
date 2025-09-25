@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.muhan.oasis.config.Web3jConfig;
 import org.muhan.oasis.reservation.entity.ReservationEntity;
+import org.muhan.oasis.reservation.enums.ReservationStatus;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
 import org.muhan.oasis.web3.Web3Service;
 import org.springframework.stereotype.Service;
@@ -24,9 +25,10 @@ public class SettlementService {
     @Transactional
     public void processSettlement() throws Exception {
         LocalDateTime now = LocalDateTime.now();
-        // 1) DB에서 settle 안 된 예약들 조회
+        // DB에서 settle 안 된 예약들 조회
         List<ReservationEntity> unsettled =
-                reservationRepository.findByIsSettlementedFalseAndCheckoutDateBefore(now);
+                reservationRepository.findByIsSettlementedFalseAndCheckoutDateBeforeAndStatus(
+                        now, ReservationStatus.LOCKED);
 
         for (ReservationEntity r : unsettled) {
             try {
@@ -37,13 +39,13 @@ public class SettlementService {
 //                    continue;
 //                }
 
-                // 2) 온체인 release
+                // 온체인 release
                 String txHash  = web3Service.releaseAndWait(r.getReservationId());
 
-                // 3) DB 상태 업데이트
-                reservationRepository.markSettled(r.getReservationId());
+                // DB 상태 업데이트
+                reservationRepository.markSettled(r.getReservationId(), ReservationStatus.SETTLEMENTED);
 
-                // 선택: 로그 저장
+                // 로그 저장
                 log.info("✅ Settlement success for resId={} tx={}", r.getReservationId(), txHash);
 
             } catch (Exception e) {
@@ -54,7 +56,7 @@ public class SettlementService {
                     // (선택) 재시도 로직
                     try {
                         String txHash = web3Service.releaseAndWait(r.getReservationId());
-                        reservationRepository.markSettled(r.getReservationId());
+                        reservationRepository.markSettled(r.getReservationId(), ReservationStatus.SETTLEMENTED);
                         log.info("✅ Settlement success after reconnect for resId={} tx={}", r.getReservationId(), txHash);
                         continue; // 다음 예약 처리
                     } catch (Exception retryEx) {
