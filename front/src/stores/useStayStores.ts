@@ -116,14 +116,6 @@ export const useStayStores = create<StayStore>((set, get) => ({
         return false;
       }
 
-      const res = await createStay(payload as CreateStayRequest);
-
-      if (res.isSuccess) {
-        toast.success('숙소가 생성되었습니다!');
-        set({ loading: false });
-        return true;
-      }
-
       const msg = '숙소 생성에 실패했습니다.';
       toast.error(msg);
       set({ loading: false, error: msg });

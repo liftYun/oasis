@@ -57,7 +57,7 @@ export function ManageStayList() {
         </div>
       ) : (
         <>
-          <div className="mt-6 mb-8 flex items-center gap-4 from-[#dbeafe] to-[#e0f2f1] p-4 rounded-md">
+          <div className="mt-6 mb-8 flex items-center gap-4 bg-gradient-to-r from-[#dbeafe] to-[#e0f2f1] p-4 rounded-md">
             <button
               onClick={() => router.push('/my-profile')}
               className="p-[3px] rounded-full bg-gradient-to-r from-primary to-green hover:opacity-90 transition"
@@ -85,10 +85,7 @@ export function ManageStayList() {
             </div>
           </div>
 
-          <div
-            className="flex flex-wrap justify-center mb-20 mx-auto"
-            style={{ gap: 'clamp(1rem, 2.5rem, 3rem)' }}
-          >
+          <div className="grid grid-cols-2 gap-6 mb-20 mx-auto w-full max-w-md">
             {stays.map((stay) => (
               <Link
                 key={stay.stayId}
@@ -103,7 +100,7 @@ export function ManageStayList() {
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
 
-                  <div className="absolute bottom-0 inset-x-0 bg-black/50  text-white px-4 py-3">
+                  <div className="absolute bottom-0 inset-x-0 bg-black/50 text-white px-4 py-3">
                     <p className="text-sm font-semibold truncate">{stay.title}</p>
                     <div className="flex items-center justify-between text-xs mt-1">
                       <div className="flex items-center gap-1">
