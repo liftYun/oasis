@@ -12,12 +12,16 @@ import Logo from '@/assets/logos/oasis-logo-512.png';
 import Star from '@/assets/icons/star.png';
 import Usdc from '@/assets/icons/usd-circle.png';
 import { Lottie } from '@/components/atoms/Lottie';
+import { useAuthStore } from '@/stores/useAuthStores';
+import { useRouter } from 'next/navigation';
 
 export function ManageStayList() {
   const { lang } = useLanguage();
   const t = profileMessages[lang];
   const [stays, setStays] = useState<StayCardView[]>([]);
   const [loading, setLoading] = useState(true);
+  const { profileUrl, nickname } = useAuthStore();
+  const router = useRouter();
 
   useEffect(() => {
     const load = async () => {
@@ -52,50 +56,83 @@ export function ManageStayList() {
           <p className="mt-4 text-center text-gray-500">{t.noStay}</p>
         </div>
       ) : (
-        <div className="mt-10 grid grid-cols-2 place-items-center gap-6 mb-20">
-          {stays.map((stay) => (
-            <Link
-              key={stay.stayId}
-              href={`/stays/${stay.stayId}?from=manage`}
-              className="group relative w-full rounded-xl overflow-hidden shadow hover:shadow-lg transition"
+        <>
+          <div className="mt-6 mb-8 flex items-center gap-4 from-[#dbeafe] to-[#e0f2f1] p-4 rounded-md">
+            <button
+              onClick={() => router.push('/my-profile')}
+              className="p-[3px] rounded-full bg-gradient-to-r from-primary to-green hover:opacity-90 transition"
             >
-              <div className="relative aspect-square rounded-xl overflow-hidden shadow hover:shadow-lg transition">
+              <div className="w-14 h-14 rounded-full overflow-hidden bg-white">
                 <Image
-                  src={stay.thumbnail || Logo}
-                  alt={stay.title}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  src={profileUrl ?? '/images/default-profile.png'}
+                  alt="profile"
+                  width={56}
+                  height={56}
+                  className="object-cover w-full h-full"
                 />
+              </div>
+            </button>
 
-                <div className="absolute bottom-0 inset-x-0 bg-black/50  text-white px-4 py-3">
-                  <p className="text-sm font-semibold truncate">{stay.title}</p>
-                  <div className="flex items-center justify-between text-xs mt-1">
-                    <div className="flex items-center gap-1">
-                      <Image
-                        src={Star}
-                        alt="star"
-                        width={12}
-                        height={12}
-                        className="brightness-0 invert"
-                      />
-                      <span>{stay.rating.toFixed(1)}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Image
-                        src={Usdc}
-                        alt="usdc"
-                        width={12}
-                        height={12}
-                        className="brightness-0 invert"
-                      />
-                      <span className="font-semibold">{stay.price.toLocaleString()}</span>
+            <div>
+              <h1 className="text-lg font-bold text-gray-800">
+                {nickname
+                  ? `${nickname} ${lang === 'kor' ? '님의 등록 숙소' : `'s stays`}`
+                  : t.wishlist}
+              </h1>
+              <p className="text-sm text-gray-500 mt-1">
+                {stays.length} {lang === 'kor' ? '개의 등록 숙소' : 'stays'}
+              </p>
+            </div>
+          </div>
+
+          <div
+            className="flex flex-wrap justify-center mb-20 mx-auto"
+            style={{ gap: 'clamp(1rem, 2.5rem, 3rem)' }}
+          >
+            {stays.map((stay) => (
+              <Link
+                key={stay.stayId}
+                href={`/stays/${stay.stayId}?from=manage`}
+                className="group relative w-full rounded-xl overflow-hidden shadow hover:shadow-lg transition"
+              >
+                <div className="relative aspect-square rounded-xl overflow-hidden shadow hover:shadow-lg transition">
+                  <Image
+                    src={stay.thumbnail || Logo}
+                    alt={stay.title}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+
+                  <div className="absolute bottom-0 inset-x-0 bg-black/50  text-white px-4 py-3">
+                    <p className="text-sm font-semibold truncate">{stay.title}</p>
+                    <div className="flex items-center justify-between text-xs mt-1">
+                      <div className="flex items-center gap-1">
+                        <Image
+                          src={Star}
+                          alt="star"
+                          width={12}
+                          height={12}
+                          className="brightness-0 invert"
+                        />
+                        <span>{stay.rating.toFixed(1)}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Image
+                          src={Usdc}
+                          alt="usdc"
+                          width={12}
+                          height={12}
+                          className="brightness-0 invert"
+                        />
+                        <span className="font-semibold">{stay.price.toLocaleString()}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        </>
       )}
     </main>
   );

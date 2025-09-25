@@ -16,7 +16,7 @@ import { useLanguage } from '@/features/language';
 import { profileMessages } from '@/features/my-profile';
 import { useAuthStore } from '@/stores/useAuthStores';
 import { toast } from 'react-hot-toast';
-import { CenterModal } from '@/components/organisms/CenterModel';
+import { CenterModal } from '@/components/organisms/CenterModal';
 import { Lottie } from '@/components/atoms/Lottie';
 import { BlockChainWallet } from '@/features/my-profile/components/blockchain/BlockChainWallet';
 
@@ -160,7 +160,7 @@ export function GuestProfile() {
       >
         <button
           onClick={() => setLogoutOpen(false)}
-          className="px-4 py-2 rounded-md bg-gray-100 text-gray-400 hover:bg-gray-200"
+          className="px-4 py-2 rounded-md bg-gray-100 text-gray-400 text-sm hover:bg-gray-200"
         >
           {t.secessionCancel}
         </button>

@@ -6,7 +6,8 @@ import StayImage from '@/assets/images/stay_example.png';
 import { useLanguage } from '@/features/language';
 import { chatMessages } from '@/features/chat/locale';
 import { ChatUserThumbnail } from '@/components/atoms/ChatUserThumbnail';
-import { Bell } from 'lucide-react';
+import { useChatStore } from '@/stores/useChatStore';
+import { useEffect } from 'react';
 
 type ChatListItemProps = {
   id: string;
@@ -33,6 +34,17 @@ export function ChatListItem({
   const t = chatMessages[lang];
   const showEmphasis = (unreadCount ?? 0) > 0;
 
+  const { addUnread, removeUnread } = useChatStore();
+
+  useEffect(() => {
+    if (unreadCount && unreadCount > 0) {
+      addUnread(id, unreadCount);
+    }
+    return () => {
+      removeUnread(id);
+    };
+  }, [id, unreadCount, addUnread, removeUnread]);
+
   return (
     <Link
       href={{
@@ -58,7 +70,9 @@ export function ChatListItem({
 
       <div className="min-w-0 flex-1 ms-1">
         <p
-          className={`truncate text-base font-bold ${showEmphasis ? 'text-gray-900' : 'text-gray-600'}`}
+          className={`truncate text-base font-bold ${
+            showEmphasis ? 'text-gray-900' : 'text-gray-600'
+          }`}
         >
           {title}
         </p>

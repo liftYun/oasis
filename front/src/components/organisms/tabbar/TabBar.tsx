@@ -13,6 +13,7 @@ import UserDisable from '@/assets/icons/user-disable.png';
 import UserEnable from '@/assets/icons/user-enable.png';
 import { useLanguage } from '@/features/language/';
 import { tabBarMessages } from '@/components/organisms/tabbar/locale';
+import { useChatStore } from '@/stores/useChatStore';
 
 type TabBarProps = {
   activeKey: TabKey;
@@ -23,6 +24,10 @@ export default function TabBar({ activeKey, withSafeArea = true }: TabBarProps) 
   const router = useRouter();
   const { lang } = useLanguage();
   const t = tabBarMessages[lang];
+
+  const unreadTotal = useChatStore((s) =>
+    Object.values(s.unreadMap).reduce((sum, c) => sum + c, 0)
+  );
 
   const items: NavTabItem[] = [
     {
@@ -73,12 +78,23 @@ export default function TabBar({ activeKey, withSafeArea = true }: TabBarProps) 
               onClick={() => router.push(it.path as any)}
               className="relative flex flex-col items-center justify-center gap-2 py-1 text-xs"
             >
-              <Image
-                src={active ? it.activeIcon : it.inactiveIcon}
-                alt={it.label}
-                width={24}
-                height={24}
-              />
+              <div className="relative">
+                <Image
+                  src={active ? it.activeIcon : it.inactiveIcon}
+                  alt={it.label}
+                  width={24}
+                  height={24}
+                />
+                {it.key === 'chat' && unreadTotal > 0 && (
+                  <span
+                    className="absolute -top-1 -right-4 flex h-5 min-w-[1.25rem] items-center justify-center
+                               rounded-full bg-gradient-to-r from-primary to-green text-white
+                               text-[11px] font-medium px-1"
+                  >
+                    {unreadTotal > 9 ? '9+' : unreadTotal}
+                  </span>
+                )}
+              </div>
               <span className={active ? 'text-gray-600' : 'text-gray-300'}>{it.label}</span>
             </button>
           );

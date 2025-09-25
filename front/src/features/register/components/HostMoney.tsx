@@ -7,7 +7,7 @@ import { registerMessages } from '@/features/register';
 import { Button } from '@/components/atoms/Button';
 import { BottomSheet } from '@/components/organisms/BottomSheet';
 import { DonutPercentPicker } from './DonutPercentPicker';
-import { CenterModal } from '@/components/organisms/CenterModel';
+import { CenterModal } from '@/components/organisms/CenterModal';
 import { useRouter } from 'next/navigation';
 import { Lottie } from '@/components/atoms/Lottie';
 import { registCancellationPolicy } from '@/services/user.api';
