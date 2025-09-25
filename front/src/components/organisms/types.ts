@@ -18,4 +18,5 @@ export type NavTabItem = {
   activeIcon: StaticImageData;
   inactiveIcon: StaticImageData;
   path: string;
+  badge: boolean;
 };

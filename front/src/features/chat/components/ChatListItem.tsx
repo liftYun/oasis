@@ -34,16 +34,13 @@ export function ChatListItem({
   const t = chatMessages[lang];
   const showEmphasis = (unreadCount ?? 0) > 0;
 
-  const { addUnread, removeUnread } = useChatStore();
+  const { addUnread } = useChatStore();
 
   useEffect(() => {
     if (unreadCount && unreadCount > 0) {
       addUnread(id, unreadCount);
     }
-    return () => {
-      removeUnread(id);
-    };
-  }, [id, unreadCount, addUnread, removeUnread]);
+  }, [id, unreadCount, addUnread]);
 
   return (
     <Link
@@ -91,7 +88,7 @@ export function ChatListItem({
         <div className="relative mt-2">
           {showEmphasis && (
             <span
-              className="flex h-6 min-w-[1.5rem] items-center justify-center
+              className="flex h-5 w-5 items-center justify-center
                  rounded-full bg-gradient-to-r from-primary to-green text-white
                  text-[12px] font-medium px-2"
             >
