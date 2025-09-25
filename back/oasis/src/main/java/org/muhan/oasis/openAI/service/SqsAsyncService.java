@@ -178,7 +178,7 @@ public class SqsAsyncService {
             value = "${cloud.aws.sqs.queue.stay-translation-dlq}",
             factory = "manualAckSqsListenerContainerFactory"
     )
-    public void onStayTransDlq(MessageEnvelope<ReviewListRequestDto> env,
+    public void onStayTransDlq(MessageEnvelope<StayRequestDto> env,
                                    Acknowledgement ack) {
         try {
             // 1) 실패 사건 로깅/모니터링/알림 (필요 시 DB 적재)
@@ -198,7 +198,7 @@ public class SqsAsyncService {
             value = "${cloud.aws.sqs.queue.review-translation-dlq}",
             factory = "manualAckSqsListenerContainerFactory"
     )
-    public void onReviewTransDlq(MessageEnvelope<ReviewListRequestDto> env,
+    public void onReviewTransDlq(MessageEnvelope<ReviewRequestDto> env,
                                Acknowledgement ack) {
         try {
             // 1) 실패 사건 로깅/모니터링/알림 (필요 시 DB 적재)
