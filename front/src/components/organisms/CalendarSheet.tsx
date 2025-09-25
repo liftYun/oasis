@@ -114,7 +114,7 @@ export default function CalendarSheet(props: CalendarSheetProps) {
               )}
             </div>
 
-            <div className="mt-auto p-5">
+            <div className="mt-auto p-5 pb-10">
               {props.mode === 'multiRanges' ? (
                 <Button
                   type="button"

@@ -75,7 +75,7 @@ export default function InstallPrompt() {
 
         <button
           onClick={handleInstall}
-          className="w-full py-3 rounded-full bg-primary text-white font-medium text-sm hover:opacity-90 transition"
+          className="w-full py-3 mb-10 rounded-full bg-primary text-white font-medium text-sm hover:opacity-90 transition"
         >
           앱 설치하기 / Install App
         </button>
