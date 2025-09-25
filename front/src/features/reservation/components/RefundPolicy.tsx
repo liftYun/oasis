@@ -67,9 +67,9 @@ export function RefundPolicy({ stayId, totalPrice }: { stayId: number; totalPric
           </colgroup>
           <thead className="bg-gray-50 text-gray-600">
             <tr>
-              <th className="px-4 py-4 text-left">{t.refund.table.date}</th>
-              <th className="px-4 py-4 text-center">{t.refund.table.rate}</th>
-              <th className="px-4 py-4 text-right">{t.refund.table.amount}</th>
+              <th className="pl-4 py-4 text-left">{t.refund.table.date}</th>
+              <th className=" py-4 text-center">{t.refund.table.rate}</th>
+              <th className="pr-4 py-4 text-right">{t.refund.table.amount}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -78,7 +78,7 @@ export function RefundPolicy({ stayId, totalPrice }: { stayId: number; totalPric
 
               return (
                 <tr key={idx}>
-                  <td className="px-4 py-4 text-gray-600">
+                  <td className="pl-4 py-4 text-gray-600">
                     <div>
                       <p>{format(p.date, formatString, { locale })}</p>
                       <p className="text-xs text-gray-400 mt-1">({p.sub})</p>
