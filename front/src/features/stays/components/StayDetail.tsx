@@ -21,6 +21,7 @@ import { useAuthStore } from '@/stores/useAuthStores';
 import { createChatRoom, findExistingChatRoom } from '@/features/chat/api/chat.firestore';
 import { notifyFirebaseUnavailable } from '@/features/chat/api/toastHelpers';
 import { toast } from 'react-hot-toast';
+import { Lottie } from '@/components/atoms/Lottie';
 
 export function StayDetail() {
   const { lang } = useLanguage();
@@ -107,7 +108,14 @@ export function StayDetail() {
     load();
   }, [id]);
 
-  if (loading) return <div className="p-6">{t.common.loading}</div>;
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-screen items-center justify-center p-4 pb-56">
+        <Lottie src="/lotties/spinner.json" className="w-20 h-20" />
+        <p className="mt-2 text-center text-gray-500">{t.common.loading}</p>
+      </div>
+    );
+  }
   if (!stay) return <div className="p-6">{t.common.loadError}</div>;
 
   const isManageMode = pathname.startsWith('/manage') || searchParams.get('from') === 'manage';
