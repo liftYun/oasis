@@ -87,7 +87,7 @@ export default function InputBar({ onSend }: InputBarProps) {
           value={text}
           onChange={handleTextChange}
           onKeyDown={handleKeyDown}
-          className="flex-1 min-w-0 bg-transparent outline-none text-sm px-1"
+          className="flex-1 min-w-0 bg-transparent outline-none text-sm px-1 text-base"
           placeholder={t.inputPlaceholder}
           maxLength={500}
         />
