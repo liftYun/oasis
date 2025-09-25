@@ -90,8 +90,11 @@ export function Reservations() {
             {reservations.map((item) => (
               <div
                 key={item.reservationId}
-                className={`relative rounded-md overflow-hidden shadow-sm bg-gray-100
-    ${!item.isSettlemented ? 'hover:scale-105 transition-transform duration-300 ease-in-out' : ''}`}
+                className={`relative rounded-md overflow-hidden shadow-sm bg-gray-100 ${
+                  !item.isSettlemented
+                    ? 'hover:scale-105 transition-transform duration-300 ease-in-out'
+                    : ''
+                }`}
               >
                 <div className="flex">
                   <div className="relative w-36 h-36 flex-shrink-0">
@@ -128,80 +131,56 @@ export function Reservations() {
                         height={14}
                         className="shrink-0"
                       />
-                      <span>{new Date(item.checkinDate).toLocaleDateString()}</span>
+                      <span>{new Date(item.checkinDate).toLocaleDateString(locale)}</span>
                       <span>~</span>
-                      <span>{new Date(item.checkoutDate).toLocaleDateString()}</span>
+                      <span>{new Date(item.checkoutDate).toLocaleDateString(locale)}</span>
                     </div>
                   </Link>
                 </div>
 
-                <Link
-                  href={`/reservation-detail/${item.reservationId}` as Route}
-                  className="flex flex-col justify-center px-5 py-3 flex-1 gap-2 cursor-pointer"
-                >
-                  <div className="flex justify-between">
-                    <h2 className="font-semibold text-gray-600">{item.stayTitle}</h2>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Image src={Marker} alt="marker" width={14} height={14} className="shrink-0" />
-                    <span className="truncate">{item.addressLine}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Image
-                      src={Calender}
-                      alt="calender"
-                      width={14}
-                      height={14}
-                      className="shrink-0"
-                    />
-                    <span>{new Date(item.checkinDate).toLocaleDateString(locale)}</span>
-                    <span>~</span>
-                    <span>{new Date(item.checkoutDate).toLocaleDateString(locale)}</span>
-                  </div>
-                </Link>
-              </div>
-
-              {item.isSettlemented && (
-                <div className="absolute inset-0 bg-black/60 rounded-md flex flex-col items-center justify-center text-white">
-                  <p className="mb-2">{t.usedStay}</p>
-                  <div className="flex space-x-4">
-                    {!item.isReviewed && (
-                      <button
-                        onClick={() => {
-                          setSelectedReservationId(item.reservationId);
-                          setSelectedStayId(item.stayId);
-                          setSelectedStayTitle(item.stayTitle);
-                          setSelectedAddressLine(item.addressLine);
-                          setSelectedThumbnail(item.thumbnail);
-                          setOpen(true);
-                        }}
+                {item.isSettlemented && (
+                  <div className="absolute inset-0 bg-black/60 rounded-md flex flex-col items-center justify-center text-white">
+                    <p className="mb-2">{t.usedStay}</p>
+                    <div className="flex space-x-4">
+                      {!item.isReviewed && (
+                        <button
+                          onClick={() => {
+                            setSelectedReservationId(item.reservationId);
+                            setSelectedStayId(item.stayId);
+                            setSelectedStayTitle(item.stayTitle);
+                            setSelectedAddressLine(item.addressLine);
+                            setSelectedThumbnail(item.thumbnail);
+                            setOpen(true);
+                          }}
+                          className="flex items-center space-x-1 text-sm"
+                        >
+                          <Star size={16} />
+                          <span>{t.writeReview}</span>
+                        </button>
+                      )}
+                      <Link
+                        href={`/reservation-detail/${item.reservationId}` as Route}
                         className="flex items-center space-x-1 text-sm"
                       >
-                        <Star size={16} />
-                        <span>{t.writeReview}</span>
-                      </button>
-                    )}
-                    <Link
-                      href={`/reservation-detail/${item.reservationId}` as Route}
-                      className="flex items-center space-x-1 text-sm"
-                    >
-                      <ClipboardList size={16} />
-                      <span>{t.viewDetails}</span>
-                    </Link>
+                        <ClipboardList size={16} />
+                        <span>{t.viewDetails}</span>
+                      </Link>
+                    </div>
                   </div>
                 )}
 
-              {item.isCanceled && (
-                <div className="absolute inset-0 bg-black/60 rounded-md flex flex-col items-center justify-center text-white">
-                  <p className="mb-2">{t.canceledReservation}</p>
-                  <div className="flex space-x-4">
-                    <Link
-                      href={`/reservation-detail/${item.reservationId}` as Route}
-                      className="flex items-center space-x-1 text-sm"
-                    >
-                      <ClipboardList size={16} />
-                      <span>{t.viewDetails}</span>
-                    </Link>
+                {item.isCanceled && (
+                  <div className="absolute inset-0 bg-black/60 rounded-md flex flex-col items-center justify-center text-white">
+                    <p className="mb-2">{t.canceledReservation}</p>
+                    <div className="flex space-x-4">
+                      <Link
+                        href={`/reservation-detail/${item.reservationId}` as Route}
+                        className="flex items-center space-x-1 text-sm"
+                      >
+                        <ClipboardList size={16} />
+                        <span>{t.viewDetails}</span>
+                      </Link>
+                    </div>
                   </div>
                 )}
               </div>
