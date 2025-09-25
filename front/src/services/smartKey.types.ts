@@ -25,6 +25,7 @@ export interface KeyResponseDto {
   status: 'UPCOMING' | 'ACTIVE' | 'EXPIRED';
   checkinDate?: string | null; // ISO-8601
   checkoutDate?: string | null; // ISO-8601
+  addressLine?: string | null;
 }
 
 // 리스트 응답 VO
