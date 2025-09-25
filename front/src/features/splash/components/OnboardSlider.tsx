@@ -98,7 +98,7 @@ export function OnboardSlider({
         className="absolute right-0 top-0 h-full w-1/5 z-10"
       />
 
-      <div className="relative h-[clamp(300px,60vh,420px)] overflow-hidden flex items-center justify-center">
+      <div className="relative h-[clamp(300px,60vh,420px)] overflow-hidden flex items-center justify-center mt-14">
         <AnimatePresence custom={direction} mode="sync" initial={false}>
           <motion.div
             key={index}

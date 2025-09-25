@@ -47,6 +47,7 @@ export const profileMessages = {
     policy: '취소 수수료 관리',
     profile: '프로필 정보',
     loadingError: '로딩 중 오류가 발생했습니다.',
+    wallet: '지갑 연결 모듈 로딩 중...',
   },
   eng: {
     guest: 'Guest',
@@ -97,5 +98,6 @@ export const profileMessages = {
     policy: 'Cancellation Policy',
     profile: 'Profile',
     loadingError: 'Error loading',
+    wallet: 'Loading wallet module...',
   },
 } as const;

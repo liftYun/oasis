@@ -223,27 +223,37 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
           <Image src={Usdc} alt="USDC" width={18} height={18} className="rounded-full" />
           <h2 className="text-base font-bold text-gray-600">{t.title}</h2>
         </div>
-        <span
-          className={`px-2.5 py-0.5 text-xs font-medium rounded-full 
-          backdrop-blur-md bg-white/30 border border-white/20 shadow-sm
-          ${isLoading ? 'text-gray-600' : error ? 'text-red-600' : 'text-green-700'}`}
-          title={isLoading ? t.loading : error ? t.error : t[status]}
-        >
-          {isLoading ? t.loading : error ? t.error : t[status]}
-        </span>
       </div>
 
       <div className="mt-3 flex items-center gap-2">
         <span
           className={`inline-flex items-center gap-3 px-2.5 py-0.5 text-xs font-medium rounded-full
-          backdrop-blur-md bg-white/30 border border-white/20 shadow-sm transition-colors`}
-          title={isLoading ? t.loading : error ? `${t.error} — ${error}` : status}
+  backdrop-blur-md bg-white/30 border border-white/20 shadow-sm transition-colors`}
+          title={
+            isLoading
+              ? t.loading
+              : error
+                ? `${t.error} — ${error}`
+                : status === 'success'
+                  ? t.statusSuccess
+                  : status === 'notConnected'
+                    ? t.statusNotConnected
+                    : status
+          }
         >
           {isLoading && <span className="w-2 h-2 rounded-full bg-green animate-pulse" />}
           {error && <span className="w-2 h-2 rounded-full bg-red" />}
           {!isLoading && !error && <span className="w-2 h-2 rounded-full bg-gray-400" />}
 
-          {isLoading ? t.loading : error ? `${t.error} — ${error}` : status}
+          {isLoading
+            ? t.loading
+            : error
+              ? t.error
+              : status === 'success'
+                ? t.statusSuccess
+                : status === 'notConnected'
+                  ? t.statusNotConnected
+                  : status}
         </span>
       </div>
 

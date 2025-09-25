@@ -43,7 +43,7 @@ export function Search() {
   };
 
   return (
-    <main className="flex flex-col w-full min-h-screen px-6 py-4 pt-24 items-stretch justify-start overflow-y-auto">
+    <main className="flex flex-col w-full min-h-screen px-6 py-4 pt-16 items-stretch justify-start overflow-y-auto">
       <SearchTabs activeTab={activeTab} onTabChange={setActiveTab} selectedRegion={selectedCity} />
 
       {activeTab === 'region' && (

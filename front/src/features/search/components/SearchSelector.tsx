@@ -43,35 +43,37 @@ export function SearchSelector({
   }, []);
 
   return (
-    <div
-      className="
-        bg-white rounded-xl shadow-[0_0_10px_rgba(0,0,0,0.1)]
-        p-6 my-10 flex flex-col h-[500px]
-      "
-    >
-      <div className="flex gap-4 mt-2 mb-6 ml-4 shrink-0">
+    <div className="bg-white rounded-xl shadow-[0_0_10px_rgba(0,0,0,0.1)] p-6 my-10 flex flex-col">
+      <div className="flex gap-3 justify-center mb-6">
         <button
           onClick={() => setTab('city')}
-          className={`px-4 py-1.5 text-sm rounded-full ${
-            tab === 'city' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500'
-          }`}
+          className={`px-5 py-2 text-sm rounded-full transition-all duration-200 font-medium
+            ${
+              tab === 'city'
+                ? 'bg-primary text-white shadow-sm ring-1 ring-primary'
+                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+            }`}
         >
           {tabLabels[lang].city}
         </button>
+
         <button
           onClick={() => setTab('region')}
           disabled={!selectedCity}
-          className={`px-4 py-1.5 text-sm rounded-full ${
-            tab === 'region' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500'
-          } ${!selectedCity ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`px-5 py-2 text-sm rounded-full transition-all duration-200 font-medium
+            ${
+              tab === 'region'
+                ? 'bg-primary text-white shadow-sm ring-1 ring-primary'
+                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+            } ${!selectedCity ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {tabLabels[lang].region}
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto pr-2 pt-2">
+      <div className="flex-1 overflow-y-auto pr-1 pt-1">
         {tab === 'city' && (
-          <div className="grid grid-cols-2 gap-6 text-sm">
+          <div className="flex flex-wrap gap-2 text-sm">
             {regions.map((r) => (
               <button
                 key={r.region}
@@ -79,9 +81,12 @@ export function SearchSelector({
                   onSelectCity(r.region);
                   setTab('region');
                 }}
-                className={`${
-                  selectedCity === r.region ? 'text-primary font-semibold' : 'text-gray-400'
-                }`}
+                className={`px-4 py-2 rounded-full border transition-all duration-200
+          ${
+            selectedCity === r.region
+              ? 'bg-primary/10 text-primary border-primary'
+              : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+          }`}
               >
                 {r.region}
               </button>
@@ -90,14 +95,17 @@ export function SearchSelector({
         )}
 
         {tab === 'region' && selectedCity && (
-          <div className="grid grid-cols-2 gap-6 text-sm">
+          <div className="flex flex-wrap gap-2 text-sm">
             {city?.subRegions.map((sr) => (
               <button
                 key={sr.id}
                 onClick={() => onSelectRegion(sr.subName, sr.id)}
-                className={`${
-                  selectedRegion === sr.subName ? 'text-primary font-semibold' : 'text-gray-400'
-                }`}
+                className={`px-4 py-2 rounded-full border transition-all duration-200
+          ${
+            selectedRegion === sr.subName
+              ? 'bg-primary/10 text-primary border-primary'
+              : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+          }`}
               >
                 {sr.subName}
               </button>

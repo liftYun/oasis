@@ -76,7 +76,7 @@ export function Detail() {
         <h2 className="text-xl font-semibold">{user.nickname}</h2>
       </section>
 
-      <div className="-mx-6 w-screen h-3 bg-gray-100 my-12" />
+      <div className="-mx-6 w-full h-3 bg-gray-100 my-12" />
 
       <section className="w-full max-w-md px-6 py-5 space-y-4">
         <h3 className="text-lg text-gray-600 font-semibold mb-6">{t.detail}</h3>

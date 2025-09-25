@@ -39,7 +39,7 @@ export function SearchTabs({ activeTab, onTabChange, selectedRegion }: Props) {
   };
 
   return (
-    <div className="relative flex bg-gray-100 rounded-full p-2 w-[220px] mx-auto">
+    <div className="relative flex bg-gray-100 rounded-full p-2 w-full mx-auto">
       {tabs.map((tab) => (
         <button
           key={tab.key}
@@ -49,28 +49,13 @@ export function SearchTabs({ activeTab, onTabChange, selectedRegion }: Props) {
           <Image src={tab.icon} alt={tab.label} width={14} height={14} />
           {tab.label}
 
-          {tab.key === 'date' && (
-            <AnimatePresence>
-              {showTooltip && (
-                <motion.div
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 4 }}
-                  transition={{ duration: 0.3 }}
-                  className="absolute -top-10"
-                >
-                  <div className="relative w-max rounded-sm bg-black/70 text-white text-xs font-light px-3 py-1 shadow-[0_0_10px_rgba(0,0,0,0.1)]">
-                    {labels[lang].needRegion}
-                    <div
-                      className="absolute -bottom-1 left-1/2 -translate-x-1/2
-                                  w-0 h-0
-                                  border-l-4 border-r-4 border-t-4
-                                  border-l-transparent border-r-transparent border-t-black/70"
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+          {tab.key === 'date' && showTooltip && (
+            <div className="absolute top-12 left-1/5 -translate-x-1/2 flex justify-center mb-6 animate-bounce">
+              <p className="relative inline-flex items-center justify-center text-sm px-3 py-1.5 bg-gray-600 text-white rounded-md whitespace-nowrap">
+                <span>{labels[lang].needRegion}</span>
+                <span className="absolute left-1/2 -top-[4px] w-2 h-2 bg-gray-600 rotate-45 -translate-x-1/2"></span>
+              </p>
+            </div>
           )}
         </button>
       ))}
