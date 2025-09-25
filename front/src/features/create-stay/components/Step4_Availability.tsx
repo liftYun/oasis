@@ -41,7 +41,6 @@ export function Step4_Availability({ onComplete }: Step4Props) {
 
   const handleSave = async () => {
     const success = await stayStore.submit();
-    console.log('success', success);
 
     if (success) {
       disconnect();
