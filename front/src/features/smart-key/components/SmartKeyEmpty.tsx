@@ -16,7 +16,7 @@ export function SmartKeyEmpty() {
 
   return (
     <>
-      <main className="flex flex-col w-full px-6 py-10 mb-20 min-h-screen bg-white">
+      <main className="flex flex-col w-full pt-10 pb-28 min-h-screen bg-white">
         <h2 className="text-2xl font-semibold text-left mb-6">{t.title}</h2>
         <div className="flex flex-col w-full bg-white items-center justify-center">
           <div className="w-full rounded-xl bg-blue-50 p-6 mb-6 text-gray-600">

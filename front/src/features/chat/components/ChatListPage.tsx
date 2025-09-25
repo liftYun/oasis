@@ -12,7 +12,7 @@ export function ChatListPage() {
 
   return (
     <main className="flex flex-col w-full pt-10 pb-28">
-      <h1 className="text-2xl font-semibold text-gray-600 mt-2">{t.titleChat}</h1>
+      <h1 className="text-2xl font-semibold text-gray-600">{t.titleChat}</h1>
 
       <div className="mt-6 min-h-screen">
         {isLoading ? (

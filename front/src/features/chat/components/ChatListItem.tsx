@@ -54,7 +54,7 @@ export function ChatListItem({
         },
       }}
       aria-label={`${t.ariaOpenChat}: ${title}`}
-      className="flex items-center gap-4 px-5 py-7 hover:bg-gray-50"
+      className="flex items-center gap-4 px-3 py-5 hover:bg-gray-50"
     >
       <div className="relative h-16 w-16 flex-shrink-0">
         <div className="relative h-full w-full rounded overflow-hidden bg-gray-100">
