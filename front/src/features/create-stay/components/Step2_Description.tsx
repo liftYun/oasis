@@ -93,7 +93,7 @@ export function Step2_Description() {
         </header>
       </div>
 
-      <div className="p-4 flex flex-col flex-1">
+      <div className="p-4 pb-10 flex flex-col flex-1">
         <h1 className="text-xl font-bold mb-6 pt-2">{t.step2.title}</h1>
 
         <div className="bg-primary/10 text-primary text-xs p-2 me-auto mb-6 rounded-md">

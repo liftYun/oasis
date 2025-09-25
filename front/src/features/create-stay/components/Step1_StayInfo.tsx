@@ -78,7 +78,7 @@ export function Step1_StayInfo() {
   }, [store.address, store.postalCode, setValue]);
 
   return (
-    <div className="max-w-md flex flex-1 flex-col w-full min-h-[calc(100vh-100px)] p-4 overflow-y-auto">
+    <div className="max-w-md min-h-[calc(100vh-100px)] flex flex-col w-full p-4 pb-10">
       <BackHeader title={t.createStay} />
       <h1 className="text-xl font-bold mb-6 pt-2 w-full">{t.step1.title}</h1>
       <StayForm

@@ -69,7 +69,7 @@ export function Step4_Availability({ onComplete }: Step4Props) {
         </header>
       </div>
 
-      <div className="p-4 flex flex-col flex-1">
+      <div className="p-4 pb-10 flex flex-col flex-1">
         <div className="mb-6">
           <h1 className="text-xl font-bold mb-2 pt-2">{t.step4.title}</h1>
           <p className="text-gray-400 text-base">{t.step4.subtitle}</p>
