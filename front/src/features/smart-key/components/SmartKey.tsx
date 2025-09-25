@@ -45,7 +45,7 @@ export function SmartKey() {
 
   return (
     <div className="w-full">
-      {keys.length < 0 ? <SmartKeyList keys={keys} /> : <SmartKeyEmpty />}
+      {keys.length > 0 ? <SmartKeyList keys={keys} /> : <SmartKeyEmpty />}
     </div>
   );
 }

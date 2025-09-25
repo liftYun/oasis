@@ -17,6 +17,7 @@ import { createChatRoom, findExistingChatRoom } from '@/features/chat/api/chat.f
 import { notifyFirebaseUnavailable } from '@/features/chat/api/toastHelpers';
 import { useAuthStore } from '@/stores/useAuthStores';
 import type { Route } from 'next';
+import { Lottie } from '@/components/atoms/Lottie';
 
 export type Lang = 'kor' | 'eng';
 
@@ -27,6 +28,7 @@ interface SmartKeyListProps {
 export function SmartKeyList({ keys }: SmartKeyListProps) {
   const [openCard, setOpenCard] = useState<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const { lang } = useLanguage();
   const t = messages[lang] ?? messages.kor;
 
@@ -35,6 +37,7 @@ export function SmartKeyList({ keys }: SmartKeyListProps) {
   const gap = 24;
 
   const router = useRouter();
+  const [showText, setShowText] = useState(false);
 
   const handleDragEnd = (_: any, info: { offset: { x: number }; velocity: { x: number } }) => {
     const offsetX = info.offset.x;
@@ -61,20 +64,37 @@ export function SmartKeyList({ keys }: SmartKeyListProps) {
   };
 
   const handleOpenDoor = async (keyId: number) => {
+    setStatus('loading'); // 로딩 시작
     try {
       const res = await openSmartKey(keyId);
 
       if (res.code === 200 && res.result) {
-        toast.success(t.card.doorOpened);
+        setStatus('success');
       } else {
+        setStatus('error');
         toast.error(res.message || t.card.doorOpenFailed);
       }
     } catch (err) {
       console.error(err);
-      toast.error(t.card.doorOpenError);
+      setStatus('error');
     }
   };
 
+  useEffect(() => {
+    if (status === 'success' || status === 'error') {
+      setShowText(false);
+      const textTimer = setTimeout(() => setShowText(true), 200);
+      const resetTimer = setTimeout(() => {
+        setStatus('idle');
+        setShowText(false);
+      }, 2000);
+
+      return () => {
+        clearTimeout(textTimer);
+        clearTimeout(resetTimer);
+      };
+    }
+  }, [status]);
   return (
     <main className="flex flex-col w-full max-h-screen pt-10 pb-28">
       <div>
@@ -120,6 +140,29 @@ export function SmartKeyList({ keys }: SmartKeyListProps) {
           />
         ))}
       </div>
+      {status !== 'idle' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          <div className="relative flex items-center justify-center w-64 h-64">
+            {status === 'success' && (
+              <>
+                <Lottie src="/lotties/card-success.json" loop={false} autoplay />
+                <p className="absolute bottom-1 text-white text-base font-medium">
+                  {t.card.doorOpened}
+                </p>
+              </>
+            )}
+
+            {status === 'error' && (
+              <>
+                <Lottie src="/lotties/card-fail.json" loop={false} autoplay />
+                <p className="absolute bottom-1 text-white text-base font-medium">
+                  {t.card.doorOpenFailed}
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </main>
   );
 }
@@ -249,8 +292,8 @@ function SmartKeyCard({
               e.stopPropagation();
               handleOpenDoor(keyData.keyId);
             }}
-            className="w-32 h-32 mx-auto rounded-full bg-white/50 backdrop-blur-sm border border-white/40 
-              text-gray-800 text-lg font-semibold flex items-center justify-center shadow-inner 
+            className="w-40 h-40 mx-auto rounded-full bg-white/50 backdrop-blur-sm border border-white/40 
+              text-gray-800 text-xl font-semibold flex items-center justify-center shadow-inner 
               hover:bg-white/70 hover:scale-105 transition"
           >
             {t.card.openDoor}
@@ -284,7 +327,7 @@ function SmartKeyCard({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    router.push(`/reservation/${keyData.reservationId}` as unknown as Route);
+                    router.push(`/reservation-detail/${keyData.reservationId}` as unknown as Route);
                   }}
                   className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"
                 >
