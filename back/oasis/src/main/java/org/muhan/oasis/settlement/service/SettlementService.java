@@ -25,10 +25,13 @@ public class SettlementService {
     @Transactional
     public void processSettlement() throws Exception {
         LocalDateTime now = LocalDateTime.now();
+
         // DB에서 settle 안 된 예약들 조회
         List<ReservationEntity> unsettled =
-                reservationRepository.findByIsSettlementedFalseAndCheckoutDateBeforeAndStatus(
-                        now, ReservationStatus.LOCKED);
+                reservationRepository.findUnsettledByStatuses(
+                        now,
+                        List.of(ReservationStatus.LOCKED, ReservationStatus.SETTLEMENT_FAILED)
+                );
 
         for (ReservationEntity r : unsettled) {
             try {
@@ -60,11 +63,13 @@ public class SettlementService {
                         log.info("✅ Settlement success after reconnect for resId={} tx={}", r.getReservationId(), txHash);
                         continue; // 다음 예약 처리
                     } catch (Exception retryEx) {
+                        reservationRepository.markSettled(r.getReservationId(), ReservationStatus.SETTLEMENT_FAILED);
                         log.error("❌ Settlement retry failed for resId={} reason={}", r.getReservationId(), retryEx.getMessage());
                     }
                 } else {
                     log.warn("❌ Settlement failed for resId={} reason={}", r.getReservationId(), e.getMessage());
                 }
+                reservationRepository.markSettled(r.getReservationId(), ReservationStatus.SETTLEMENT_FAILED);
             }
         }
     }
