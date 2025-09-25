@@ -11,6 +11,7 @@ import { notifySendFail, notifyTooLong } from '@/features/chat/api/toastHelpers'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { translateMessage } from '@/services/chat.api';
 import ScrollToBottomButton from '@/features/chat/components/ScrollToBottomButton';
+import { Lottie } from '@/components/atoms/Lottie';
 
 interface ChatDetailPageProps {
   chatId: string;
@@ -115,7 +116,12 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
   };
 
   if (isLoading || !data) {
-    return <main className="flex flex-col w-full min-h-screen bg-white" />;
+    return (
+      <div className="flex flex-col min-h-screen items-center justify-center p-4 pb-56 bg-blue-50">
+        <Lottie src="/lotties/spinner.json" className="w-20 h-20" />
+        <p className="mt-2 text-center text-gray-500">로딩 중...</p>
+      </div>
+    );
   }
 
   return (
