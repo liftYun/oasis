@@ -64,26 +64,27 @@ export function SearchResult() {
   };
 
   return (
-    <main className="flex flex-col w-full px-6 py-10 min-h-screen">
+    <main className="flex flex-col w-full px-6 pb-10 pt-6 min-h-screen">
       <SearchBar />
       <div className="mt-6">
         <PromoCard />
       </div>
 
-      <div
-        className="flex flex-wrap justify-center mt-6 mb-20 mx-auto"
-        style={{ gap: 'clamp(1rem, 2.5rem, 3rem)' }}
-      >
+      <div className="grid grid-cols-2 gap-6 mt-6 mb-40 mx-auto w-full max-w-md">
         {results.map((stay) => (
-          <div key={stay.stayId} className="flex-shrink-0 w-40">
+          <div key={stay.stayId} className="w-full">
             <div className="relative group">
-              <Link href={`/stays/${stay.stayId}`} className="block w-40">
-                <div className="relative w-40 h-40 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
+              <Link href={`/stays/${stay.stayId}`} className="block w-full">
+                <div className="relative aspect-square rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
                   <Image
                     src={stay.thumbnail || Logo}
                     alt={stay.title}
                     fill
                     className="object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = Logo.src;
+                    }}
                   />
 
                   <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-yellow/70 px-2 py-1 rounded-full">
