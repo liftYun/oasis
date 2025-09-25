@@ -142,9 +142,10 @@ public interface StayRepository extends JpaRepository<StayEntity, Long> {
       select new org.muhan.oasis.stay.dto.out.StayChatResponseDto(
         s.id,
         case when :language = 'KOR'
-             then s.addressLine else s.addressLineEng end,
+                     then s.addressLine else s.addressLineEng end,
         s.thumbnail,
-        s.title
+        case when :language = 'KOR'
+             then s.title else s.titleEng end
       )
       from StayEntity s
       where s.id in :ids
