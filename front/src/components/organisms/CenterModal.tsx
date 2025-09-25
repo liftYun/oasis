@@ -37,7 +37,7 @@ export function CenterModal({ open, title, description, onClose, children }: Cen
     >
       <div
         ref={modalRef}
-        className="min-w-10 max-w-md mx-8 rounded-lg bg-white p-7 shadow-2xl"
+        className="min-w-10 max-w-md mx-8 rounded-md bg-white p-7 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {title && (

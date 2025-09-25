@@ -1,6 +1,5 @@
 'use client';
 
-// import { Header } from '@/components/organisms/Header';
 import TabBar from '@/components/organisms/tabbar/TabBar';
 import { usePathname } from 'next/navigation';
 
@@ -10,7 +9,6 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <>
-      {/* <Header /> */}
       <section
         className={`
           min-h-screen items-center justify-center overflow-y-auto scrollbar-hide
