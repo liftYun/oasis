@@ -126,7 +126,7 @@ export function Favorite() {
                   <div className="flex items-center gap-1.5 mx-1 mt-1">
                     <Image src={Usdc} alt="usdc" width={16} height={16} className="shrink-0" />
                     <p className="text-sm text-gray-600 font-medium truncate">
-                      {item.stayCardDto.price.toLocaleString()} 원
+                      {item.stayCardDto.price.toLocaleString()}
                     </p>
                   </div>
                 </Link>
