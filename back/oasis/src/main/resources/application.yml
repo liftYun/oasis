@@ -99,8 +99,11 @@ cloud:
         secret-key: ${AWS_SECRET_ACCESS_KEY}
       queue:
         stay-translation: ${SQS_TRANS_STAY}
+        stay-translation-dlq: ${DLQ_TRANS_STAY}
         review-translation: ${SQS_TRANS_REVIEW}
+        review-translation-dlq: ${DLQ_TRANS_REVIEW}
         review-summary: ${SQS_SUMMARY_REVIEW}
+        review-summary-dlq: ${DLQ_SUMMARY_REVIEW}
         listener:
           acknowledgement-mode: MANUAL
 
