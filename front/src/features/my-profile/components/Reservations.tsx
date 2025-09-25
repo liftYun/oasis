@@ -110,10 +110,14 @@ export function Reservations() {
                     href={`/reservation-detail/${item.reservationId}` as Route}
                     className="flex flex-col justify-center px-5 py-3 flex-1 gap-2 cursor-pointer"
                   >
-                    <div className="flex justify-between">
-                      <h2 className="font-semibold text-gray-600">{item.stayTitle}</h2>
+                    <div className="flex justify-between overflow-hidden">
+                      <h2 className="font-semibold text-gray-600 truncate flex-1">
+                        {item.stayTitle.length > 12
+                          ? item.stayTitle.slice(0, 12) + '...'
+                          : item.stayTitle}
+                      </h2>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <div className="flex items-center gap-2 text-sm text-gray-500 overflow-hidden">
                       <Image
                         src={Marker}
                         alt="marker"
@@ -121,8 +125,13 @@ export function Reservations() {
                         height={14}
                         className="shrink-0"
                       />
-                      <span className="truncate">{item.addressLine}</span>
+                      <span className="truncate flex-1">
+                        {item.addressLine.length > 12
+                          ? item.addressLine.slice(0, 12) + '...'
+                          : item.addressLine}
+                      </span>
                     </div>
+
                     <div className="flex items-center gap-2 text-sm text-gray-500">
                       <Image
                         src={Calender}
