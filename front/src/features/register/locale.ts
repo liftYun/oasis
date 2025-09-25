@@ -24,9 +24,9 @@ export const registerMessages: Record<'kor' | 'eng', RegisterTexts> = {
     hostSubtitle: '안전한 서비스를 위해 확인합니다.',
     hostImage: '이미지 / PDF 업로드',
     hostImageGuide: '최대 10MB',
-    moneyTitle: '취소·환불 규정 등록',
+    moneyTitle: '취소/환불 규정 등록',
     moneySubTitle: '블록체인 기반 스마트 컨트랙트가 \n 규정에 따라 자동 환불을 보장합니다.',
-    moneyModalTitle: '규정 변경불가 안내',
+    moneyModalTitle: '환불 규정 수정 가능 안내',
     moneyModalDescription:
       '환불 규정은 스마트 컨트랙트에 기록되며, \n 등록 후에도 수정할 수 있습니다.',
     back: '돌아가기',
@@ -64,10 +64,11 @@ export const registerMessages: Record<'kor' | 'eng', RegisterTexts> = {
     hostImage: 'Upload image / PDF',
     hostImageGuide: 'Maximum 10MB',
     moneyTitle: 'Cancellation/Refund Registration',
-    moneySubTitle: 'Automatically adjust the refund amount \n based on the smart contract.',
-    moneyModalTitle: 'Non-change of regulations',
+    moneySubTitle:
+      'The blockchain-based smart contract \n guarantees automatic refunds according to the policy.',
+    moneyModalTitle: 'Refund Policy Can Be Updated',
     moneyModalDescription:
-      'The refund policy is recorded on the smart contract \n and can still be updated afterwards.',
+      'The refund policy is recorded on the smart contract \n and can still be updated after registration.',
     back: 'Back',
     successLogin: 'Login completed!',
     errorPattern: 'Only Korean, English, and numbers.',

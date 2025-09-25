@@ -133,11 +133,11 @@ export function ReviewDetailBottomSheet({ open, onClose, reviewId }: ReviewBotto
         </span>
       </div>
 
-      <div className="mt-4 rounded-md border border-gray-200 bg-white p-4 text-base text-gray-600 whitespace-pre-line leading-relaxed">
+      <div className="mt-5 rounded-md border border-gray-200 bg-white p-4 text-base text-gray-600 whitespace-pre-line leading-relaxed">
         {text || <span className="text-gray-400">{t.noReview}</span>}
       </div>
 
-      <div className="mt-4 text-xs text-gray-400 text-right">
+      <div className="mt-2 pb-10 text-xs text-gray-400 text-right">
         {createdAt && new Date(createdAt).toLocaleString(lang)}
       </div>
     </BottomSheet>

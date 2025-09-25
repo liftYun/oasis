@@ -86,14 +86,11 @@ export function Favorite() {
             </div>
           </div>
 
-          <div
-            className="flex flex-wrap justify-center mb-20 mx-auto"
-            style={{ gap: 'clamp(1rem, 2.5rem, 3rem)' }}
-          >
+          <div className="grid grid-cols-2 gap-6 mb-20 mx-auto w-full max-w-md">
             {favorites.map((item) => (
-              <div key={item.id} className="flex-shrink-0 w-40">
+              <div key={item.id} className="w-full">
                 <Link href={`/stays/${item.stayCardDto.stayId}`} className="block">
-                  <div className="relative w-40 h-40 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
+                  <div className="relative aspect-square rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
                     <Image
                       src={item.stayCardDto.thumbnail ?? '/images/default-thumb.jpg'}
                       alt={item.stayCardDto.title}
@@ -129,7 +126,7 @@ export function Favorite() {
                   <div className="flex items-center gap-1.5 mx-1 mt-1">
                     <Image src={Usdc} alt="usdc" width={16} height={16} className="shrink-0" />
                     <p className="text-sm text-gray-600 font-medium truncate">
-                      {item.stayCardDto.price.toLocaleString()} 원
+                      {item.stayCardDto.price.toLocaleString()}
                     </p>
                   </div>
                 </Link>

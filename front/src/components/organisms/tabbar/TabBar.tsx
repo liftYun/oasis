@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { TabKey, NavTabItem } from '@/components/organisms/types';
+import { TabKey } from '@/components/organisms/types';
 import HomeDisable from '@/assets/icons/home-disable.png';
 import HomeEnable from '@/assets/icons/home-enable.png';
 import KeyDisable from '@/assets/icons/key-disable.png';
@@ -29,76 +29,80 @@ export default function TabBar({ activeKey, withSafeArea = true }: TabBarProps) 
     Object.values(s.unreadMap).reduce((sum, c) => sum + c, 0)
   );
 
-  const items: NavTabItem[] = [
-    {
-      key: 'home',
-      label: t.home,
-      activeIcon: HomeEnable,
-      inactiveIcon: HomeDisable,
-      path: '/main',
-    },
-    {
-      key: 'smart-key',
-      label: t.smartKey,
-      activeIcon: KeyEnable,
-      inactiveIcon: KeyDisable,
-      path: '/smart-key',
-    },
-    {
-      key: 'chat',
-      label: t.chat,
-      activeIcon: ChatEnable,
-      inactiveIcon: ChatDisable,
-      path: '/chat',
-    },
-    {
-      key: 'profile',
-      label: t.profile,
-      activeIcon: UserEnable,
-      inactiveIcon: UserDisable,
-      path: '/my-profile',
-    },
-  ];
+  const safeBottom = withSafeArea ? 'calc(env(safe-area-inset-bottom, 0px) + 20px)' : '8px';
 
   return (
     <nav
       className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[478px] border-t border-gray-200 bg-gray-100 z-40"
-      style={
-        {
-          '--safe-bottom': withSafeArea ? 'calc(env(safe-area-inset-bottom, 0px) + 20px)' : '8px',
-        } as React.CSSProperties
-      }
+      style={{ '--safe-bottom': safeBottom } as React.CSSProperties}
     >
       <div className="grid grid-cols-4 gap-2 px-4 pt-4 pb-[var(--safe-bottom)]">
-        {items.map((it) => {
-          const active = it.key === activeKey;
-          return (
-            <button
-              key={it.key}
-              onClick={() => router.push(it.path as any)}
-              className="relative flex flex-col items-center justify-center gap-2 py-1 text-xs"
-            >
-              <div className="relative">
-                <Image
-                  src={active ? it.activeIcon : it.inactiveIcon}
-                  alt={it.label}
-                  width={24}
-                  height={24}
-                />
-                {it.key === 'chat' && unreadTotal > 0 && (
-                  <span
-                    className="absolute -top-1 -right-4 flex h-5 min-w-[1.25rem] items-center justify-center
-                               rounded-full bg-gradient-to-r from-primary to-green text-white
-                               text-[11px] font-medium px-1"
-                  >
-                    {unreadTotal > 9 ? '9+' : unreadTotal}
-                  </span>
-                )}
-              </div>
-              <span className={active ? 'text-gray-600' : 'text-gray-300'}>{it.label}</span>
-            </button>
-          );
-        })}
+        <button
+          onClick={() => router.push('/main')}
+          className="relative flex flex-col items-center justify-center gap-2 py-1 text-xs"
+        >
+          <Image
+            src={activeKey === 'home' ? HomeEnable : HomeDisable}
+            alt={t.home}
+            width={24}
+            height={24}
+          />
+          <span className={activeKey === 'home' ? 'text-gray-600' : 'text-gray-300'}>{t.home}</span>
+        </button>
+
+        <button
+          onClick={() => router.push('/smart-key')}
+          className="relative flex flex-col items-center justify-center gap-2 py-1 text-xs"
+        >
+          <Image
+            src={activeKey === 'smart-key' ? KeyEnable : KeyDisable}
+            alt={t.smartKey}
+            width={24}
+            height={24}
+          />
+          <span className={activeKey === 'smart-key' ? 'text-gray-600' : 'text-gray-300'}>
+            {t.smartKey}
+          </span>
+        </button>
+
+        <button
+          onClick={() => router.push('/chat')}
+          className="relative flex flex-col items-center justify-center gap-2 py-1 text-xs"
+        >
+          <div className="relative">
+            <Image
+              src={activeKey === 'chat' ? ChatEnable : ChatDisable}
+              alt={t.chat}
+              width={24}
+              height={24}
+            />
+            {unreadTotal > 0 && (
+              <span
+                className="absolute -top-1 -right-4 flex h-5 min-w-[1.25rem] items-center justify-center
+                           rounded-full bg-gradient-to-r from-primary to-green text-white
+                           text-[11px] font-medium px-1"
+              >
+                {unreadTotal > 9 ? '9+' : unreadTotal}
+              </span>
+            )}
+          </div>
+          <span className={activeKey === 'chat' ? 'text-gray-600' : 'text-gray-300'}>{t.chat}</span>
+        </button>
+
+        <button
+          onClick={() => router.push('/my-profile')}
+          className="relative flex flex-col items-center justify-center gap-2 py-1 text-xs"
+        >
+          <Image
+            src={activeKey === 'profile' ? UserEnable : UserDisable}
+            alt={t.profile}
+            width={24}
+            height={24}
+          />
+          <span className={activeKey === 'profile' ? 'text-gray-600' : 'text-gray-300'}>
+            {t.profile}
+          </span>
+        </button>
       </div>
     </nav>
   );

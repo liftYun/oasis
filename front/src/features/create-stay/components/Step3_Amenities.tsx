@@ -77,7 +77,7 @@ export function Step3_Amenities() {
         </header>
       </div>
 
-      <div className="p-4 flex flex-col flex-1">
+      <div className="p-4 pb-10 flex flex-col flex-1">
         <div className="mb-6">
           <h1 className="text-xl font-bold mb-2 pt-2">{t.step3.title}</h1>
           <p className="text-gray-400 text-sm">{t.step3.subtitle}</p>

@@ -174,7 +174,9 @@ export function Reservations() {
                     <p className="mb-2">{t.canceledReservation}</p>
                     <div className="flex space-x-4">
                       <Link
-                        href={`/reservation-detail/${item.reservationId}` as Route}
+                        href={
+                          `/reservation-detail/${item.reservationId}?isCanceled=${item.isCanceled}` as Route
+                        }
                         className="flex items-center space-x-1 text-sm"
                       >
                         <ClipboardList size={16} />

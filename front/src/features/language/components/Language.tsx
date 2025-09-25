@@ -10,11 +10,13 @@ import EnLight from '@/assets/icons/en-light.png';
 import KoDark from '@/assets/icons/ko-dark.png';
 import KoLight from '@/assets/icons/ko-light.png';
 import BackHeader from '@/components/molecules/BackHeader';
+import { useRouter } from 'next/navigation';
 
 export function Language() {
   const { changeLang } = useLanguage();
   const searchParams = useSearchParams();
   const from = searchParams.get('from') || '';
+  const router = useRouter();
 
   const cardClass = () =>
     'group block rounded-2xl px-5 py-10 transition focus-visible:outline-none bg-gray-100 text-gray-500 hover:bg-gray-500 hover:text-white';
@@ -25,6 +27,7 @@ export function Language() {
     try {
       await updateLanguage(lang.toUpperCase());
       changeLang(lang);
+      router.refresh();
     } catch (err) {
       console.error('언어 변경 실패:', err);
     }
@@ -36,7 +39,7 @@ export function Language() {
 
       <h1
         className={`text-2xl font-bold text-gray-500 leading-relaxed ${
-          from === 'myprofile' ? 'pt-16' : ''
+          from === 'myprofile' ? 'pt-10' : ''
         }`}
       >
         사용 언어를 선택해주세요. <br /> Please select a language.

@@ -142,7 +142,7 @@ export function ReviewBottomSheet({
         </span>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-5">
         <textarea
           className="w-full rounded-md border border-gray-200 p-3 text-sm resize-none
               focus:outline-none focus:border-yellow placeholder-gray-300"
@@ -157,7 +157,7 @@ export function ReviewBottomSheet({
         </div>
       </div>
 
-      <Button variant="default" className="mt-3" onClick={handleSubmit} disabled={loading}>
+      <Button variant="default" className="mt-5 mb-10" onClick={handleSubmit} disabled={loading}>
         {t.uploadReview}
       </Button>
     </BottomSheet>

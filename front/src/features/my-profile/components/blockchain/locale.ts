@@ -23,6 +23,8 @@ export const walletMessages = {
     pinSetupComplete: 'PIN 설정 완료!',
     getWalletsFailed: 'GET /wallets 실패',
     missingRequiredValues: 'init-session 응답에 필수값 없음',
+    statusSuccess: '연결됨',
+    statusNotConnected: '연결 안 됨',
   },
   eng: {
     title: 'Blockchain Wallet Connection',
@@ -48,5 +50,7 @@ export const walletMessages = {
     pinSetupComplete: 'PIN setup complete!',
     getWalletsFailed: 'GET /wallets failed',
     missingRequiredValues: 'Missing required values in init-session response',
+    statusSuccess: 'Connected',
+    statusNotConnected: 'Not connected',
   },
 } as const;

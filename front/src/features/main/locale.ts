@@ -7,7 +7,7 @@ export const mainMessages = {
     registerSubtitle: '적은 수수료로 숙소 등록이 가능합니다.',
     register: '숙소 등록하기',
     brandPrefix: '머무는 순간까지 여행이니까',
-    brandTitle: 'oasis의 블록체인 예약을 이용해보세요!',
+    brandTitle: '블록체인 예약을 이용해보세요!',
     likedTitle: '좋아요 많은 숙소',
     likedSubtitle: '여행자들의 마음을 사로잡은 인기 숙소예요.',
     favoriteTitle: '즐겨찾기 많은 숙소',
