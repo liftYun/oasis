@@ -278,7 +278,7 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
       </div>
 
       {primary && (
-        <div className="mt-6 p-4 border border-dashed border-gray-200 rounded-xl bg-white/60 backdrop-blur-sm">
+        <div className="mt-6 p-4 border border-gray-200 rounded-xl bg-white/60 backdrop-blur-sm">
           <div className="flex flex-col gap-2 py-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-gray-500 w-24">{t.primaryWallet}</span>
@@ -304,9 +304,9 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
 
                 <span
                   className="absolute top-full mt-1 left-1/2 -translate-x-1/2 
-                 whitespace-nowrap rounded-md bg-black/70 px-3 py-1 
-                 text-[10px] text-white shadow-md font-light
-                 opacity-0 group-hover:opacity-100 transition-opacity"
+           whitespace-nowrap rounded-md bg-black/70 px-3 py-1 
+           text-[10px] text-white shadow-md font-light
+           opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   Polygonscan에서 지갑 주소 보기
                 </span>
@@ -333,6 +333,15 @@ export default function ConnectWallet({ onConnectSuccess }: ConnectWalletProps) 
               {t.walletCount}: {snapshot.wallets.length}
             </div>
           ) : null}
+
+          <div className="mt-8">
+            <button
+              onClick={() => console.log('지갑 충전하기')}
+              className="w-full py-3 rounded-full bg-gradient-to-r from-primary to-green text-white font-medium text-sm shadow hover:opacity-90 active:scale-95 transition"
+            >
+              {t.topupWallet ?? '지갑 충전하기'}
+            </button>
+          </div>
         </div>
       )}
     </div>

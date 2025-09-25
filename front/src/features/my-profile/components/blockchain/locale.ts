@@ -25,6 +25,7 @@ export const walletMessages = {
     missingRequiredValues: 'init-session 응답에 필수값 없음',
     statusSuccess: '연결됨',
     statusNotConnected: '연결 안 됨',
+    topupWallet: '지갑 충전하기',
   },
   eng: {
     title: 'Blockchain Wallet Connection',
@@ -52,5 +53,6 @@ export const walletMessages = {
     missingRequiredValues: 'Missing required values in init-session response',
     statusSuccess: 'Connected',
     statusNotConnected: 'Not connected',
+    topupWallet: 'Top up wallet',
   },
 } as const;

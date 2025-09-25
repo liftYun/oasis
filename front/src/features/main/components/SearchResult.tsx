@@ -90,7 +90,7 @@ export function SearchResult() {
                   <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-yellow/70 px-2 py-1 rounded-full">
                     <Image src={Star} alt="star" width={14} height={14} className="opacity-60" />
                     <span className="text-xs text-gray-600 font-medium">
-                      {stay.rating.toFixed(1)}
+                      {stay.rating !== null ? stay.rating.toFixed(1) : '0.0'}
                     </span>
                   </div>
                 </div>

@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, useMotionValue } from 'framer-motion';
 import type { KeyResponseDto } from '@/services/smartKey.types';
 import { useLanguage } from '@/features/language';
 import { messages } from '@/features/smart-key/locale';
 import { SmartKeyDots, SmartKeyStatusModal, useSmartKey } from '@/features/smart-key';
-import { SmartKeyCard } from '@/features/smart-key/components/smartkey-card/SmartKeyCard';
+import { SmartKeyCard } from './smartkey-card/SmartKeyCard';
+import { SmartKeySummaryBar } from './smartkey-card/SmartKeySummaryBar';
 
 interface SmartKeyListProps {
   keys: KeyResponseDto[];
@@ -15,14 +16,28 @@ interface SmartKeyListProps {
 export function SmartKeyList({ keys }: SmartKeyListProps) {
   const [openCard, setOpenCard] = useState<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const { lang } = useLanguage();
   const t = messages[lang] ?? messages.kor;
-
   const { status, handleOpenDoor } = useSmartKey();
 
   const x = useMotionValue(0);
   const cardWidth = 350;
   const gap = 24;
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.clientWidth);
+      }
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   const handleDragEnd = (_: any, info: { offset: { x: number }; velocity: { x: number } }) => {
     const offsetX = info.offset.x;
@@ -36,25 +51,27 @@ export function SmartKeyList({ keys }: SmartKeyListProps) {
       newIndex = Math.max(activeIndex - 1, 0);
     }
     setActiveIndex(newIndex);
-
-    const targetX = -newIndex * (cardWidth + gap);
-    x.stop();
-    // TODO: animate to targetX if needed
   };
 
+  // 가운데 정렬 오프셋
+  const centerOffset = (containerWidth - cardWidth) / 2;
+
   return (
-    <main className="flex flex-col w-full max-h-screen pt-10 pb-28">
+    <main className="flex flex-col w-full max-w-[480px] mx-auto max-h-screen pt-10 pb-28">
       <h1 className="text-2xl font-semibold mt-2">{t.title}</h1>
-      <div className="overflow-hidden">
+
+      <SmartKeySummaryBar keys={keys} activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
+
+      <div className="overflow-visible" ref={containerRef}>
         <motion.div
-          className="flex gap-6 pt-8 cursor-grab active:cursor-grabbing"
+          className="flex gap-6 pt-6 cursor-grab active:cursor-grabbing"
           drag="x"
           dragConstraints={{
             left: -(keys.length - 1) * (cardWidth + gap),
             right: 0,
           }}
           onDragEnd={handleDragEnd}
-          animate={{ x: -activeIndex * (cardWidth + gap) }}
+          animate={{ x: -activeIndex * (cardWidth + gap) + centerOffset }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         >
           {keys.map((key, i) => (
@@ -79,7 +96,6 @@ export function SmartKeyList({ keys }: SmartKeyListProps) {
       </div>
 
       <SmartKeyDots keys={keys} activeIndex={activeIndex} />
-
       <SmartKeyStatusModal status={status} t={t} />
     </main>
   );

@@ -12,10 +12,23 @@ interface Props {
 export function SmartKeyCardFront({ keyData, handleOpenDoor, lang }: Props) {
   const t = messages[lang] ?? messages.kor;
 
+  const backgrounds = [
+    { from: '#E0ECFF', to: '#FFF9DB' },
+    { from: '#E3F2FD', to: '#FFFDE7' },
+    { from: '#E0F7FA', to: '#E8F5E9' },
+    { from: '#F3E5F5', to: '#E1F5FE' },
+    { from: '#FFF3E0', to: '#FBE9E7' },
+  ];
+  const bg = backgrounds[keyData.keyId % backgrounds.length];
+
   return (
     <div
-      className="absolute inset-0 p-8 rounded-xl bg-gradient-to-br from-primary/40 to-green/40 text-gray-600 flex flex-col justify-between"
-      style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+      className="absolute inset-0 p-8 rounded-xl text-gray-600 flex flex-col justify-between"
+      style={{
+        background: `linear-gradient(135deg, ${bg.from}, ${bg.to})`,
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden',
+      }}
     >
       <div className="flex justify-between items-start">
         <div className="flex flex-col gap-2">
