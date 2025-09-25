@@ -153,3 +153,7 @@ device:
     default-move-angle: ${DEVICE_MOVE_ANGLE}
     default-home-angle: ${DEVICE_HOME_ANGLE}
     default-duration-sec: ${DEVICE_DURATION_SEC}
+
+monitor:
+  mm:
+    webhook: ${MATTERMOST_URL}
