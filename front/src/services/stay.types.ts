@@ -1,6 +1,7 @@
 'use client';
 
 export interface ImageRequest {
+  id?: number;
   key: string;
   sortOrder: number;
 }
