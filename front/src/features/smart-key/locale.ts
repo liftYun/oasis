@@ -60,3 +60,5 @@ export const messages = {
     },
   },
 } as const;
+
+export type Messages = typeof messages;

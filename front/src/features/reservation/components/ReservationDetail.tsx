@@ -18,7 +18,7 @@ import {
   StayHeader,
 } from '@/features/stays';
 import { ReservationInfo } from './ReservationInfo';
-import dynamic from 'next/dynamic';
+import { useSearchParams } from 'next/navigation';
 
 // CancelBar import - 이미 내부에서 Circle SDK를 동적 로드하므로 SSR 안전함
 import { CancelBar } from './CancelBar';
@@ -40,6 +40,9 @@ export function ReservationDetail() {
 
   const { uuid: myUid, profileUrl: myProfileUrl, initialized } = useAuthStore();
   const [startingChat, setStartingChat] = useState(false);
+
+  const searchParams = useSearchParams();
+  const isCanceledParam = searchParams.get('isCanceled') === 'true';
 
   const handleChatStart = async (host: HostInfoResponseDto) => {
     if (startingChat) return;
@@ -153,7 +156,7 @@ export function ReservationDetail() {
         <StayHost host={stay.host} onChatStart={handleChatStart} />
       </main>
 
-      <CancelBar reservation={reservation} />
+      {reservation && !isCanceledParam && <CancelBar reservation={reservation} />}
     </section>
   );
 }

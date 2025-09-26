@@ -73,7 +73,7 @@ export function SearchSelector({
 
       <div className="flex-1 overflow-y-auto pr-1 pt-1">
         {tab === 'city' && (
-          <div className="flex flex-wrap gap-2 text-sm">
+          <div className="flex flex-wrap gap-3 text-sm">
             {regions.map((r) => (
               <button
                 key={r.region}
@@ -95,7 +95,7 @@ export function SearchSelector({
         )}
 
         {tab === 'region' && selectedCity && (
-          <div className="flex flex-wrap gap-2 text-sm">
+          <div className="flex flex-wrap gap-3 text-sm">
             {city?.subRegions.map((sr) => (
               <button
                 key={sr.id}

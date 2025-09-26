@@ -157,7 +157,7 @@ export function HostProfileMoney({
 
       {error && <p className="mt-3 text-sm text-red-500">{error}</p>}
 
-      <div className="fixed bottom-[calc(90px+var(--safe-bottom,20px))] left-0 w-full px-6">
+      <div className="mt-auto pt-6">
         <Button variant="default" onClick={handleSubmit} className="w-full" disabled={loading}>
           {t.confirm}
         </Button>
