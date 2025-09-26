@@ -139,8 +139,8 @@ export const useStayStores = create<StayStore>((set, get) => ({
       if (!stayId) throw new Error('수정할 숙소 ID가 없습니다.');
 
       const updateBody = {
-        id: stayId,
-        // subRegionId: data.subRegionId,
+        // id: stayId,
+        subRegionId: data.subRegionId,
         title: data.title,
         titleEng: data.titleEng,
         description: data.description,
