@@ -22,7 +22,9 @@ export const FooterInfo = () => {
             <br />
             더욱 <span className="font-medium">투명하고 안전한 거래</span>를 제공합니다.
             <br />
-            디지털 키 발급과 지갑 연동을 통해{' '}
+            <br />
+            디지털 키 발급과 지갑 연동을 통해
+            <br />
             <span className="font-medium">차세대 탈중앙 숙박 경험</span>을 선도합니다.
           </p>
         </div>

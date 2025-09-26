@@ -31,11 +31,11 @@ export default function StayInfoCard({ stay }: StayInfoCardProps) {
 
   return (
     <div
-      className="w-full text-left rounded-md px-3 cursor-pointer hover:bg-gray-50 transition-colors"
+      className="w-full text-left rounded-md px-3 cursor-pointer transition-colors"
       onClick={goDetail}
       aria-label="go-stay-detail"
     >
-      <div className="flex items-center gap-4 rounded-md bg-white p-6 shadow-sm mt-4">
+      <div className="flex items-center gap-4 rounded-md bg-white p-6 shadow-sm">
         <div className="relative h-16 w-16 flex-shrink-0">
           <div className="relative h-full w-full rounded overflow-hidden bg-gray-100">
             <Image
