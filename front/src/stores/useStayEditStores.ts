@@ -161,22 +161,6 @@ export const useStayStores = create<StayStore>((set, get) => ({
         blockRangeList: data.blockRangeList ?? [],
       };
 
-      console.log("id : "+updateBody.id)
-      console.log("title : "+updateBody.title)
-      console.log("titleEng : "+updateBody.titleEng)
-      console.log("description : "+updateBody.description)
-      console.log("descriptionEng : "+updateBody.descriptionEng)
-      console.log("price : "+updateBody.price)
-      console.log("address : "+updateBody.address)
-      console.log("addressEng : "+updateBody.addressEng)
-      console.log("postalCode : "+updateBody.postalCode)
-      console.log("addressDetail : "+updateBody.addressDetail)
-      console.log("addressDetailEng : "+updateBody.addressDetailEng)
-      console.log("maxGuest : "+updateBody.maxGuest)
-      console.log("imageRequestList : "+updateBody.imageRequestList)
-      console.log("facilities : "+updateBody.facilities)
-      console.log("blockRangeList : "+updateBody.blockRangeList)
-
       await updateStay(stayId, updateBody);
 
       set({ loading: false });
