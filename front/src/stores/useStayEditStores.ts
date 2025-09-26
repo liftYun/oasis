@@ -92,6 +92,7 @@ export const useStayStores = create<StayStore>((set, get) => ({
       subRegionId: detail.subRegionId,
 
       imageRequestList: detail.photos.map((p) => ({
+        id: p.id,
         key: toS3Key(p.url),
         sortOrder: p.sortOrder,
         url: p.url,
@@ -154,6 +155,7 @@ export const useStayStores = create<StayStore>((set, get) => ({
         maxGuest: data.maxGuest,
         // imageRequestList: data.imageRequestList ?? [],
         imageRequestList: (data.imageRequestList ?? []).map(img => ({
+          id: img.id,
           key: toS3Key(img.key),              // ✅ 서버에 key만 전달되도록 보정
           sortOrder: img.sortOrder,
         })),
