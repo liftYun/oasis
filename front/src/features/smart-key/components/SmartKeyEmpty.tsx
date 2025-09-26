@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/features/language';
-import { messages } from '@/features/smart-key';
+import { messages } from '@/features/smart-key/locale';
 import { Lottie } from '@/components/atoms/Lottie';
 
 export function SmartKeyEmpty() {

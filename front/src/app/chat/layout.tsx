@@ -11,7 +11,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
     <>
       <section
         className={`
-          min-h-screen items-center justify-center overflow-y-auto scrollbar-hide
+          min-h-screen items-center justify-center overflow-y-auto scrollbar-hide max-w-[478px]
           ${isChatDetail ? 'px-0' : 'px-6'}
         `}
       >

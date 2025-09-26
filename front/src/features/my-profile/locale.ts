@@ -48,6 +48,14 @@ export const profileMessages = {
     profile: '프로필 정보',
     loadingError: '로딩 중 오류가 발생했습니다.',
     wallet: '지갑 연결 모듈 로딩 중...',
+    blockchain: {
+      title: '지갑 충전',
+      back: '뒤로가기',
+      youPay: '결제 금액',
+      youReceive: '예상 수령',
+      order: '주문 요약',
+      proceed: '충전 진행하기',
+    },
   },
   eng: {
     guest: 'Guest',
@@ -99,5 +107,13 @@ export const profileMessages = {
     profile: 'Profile',
     loadingError: 'Error loading',
     wallet: 'Loading wallet module...',
+    blockchain: {
+      title: 'Top up Wallet',
+      back: 'Back',
+      youPay: 'You pay',
+      youReceive: 'You receive (estimate)',
+      order: 'Your order',
+      proceed: 'Proceed · Top up',
+    },
   },
 } as const;

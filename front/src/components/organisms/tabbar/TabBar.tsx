@@ -29,7 +29,7 @@ export default function TabBar({ activeKey, withSafeArea = true }: TabBarProps) 
     Object.values(s.unreadMap).reduce((sum, c) => sum + c, 0)
   );
 
-  const safeBottom = withSafeArea ? 'calc(env(safe-area-inset-bottom, 0px) + 20px)' : '8px';
+  const safeBottom = withSafeArea ? 'calc(env(safe-area-inset-bottom, 0px) + 12px)' : '8px';
 
   return (
     <nav

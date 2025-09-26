@@ -111,19 +111,31 @@ export function HostProfile() {
 
         <div className="w-full max-w-sm space-y-1 mt-12">
           <p className="text-sm text-gray-500 mb-2 font-bold">{t.stayManage}</p>
+
           <Link
             href="/my-profile/manage-stay"
-            className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
+            className="flex items-center justify-between w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
           >
-            <Image src={Manage} alt="Manage Icon" width={22} height={22} />
-            <span className="text-gray-800 text-sm">{t.manageStay}</span>
+            <div className="flex items-center gap-4">
+              <Image src={Manage} alt="Manage Icon" width={22} height={22} />
+              <span className="text-gray-800 text-sm">{t.manageStay}</span>
+            </div>
+            <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-red/10 text-red">
+              {t.host}
+            </span>
           </Link>
+
           <Link
             href="/create-stay"
-            className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
+            className="flex items-center justify-between w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
           >
-            <Image src={CreateStay} alt="Create Stay Icon" width={24} height={24} />
-            <span className="text-gray-800 text-sm">{t.createStay}</span>
+            <div className="flex items-center gap-4">
+              <Image src={CreateStay} alt="Create Stay Icon" width={24} height={24} />
+              <span className="text-gray-800 text-sm">{t.createStay}</span>
+            </div>
+            <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-red/10 text-red">
+              {t.host}
+            </span>
           </Link>
         </div>
 
@@ -167,11 +179,18 @@ export function HostProfile() {
           </Link>
           <button
             onClick={handlePolicy}
-            className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
+            className="flex items-center justify-between w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
           >
-            <Image src={Policy} alt="Policy Icon" width={24} height={24} />
-            <span className="text-gray-800 text-sm">{t.policy}</span>
+            <div className="flex items-center gap-4">
+              <Image src={Policy} alt="Policy Icon" width={24} height={24} />
+              <span className="text-gray-800 text-sm">{t.policy}</span>
+            </div>
+
+            <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-red/10 text-red">
+              {t.host}
+            </span>
           </button>
+
           <button
             onClick={() => setLogoutOpen(true)}
             className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"

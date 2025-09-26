@@ -130,7 +130,7 @@ export function Step3_Dummy() {
       </section>
 
       <section className="w-full mt-12 max-w-sm">
-        <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
+        <h2 className="text-lg font-semibold mb-6 flex items-center gap-2 whitespace-nowrap">
           <span className="inline-block w-1.5 h-5 bg-primary rounded-sm" />
           {t.step3.notesTitle}
         </h2>
