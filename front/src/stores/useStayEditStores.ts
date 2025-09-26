@@ -20,6 +20,18 @@ interface StayStore extends CreateStayRequest {
   submit: () => Promise<number | null>;
 }
 
+function toS3Key(url: string): string {
+  // 예) https://stay-oasis.s3.ap-northeast-2.amazonaws.com/stay-image/.../1.jpg
+  // → stay-image/.../1.jpg
+  try {
+    const u = new URL(url);
+    return u.pathname.replace(/^\/+/, ''); // 맨 앞 슬래시 제거
+  } catch {
+    // presigned 응답이나 이미 key가 온 경우 그대로 반환
+    return url.startsWith('/') ? url.slice(1) : url;
+  }
+}
+
 export const useStayStores = create<StayStore>((set, get) => ({
   subRegionId: 0,
   title: '',
@@ -72,15 +84,15 @@ export const useStayStores = create<StayStore>((set, get) => ({
       // addressDetail: '',
       // addressDetailEng: '',
       // 👉 실제 도로명 주소 / 상세주소
-      address: detail.address ?? '',
-      addressEng: detail.addressEng ?? '',
-      addressDetail: detail.addressDetail ?? '',
-      addressDetailEng: detail.addressDetailEng ?? '',
+      address: detail.addressLine ?? detail.address ?? '',
+      addressEng: detail.addressLineEng ?? detail.addressEng ?? '',
+      addressDetail: detail.addrDetail ?? detail.addressDetail ?? '',
+      addressDetailEng: detail.addrDetailEng ?? detail.addressDetailEng ?? '',
 
       subRegionId: detail.subRegionId,
 
       imageRequestList: detail.photos.map((p) => ({
-        key: p.url,
+        key: toS3Key(p.url),
         sortOrder: p.sortOrder,
         url: p.url,
       })),
@@ -140,10 +152,30 @@ export const useStayStores = create<StayStore>((set, get) => ({
         addressDetail: data.addressDetail,
         addressDetailEng: data.addressDetailEng,
         maxGuest: data.maxGuest,
-        imageRequestList: data.imageRequestList ?? [],
+        // imageRequestList: data.imageRequestList ?? [],
+        imageRequestList: (data.imageRequestList ?? []).map(img => ({
+          key: toS3Key(img.key),              // ✅ 서버에 key만 전달되도록 보정
+          sortOrder: img.sortOrder,
+        })),
         facilities: data.facilities ?? [],
         blockRangeList: data.blockRangeList ?? [],
       };
+
+      console.log("id : "+updateBody.id)
+      console.log("title : "+updateBody.title)
+      console.log("titleEng : "+updateBody.titleEng)
+      console.log("description : "+updateBody.description)
+      console.log("descriptionEng : "+updateBody.descriptionEng)
+      console.log("price : "+updateBody.price)
+      console.log("address : "+updateBody.address)
+      console.log("addressEng : "+updateBody.addressEng)
+      console.log("postalCode : "+updateBody.postalCode)
+      console.log("addressDetail : "+updateBody.addressDetail)
+      console.log("addressDetailEng : "+updateBody.addressDetailEng)
+      console.log("maxGuest : "+updateBody.maxGuest)
+      console.log("imageRequestList : "+updateBody.imageRequestList)
+      console.log("facilities : "+updateBody.facilities)
+      console.log("blockRangeList : "+updateBody.blockRangeList)
 
       await updateStay(stayId, updateBody);
 

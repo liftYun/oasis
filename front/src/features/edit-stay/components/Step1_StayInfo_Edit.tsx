@@ -88,14 +88,26 @@ export function Step1_StayInfo_Edit() {
     });
   }, [store, reset]);
 
+  // useEffect(() => {
+  //   if (store.address) {
+  //     setValue('address', store.address, { shouldValidate: true });
+  //   }
+  //   if (store.postalCode) {
+  //     setValue('postalCode', store.postalCode, { shouldValidate: true });
+  //   }
+  // }, [store.address, store.postalCode, setValue]);
   useEffect(() => {
-    if (store.address) {
-      setValue('address', store.address, { shouldValidate: true });
-    }
-    if (store.postalCode) {
-      setValue('postalCode', store.postalCode, { shouldValidate: true });
-    }
-  }, [store.address, store.postalCode, setValue]);
+      if (store.address) {
+        setValue('address', store.address, { shouldValidate: true });
+      }
+      if (store.addressDetail) {
+        setValue('addressDetail', store.addressDetail, { shouldValidate: true });
+      }
+      if (store.postalCode) {
+        setValue('postalCode', store.postalCode, { shouldValidate: true });
+      }
+  }, [store.address, store.addressDetail, store.postalCode, setValue]);
+
 
   return (
     <div className="max-w-md flex flex-1 flex-col w-full min-h-[calc(100vh-100px)] p-4 overflow-y-auto">
