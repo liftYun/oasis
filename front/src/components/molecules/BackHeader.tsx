@@ -26,7 +26,7 @@ export function BackHeaderContent({ title = ' ', onBack }: BackHeaderContentProp
 
   return (
     <header
-      className={`relative h-14 bg-white px-2 flex items-center justify-betwen border-x border-gray-100`}
+      className={`z-50 h-14 bg-white px-2 flex items-center justify-betwen border-x border-gray-100`}
     >
       <button
         onClick={handleBack}
