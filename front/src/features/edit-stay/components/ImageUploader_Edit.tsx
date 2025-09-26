@@ -43,16 +43,27 @@ export function ImageUploader_Edit({ defaultImages = [], onChange }: ImageUpload
   const [images, setImages] = useState<ImageItem[]>([]);
   const didInitRef = useRef(false);
 
+  const resolvePublicUrl = (key: string, url?: string) => {
+    // 서버가 url을 주면 그걸 반드시 사용
+    if (url && /^https?:\/\//.test(url)) return url;
+    // key가 이미 풀 URL이면 그대로
+    if (/^https?:\/\//.test(key)) return key;
+    // 절대 key만으로 미리보기 만들지 마세요(브라우저에서 못 엽니다).
+    // 필요시 NEXT_PUBLIC_CDN_BASE를 이용해 조합:
+    const CDN = process.env.NEXT_PUBLIC_CDN_BASE; // 예: https://cdn.stay-oasis.kr/
+    return CDN ? `${CDN.replace(/\/$/, '')}/${key}` : key;
+  };
+
   // 👉 초기 로딩 시에만 defaultImages → state
   useEffect(() => {
     if (didInitRef.current) return;
     if (!defaultImages?.length) return;
 
-    const resolvePublicUrl = (key: string, url?: string) => {
-      if (url && /^https?:\/\//.test(url)) return url;
-      if (/^https?:\/\//.test(key)) return key;
-      return key; // 필요하면 CDN prefix 붙여도 됨
-    };
+    // const resolvePublicUrl = (key: string, url?: string) => {
+    //   if (url && /^https?:\/\//.test(url)) return url;
+    //   if (/^https?:\/\//.test(key)) return key;
+    //   return key; // 필요하면 CDN prefix 붙여도 됨
+    // };
 
     const mapped: ExistingImage[] = [...defaultImages]
       .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))

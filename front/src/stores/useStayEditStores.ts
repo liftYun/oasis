@@ -20,6 +20,18 @@ interface StayStore extends CreateStayRequest {
   submit: () => Promise<number | null>;
 }
 
+function toS3Key(url: string): string {
+  // 예) https://stay-oasis.s3.ap-northeast-2.amazonaws.com/stay-image/.../1.jpg
+  // → stay-image/.../1.jpg
+  try {
+    const u = new URL(url);
+    return u.pathname.replace(/^\/+/, ''); // 맨 앞 슬래시 제거
+  } catch {
+    // presigned 응답이나 이미 key가 온 경우 그대로 반환
+    return url.startsWith('/') ? url.slice(1) : url;
+  }
+}
+
 export const useStayStores = create<StayStore>((set, get) => ({
   subRegionId: 0,
   title: '',
@@ -67,13 +79,21 @@ export const useStayStores = create<StayStore>((set, get) => ({
       postalCode: detail.postalCode,
       maxGuest: detail.maxGuest,
 
-      address: `${detail.region ?? ''} ${detail.subRegion ?? ''}`.trim(),
-      addressEng: '',
-      addressDetail: '',
-      addressDetailEng: '',
+      // address: `${detail.region ?? ''} ${detail.subRegion ?? ''}`.trim(),
+      // addressEng: '',
+      // addressDetail: '',
+      // addressDetailEng: '',
+      // 👉 실제 도로명 주소 / 상세주소
+      address: detail.addressLine ?? detail.address ?? '',
+      addressEng: detail.addressLineEng ?? detail.addressEng ?? '',
+      addressDetail: detail.addrDetail ?? detail.addressDetail ?? '',
+      addressDetailEng: detail.addrDetailEng ?? detail.addressDetailEng ?? '',
+
+      subRegionId: detail.subRegionId,
 
       imageRequestList: detail.photos.map((p) => ({
-        key: p.url,
+        id: p.id,
+        key: toS3Key(p.url),
         sortOrder: p.sortOrder,
         url: p.url,
       })),
@@ -120,8 +140,8 @@ export const useStayStores = create<StayStore>((set, get) => ({
       if (!stayId) throw new Error('수정할 숙소 ID가 없습니다.');
 
       const updateBody = {
-        id: stayId,
-        // subRegionId: data.subRegionId,
+        // id: stayId,
+        subRegionId: data.subRegionId,
         title: data.title,
         titleEng: data.titleEng,
         description: data.description,
@@ -133,7 +153,12 @@ export const useStayStores = create<StayStore>((set, get) => ({
         addressDetail: data.addressDetail,
         addressDetailEng: data.addressDetailEng,
         maxGuest: data.maxGuest,
-        imageRequestList: data.imageRequestList ?? [],
+        // imageRequestList: data.imageRequestList ?? [],
+        imageRequestList: (data.imageRequestList ?? []).map(img => ({
+          id: img.id,
+          key: toS3Key(img.key),              // ✅ 서버에 key만 전달되도록 보정
+          sortOrder: img.sortOrder,
+        })),
         facilities: data.facilities ?? [],
         blockRangeList: data.blockRangeList ?? [],
       };

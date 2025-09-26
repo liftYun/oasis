@@ -1,6 +1,7 @@
 package org.muhan.oasis.reservation.service;
 
 import lombok.RequiredArgsConstructor;
+import org.muhan.oasis.reservation.enums.ReservationStatus;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +15,7 @@ public class ReservationUpdateService {
     @Transactional
     public void markCanceled(String reservationId) {
         if (reservationRepository.existsById(reservationId)) {
-            reservationRepository.markCanceled(reservationId);
+            reservationRepository.markCanceled(reservationId, ReservationStatus.CANCELED);
         }
     }
 }

@@ -1,6 +1,7 @@
 'use client';
 
 export interface ImageRequest {
+  id?: number;
   key: string;
   sortOrder: number;
 }
@@ -57,7 +58,7 @@ export interface CreateStayRequest {
 }
 
 export interface UpdateStayRequest extends Omit<CreateStayRequest, 'subRegionId'> {
-  id: number;
+  // id: number;
   subRegionId?: number;
 }
 
@@ -84,6 +85,11 @@ export interface StayReadResponseDto {
   cancellations: StayBlockResponseDto[];
   reservedDate: ReservedResponseDto[];
 
+  addressLine?: string;
+  addrDetail?: string;
+  addressLineEng?: string;
+  addrDetailEng?: string;
+
   address?: string;
   addressEng?: string;
   addressDetail?: string;
@@ -91,6 +97,7 @@ export interface StayReadResponseDto {
 }
 
 export interface ImageResponseDto {
+  id: number;
   url: string;
   sortOrder: number;
 }
