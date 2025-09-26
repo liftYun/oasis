@@ -1,0 +1,8 @@
+FROM openjdk:17-alpine
+RUN addgroup -S spring && adduser -S spring -G spring
+WORKDIR /app
+COPY build/libs/*.jar app.jar
+RUN chown spring:spring app.jar
+USER spring
+EXPOSE 8080
+ENTRYPOINT ["java","-Duser.timezone=Asia/Seoul","-jar","/app/app.jar"]

@@ -1,0 +1,323 @@
+package org.muhan.oasis.user.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.log4j.Log4j2;
+import org.muhan.oasis.common.base.BaseResponse;
+import org.muhan.oasis.common.base.BaseResponseStatus;
+import org.muhan.oasis.s3.service.S3StorageService;
+import org.muhan.oasis.security.dto.out.CustomUserDetails;
+import org.muhan.oasis.security.service.CreateTokenService;
+import org.muhan.oasis.security.vo.out.TokenPair;
+import org.muhan.oasis.user.dto.in.CancellationPolicyRequestDto;
+import org.muhan.oasis.user.dto.in.UpdateCancellationPolicyRequestDto;
+import org.muhan.oasis.user.service.UserService;
+import org.muhan.oasis.user.vo.in.CancellationPolicyRequestVo;
+import org.muhan.oasis.user.vo.in.UpdateCancellationPolicyRequestVo;
+import org.muhan.oasis.user.vo.out.CancellationPolicyResponseVo;
+import org.muhan.oasis.user.vo.out.UserDetailsResponseVo;
+import org.muhan.oasis.user.vo.out.UserSearchResultResponseVo;
+import org.muhan.oasis.valueobject.Language;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URL;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import static org.muhan.oasis.common.base.BaseResponseStatus.*;
+
+@RestController
+@ResponseBody
+@Log4j2
+@RequestMapping("/api/v1/user")
+@Tag(name = "회원", description = "회원 조회/프로필 관련 API")
+public class UserController {
+
+    private final UserService userService;
+    private final S3StorageService s3StorageService;
+    private final CreateTokenService createTokenService;
+
+    public UserController(UserService userService, S3StorageService s3StorageService, CreateTokenService createTokenService) {
+        this.userService = userService;
+        this.s3StorageService = s3StorageService;
+        this.createTokenService = createTokenService;
+    }
+
+    @Operation(
+            summary = "회원 오토컴플리트 검색",
+            description = """
+                닉네임/이름 등 키워드 기반으로 회원을 검색합니다.
+                - `exclude` 파라미터로 특정 회원 ID들을 결과에서 제외할 수 있습니다.
+                - 페이지네이션: page(0-base), size
+                예) /api/v1/user/search?q=이도&page=0&size=10&exclude=1&exclude=2
+                """,
+            tags = {"회원"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "검색 성공")
+    })
+    @GetMapping("/search/{q}/{page}/{size}")
+    public BaseResponse<UserSearchResultResponseVo> search(
+            @Parameter(description = "검색 키워드", required = true, example = "이도")
+            @PathVariable("q") String keyword,
+            @Parameter(description = "페이지(0-base)", example = "0")
+            @PathVariable("page") int page,
+            @Parameter(description = "페이지 크기", example = "10")
+            @PathVariable("size") int size,
+            @Parameter(description = "결과에서 제외할 회원 ID 목록", example = "1,2")
+            @RequestParam(value = "exclude", required = false) List<Long> excludeIds
+    ) {
+        UserSearchResultResponseVo result = userService.autocomplete(keyword, page, size, excludeIds);
+        return BaseResponse.of(result);
+    }
+
+    @Operation(
+            summary = "닉네임 정확 매칭 조회",
+            description = "닉네임으로 정확 매칭되는 회원의 ID를 반환합니다.",
+            tags = {"회원"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
+    @GetMapping("/by-nickname/{nickname}")
+    public BaseResponse<Long> getByNickname(
+            @Parameter(description = "정확 매칭할 닉네임", required = true, example = "muhan")
+            @PathVariable String nickname) {
+        Long userId = userService.getUserIdByExactNickname(nickname);
+        return BaseResponse.of(userId);
+    }
+
+    @Operation(
+            summary = "내 정보 조회",
+            description = "현재 로그인한 회원의 상세 정보를 조회합니다.",
+            tags = {"회원"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "401", description = "인증 필요")
+    })
+    @GetMapping("/mypage")
+    public BaseResponse<?> mypage(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userService.getUserIdByExactNickname(userDetails.getUserNickname());
+
+        return BaseResponse.of(UserDetailsResponseVo.from(userService.getUser(userId)));
+    }
+
+    @Operation(
+            summary = "프로필 이미지 업로드 URL 발급",
+            description = """
+            프로필 이미지를 S3에 직접 업로드하기 위한 presigned URL을 발급합니다.
+            사용 흐름:
+            1) 본 API 호출(예: /profileImg/upload-url/image/png) → { key, uploadUrl, publicUrl } 수신
+            2) 프론트가 PUT {uploadUrl} 로 S3에 업로드(요청 헤더 Content-Type 반드시 일치)
+            3) 업로드 후 PUT /api/v1/user/profileImg?key=... 호출로 최종 반영
+            """,
+            tags = {"회원"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "URL 발급 성공"),
+            @ApiResponse(responseCode = "400", description = "이미지 MIME 아님"),
+            @ApiResponse(responseCode = "401", description = "인증 필요")
+    })
+    @PostMapping("/profileImg/upload-url/{type}/{subtype}")
+    public BaseResponse<?> createUploadUrl(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Parameter(description = "MIME 타입의 상위 타입 (예: image)", required = true, example = "image")
+            @PathVariable("type") String type,
+            @Parameter(description = "MIME 타입의 하위 타입 (예: png, jpeg, webp)", required = true, example = "png")
+            @PathVariable("subtype") String subtype
+    ) {
+        final String contentType = type + "/" + subtype;
+
+        if (!type.equalsIgnoreCase("image")) {
+            return BaseResponse.error(NO_IMG_FORM); // 프로젝트 공통 에러코드
+        }
+
+        String userUuid = userDetails.getUserUuid();
+        String key = "users/%s/profile/%s.%s".formatted(
+                userUuid, java.util.UUID.randomUUID(), contentTypeToExt(contentType)
+        );
+
+        Duration ttl = Duration.ofMinutes(10); // Presigned URL TTL
+        URL uploadUrl = s3StorageService.issuePutUrl(key, contentType, ttl);
+        String publicUrl = s3StorageService.toPublicUrl(key);
+
+        return BaseResponse.of(Map.of(
+                "uploadUrl", uploadUrl.toString(),
+                "publicUrl", publicUrl,
+                "key", key
+        ));
+    }
+
+    @Operation(
+            summary = "프로필 이미지 최종 반영",
+            description = """
+        presigned URL로 업로드가 완료된 S3 객체의 **파일명(uuid.ext)**만 전달하면
+        서버가 최종 key를 구성하여 DB에 반영합니다.
+        - 서버는 key가 본인 경로(`users/{userUuid}/profile/{file}`)인지 강제
+        - S3 객체가 실제로 존재하는지 HEAD로 검증
+        - 검증 후 publicUrl을 생성하여 DB에 저장
+        
+        ✅ 요청 예:
+        PUT /api/v1/user/profileImg?file=550e8400-e29b-41d4-a716-446655440000.png
+        """,
+            tags = {"회원"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "프로필 반영 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 파일명 또는 업로드 미완료"),
+            @ApiResponse(responseCode = "401", description = "인증 필요")
+    })
+    @PutMapping("/profileImg")
+    public BaseResponse<?> setProfileImg(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Parameter(
+                    description = "presigned 업로드 완료 후 S3에 존재하는 파일명(uuid.ext)만 전달",
+                    required = true,
+                    example = "550e8400-e29b-41d4-a716-446655440000.png"
+            )
+            @RequestParam("file") String file // ← key 대신 파일명만 받음
+    ) {
+        final String userUuid = userDetails.getUserUuid();
+
+        // 0) 파일명 기초 검증 (슬래시 금지, 디렉토리 우회 금지)
+        if (file == null || file.isBlank() || file.contains("/") || file.contains("..")) {
+            return BaseResponse.error(BaseResponseStatus.INVALID_PARAMETER);
+        }
+
+        // 1) 파일명 포맷/확장자 화이트리스트 검증
+        //    - UUID.EXT 형태, 허용 확장자: png|jpg|jpeg|webp|gif|avif
+        final Pattern FILE_PATTERN = Pattern.compile(
+                "^[\\p{L}\\p{N}_-]*[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\.(png|jpg|jpeg|webp|gif|avif)$"
+        );
+        if (!FILE_PATTERN.matcher(file).matches()) {
+            return BaseResponse.error(BaseResponseStatus.NO_IMG_FORM);
+        }
+
+        // 2) 서버에서 최종 key 구성 (본인 경로 강제)
+        String key = "users/" + userUuid + "/profile/" + file;
+
+        // 3) 업로드 완료 여부(S3 HEAD) 검증
+        if (!s3StorageService.exists(key)) {
+            return BaseResponse.error(BaseResponseStatus.NO_IMG_DATA);
+        }
+
+        // 4) 퍼블릭 URL 생성 및 DB 반영
+        String publicUrl = s3StorageService.toPublicUrl(key);
+        Long userId = userService.getUserIdByUserUuid(userUuid);
+        userService.updateProfileImageUrl(userId, publicUrl);
+
+        return BaseResponse.of(Map.of("profileImgUrl", publicUrl));
+    }
+
+
+
+    @PutMapping("/updateLang/{language}")
+    @Schema(allowableValues = {"KOR","ENG","kor","eng"})
+    @Operation(
+            summary = "사용자 언어 설정 수정(PATCH)",
+            description = "요청한 언어 코드로 사용자 언어를 부분 업데이트합니다. 예: language=KOR|ENG"
+    )
+    public ResponseEntity<BaseResponse<?>> updateLang(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable(name = "language") String language
+    ) {
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
+        // language parsing
+        log.info("update language user nickname:{}, lang(before upper):{}", customUserDetails.getUserNickname(), language);
+        Language lang = Language.valueOf(language.toUpperCase());
+        log.info("update language user nickname:{}, lang(after upper):{}", customUserDetails.getUserNickname(), language);
+
+        // update new Language
+        userService.updateLang(userId, lang);
+
+        // create new AT / RT
+        TokenPair tokens = createTokenService.createTokens(
+                customUserDetails.getUserUuid(),
+                customUserDetails.getEmail(),
+                customUserDetails.getUserProfileUrl(),
+                customUserDetails.getUserNickname(),
+                customUserDetails.getRole(),
+                lang
+        );
+
+        return ResponseEntity.ok()
+                .header("Authorization", "Bearer " + tokens.accessToken())
+                .header(HttpHeaders.SET_COOKIE, tokens.refreshCookie().toString())
+                .body(BaseResponse.ok());
+    }
+
+    @PostMapping("/regist/cancellationPolicy")
+    @PreAuthorize("hasRole('ROLE_HOST')")
+    @Operation(
+            summary = "호스트 취소 정책 등록(POST)",
+            description = "호스트가 호스팅 중인 숙소의 예약 취소 정책을 등록하여 일괄적으로 적용토록 합니다."
+    )
+    public BaseResponse<?> registCancellationPolicy(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody CancellationPolicyRequestVo vo
+    ){
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
+        userService.registCancellationPolicy(userId, CancellationPolicyRequestDto.from(vo));
+        return BaseResponse.ok();
+    }
+
+    @PutMapping("/update/cancellationPolicy")
+    @PreAuthorize("hasRole('ROLE_HOST')")
+    @Operation(
+            summary = "호스트 취소 정책 수정(PUT)",
+            description = "호스트가 호스팅 중인 숙소의 예약 취소 정책을 수정하여 일괄적으로 적용토록 합니다."
+    )
+    public BaseResponse<?> updateCancellationPolicy(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody UpdateCancellationPolicyRequestVo vo
+    ){
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
+        userService.updateCancellationPolicy(userId, UpdateCancellationPolicyRequestDto.from(vo));
+        return BaseResponse.ok();
+    }
+
+    @GetMapping("/details/cancellationPolicy")
+    @PreAuthorize("hasRole('ROLE_HOST')")
+    @Operation(
+            summary = "호스트 취소 정책 조회",
+            description = "호스트가 호스팅 중인 숙소의 예약 취소 정책을 확인합니다."
+    )
+    public BaseResponse<?> getCancellationPolicy(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Long userId = userService.getUserIdByUserUuid(customUserDetails.getUserUuid());
+        CancellationPolicyResponseVo vo = userService.getCancellationPolicy(userId);
+        return BaseResponse.of(vo);
+    }
+
+    // 파일 확장자
+    private String contentTypeToExt(String contentType) {
+        if (contentType == null) return "bin";
+        String ct = contentType.toLowerCase();
+        return switch (ct) {
+            case "image/png" -> "png";
+            case "image/jpeg", "image/jpg" -> "jpg";
+            case "image/gif" -> "gif";
+            case "image/webp" -> "webp";
+            default -> {
+                int slash = ct.lastIndexOf('/');
+                if (slash >= 0 && slash < ct.length() - 1) {
+                    yield ct.substring(slash + 1); // 예: image/bmp -> bmp
+                }
+                yield "bin";
+            }
+        };
+    }
+}

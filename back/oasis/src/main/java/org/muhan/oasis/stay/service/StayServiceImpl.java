@@ -1,0 +1,633 @@
+package org.muhan.oasis.stay.service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.muhan.oasis.common.base.BaseResponseStatus;
+import org.muhan.oasis.common.exception.BaseException;
+import org.muhan.oasis.key.repository.KeyOwnerRepository;
+import org.muhan.oasis.key.repository.KeyRepository;
+import org.muhan.oasis.openAI.dto.out.ReviewSummaryResultDto;
+import org.muhan.oasis.reservation.repository.ReservationRepository;
+import org.muhan.oasis.review.repository.ReviewRepository;
+import org.muhan.oasis.s3.service.S3StorageService;
+import org.muhan.oasis.stay.dto.in.*;
+import org.muhan.oasis.stay.dto.out.*;
+import org.muhan.oasis.stay.entity.*;
+import org.muhan.oasis.stay.repository.*;
+import org.muhan.oasis.stay.vo.out.DetailsOfStayResponseVo;
+import org.muhan.oasis.user.entity.UserEntity;
+import org.muhan.oasis.user.repository.UserRepository;
+import org.muhan.oasis.valueobject.Language;
+import org.muhan.oasis.valueobject.Rate;
+import org.muhan.oasis.wish.repository.WishRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static org.muhan.oasis.common.base.BaseResponseStatus.*;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class StayServiceImpl implements StayService{
+
+    private final UserRepository userRepository;
+    private final SubRegionRepository subRegionRepository;
+    private final SubRegionEngRepository subRegionEngRepository;
+    private final FacilityRepository facilityRepository;
+    private final DeviceRepository deviceRepository;
+    private final StayRatingSummaryRepository stayRatingSummaryRepository;
+    private final StayBlockRepository stayBlockRepository;
+    private final StayFacilityRepository stayFacilityRepository;
+    private final StayPhotoRepository stayPhotoRepository;
+    private final StayRepository stayRepository;
+    private final S3StorageService s3StorageService;
+    private final ReservationRepository reservationRepository;
+    private final ReviewRepository reviewRepository;
+    private final WishRepository wishRepository;
+    private final KeyRepository keyRepository;
+    private final KeyOwnerRepository keyOwnerRepository;
+
+    @Override
+    @Transactional
+    public StayResponseDto registStay(CreateStayRequestDto stayRequest, String userUuid) {
+
+        UserEntity user = userRepository.findByUserUuid(userUuid).orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
+        // subRegion 찾기
+        Long subRegionId = stayRequest.getSubRegionId();
+
+        SubRegionEntity subRegion = subRegionRepository.findById(subRegionId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_SUBREGION));
+        SubRegionEngEntity subRegionEng = subRegionEngRepository.findById(subRegionId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_SUBREGION));
+
+        // 취소정책 찾기 - 이후 수정
+        CancellationPolicyEntity cancellationPolicy = user.getActiveCancelPolicy();
+
+        String thumbnailUrl = null;
+        if(stayRequest.getThumbnail() != null){
+            thumbnailUrl = s3StorageService.toPublicUrl(stayRequest.getThumbnail());
+        }
+        // 숙소 이름, 설명, 가격, 주소, 우편번호, 수용인원, 썸네일, 지역으로 생성
+        StayEntity stay =
+                stayRepository.save(
+                        StayEntity.builder()
+                            .title(stayRequest.getTitle())
+                            .titleEng(stayRequest.getTitleEng())
+                            .description(stayRequest.getDescription())
+                            .descriptionEng(stayRequest.getDescriptionEng())
+                            .price(stayRequest.getPrice())
+                            .addressLine(stayRequest.getAddress())
+                            .addressLineEng(stayRequest.getAddressEng())
+                            .postalCode(stayRequest.getPostalCode())
+                            .maxGuests(stayRequest.getMaxGuest())
+                            .thumbnail(thumbnailUrl)
+                            .subRegionEntity(subRegion)
+                            .subRegionEngEntity(subRegionEng)
+                            .user(user)
+                            .cancellationPolicyEntity(cancellationPolicy)
+                            .addrDetail(stayRequest.getAddressDetail())
+                            .addrDetailEng(stayRequest.getAddressDetailEng())
+                                .language(user.getLanguage())
+                            .build());
+
+        // 디바이스 생성
+        DeviceEntity device = deviceRepository.save(
+                DeviceEntity.builder()
+                .stayName(stayRequest.getTitle())
+                .stayNameEng(stayRequest.getTitleEng())
+                .stay(stay)
+                .deviceId(29L)
+                .build());
+
+
+        // 숙소별 별점 요약 생성
+        StayRatingSummaryEntity ratingSummary = stayRatingSummaryRepository.save(
+                StayRatingSummaryEntity.builder()
+                        .stay(stay)
+                        .build());
+
+        // 예약 불가능 날짜 생성
+        List<StayBlockEntity> stayBlocks = stayBlockRepository.saveAll(
+                Optional.ofNullable(stayRequest.getBlockRangeList()).orElseGet(List::of).stream()
+                        .map(dto -> StayBlockEntity.from(dto, stay))
+                        .toList());
+
+        // 숙소 편의시설 등록
+        List<Long> ids = Optional.ofNullable(stayRequest.getFacilities())
+                .orElseGet(List::of);
+
+        if (!ids.isEmpty()) {
+
+            List<Long> uniqueIds = ids.stream().distinct().toList();
+
+            Map<Long, FacilityEntity> facilityMap = facilityRepository.findAllById(uniqueIds)
+                    .stream()
+                    .collect(Collectors.toMap(FacilityEntity::getId, Function.identity()));
+
+
+            List<Long> missing = uniqueIds.stream()
+                    .filter(id -> !facilityMap.containsKey(id))
+                    .toList();
+
+            if (!missing.isEmpty()) {
+                throw new BaseException(BaseResponseStatus.NO_EXIST_FACILITY);
+            }
+
+            List<StayFacilityEntity> stayFacilities = uniqueIds.stream()
+                    .map(fid -> StayFacilityEntity.builder()
+                            .stay(stay)
+                            .facility(facilityMap.get(fid))
+                            .build())
+                    .toList();
+
+            stayFacilityRepository.saveAll(stayFacilities);
+            stay.addFacilities(stayFacilities);
+        }
+
+        // 사진
+        List<StayPhotoEntity> photos = new ArrayList<>();
+        for (ImageRequestDto imageRequestDto : stayRequest.getImageRequestList()) {
+            String requiredPrefix = "stay-image/" + user.getUserUuid();
+            if (imageRequestDto.key() == null || !imageRequestDto.key().startsWith(requiredPrefix)) {
+                throw new BaseException(NO_IMG_DATA);
+            }
+
+            // 2) 실제로 업로드 완료되었는지 S3 HEAD로 확인
+            if (!s3StorageService.exists(imageRequestDto.key())) {
+                throw new BaseException(NO_IMG_DATA);
+            }
+
+            // 3) 퍼블릭 URL(CloudFront or S3) 생성
+            String publicUrl = s3StorageService.toPublicUrl(imageRequestDto.key());
+            StayPhotoEntity photoEntity = StayPhotoEntity.from(imageRequestDto, stay, publicUrl);
+            photos.add(photoEntity);
+        }
+        List<StayPhotoEntity> photoList = stayPhotoRepository.saveAll(photos);
+
+        stay.attachDevice(device);
+        stay.attachRatingSummary(ratingSummary);
+
+        stay.addPhotos(photoList);
+
+        return StayResponseDto.builder()
+                .stayId(stay.getId()).build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DetailsOfStayResponseVo getStayById(Long stayId, Language language) {
+        StayEntity stay = stayRepository.findDetailForRead(stayId).orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY));
+        List<StayFacilityEntity> facilities = stayFacilityRepository.findWithFacilityByStayId(stayId);
+        LocalDate cutoff = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        List<StayBlockEntity> blcokList = stayBlockRepository.findAllByStayIdAndEndDateAfterOrderByStartDateAsc(stayId, cutoff);
+        List<ReservedResponseDto> reservedList = reservationRepository.findAllReservedByStayId(stayId);
+        return DetailsOfStayResponseVo.from(stay, facilities, language, blcokList, reservedList);
+    }
+
+    @Override
+    @Transactional
+    public StayReadResponseDto updateStay(Long stayId, UpdateStayRequestDto stayRequest, String userUuid) {
+        StayEntity stay = stayRepository.findById(stayId).orElseThrow(() -> new BaseException(NO_STAY));
+
+        if(!stay.getUser().getUserUuid().equals(userUuid))
+            throw new BaseException(NO_ACCESS_AUTHORITY);
+
+        //title
+        if(stayRequest.getTitle() != null && stayRequest.getTitleEng() != null){
+            stay.setTitle(stayRequest.getTitle());
+            stay.setTitleEng(stayRequest.getTitleEng());
+        }
+
+        //description
+        if(stayRequest.getDescription() != null && stayRequest.getDescriptionEng() != null){
+            stay.setDescription(stayRequest.getDescription());
+            stay.setDescriptionEng(stayRequest.getDescriptionEng());
+        }
+
+        //price
+        if(stayRequest.getPrice() != null){
+            stay.setPrice(stayRequest.getPrice());
+        }
+
+        // ---- 주소(부분 갱신) ----
+        // 프론트는 도로명 주소를 address(=addressLine), 영문 도로명을 addressEng로 보냄
+        if (stayRequest.getAddress() != null) {
+            stay.setAddressLine(stayRequest.getAddress());
+        }
+        if (stayRequest.getAddressEng() != null) {
+            stay.setAddressLineEng(stayRequest.getAddressEng());
+        }
+        if (stayRequest.getPostalCode() != null) {
+            stay.setPostalCode(stayRequest.getPostalCode());
+        }
+
+        // ---- 상세 주소(부분 갱신) ----
+        if (stayRequest.getAddressDetail() != null) {
+            stay.setAddrDetail(stayRequest.getAddressDetail());
+        }
+        if (stayRequest.getAddressDetailEng() != null) {
+            stay.setAddrDetailEng(stayRequest.getAddressDetailEng());
+        }
+
+        // ---- 최대 인원 ----
+        if (stayRequest.getMaxGuest() != null) {
+            stay.setMaxGuests(stayRequest.getMaxGuest());
+        }
+
+        // ---- 이미지 (key 기준 동기화) ----
+        // 클라이언트는 {key, sortOrder} 배열을 보냄. 기존 key는 재사용, 신규 key만 추가.
+        if (stayRequest.getImageRequestList() != null) {
+            replaceStayPhotos(stay, stayRequest.getImageRequestList());
+        }
+
+        // ---- 편의시설 ----
+        if (stayRequest.getFacilities() != null) {
+            updateFacilities(stay, stayRequest.getFacilities());
+        }
+
+        // ---- 예약불가 블록 ----
+        if (stayRequest.getBlockRangeList() != null) {
+            replaceStayBlocks(stay, stayRequest.getBlockRangeList());
+        }
+
+        // ---- 지역 매핑 ----
+        if (stayRequest.getSubRegionId() != null) {
+            SubRegionEntity subRegion = subRegionRepository.findById(stayRequest.getSubRegionId())
+                    .orElseThrow(() -> new BaseException(NO_EXIST_SUBREGION));
+            SubRegionEngEntity subRegionEng = subRegionEngRepository.findById(stayRequest.getSubRegionId())
+                    .orElseThrow(() -> new BaseException(NO_EXIST_SUBREGION));
+            stay.setSubRegionEntity(subRegion);
+            stay.setSubRegionEngEntity(subRegionEng);
+        }
+
+        return StayReadResponseDto.builder()
+                .stayId(stay.getId())
+                .build();
+    }
+
+    @Transactional
+    public void replaceStayBlocks(StayEntity stay, List<BlockRangeDto> requested) {
+        List<BlockRangeDto> req = Optional.ofNullable(requested).orElseGet(List::of);
+
+        // 1) 정규화 + 병합 ([start, end) 반열린 구간으로 통일)
+        List<BlockRangeDto> merged = normalizeAndMerge(req);
+
+        // (선택) 2) 기존 예약과 충돌 검사
+
+        for (BlockRangeDto r : merged) {
+            boolean conflict = reservationRepository.existsConfirmedOverlap(
+                    stay.getId(), r.start().atStartOfDay(), r.end().atStartOfDay());
+            if (conflict) {
+                throw new BaseException(BaseResponseStatus.BLOCK_OVERLAP_RESERVATION);
+            }
+        }
+
+
+        // 3) DB 전량 교체
+        stayBlockRepository.deleteByStayId(stay.getId());
+        stayBlockRepository.flush();
+
+        List<StayBlockEntity> blocks = merged.stream()
+                .map(r -> StayBlockEntity.builder()
+                        .stay(stay)
+                        .startDate(r.start())
+                        .endDate(r.end())
+                        .build())
+                .toList();
+
+        stayBlockRepository.saveAll(blocks);
+    }
+
+    private List<BlockRangeDto> normalizeAndMerge(List<BlockRangeDto> req) {
+        // UI가 날짜(포함 끝)라면: end + 1일, 00:00 으로 변환 → [start, end)
+        List<BlockRangeDto> ranges = req.stream()
+                .map(d -> {
+                    LocalDateTime s = d.start().atStartOfDay();
+                    LocalDateTime e = d.end().plusDays(1).atStartOfDay();
+                    if (!s.isBefore(e)) throw new BaseException(BaseResponseStatus.INVALID_BLOCK_RANGE);
+                    return new BlockRangeDto(s.toLocalDate(), e.toLocalDate());
+                })
+                .sorted(Comparator.comparing(BlockRangeDto::start))
+                .toList();
+
+        // 겹치거나 맞닿는 구간 병합 (curr.start <= last.end 이면 merge)
+        List<BlockRangeDto> merged = new ArrayList<>();
+        for (BlockRangeDto cur : ranges) {
+            if (merged.isEmpty()) { merged.add(cur); continue; }
+            BlockRangeDto last = merged.get(merged.size()-1);
+            if (!cur.start().isAfter(last.end())) { // overlap or contiguous
+                LocalDateTime newEnd = (cur.end().isAfter(last.end()) ? cur.end() : last.end()).atStartOfDay();
+                merged.set(merged.size()-1, new BlockRangeDto(last.start(), newEnd.toLocalDate()));
+            } else {
+                merged.add(cur);
+            }
+        }
+        return merged;
+    }
+
+    @Transactional
+    public void updateFacilities(StayEntity stay, List<Long> requestedFacilityIds) {
+        List<Long> req = Optional.ofNullable(requestedFacilityIds).orElseGet(List::of)
+                .stream().distinct().toList();
+
+        // 현재 연결
+        List<StayFacilityEntity> current = stayFacilityRepository.findWithFacilityByStayId(stay.getId());
+        Set<Long> currIds = current.stream().map(sf -> sf.getFacility().getId()).collect(Collectors.toSet());
+
+        // diff
+        Set<Long> toAdd = new HashSet<>(req);   toAdd.removeAll(currIds);
+        Set<Long> toDel = new HashSet<>(currIds); toDel.removeAll(req);
+
+        // 삭제
+        if (!toDel.isEmpty()) {
+            stayFacilityRepository.deleteByStayIdAndFacilityIds(stay.getId(), toDel);
+            // 메모리 동기화
+            stay.getStayFacilities().removeIf(sf -> toDel.contains(sf.getFacility().getId()));
+        }
+
+        // 추가 (존재 검증 포함)
+        if (!toAdd.isEmpty()) {
+            Map<Long, FacilityEntity> map = facilityRepository.findAllById(toAdd).stream()
+                    .collect(Collectors.toMap(FacilityEntity::getId, Function.identity()));
+            if (map.size() != toAdd.size()) {
+                throw new BaseException(BaseResponseStatus.NO_EXIST_FACILITY);
+            }
+            List<StayFacilityEntity> adds = toAdd.stream()
+                    .map(fid -> StayFacilityEntity.builder().stay(stay).facility(map.get(fid)).build())
+                    .toList();
+
+            List<StayFacilityEntity> saved = stayFacilityRepository.saveAll(adds);
+            saved.forEach(stay::addFacility); // 편의 메서드로 양방향 동기화
+        }
+    }
+
+//    @Transactional
+//    public void replaceStayPhotos(StayEntity stay, List<ImageRequestDto> requested) {
+//        List<ImageRequestDto> req = Optional.ofNullable(requested).orElseGet(List::of);
+//
+//        // 0) 검증: key/정렬 중복 방지
+//        var dupKeys = req.stream()
+//                .collect(Collectors.groupingBy(ImageRequestDto::key, Collectors.counting()))
+//                .entrySet().stream().filter(e -> e.getValue() > 1).map(Map.Entry::getKey).toList();
+//        if (!dupKeys.isEmpty()) throw new BaseException(BaseResponseStatus.DUP_PHOTO_KEYS);
+//
+//        var dupOrders = req.stream()
+//                .collect(Collectors.groupingBy(ImageRequestDto::sortOrder, Collectors.counting()))
+//                .entrySet().stream().filter(e -> e.getValue() > 1).map(Map.Entry::getKey).toList();
+//        if (!dupOrders.isEmpty()) throw new BaseException(BaseResponseStatus.DUP_PHOTO_SORT_ORDER);
+//
+//        // 1) 기존 키 보관 (DB 커밋 후 S3 삭제용)
+//        List<StayPhotoEntity> existing = stayPhotoRepository.findAllByStay(stay);
+//        Set<String> oldKeys = existing.stream().map(StayPhotoEntity::getPhotoKey).collect(Collectors.toSet());
+//
+//        // 2) 새 엔티티 목록 구성 (요청 정렬 그대로 사용)
+//        List<StayPhotoEntity> newPhotos = req.stream()
+//                .sorted(Comparator.comparingInt(ImageRequestDto::sortOrder))
+//                .map(dto -> StayPhotoEntity.builder()
+//                        .stay(stay)                                        // FK 세팅
+//                        .photoKey(dto.key())
+//                        .photoUrl(s3StorageService.toPublicUrl(dto.key()))
+//                        .sortOrder(dto.sortOrder())
+//                        .build())
+//                .toList();
+//
+//        Set<String> newKeys = newPhotos.stream().map(StayPhotoEntity::getPhotoKey).collect(Collectors.toSet());
+//        List<String> keysToDelete = oldKeys.stream().filter(k -> !newKeys.contains(k)).toList();
+//
+//        // 3) DB: 모두 삭제 → 모두 삽입 (유니크 충돌/오더 업데이트 이슈 無)
+//        stayPhotoRepository.deleteAllInBatch(existing); // 또는 custom: deleteByStayId(stay.getId())
+//        stayPhotoRepository.flush();
+//
+//        List<StayPhotoEntity> persisted = stayPhotoRepository.saveAll(newPhotos);
+//
+//        // 4) 메모리 컬렉션 동기화 (세터 금지, 편의 메서드/컬렉션 조작)
+//        stay.getStayPhotoEntities().clear();
+//        persisted.forEach(stay::addPhoto);
+//
+//        // 5) S3 삭제는 커밋 이후
+//        if (!keysToDelete.isEmpty()) {
+//            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+//                @Override public void afterCommit() {
+//                    keysToDelete.forEach(s3StorageService::delete);
+//                }
+//            });
+//        }
+//    }
+    @Transactional
+    public void replaceStayPhotos(StayEntity stay, List<ImageRequestDto> requested) {
+        List<ImageRequestDto> req = Optional.ofNullable(requested).orElseGet(List::of);
+
+        // 0) 중복 검증
+        var dupKeys = req.stream()
+                .collect(Collectors.groupingBy(ImageRequestDto::key, Collectors.counting()))
+                .entrySet().stream().filter(e -> e.getValue() > 1).map(Map.Entry::getKey).toList();
+        if (!dupKeys.isEmpty()) throw new BaseException(BaseResponseStatus.DUP_PHOTO_KEYS);
+
+        var dupOrders = req.stream()
+                .collect(Collectors.groupingBy(ImageRequestDto::sortOrder, Collectors.counting()))
+                .entrySet().stream().filter(e -> e.getValue() > 1).map(Map.Entry::getKey).toList();
+        if (!dupOrders.isEmpty()) throw new BaseException(BaseResponseStatus.DUP_PHOTO_SORT_ORDER);
+
+        // 1) 기존 엔티티 로딩 & S3 삭제 후보 수집
+        List<StayPhotoEntity> existing = stayPhotoRepository.findAllByStay(stay);
+        Set<String> oldKeys = existing.stream()
+                .map(StayPhotoEntity::getPhotoKey)
+                .collect(Collectors.toSet());
+
+        // 2) DB에서 전부 삭제 → flush (unique 제약 충돌 방지)
+        stayPhotoRepository.deleteAllInBatch(existing);
+        stayPhotoRepository.flush();
+
+        // 3) 새 엔티티 구성 (요청 sortOrder 순서대로)
+        List<StayPhotoEntity> newPhotos = req.stream()
+                .sorted(Comparator.comparingInt(ImageRequestDto::sortOrder))
+                .map(dto -> StayPhotoEntity.builder()
+                        .stay(stay)
+                        .photoKey(dto.key())
+                        .photoUrl(s3StorageService.toPublicUrl(dto.key())) // 항상 publicUrl 저장
+                        .sortOrder(dto.sortOrder())
+                        .build())
+                .toList();
+
+        // 4) 저장
+        List<StayPhotoEntity> saved = stayPhotoRepository.saveAll(newPhotos);
+
+        // 5) JPA 연관관계 동기화
+        stay.getStayPhotoEntities().clear();
+        saved.forEach(stay::addPhoto);
+
+        // 6) 삭제할 S3 키 정리 (요청에 없는 기존 키)
+        Set<String> newKeys = req.stream().map(ImageRequestDto::key).collect(Collectors.toSet());
+        List<String> keysToDelete = oldKeys.stream()
+                .filter(k -> !newKeys.contains(k))
+                .toList();
+
+        if (!keysToDelete.isEmpty()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    keysToDelete.forEach(s3StorageService::delete);
+                }
+            });
+        }
+
+        // 7) 썸네일 갱신 (첫 번째 sortOrder 기준)
+        saved.stream()
+                .min(Comparator.comparingInt(StayPhotoEntity::getSortOrder))
+                .ifPresent(first -> stay.setThumbnail(first.getPhotoUrl()));
+    }
+
+
+
+    @Override
+    @Transactional
+    public void recalculateRating(Long stayId, BigDecimal rating) {
+        StayRatingSummaryEntity ratingSummary = stayRatingSummaryRepository.findById(stayId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_STAY_SUMMARY));
+        ratingSummary.recalculate(rating);
+    }
+
+    @Override
+    @Transactional
+    public void deleteStay(Long stayId, String userUuid) {
+        // 1) 존재/소유자 검증
+        StayEntity stay = stayRepository.findById(stayId)
+                .orElseThrow(() -> new BaseException(NO_STAY));
+
+//        if (!stay.getUser().getUserUuid().equals(userUuid)) {
+//            throw new BaseException(NO_ACCESS_AUTHORITY);
+//        }
+
+        // 1-1) S3 삭제 대상(사진 키) 미리 수집 — 부모 삭제 전!
+        List<String> photoKeysToDelete = stayPhotoRepository.findAllByStay(stay).stream()
+                .map(StayPhotoEntity::getPhotoKey)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+
+        // 2) 참조 데이터 삭제 (자식 → 부모 순서)
+        // 2-1) 리뷰(Review) → 예약(Reservation)
+        reviewRepository.deleteByReservation_Stay_Id(stayId);
+        reservationRepository.deleteByStay_Id(stayId);
+
+        // 2-2) 키 소유자(KeyOwner) → 디지털 키(DigitalKey)
+        List<Long> keyIds = keyRepository.findKeyIdsByStayId(stayId);
+        if (!keyIds.isEmpty()) {
+            keyOwnerRepository.deleteByKey_KeyIdIn(keyIds);
+            keyRepository.deleteByDevice_Id(stayId);
+        }
+
+        // 2-3) 위시(Wish)
+        wishRepository.deleteByStay_Id(stayId);
+
+        // 2-4) 블록(StayBlock)
+        stayBlockRepository.deleteByStay_Id(stayId);
+
+        // 3) 부모(Stay) 삭제 — 사진/시설/디바이스/평점요약은 cascade+orphanRemoval로 정리
+        stayRepository.delete(stay);
+
+        // 4) 트랜잭션 커밋 후 S3에서 사진 삭제
+        if (!photoKeysToDelete.isEmpty()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override public void afterCommit() {
+                    photoKeysToDelete.forEach(s3StorageService::delete);
+                }
+            });
+        }
+
+        log.info("[StayService] stay deleted. stayId={}", stayId);
+    }
+
+    @Override
+    public List<StayCardDto> searchStay(Long lastStayId, StayQueryRequestDto stayQuery, String userUuid) {
+        if (stayQuery.getCheckIn() != null && stayQuery.getCheckout() != null && stayQuery.getCheckIn().isBefore(stayQuery.getCheckout())) {
+            throw new BaseException(BaseResponseStatus.INVALID_PARAMETER);
+        }
+
+        UserEntity user = userRepository.findByUserUuid(userUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
+
+        PageRequest pr = PageRequest.of(0, 20);
+        Page<StayCardDto> page = stayRepository.fetchCardsBy(
+                lastStayId,
+                stayQuery.getSubRegionId(),
+                stayQuery.getCheckIn(),
+                stayQuery.getCheckout(),
+                user.getLanguage().getDescription(),
+                pr
+        );
+
+        return page.getContent();
+
+
+    }
+
+    @Override
+    public List<StayCardByWishView> searchStayByWish(String userUuid) {
+
+        UserEntity user = userRepository.findByUserUuid(userUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
+        return stayRepository.findTop12ByWish(
+                user.getLanguage().getDescription()
+        );
+    }
+
+    @Override
+    public List<StayCardView> searchStayByRating(String userUuid) {
+        UserEntity user = userRepository.findByUserUuid(userUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
+        return stayRepository.findTop12ByRating(
+                user.getLanguage().getDescription()
+        );
+    }
+
+    @Override
+    public List<StayChatResponseDto> getStays(List<StayChatRequestDto> stayChatListDto, String userUuid) {
+        UserEntity user = userRepository.findByUserUuid(userUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
+        List<Long> list = stayChatListDto.stream().map(StayChatRequestDto::stayId).toList();
+
+        return stayRepository.findChatInfo(user.getLanguage().getDescription(), list);
+    }
+
+    @Override
+    public List<StayCardView> findMyStays(String userUuid) {
+        UserEntity user = userRepository.findByUserUuid(userUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_USER));
+
+        return stayRepository.findCardsByUserId(user.getUserId(), user.getLanguage().getDescription());
+    }
+
+    @Override
+    @Transactional
+    public void updateReviewSummary(Long stayId, Rate rate, ReviewSummaryResultDto result) {
+        StayRatingSummaryEntity ratingSummary = stayRatingSummaryRepository.findById(stayId).orElseThrow(() -> new BaseException(NO_STAY));
+        if(rate.equals(Rate.HIGH_RATE)){
+            ratingSummary.setHighRateSummary(result.getKoreanVersion().getSummary());
+            ratingSummary.setHighRateSummaryEng(result.getEnglishVersion().getSummary());
+        }
+        else{
+            ratingSummary.setLowRateSummary(result.getKoreanVersion().getSummary());
+            ratingSummary.setLowRateSummaryEng(result.getEnglishVersion().getSummary());
+        }
+    }
+
+}

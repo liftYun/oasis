@@ -1,0 +1,148 @@
+package org.muhan.oasis.user.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.muhan.oasis.common.base.BaseEntity;
+import org.muhan.oasis.common.base.BaseResponseStatus;
+import org.muhan.oasis.common.exception.BaseException;
+import org.muhan.oasis.key.entity.KeyOwnerEntity;
+import org.muhan.oasis.reservation.entity.ReservationEntity;
+import org.muhan.oasis.review.entity.ReviewEntity;
+import org.muhan.oasis.stay.entity.CancellationPolicyEntity;
+import org.muhan.oasis.stay.entity.StayEntity;
+import org.muhan.oasis.valueobject.Language;
+import org.muhan.oasis.valueobject.Role;
+import org.muhan.oasis.wish.entity.WishEntity;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_users_email", columnNames = "email"),
+                @UniqueConstraint(name = "uk_users_nickname", columnNames = "nickname")
+        })
+@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor
+@Getter @Setter
+public class UserEntity extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")                     // 서러게이트 PK
+    private Long userId;
+
+    @Column(name = "user_uuid", nullable = false, unique = true, updatable = false)
+    private String userUuid;                   // 비즈니스 키(사용자 UUID)
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 20)
+    private Role role;
+
+    @Column(name = "nickname", length = 100, unique = true)
+    private String nickname;
+
+    @Column(name = "email", nullable = false, length = 255, unique = true)
+    private String email;
+
+    @Column(name = "profile_url", length = 191)
+    private String profileUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "language", nullable = false, length = 3)
+    private Language language;
+
+    @Column(name = "certificate_key", length = 191)
+    private String certificateKey;
+
+    @Column(name = "certificate_url", length = 191)
+    private String certificateUrl;
+
+    @Column(name = "first_login", nullable = false)
+    private Boolean firstLogin = true;
+
+    /* ---------- 양방향 연관관계들 ---------- */
+
+    // 위시리스트 (users 1 : N wishes)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WishEntity> wishes = new ArrayList<>();
+
+    // 내가 올린 숙소 (users 1 : N stays) -> stays.user_id
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StayEntity> stays = new ArrayList<>();
+
+    // 나의 예약 (users 1 : N reservations) -> reservations.user_id (권장)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReservationEntity> reservations = new ArrayList<>();
+
+    // 내가 쓴 리뷰 (users 1 : N reviews) -> reviews.user_id
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewEntity> reviews = new ArrayList<>();
+
+    // 내가 소유한(공유받은) 키 (users 1 : N key_owner)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<KeyOwnerEntity> keyOwners = new ArrayList<>();
+
+    // 나의 취소 정책 (users 1 : 1 cancellation_policies)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<CancellationPolicyEntity> cancellationPolicy;
+
+    /* ---------- 편의 메서드 ---------- */
+//    public void addWish(WishEntity wish) {
+//        wishes.add(wish);
+//        wish.setUserId(this);
+//    }
+//    public void removeWish(WishEntity wish) {
+//        wishes.remove(wish);
+//        wish.setUserId(null);
+//    }
+//    public void addStay(StayEntity stay) {
+//        stays.add(stay);
+//        stay.setUser(this);
+//    }
+//    public void addReservation(ReservationEntity r) {
+//        reservations.add(r);
+//        r.setUserId(this);
+//    }
+//    public void addReview(ReviewEntity rv) {
+//        reviews.add(rv);
+//        rv.setUserId(this);
+//    }
+//    public void addKeyOwner(KeyOwnerEntity ko) {
+//        keyOwners.add(ko);
+//        ko.setUserId(this);
+//    }
+
+    @Builder
+    public UserEntity(String userUuid, Role role, String nickname, String profileUrl, String email, Language language, boolean firstLogin) {
+        this.userUuid = userUuid;
+        this.role = role;
+        this.nickname = nickname;
+        this.profileUrl = profileUrl;
+        this.email = email;
+        this.language = language;
+        this.firstLogin = firstLogin;
+    }
+    public static UserEntity ofSocial(String uuid, String email, String nickname, Language lang, Role role) {
+        UserEntity u = new UserEntity(); // @NoArgsConstructor 필요
+        u.setUserUuid(uuid);
+        u.setEmail(email);
+        u.setNickname(nickname);
+        u.setLanguage(lang);
+        u.setRole(role);
+        return u;
+    }
+
+    public CancellationPolicyEntity getActiveCancelPolicy(){
+        for (CancellationPolicyEntity cancelPolicyEntity : cancellationPolicy) {
+            if(cancelPolicyEntity.isActive()) return cancelPolicyEntity;
+        }
+        throw new BaseException(BaseResponseStatus.NO_EXIST_CANCELLATION_POLICY);
+    }
+}
+
