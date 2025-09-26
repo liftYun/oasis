@@ -57,7 +57,7 @@ export interface CreateStayRequest {
 }
 
 export interface UpdateStayRequest extends Omit<CreateStayRequest, 'subRegionId'> {
-  id: number;
+  // id: number;
   subRegionId?: number;
 }
 
