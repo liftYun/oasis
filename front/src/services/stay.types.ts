@@ -84,6 +84,11 @@ export interface StayReadResponseDto {
   cancellations: StayBlockResponseDto[];
   reservedDate: ReservedResponseDto[];
 
+  addressLine?: string;
+  addrDetail?: string;
+  addressLineEng?: string;
+  addrDetailEng?: string;
+
   address?: string;
   addressEng?: string;
   addressDetail?: string;
