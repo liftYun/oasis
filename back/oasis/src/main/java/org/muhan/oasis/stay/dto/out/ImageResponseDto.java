@@ -6,7 +6,7 @@ import org.muhan.oasis.stay.entity.StayPhotoEntity;
 import java.util.List;
 
 @Builder
-public record ImageResponseDto(String url, Integer sortOrder) {
+public record ImageResponseDto(String key, String url, Integer sortOrder) {
 
     public static List<ImageResponseDto> from(List<StayPhotoEntity> stayPhotoEntities) {
         return stayPhotoEntities.stream().map(ImageResponseDto::from).toList();
@@ -14,6 +14,7 @@ public record ImageResponseDto(String url, Integer sortOrder) {
 
     public static ImageResponseDto from(StayPhotoEntity stayPhotoEntity) {
         return ImageResponseDto.builder()
+                .key(stayPhotoEntity.getPhotoKey())
                 .url(stayPhotoEntity.getPhotoUrl())
                 .sortOrder(stayPhotoEntity.getSortOrder())
                 .build();
