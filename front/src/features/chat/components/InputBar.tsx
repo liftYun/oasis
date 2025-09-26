@@ -69,7 +69,7 @@ export default function InputBar({ onSend }: InputBarProps) {
   return (
     <div
       id="chat-input-bar"
-      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-50 pb-10 pt-5 px-4 bg-blue-50"
+      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-50 py-5 px-4 bg-blue-50"
     >
       <div className="mx-2 rounded-full border border-gray-200 bg-white px-3 py-2 flex items-center gap-2">
         <button
@@ -87,7 +87,7 @@ export default function InputBar({ onSend }: InputBarProps) {
           value={text}
           onChange={handleTextChange}
           onKeyDown={handleKeyDown}
-          className="flex-1 min-w-0 bg-transparent outline-none text-sm px-1 text-base"
+          className="flex-1 min-w-0 bg-transparent outline-none text-sm px-1"
           placeholder={t.inputPlaceholder}
           maxLength={500}
         />
