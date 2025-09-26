@@ -96,6 +96,7 @@ export interface StayReadResponseDto {
 }
 
 export interface ImageResponseDto {
+  id: number;
   url: string;
   sortOrder: number;
 }
