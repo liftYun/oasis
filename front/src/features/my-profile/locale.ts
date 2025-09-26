@@ -55,6 +55,7 @@ export const profileMessages = {
       youReceive: '예상 수령',
       order: '주문 요약',
       proceed: '충전 진행하기',
+      stableCoin: 'USDC는 스테이블 코인으로, 선택한 화폐와 1:1로 교환됩니다.',
     },
   },
   eng: {
@@ -114,6 +115,7 @@ export const profileMessages = {
       youReceive: 'You receive (estimate)',
       order: 'Your order',
       proceed: 'Proceed · Top up',
+      stableCoin: 'USDC is a stable coin, exchanged 1:1.',
     },
   },
 } as const;

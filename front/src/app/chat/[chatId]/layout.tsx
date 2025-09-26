@@ -9,7 +9,7 @@ export default function ChatRoomLayout({ children }: { children: React.ReactNode
   return (
     <>
       <BackHeader title={t.titleChat} />
-      <div className="pt-14 bg-white min-h-dvh overflow-y-auto">{children}</div>
+      <div className="pt-20 bg-blue-50 min-h-dvh overflow-y-auto">{children}</div>
     </>
   );
 }
