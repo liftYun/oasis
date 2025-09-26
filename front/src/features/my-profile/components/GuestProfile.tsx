@@ -116,6 +116,7 @@ export function GuestProfile() {
 
         <div className="w-full max-w-sm space-y-1 mt-12">
           <p className="text-sm text-gray-500 mb-2 font-bold">{t.activity}</p>
+
           <Link
             href="/my-profile/favorite"
             className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
@@ -123,12 +124,19 @@ export function GuestProfile() {
             <Image src={Heart} alt="Heart Icon" width={24} height={24} />
             <span className="text-gray-800 text-sm">{t.wishlist}</span>
           </Link>
+
           <Link
             href="/my-profile/reviews"
-            className="flex items-center gap-4 w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
+            className="flex items-center justify-between w-full px-3 py-3 rounded-md hover:bg-gray-50 transition"
           >
-            <Image src={PositiveReview} alt="Positive Review Icon" width={24} height={24} />
-            <span className="text-gray-800 text-sm">{t.reviews}</span>
+            <div className="flex items-center gap-4">
+              <Image src={PositiveReview} alt="Positive Review Icon" width={24} height={24} />
+              <span className="text-gray-800 text-sm">{t.reviews}</span>
+            </div>
+
+            <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-red/10 text-red">
+              {t.guest}
+            </span>
           </Link>
         </div>
 
