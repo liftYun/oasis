@@ -10,7 +10,7 @@ interface BackHeaderContentProps {
   onBack?: () => void;
 }
 
-export function BackHeaderContent({ title = ' ', className, onBack }: BackHeaderContentProps) {
+export function BackHeaderContent({ title = ' ', onBack }: BackHeaderContentProps) {
   const router = useRouter();
   const stepFlow = useStepFlow();
 

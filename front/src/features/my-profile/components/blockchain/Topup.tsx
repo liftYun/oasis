@@ -137,8 +137,22 @@ export function Topup() {
           <Image src={GooglePay} alt="Google Pay" width={40} height={24} />
         </div>
         <button
-          onClick={() => console.log('충전 진행하기')}
-          className="w-full py-3 rounded-full bg-gradient-to-r from-primary to-green text-white font-medium text-base shadow hover:opacity-90 active:scale-95 transition"
+          onClick={() => {
+            if (amount > 100 || amount <= 0) {
+              alert('최대 100까지 입력할 수 있습니다.');
+              return;
+            }
+            router.push(
+              `/my-profile/blockchain/topup?amount=${amount}&currency=${selectedCurrency.code}`
+            );
+          }}
+          disabled={amount > 100 || amount <= 0}
+          className={`w-full py-3 rounded-full font-medium text-base shadow transition
+    ${
+      amount > 100 || amount <= 0
+        ? 'bg-gradient-to-r from-primary to-green text-white opacity-50 cursor-not-allowed'
+        : 'bg-gradient-to-r from-primary to-green text-white hover:opacity-90 active:scale-95'
+    }`}
         >
           {t.blockchain.proceed}
         </button>
