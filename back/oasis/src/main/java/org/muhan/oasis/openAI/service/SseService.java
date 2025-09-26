@@ -29,7 +29,6 @@ public class SseService {
 
         // connect event로 message 발생
         sendToClient(id, "connect", "sse connect...");
-        System.out.println("구독완");
         return sseEmitter;
     }
 

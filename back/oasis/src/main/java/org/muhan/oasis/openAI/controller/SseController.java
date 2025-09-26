@@ -6,16 +6,31 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.muhan.oasis.openAI.dto.in.ReviewListRequestDto;
+import org.muhan.oasis.openAI.dto.in.ReviewRequestDto;
+import org.muhan.oasis.openAI.service.SqsSendService;
 import org.muhan.oasis.openAI.service.SseService;
+import org.muhan.oasis.review.entity.ReviewEntity;
+import org.muhan.oasis.review.repository.ReviewRepository;
+import org.muhan.oasis.security.dto.out.CustomUserDetails;
+import org.muhan.oasis.valueobject.Rate;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.http.MediaType;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 public class SseController {
 
     private final SseService sseService;
+    private final ReviewRepository reviewRepository;
+    private final SqsSendService sqsSendService;
 
 
     @Operation(

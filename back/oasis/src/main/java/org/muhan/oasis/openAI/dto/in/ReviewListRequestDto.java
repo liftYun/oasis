@@ -7,11 +7,9 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReviewListRequestDto {
     List<ReviewRequestDto> reviews = new ArrayList<>();
-
 }

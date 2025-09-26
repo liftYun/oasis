@@ -99,8 +99,11 @@ cloud:
         secret-key: ${AWS_SECRET_ACCESS_KEY}
       queue:
         stay-translation: ${SQS_TRANS_STAY}
+        stay-translation-dlq: ${DLQ_TRANS_STAY}
         review-translation: ${SQS_TRANS_REVIEW}
+        review-translation-dlq: ${DLQ_TRANS_REVIEW}
         review-summary: ${SQS_SUMMARY_REVIEW}
+        review-summary-dlq: ${DLQ_SUMMARY_REVIEW}
         listener:
           acknowledgement-mode: MANUAL
 
@@ -150,3 +153,7 @@ device:
     default-move-angle: ${DEVICE_MOVE_ANGLE}
     default-home-angle: ${DEVICE_HOME_ANGLE}
     default-duration-sec: ${DEVICE_DURATION_SEC}
+
+monitor:
+  mm:
+    webhook: ${MATTERMOST_URL}
