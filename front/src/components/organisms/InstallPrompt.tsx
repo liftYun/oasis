@@ -56,7 +56,7 @@ export default function InstallPrompt() {
 
   return (
     <BottomSheet open={open} title="앱 설치하기 / Install App" onClose={() => setOpen(false)}>
-      <div className="z-50 flex flex-col items-center text-center">
+      <div className="z-[9999] flex flex-col items-center text-center">
         <div className="mb-6">
           <Image src={AppIcon} alt="app" width={70} height={70} />
         </div>

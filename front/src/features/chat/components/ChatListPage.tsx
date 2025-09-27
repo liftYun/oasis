@@ -18,7 +18,7 @@ export function ChatListPage() {
   const [query, setQuery] = useState('');
 
   const handleAddChat = () => {
-    toast.success('대화할 숙소를 먼저 선택해주세요!');
+    toast.success(t.addChat);
     router.push('/search');
   };
 

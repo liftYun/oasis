@@ -62,7 +62,7 @@ export function Step1_StayInfo() {
       price: store.price,
       maxGuest: store.maxGuest,
       imageRequestList: store.imageRequestList ?? [],
-      mode: 'onChange',
+      mode: 'onSubmit',
     } as ExtendedCreateStayInput,
   });
 
