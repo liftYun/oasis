@@ -34,7 +34,6 @@ export function GuestProfile() {
 
   useEffect(() => {
     if (!initialized || !accessToken) return;
-
     (async () => {
       try {
         const res = await getMyProfile();

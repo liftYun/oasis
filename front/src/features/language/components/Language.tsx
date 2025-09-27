@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useLanguage } from '@/features/language/hooks/useLanguage';
 import { updateLanguage } from '@/services/user.api';
 import EnDark from '@/assets/icons/en-dark.png';
@@ -10,24 +10,28 @@ import EnLight from '@/assets/icons/en-light.png';
 import KoDark from '@/assets/icons/ko-dark.png';
 import KoLight from '@/assets/icons/ko-light.png';
 import BackHeader from '@/components/molecules/BackHeader';
-import { useRouter } from 'next/navigation';
 
 export function Language() {
   const { changeLang } = useLanguage();
   const searchParams = useSearchParams();
-  const from = searchParams.get('from') || '';
   const router = useRouter();
+  const from = searchParams.get('from') || '';
+
+  const isFromProfile = from === 'myprofile';
+  const targetPath = isFromProfile ? '/my-profile/detail' : '/register';
 
   const cardClass = () =>
     'group block rounded-2xl px-5 py-10 transition focus-visible:outline-none bg-gray-100 text-gray-500 hover:bg-gray-500 hover:text-white';
 
-  const targetPath = from === 'myprofile' ? '/my-profile/detail' : '/register';
-
   const handleChange = async (lang: 'kor' | 'eng') => {
     try {
-      await updateLanguage(lang.toUpperCase());
       changeLang(lang);
-      window.location.reload();
+
+      if (isFromProfile) {
+        await updateLanguage(lang.toUpperCase());
+        // myprofile에서만 새로고침
+        window.location.reload();
+      }
     } catch (err) {
       console.error('언어 변경 실패:', err);
     }
@@ -35,11 +39,11 @@ export function Language() {
 
   return (
     <main className="relative flex flex-col w-full mx-0 px-6 py-10 min-h-screen">
-      {from === 'myprofile' && <BackHeader title="언어 선택" />}
+      {isFromProfile && <BackHeader title="언어 선택" />}
 
       <h1
         className={`text-2xl font-bold text-gray-500 leading-relaxed ${
-          from === 'myprofile' ? 'pt-10' : ''
+          isFromProfile ? 'pt-10' : ''
         }`}
       >
         사용 언어를 선택해주세요. <br /> Please select a language.
@@ -82,7 +86,7 @@ export function Language() {
           className={cardClass()}
           onClick={() => handleChange('eng')}
         >
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex justify-between gap-3 w-full max-w-lg mx-auto">
             <div>
               <div className="text-xl font-semibold">English</div>
               <div className="text-sm opacity-80 mt-1">Use the service in English</div>
