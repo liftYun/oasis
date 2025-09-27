@@ -72,6 +72,7 @@ public class SecurityConfig {
         cfg.setAllowCredentials(true);
         cfg.setAllowedOriginPatterns(List.of(
                 "https://*.stay-oasis.kr",
+                "https://stay-oasis.kr",
                 "http://localhost:3000",
                 "http://localhost:*"
         ));
