@@ -65,7 +65,7 @@ export function RegisterCheck() {
         const presigned = await getPresignedUrl(type, subtype);
         const { uploadUrl, key } = presigned.result;
         const fileName = key.split('/').pop()!;
-        console.log(presigned);
+        // console.log(presigned);
 
         // 2. S3 PUT 업로드
         await axios.put(uploadUrl, profileUrl, {
@@ -74,7 +74,7 @@ export function RegisterCheck() {
 
         // 3. DB 반영
         const finalized = await finalizeProfileImage(fileName);
-        console.log(finalized);
+        // console.log(finalized);
         const imageUrl = finalized.result.profileImgUrl;
 
         // 4. store에 최종 URL 저장 (string으로 대체)
