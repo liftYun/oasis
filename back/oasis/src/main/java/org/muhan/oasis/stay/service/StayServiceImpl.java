@@ -118,7 +118,6 @@ public class StayServiceImpl implements StayService{
         Long masterKey = keyService.registKey(RegistKeyRequestDto.builder()
                 .device(device)
                 .activationTime(LocalDateTime.now())
-                .expireTime(null)
                 .build());
 
         // 숙소별 별점 요약 생성
