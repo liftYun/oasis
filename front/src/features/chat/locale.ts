@@ -18,6 +18,7 @@ export const chatMessages = {
     retry: '다시 시도',
     tooltipTranslate: '번역하기',
     tooltipOriginal: '원문보기',
+    addChat: '대화할 숙소를 먼저 선택해주세요!',
   },
   eng: {
     titleChat: 'Chat',
@@ -38,6 +39,7 @@ export const chatMessages = {
     retry: 'Retry',
     tooltipTranslate: 'Translate',
     tooltipOriginal: 'Original',
+    addChat: 'Please select a chat partner!',
   },
 } as const;
 
