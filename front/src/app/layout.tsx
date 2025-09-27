@@ -27,7 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-sans min-h-dvh border-x border-gray-100">
         <AppToaster />
         <ReactQueryProvider>
-          <InstallPrompt />
+          {/* <InstallPrompt /> */}
           <AuthBootstrap />
           <ClientLayout>{children}</ClientLayout>
         </ReactQueryProvider>
