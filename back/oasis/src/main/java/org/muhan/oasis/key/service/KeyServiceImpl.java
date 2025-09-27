@@ -53,9 +53,11 @@ public class KeyServiceImpl implements KeyService {
 
         KeyEntity keyEntity = KeyEntity.builder()
                 .device(registKeyRequestDto.getDevice())
+                .deviceId(registKeyRequestDto.getDevice().getId())
                 .activationTime(registKeyRequestDto.getActivationTime())
                 .expirationTime(registKeyRequestDto.getExpireTime())
                 .build();
+
         KeyEntity entity = keyRepository.save(keyEntity);
 
         return entity.getKeyId();
