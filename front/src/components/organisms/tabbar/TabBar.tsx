@@ -36,7 +36,7 @@ export default function TabBar({ activeKey, withSafeArea = true }: TabBarProps) 
       className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[478px] border-t border-gray-200 bg-gray-100 z-40"
       style={{ '--safe-bottom': safeBottom } as React.CSSProperties}
     >
-      <div className="grid grid-cols-4 gap-2 px-4 pt-4 pb-[var(--safe-bottom)]">
+      <div className="grid grid-cols-4 gap-2 px-4 pt-4 pb-[calc(var(--safe-bottom)+0.5rem)]">
         <button
           onClick={() => router.push('/main')}
           className="relative flex flex-col items-center justify-center gap-2 py-1 text-xs"

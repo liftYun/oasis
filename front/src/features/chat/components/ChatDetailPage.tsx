@@ -147,7 +147,7 @@ export function ChatDetailPage({ chatId }: ChatDetailPageProps) {
               />
             );
           })}
-          <div ref={bottomRef} />
+          <div ref={bottomRef} className="scroll-mb-[120px]" />
         </section>
 
         <InputBar onSend={handleSend} />

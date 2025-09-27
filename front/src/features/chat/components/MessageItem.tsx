@@ -7,14 +7,14 @@ import { Globe } from 'lucide-react';
 export type MessageItemModel = {
   id: string;
   content: string;
-  isMine: boolean; // true: 내 메시지, false: 상대 메시지
-  timestamp?: string; // 표시용 텍스트(같은 분에서는 첫 메시지만 세팅)
+  isMine: boolean;
+  timestamp?: string;
 };
 
 interface MessageItemProps {
   message: MessageItemModel;
-  onClickTranslate?: (id: string) => void; // UI만 존재. 동작은 추후
-  translated?: boolean; // 번역 완료 여부에 따라 버튼 숨김
+  onClickTranslate?: (id: string) => void;
+  translated?: boolean;
 }
 
 export default function MessageItem({ message, onClickTranslate, translated }: MessageItemProps) {
@@ -30,7 +30,9 @@ export default function MessageItem({ message, onClickTranslate, translated }: M
     <div className="mb-3">
       {message.timestamp && (
         <div
-          className={`mb-2 text-[10px] text-gray-300 ${message.isMine ? 'text-right pr-4' : 'text-left pl-4'}`}
+          className={`mb-2 text-[10px] text-gray-300 ${
+            message.isMine ? 'text-right pr-4' : 'text-left pl-4'
+          }`}
         >
           {message.timestamp}
         </div>
@@ -43,30 +45,36 @@ export default function MessageItem({ message, onClickTranslate, translated }: M
           <div className="relative group ml-2 mt-auto mb-2">
             <button
               type="button"
-              onClick={() => !translated && onClickTranslate?.(message.id)}
-              className={`p-1 rounded-full
-        ${
-          translated
-            ? 'bg-gradient-to-r from-primary to-green text-white pointer-events-none'
-            : 'active:bg-gray-200'
-        }`}
-              aria-label={t.seeMore}
+              onClick={() => onClickTranslate?.(message.id)}
+              className={`p-1 rounded-full transition
+                ${
+                  translated
+                    ? 'bg-gradient-to-r from-primary to-green text-white hover:opacity-80'
+                    : 'active:bg-gray-200 hover:bg-gray-100'
+                }
+              `}
+              aria-label={
+                translated ? (t.tooltipOriginal ?? '원문 보기') : (t.tooltipTranslate ?? '번역하기')
+              }
             >
               <Globe
                 size={18}
-                className={translated ? 'text-white' : 'text-gray-300 hover:text-gray-600'}
+                className={`${
+                  translated
+                    ? 'text-white'
+                    : 'text-gray-300 group-hover:text-gray-600 transition-colors'
+                }`}
               />
             </button>
 
-            {!translated && (
-              <span
-                className="absolute top-full mt-1 left-1/2 -translate-x-1/2
-               whitespace-nowrap rounded-md bg-black/80 px-2 py-1 text-xs text-white
-               opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                {t.tooltipTranslate ?? '번역하기'}
-              </span>
-            )}
+            {/* 🏷️ 툴팁 */}
+            <span
+              className="absolute top-full mt-1 left-1/2 -translate-x-1/2
+                whitespace-nowrap rounded-md bg-black/80 px-2 py-1 text-xs text-white
+                opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              {translated ? (t.tooltipOriginal ?? '원문 보기') : (t.tooltipTranslate ?? '번역하기')}
+            </span>
           </div>
         )}
       </div>

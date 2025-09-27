@@ -32,7 +32,7 @@ export function Topup() {
   const [selectedCurrency, setSelectedCurrency] = useState(currencies[0]);
   const [open, setOpen] = useState(false);
 
-  const [amount, setAmount] = useState(30);
+  const [amount, setAmount] = useState(5);
   const [usdcAmount, setUsdcAmount] = useState(amount);
   const [secondsLeft, setSecondsLeft] = useState(5);
 
@@ -69,7 +69,7 @@ export function Topup() {
             }}
             placeholder="금액을 입력하세요"
             className={`w-full text-xl font-semibold text-gray-800 outline-none border-b-2
-        ${amount > 100 ? 'border-red-500 focus:border-red' : 'border-gray-200 focus:border-primary'}`}
+        ${amount > 10 ? 'border-red focus:border-red' : 'border-gray-200 focus:border-primary'}`}
           />
 
           <button
@@ -98,7 +98,7 @@ export function Topup() {
           </div>
         )}
 
-        {amount > 100 && <p className="text-xs text-red">최대 100까지 입력할 수 있습니다.</p>}
+        {amount > 10 && <p className="text-xs text-red">최대 10 USD까지 입력할 수 있습니다.</p>}
       </div>
 
       <div className="mt-6 bg-white border border-gray-200 rounded-xl p-5">
@@ -138,7 +138,7 @@ export function Topup() {
         </div>
         <button
           onClick={() => {
-            if (amount > 100 || amount <= 0) {
+            if (amount > 10 || amount <= 0) {
               alert('최대 100까지 입력할 수 있습니다.');
               return;
             }
@@ -146,10 +146,10 @@ export function Topup() {
               `/my-profile/blockchain/topup?amount=${amount}&currency=${selectedCurrency.code}`
             );
           }}
-          disabled={amount > 100 || amount <= 0}
+          disabled={amount > 10 || amount <= 0}
           className={`w-full py-3 rounded-full font-medium text-base shadow transition
     ${
-      amount > 100 || amount <= 0
+      amount > 10 || amount <= 0
         ? 'bg-gradient-to-r from-primary to-green text-white opacity-50 cursor-not-allowed'
         : 'bg-gradient-to-r from-primary to-green text-white hover:opacity-90 active:scale-95'
     }`}
