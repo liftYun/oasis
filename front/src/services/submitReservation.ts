@@ -15,7 +15,7 @@ async function executeChallenge(sdk: CircleSdk, challengeId: string, label: stri
         void notifyTransactionFailed(challengeId, label);
         return reject(error instanceof Error ? error : new Error(message));
       } else {
-        console.log(`${label} 완료`);
+        // console.log(`${label} 완료`);
         // 서버에 성공 상태 통지 (대기하지 않음)
         void notifyTransactionSuccess(challengeId, label);
         return resolve();
@@ -93,11 +93,11 @@ export async function submitReservation(
   }
 
   // 5. Lock
-  console.log('Lock 트랜잭션 요청...');
+  // console.log('Lock 트랜잭션 요청...');
   const lockRes = await lockReservation(reservationVo);
   const lockResult = lockRes.result;
   if (lockResult?.challengeId) {
-    console.log('Lock PIN 입력 대기...');
+    // console.log('Lock PIN 입력 대기...');
     await executeChallenge(sdk, lockResult.challengeId, 'Lock');
   } else {
     throw new Error('Lock ChallengeId 없음');
