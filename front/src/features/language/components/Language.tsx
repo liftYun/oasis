@@ -27,7 +27,7 @@ export function Language() {
     try {
       await updateLanguage(lang.toUpperCase());
       changeLang(lang);
-      router.refresh();
+      window.location.reload();
     } catch (err) {
       console.error('언어 변경 실패:', err);
     }

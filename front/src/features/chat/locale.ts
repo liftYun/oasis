@@ -17,6 +17,8 @@ export const chatMessages = {
     loadError: '채팅 정보를 불러올 수 없습니다.',
     retry: '다시 시도',
     tooltipTranslate: '번역하기',
+    tooltipOriginal: '원문보기',
+    addChat: '대화할 숙소를 먼저 선택해주세요!',
   },
   eng: {
     titleChat: 'Chat',
@@ -36,6 +38,8 @@ export const chatMessages = {
     loadError: 'Unable to load chat info.',
     retry: 'Retry',
     tooltipTranslate: 'Translate',
+    tooltipOriginal: 'Original',
+    addChat: 'Please select a chat partner!',
   },
 } as const;
 

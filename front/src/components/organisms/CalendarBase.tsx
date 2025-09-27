@@ -206,16 +206,42 @@ export default function CalendarBase(props: CalendarBaseProps) {
       }}
       onDayClick={(date) => {
         if (!onChange) return;
-        const idx = selectedRanges.findIndex((r) =>
-          r.from && r.to
-            ? isWithinInterval(date, { start: startOfDay(r.from), end: endOfDay(r.to) })
-            : false
-        );
+
+        const isSelected = selectedRanges.some((r) => {
+          if (!r.from) return false;
+          const start = startOfDay(r.from);
+          const end = r.to ? endOfDay(r.to) : startOfDay(r.from);
+          return (
+            isSameDay(r.from, date) ||
+            (r.to && isSameDay(r.to, date)) ||
+            isWithinInterval(date, { start, end })
+          );
+        });
+
+        if (isSelected) {
+          onChange([]);
+          setDraft(undefined);
+          setIgnoreNext(true);
+          return;
+        }
+
+        const idx = selectedRanges.findIndex((r) => {
+          if (!r.from) return false;
+          const start = startOfDay(r.from);
+          const end = r.to ? endOfDay(r.to) : startOfDay(r.from);
+          return (
+            isSameDay(r.from, date) ||
+            (r.to && isSameDay(r.to, date)) ||
+            isWithinInterval(date, { start, end })
+          );
+        });
+
         if (idx !== -1) {
           const next = [...selectedRanges.slice(0, idx), ...selectedRanges.slice(idx + 1)];
           onChange(next);
           setIgnoreNext(true);
           setDraft(undefined);
+          return;
         }
       }}
       locale={lang === 'kor' ? ko : undefined}

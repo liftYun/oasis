@@ -41,7 +41,8 @@ public class ReviewEntity {
     @Column(name ="content_eng")
     private String contentEng;
 
-    @Column(name = "original_lang")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "original_lang", columnDefinition = "ENUM('ENG','KOR')")
     private Language originalLang;
 
     @CreatedDate
