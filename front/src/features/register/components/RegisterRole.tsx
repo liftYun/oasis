@@ -11,28 +11,18 @@ import Guest from '@/assets/images/guest.png';
 import Host from '@/assets/images/host.png';
 import { useShallow } from 'zustand/react/shallow';
 import { Lottie } from '@/components/atoms/Lottie';
+import { useAuthStore } from '@/stores/useAuthStores';
 
 export function RegisterRole() {
   const router = useRouter();
   const { lang } = useLanguage();
   const t = registerMessages[lang];
 
+  const setUser = useAuthStore((s) => s.setUser);
+
   const [nickname, setNickname] = useRegisterStore(useShallow((s) => [s.nickname, s.setNickname]));
   const [role, setRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async () => {
-    if (!role) {
-      console.warn('역할을 선택해주세요');
-      return;
-    }
-
-    await addInformations({
-      nickname,
-      role,
-      language: lang,
-    });
-  };
 
   const cardClass = () =>
     'group relative block rounded-2xl transition focus-visible:outline-none bg-gray-100 text-gray-500 hover:bg-primary hover:text-white cursor-pointer overflow-hidden';
@@ -46,6 +36,10 @@ export function RegisterRole() {
         nickname,
         role: 'ROLE_GUEST',
         language: lang,
+      });
+
+      setUser({
+        role: 'guest',
       });
 
       router.push('/main');
@@ -64,6 +58,14 @@ export function RegisterRole() {
         nickname,
         role: 'ROLE_HOST',
         language: lang,
+      });
+
+      setUser({
+        nickname,
+        email: '',
+        profileUrl: '',
+        uuid: '',
+        role: 'host',
       });
 
       router.push('/register/host');
