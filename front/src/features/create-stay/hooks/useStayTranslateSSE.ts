@@ -28,7 +28,7 @@ export function useStayTranslateSSE() {
     es.addEventListener('stayTranslate', (event) => {
       // console.log('stayTranslate 이벤트 수신');
       const data: StayTranslationResultDto = JSON.parse((event as MessageEvent).data);
-      console.log('번역결과 데이터:', data);
+      // console.log('번역결과 데이터:', data);
       stayStore.setField('addressDetailEng', data.detailAddress);
       stayStore.setField('titleEng', data.title);
       stayStore.setField('descriptionEng', data.content);

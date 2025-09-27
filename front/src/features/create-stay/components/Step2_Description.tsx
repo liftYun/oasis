@@ -59,7 +59,7 @@ export function Step2_Description() {
       language: lang.toUpperCase() as 'KOR' | 'ENG',
     });
 
-    console.log('translateStay res', res);
+    // console.log('translateStay res', res);
     if (res?.result?.uuid) {
       store.setField('translateStayUuid', res.result.uuid);
     }
