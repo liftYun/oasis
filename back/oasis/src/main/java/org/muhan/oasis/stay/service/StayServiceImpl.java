@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.muhan.oasis.common.base.BaseResponseStatus;
 import org.muhan.oasis.common.exception.BaseException;
+import org.muhan.oasis.key.dto.in.RegistKeyRequestDto;
 import org.muhan.oasis.key.repository.KeyOwnerRepository;
 import org.muhan.oasis.key.repository.KeyRepository;
+import org.muhan.oasis.key.service.KeyService;
 import org.muhan.oasis.openAI.dto.out.ReviewSummaryResultDto;
 import org.muhan.oasis.reservation.repository.ReservationRepository;
 import org.muhan.oasis.review.repository.ReviewRepository;
@@ -58,6 +60,7 @@ public class StayServiceImpl implements StayService{
     private final WishRepository wishRepository;
     private final KeyRepository keyRepository;
     private final KeyOwnerRepository keyOwnerRepository;
+    private final KeyService keyService;
 
     @Override
     @Transactional
@@ -112,6 +115,11 @@ public class StayServiceImpl implements StayService{
                 .deviceId(29L)
                 .build());
 
+        Long masterKey = keyService.registKey(RegistKeyRequestDto.builder()
+                .device(device)
+                .activationTime(LocalDateTime.now())
+                .expireTime(null)
+                .build());
 
         // 숙소별 별점 요약 생성
         StayRatingSummaryEntity ratingSummary = stayRatingSummaryRepository.save(
@@ -554,7 +562,7 @@ public class StayServiceImpl implements StayService{
 
     @Override
     public List<StayCardDto> searchStay(Long lastStayId, StayQueryRequestDto stayQuery, String userUuid) {
-        if (stayQuery.getCheckIn() != null && stayQuery.getCheckout() != null && stayQuery.getCheckIn().isBefore(stayQuery.getCheckout())) {
+        if (stayQuery.getCheckIn() != null && stayQuery.getCheckout() != null && stayQuery.getCheckIn().isAfter(stayQuery.getCheckout())) {
             throw new BaseException(BaseResponseStatus.INVALID_PARAMETER);
         }
 
