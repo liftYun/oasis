@@ -34,8 +34,8 @@ export function Step4_Availability({ onComplete }: Step4Props) {
   const hasPicked = ranges.length > 0;
 
   const handleBack = () => {
-    if (createStore.currentStep > 1) {
-      createStore.setStep(createStore.currentStep - 1);
+    if (stayStore.currentStep > 1) {
+      stayStore.setStep(stayStore.currentStep - 1);
     }
   };
 

@@ -17,6 +17,7 @@ export function SmartKeyList({ keys }: SmartKeyListProps) {
   const [openCard, setOpenCard] = useState<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [showSummaryBar, setShowSummaryBar] = useState(true); // 👈 추가
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -29,14 +30,18 @@ export function SmartKeyList({ keys }: SmartKeyListProps) {
   const gap = 24;
 
   useEffect(() => {
-    const updateWidth = () => {
+    const updateLayout = () => {
       if (containerRef.current) {
         setContainerWidth(containerRef.current.clientWidth);
       }
+
+      const height = window.innerHeight;
+      setShowSummaryBar(height > 700);
     };
-    updateWidth();
-    window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
+
+    updateLayout();
+    window.addEventListener('resize', updateLayout);
+    return () => window.removeEventListener('resize', updateLayout);
   }, []);
 
   const handleDragEnd = (_: any, info: { offset: { x: number }; velocity: { x: number } }) => {
@@ -53,19 +58,23 @@ export function SmartKeyList({ keys }: SmartKeyListProps) {
     setActiveIndex(newIndex);
   };
 
-  // 가운데 정렬 오프셋
   const centerOffset = (containerWidth - cardWidth) / 2;
 
   return (
     <main className="flex flex-col w-full max-w-[480px] mx-auto max-h-screen pt-10 pb-28">
-      <h1 className="text-2xl font-semibold mt-2">{t.title}</h1>
+      <h1 className="text-2xl font-semibold mt-2 pb-6">{t.title}</h1>
 
-      <SmartKeySummaryBar keys={keys} activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
+      {showSummaryBar && (
+        <SmartKeySummaryBar keys={keys} activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
+      )}
 
-      <div className="overflow-visible" ref={containerRef}>
+      {/* <div className="overflow-visible" ref={containerRef}> */}
+      <div className="overflow-x-hidden scrollbar-none" ref={containerRef}>
         <motion.div
-          className="flex gap-6 pt-6 cursor-grab active:cursor-grabbing"
+          className="flex gap-6 pt-6 cursor-grab active:cursor-grabbing touch-pan-y"
           drag="x"
+          dragElastic={0.15}
+          dragMomentum={false}
           dragConstraints={{
             left: -(keys.length - 1) * (cardWidth + gap),
             right: 0,

@@ -27,7 +27,6 @@ export function useReservationForm({ defaultValues, onSubmit }: UseReservationFo
   });
 
   useEffect(() => {
-    // 언어 변경 시 에러 메시지/검증 결과를 최신화
     form.trigger();
   }, [resolver]);
 

@@ -10,7 +10,7 @@ interface SmartKeySummaryBarProps {
 
 export function SmartKeySummaryBar({ keys, activeIndex, setActiveIndex }: SmartKeySummaryBarProps) {
   return (
-    <div className="flex gap-4 overflow-x-auto py-3 px-2 pt-8 no-scrollbar items-center">
+    <div className="flex gap-4 overflow-x-auto py-4 px-2 no-scrollbar items-center">
       {keys.map((key, i) => (
         <div
           key={key.keyId}

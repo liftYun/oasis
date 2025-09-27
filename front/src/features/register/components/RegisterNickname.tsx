@@ -43,7 +43,7 @@ export function RegisterNickname() {
         <button
           type="button"
           disabled={checking}
-          className={`w-full text-center text-sm px-4 py-[6px] mb-2 rounded-sm whitespace-nowrap ${
+          className={`text-center text-sm px-4 py-[6px] mb-2 rounded-sm whitespace-nowrap ${
             isValid
               ? 'bg-primary text-white'
               : 'bg-gray-200 text-gray-500 hover:bg-gray-300 disabled:opacity-50'
