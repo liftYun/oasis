@@ -9,6 +9,7 @@ import axios, {
   isAxiosError,
 } from 'axios';
 import { useAuthStore } from '@/stores/useAuthStores';
+import { useRouter } from 'next/navigation';
 
 export class ApiError<T = unknown> extends Error {
   status?: number;
@@ -28,6 +29,7 @@ let isRefreshing = false;
 let refreshPromise: Promise<void> | null = null;
 const waiters: Array<() => void> = [];
 
+// 토큰 재발급 함수
 async function doRefresh(client: AxiosInstance): Promise<void> {
   if (isRefreshing && refreshPromise) return refreshPromise;
   isRefreshing = true;
@@ -37,6 +39,7 @@ async function doRefresh(client: AxiosInstance): Promise<void> {
       const res = await client.post('/api/v1/auth/refresh', null, {
         withCredentials: true,
       });
+
       const authHeader = res.headers['authorization'];
       const newToken = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : undefined;
 
@@ -47,8 +50,13 @@ async function doRefresh(client: AxiosInstance): Promise<void> {
       }
     } catch (e) {
       if (isBrowser()) {
+        const router = require('next/navigation').useRouter?.();
         useAuthStore.getState().clear();
-        window.location.href = '/';
+        try {
+          router?.replace('/');
+        } catch {
+          window.location.href = '/';
+        }
       }
       throw e;
     } finally {
@@ -96,7 +104,6 @@ class HttpClient {
   private setInterceptors() {
     this.client.interceptors.request.use((config) => {
       const token = useAuthStore.getState().accessToken;
-
       const isPublic =
         config.url?.startsWith('/api/v1/auth/issue') ||
         config.url?.startsWith('/api/v1/auth/refresh');
@@ -127,7 +134,6 @@ class HttpClient {
             }
 
             const newToken = useAuthStore.getState().accessToken;
-
             if (newToken && original.headers) {
               (original.headers as any).Authorization = `Bearer ${newToken}`;
             }
