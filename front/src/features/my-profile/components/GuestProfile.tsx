@@ -33,7 +33,6 @@ export function GuestProfile() {
   const [logoutOpen, setLogoutOpen] = useState(false);
 
   useEffect(() => {
-    console.log('게스트');
     if (!initialized || !accessToken) return;
     (async () => {
       try {
