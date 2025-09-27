@@ -27,16 +27,14 @@ export function Search() {
       const stayQuery = {
         subRegionId: selectedSubRegionId ?? undefined,
         checkIn: selectedRange?.from?.toISOString().slice(0, 10),
-        checkOut: selectedRange?.to?.toISOString().slice(0, 10),
+        checkout: selectedRange?.to?.toISOString().slice(0, 10),
+        lastStayId: 0,
       };
 
-      const { result } = await searchStays({
-        lastStayId: 0,
-        stayQuery: JSON.stringify(stayQuery),
-      });
+      const { result } = await searchStays(stayQuery);
 
       setResults(result);
-      router.push(`/main/search`);
+      router.push('/main/search');
     } catch (e) {
       console.error('숙소 검색 실패:', e);
     }
