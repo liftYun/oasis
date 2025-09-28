@@ -28,6 +28,13 @@ export const messages = {
     host: {
       chatStart: '채팅 시작하기',
     },
+    toast: {
+      checkingLogin: '로그인을 확인 중입니다.',
+      needLogin: '로그인이 필요합니다.',
+      noStay: '숙소 정보를 불러오지 못했습니다.',
+      invalidHost: '유효하지 않은 호스트 정보입니다.',
+      chatEnterFailed: '채팅방 입장에 실패했습니다. 다시 시도해주세요.',
+    },
   },
   eng: {
     title: 'Smart Key',
@@ -56,7 +63,14 @@ export const messages = {
       expirationTime: 'Expiration Time',
     },
     host: {
-      chatStart: 'Chat Start',
+      chatStart: 'Start Chat',
+    },
+    toast: {
+      checkingLogin: 'Checking login status...',
+      needLogin: 'Login required.',
+      noStay: 'Failed to load stay information.',
+      invalidHost: 'Invalid host information.',
+      chatEnterFailed: 'Failed to enter chat room. Please try again.',
     },
   },
 } as const;

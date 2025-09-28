@@ -21,6 +21,15 @@ export function SmartKeyCardFront({ keyData, handleOpenDoor, lang }: Props) {
   ];
   const bg = backgrounds[keyData.keyId % backgrounds.length];
 
+  const stayName = lang === 'kor' ? keyData.stayName : keyData.stayNameEng || keyData.stayName;
+  const stayAddressRaw =
+    lang === 'kor' ? keyData.addressLine : keyData.addressLineEng || keyData.addressLine;
+
+  const stayAddress =
+    stayAddressRaw && stayAddressRaw.length > 20
+      ? stayAddressRaw.slice(0, 25) + '...'
+      : stayAddressRaw;
+
   return (
     <div
       className="absolute inset-0 p-8 rounded-xl text-gray-600 flex flex-col justify-between"
@@ -32,8 +41,8 @@ export function SmartKeyCardFront({ keyData, handleOpenDoor, lang }: Props) {
     >
       <div className="flex justify-between items-start">
         <div className="flex flex-col gap-2">
-          <h3 className="text-lg font-semibold">{keyData.stayName}</h3>
-          <p className="text-sm text-gray-600">{keyData.addressLine}</p>
+          <h3 className="text-lg font-semibold">{stayName}</h3>
+          <p className="text-sm text-gray-600">{stayAddress}</p>
         </div>
         <span className="px-3 py-1 rounded-full bg-white/50 text-xs">{keyData.status}</span>
       </div>
