@@ -26,6 +26,7 @@ export interface KeyResponseDto {
   checkinDate?: string | null; // ISO-8601
   checkoutDate?: string | null; // ISO-8601
   addressLine?: string | null;
+  addressLineEng?: string | null;
 }
 
 // 리스트 응답 VO
