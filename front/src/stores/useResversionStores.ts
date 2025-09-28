@@ -89,6 +89,8 @@ export const useReservationStore = create<ReservationStore>((set, get) => ({
       if (!sdkInitData) {
         throw new Error('지갑 연결 정보가 없습니다. 먼저 지갑을 연결하세요.');
       }
+
+      // console.log(state);
       const result = await submitReservation(state, sdkInitData);
       set({ reservation: result, loading: false });
       return result;

@@ -54,24 +54,38 @@ export async function submitReservation(
     encryptionKey: sdkInitData.encryptionKey,
   });
 
-  // 2. 예약 파라미터 계산
-  const nowUTC = Math.floor(Date.now() / 1000);
-  const KST_OFFSET = 9 * 3600;
-  const nowKST = nowUTC + KST_OFFSET;
-
-  const checkIn = nowKST + 7 * 24 * 3600; // 7일 뒤
-  const checkOut = checkIn + 1 * 24 * 3600; // 1박
+  // 2. state에서 체크인/체크아웃 정보 사용
+  if (!state.checkinDate || !state.checkoutDate) {
+    throw new Error('체크인/체크아웃 날짜가 설정되어 있지 않습니다.');
+  }
 
   const resId = makeReservationId();
 
   const reservationVo: CreateReservationRequest = {
     reservationId: resId,
     stayId: state.stayId,
-    checkinDate: new Date(checkIn * 1000).toISOString(),
-    checkoutDate: new Date(checkOut * 1000).toISOString(),
+    checkinDate: state.checkinDate,
+    checkoutDate: state.checkoutDate,
     reservationDate: new Date().toISOString(),
     payment: state.payment,
   };
+
+  // 2. 예약 파라미터 계산
+  // const nowUTC = Math.floor(Date.now() / 1000);
+  // const KST_OFFSET = 9 * 3600;
+  // const nowKST = nowUTC + KST_OFFSET;
+
+  // const checkIn = nowKST + 7 * 24 * 3600; // 7일 뒤
+  // const checkOut = checkIn + 1 * 24 * 3600; // 1박
+
+  // const reservationVo: CreateReservationRequest = {
+  //   reservationId: resId,
+  //   stayId: state.stayId,
+  //   checkinDate: new Date(checkIn * 1000).toISOString(),
+  //   checkoutDate: new Date(checkOut * 1000).toISOString(),
+  //   reservationDate: new Date().toISOString(),
+  //   payment: state.payment,
+  // };
 
   // 3. 예약 DB 등록
   // console.log('예약 등록 요청...');

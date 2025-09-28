@@ -35,6 +35,7 @@ export function Step3_Dummy() {
     try {
       // 1. 예약 요청 먼저
       const result = await store.submit();
+      // console.log('result', result);
 
       if (!result) {
         toast.error(lang === 'kor' ? '예약 요청에 실패했습니다.' : 'Reservation request failed.', {
