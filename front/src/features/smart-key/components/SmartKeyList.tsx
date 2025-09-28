@@ -17,7 +17,7 @@ export function SmartKeyList({ keys }: SmartKeyListProps) {
   const [openCard, setOpenCard] = useState<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
-  const [showSummaryBar, setShowSummaryBar] = useState(true); // 👈 추가
+  const [showSummaryBar, setShowSummaryBar] = useState(true);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -65,7 +65,12 @@ export function SmartKeyList({ keys }: SmartKeyListProps) {
       <h1 className="text-2xl font-semibold mt-2 pb-6">{t.title}</h1>
 
       {showSummaryBar && (
-        <SmartKeySummaryBar keys={keys} activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
+        <SmartKeySummaryBar
+          keys={keys}
+          activeIndex={activeIndex}
+          setActiveIndex={setActiveIndex}
+          lang={lang}
+        />
       )}
 
       {/* <div className="overflow-visible" ref={containerRef}> */}
