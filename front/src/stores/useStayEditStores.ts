@@ -2,14 +2,17 @@
 
 import { create } from 'zustand';
 import { updateStay } from '@/services/stay.api';
-import type { CreateStayRequest, StayReadResponseDto } from '@/services/stay.types';
+import type {
+  CreateStayRequest,
+  StayReadResponseDto,
+  UpdateStayRequest,
+} from '@/services/stay.types';
 
 interface StayStore extends CreateStayRequest {
   currentStep: number;
   view: 'form' | 'searchAddress';
   loading: boolean;
   error: string | null;
-
   stayId: number | null;
 
   setField: (field: keyof CreateStayRequest, value: any) => void;
@@ -20,18 +23,22 @@ interface StayStore extends CreateStayRequest {
   submit: () => Promise<number | null>;
 }
 
-function toS3Key(url: string): string {
-  // 예) https://stay-oasis.s3.ap-northeast-2.amazonaws.com/stay-image/.../1.jpg
-  // → stay-image/.../1.jpg
+// 유틸 함수들
+const toS3Key = (url: string): string => {
   try {
     const u = new URL(url);
-    return u.pathname.replace(/^\/+/, ''); // 맨 앞 슬래시 제거
+    return u.pathname.replace(/^\/+/, '');
   } catch {
-    // presigned 응답이나 이미 key가 온 경우 그대로 반환
     return url.startsWith('/') ? url.slice(1) : url;
   }
-}
+};
 
+const toNumber = (v: unknown): number | undefined =>
+  v === '' || v == null ? undefined : Number(v);
+
+const trimOrEmpty = (v?: string) => (v ? v.trim() : '');
+
+// Zustand store
 export const useStayStores = create<StayStore>((set, get) => ({
   subRegionId: 0,
   title: '',
@@ -52,12 +59,11 @@ export const useStayStores = create<StayStore>((set, get) => ({
 
   currentStep: 1,
   view: 'form',
-
   loading: false,
   error: null,
-
   stayId: null,
 
+  // 필드 세팅
   setField: (field, value) =>
     set((state) => {
       if (field === 'imageRequestList') {
@@ -70,44 +76,7 @@ export const useStayStores = create<StayStore>((set, get) => ({
   setStep: (step) => set({ currentStep: step }),
   setView: (view) => set({ view }),
 
-  setStayData: (detail: StayReadResponseDto) =>
-    set({
-      stayId: detail.stayId,
-      title: detail.title,
-      description: detail.description,
-      price: detail.price,
-      postalCode: detail.postalCode,
-      maxGuest: detail.maxGuest,
-
-      // address: `${detail.region ?? ''} ${detail.subRegion ?? ''}`.trim(),
-      // addressEng: '',
-      // addressDetail: '',
-      // addressDetailEng: '',
-      // 👉 실제 도로명 주소 / 상세주소
-      address: detail.addressLine ?? detail.address ?? '',
-      addressEng: detail.addressLineEng ?? detail.addressEng ?? '',
-      addressDetail: detail.addrDetail ?? detail.addressDetail ?? '',
-      addressDetailEng: detail.addrDetailEng ?? detail.addressDetailEng ?? '',
-
-      subRegionId: detail.subRegionId,
-
-      imageRequestList: detail.photos.map((p) => ({
-        id: p.id,
-        key: toS3Key(p.url),
-        sortOrder: p.sortOrder,
-        url: p.url,
-      })),
-
-      facilities: detail.facilities.flatMap((f) => f.facilities.map((x) => x.id)),
-
-      blockRangeList: detail.cancellations.map((c) => ({
-        start: c.startDate,
-        end: c.endDate,
-      })),
-
-      thumbnail: detail.photos[0]?.url ?? null,
-    }),
-
+  // 데이터 초기화
   reset: () =>
     set({
       subRegionId: 0,
@@ -133,45 +102,73 @@ export const useStayStores = create<StayStore>((set, get) => ({
       stayId: null,
     }),
 
+  // 상세 조회 → 폼 세팅
+  setStayData: (detail: StayReadResponseDto) =>
+    set({
+      stayId: detail.stayId,
+      title: detail.title ?? '',
+      description: detail.description ?? '',
+      price: detail.price ?? 0,
+      postalCode: detail.postalCode ?? '',
+      maxGuest: detail.maxGuest ?? 1,
+      address: detail.addressLine ?? detail.address ?? '',
+      addressEng: detail.addressLineEng ?? detail.addressEng ?? '',
+      addressDetail: detail.addrDetail ?? detail.addressDetail ?? '',
+      addressDetailEng: detail.addrDetailEng ?? detail.addressDetailEng ?? '',
+      subRegionId: detail.subRegionId,
+      imageRequestList: detail.photos.map((p) => ({
+        id: p.id,
+        key: toS3Key(p.url),
+        sortOrder: p.sortOrder,
+        url: p.url,
+      })),
+      facilities: detail.facilities.flatMap((f) => f.facilities.map((x) => x.id)),
+      blockRangeList: detail.cancellations.map((c) => ({
+        start: c.startDate,
+        end: c.endDate,
+      })),
+      thumbnail: detail.photos[0]?.url ?? null,
+    }),
+
+  // 숙소 수정 요청
   submit: async () => {
     set({ loading: true, error: null });
     try {
-      const { stayId, ...data } = get();
-      if (!stayId) throw new Error('수정할 숙소 ID가 없습니다.');
+      const s = get();
+      if (!s.stayId) throw new Error('수정할 숙소 ID가 없습니다.');
 
       const updateBody = {
-        // id: stayId,
-        subRegionId: data.subRegionId,
-        title: data.title,
-        titleEng: data.titleEng,
-        description: data.description,
-        descriptionEng: data.descriptionEng,
-        price: data.price,
-        address: data.address,
-        addressEng: data.addressEng,
-        postalCode: data.postalCode,
-        addressDetail: data.addressDetail,
-        addressDetailEng: data.addressDetailEng,
-        maxGuest: data.maxGuest,
-        // imageRequestList: data.imageRequestList ?? [],
-        imageRequestList: (data.imageRequestList ?? []).map(img => ({
-          id: img.id,
-          key: toS3Key(img.key),              // ✅ 서버에 key만 전달되도록 보정
-          sortOrder: img.sortOrder,
+        subRegionId: s.subRegionId ?? 0,
+        title: s.title ?? '',
+        titleEng: s.titleEng ?? '',
+        description: s.description ?? '',
+        descriptionEng: s.descriptionEng ?? '',
+        price: s.price ?? 0,
+        address: s.address ?? '',
+        addressEng: s.addressEng ?? '',
+        postalCode: s.postalCode ?? '',
+        addressDetail: s.addressDetail ?? '',
+        addressDetailEng: s.addressDetailEng ?? '',
+        maxGuest: s.maxGuest ?? 1,
+        imageRequestList: (s.imageRequestList ?? []).map((img, idx) => ({
+          id: img.id!,
+          key: toS3Key(img.key),
+          sortOrder: img.sortOrder ?? idx,
         })),
-        facilities: data.facilities ?? [],
-        blockRangeList: data.blockRangeList ?? [],
-      };
+        facilities: s.facilities ?? [],
+        blockRangeList: s.blockRangeList ?? [],
+      } as UpdateStayRequest;
 
-      await updateStay(stayId, updateBody);
+      console.log('[Stay Update Request]', updateBody);
 
+      await updateStay(s.stayId, updateBody);
       set({ loading: false });
-      return stayId;
+      return s.stayId;
     } catch (err: any) {
-      console.error(err);
+      console.error('[Stay Update Error]', err);
       set({
         loading: false,
-        error: err.response?.data?.message || '숙소 수정에 실패했습니다.',
+        error: err?.response?.data?.message || '숙소 수정에 실패했습니다.',
       });
       return null;
     }

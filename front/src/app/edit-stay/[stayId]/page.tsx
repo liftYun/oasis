@@ -32,7 +32,9 @@ export default function EditStayPage({ params }: { params: Promise<{ stayId: str
     const load = async () => {
       try {
         const detail = await fetchStayDetail(Number(stayId));
+        // console.log('숙소 불러오기 성공:', detail);
         store.setStayData(detail.result);
+        // console.log(store);
       } catch (err) {
         console.error('숙소 불러오기 실패:', err);
         router.replace('/my-profile/manage-stay');
