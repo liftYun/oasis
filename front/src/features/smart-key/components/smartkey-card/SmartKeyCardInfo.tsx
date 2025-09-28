@@ -26,23 +26,54 @@ export function SmartKeyCardInfo({ keyData, reservationDetail, lang }: Props) {
   const [startingChat, setStartingChat] = useState(false);
   const t = messages[lang] ?? messages.kor;
 
+  const stayName = lang === 'kor' ? keyData.stayName : keyData.stayNameEng || keyData.stayName;
+  const stayAddressRaw =
+    lang === 'kor' ? keyData.addressLine : keyData.addressLineEng || keyData.addressLine;
+
+  const stayAddress =
+    stayAddressRaw && stayAddressRaw.length > 20
+      ? stayAddressRaw.slice(0, 25) + '...'
+      : stayAddressRaw;
+  const locale = lang === 'kor' ? 'ko-KR' : 'en-US';
+
+  const formatDate = (isoDate?: string | null) => {
+    if (!isoDate) return '-';
+    const date = new Date(isoDate);
+    return date.toLocaleDateString(locale, {
+      year: '2-digit',
+      month: '2-digit',
+      day: '2-digit',
+      weekday: 'short',
+    });
+  };
+
+  const formatTime = (isoDate?: string | null) => {
+    if (!isoDate) return '';
+    const date = new Date(isoDate);
+    return date.toLocaleTimeString(locale, {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  };
+
   const handleChatStart = async (host?: HostInfoResponseDto) => {
     if (startingChat) return;
     if (!initialized) {
-      toast('로그인을 확인 중입니다.');
+      toast(t.toast.checkingLogin);
       return;
     }
     if (!myUid) {
-      toast.error('로그인이 필요합니다.');
+      toast.error(t.toast.needLogin);
       router.push('/register');
       return;
     }
     if (!reservationDetail?.stay) {
-      toast.error('숙소 정보를 불러오지 못했습니다.');
+      toast.error(t.toast.noStay);
       return;
     }
     if (!host?.uuid) {
-      toast.error('유효하지 않은 호스트 정보입니다.');
+      toast.error(t.toast.invalidHost);
       return;
     }
 
@@ -64,7 +95,7 @@ export function SmartKeyCardInfo({ keyData, reservationDetail, lang }: Props) {
     } catch (e) {
       console.error('채팅방 처리 실패:', e);
       notifyFirebaseUnavailable(lang as any);
-      toast.error('채팅방 입장에 실패했습니다. 다시 시도해주세요.');
+      toast.error(t.toast.chatEnterFailed);
     } finally {
       setStartingChat(false);
     }
@@ -77,8 +108,8 @@ export function SmartKeyCardInfo({ keyData, reservationDetail, lang }: Props) {
           <img src={keyData.thumbnailUrl ?? ''} className="w-full h-full object-cover rounded-md" />
         </div>
         <div className="flex-1 p-5 flex flex-col justify-center gap-2">
-          <h3 className="font-semibold text-gray-600">{keyData.stayName}</h3>
-          <p className="text-xs text-gray-600">{keyData.addressLine}</p>
+          <h3 className="font-semibold text-gray-600">{stayName}</h3>
+          <p className="text-xs text-gray-600">{stayAddress}</p>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -95,50 +126,16 @@ export function SmartKeyCardInfo({ keyData, reservationDetail, lang }: Props) {
       <div className="flex justify-between mt-4 text-sm bg-gray-100 rounded-md p-6">
         <div className="text-left flex-1">
           <p className="text-gray-600 mb-1 font-semibold text-xs">{t.card.activationTime}</p>
-          <p className="font-semibold mb-1">
-            {keyData.activationTime
-              ? new Date(keyData.activationTime).toLocaleDateString('ko-KR', {
-                  year: '2-digit',
-                  month: '2-digit',
-                  day: '2-digit',
-                  weekday: 'short',
-                })
-              : '-'}
-          </p>
-          <p className="text-xs text-gray-400">
-            {keyData.activationTime
-              ? new Date(keyData.activationTime).toLocaleTimeString('ko-KR', {
-                  hour: 'numeric',
-                  minute: '2-digit',
-                  hour12: true,
-                })
-              : ''}
-          </p>
+          <p className="font-semibold mb-1">{formatDate(keyData.activationTime)}</p>
+          <p className="text-xs text-gray-400">{formatTime(keyData.activationTime)}</p>
         </div>
 
         <div className="w-px bg-gray-200"></div>
 
         <div className="text-right flex-1">
           <p className="text-gray-600 mb-1 font-semibold text-xs">{t.card.expirationTime}</p>
-          <p className="font-semibold mb-1">
-            {keyData.expirationTime
-              ? new Date(keyData.expirationTime).toLocaleDateString('ko-KR', {
-                  year: '2-digit',
-                  month: '2-digit',
-                  day: '2-digit',
-                  weekday: 'short',
-                })
-              : '-'}
-          </p>
-          <p className="text-xs text-gray-400">
-            {keyData.expirationTime
-              ? new Date(keyData.expirationTime).toLocaleTimeString('ko-KR', {
-                  hour: 'numeric',
-                  minute: '2-digit',
-                  hour12: true,
-                })
-              : ''}
-          </p>
+          <p className="font-semibold mb-1">{formatDate(keyData.expirationTime)}</p>
+          <p className="text-xs text-gray-400">{formatTime(keyData.expirationTime)}</p>
         </div>
       </div>
 
