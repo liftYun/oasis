@@ -146,7 +146,7 @@ public class KeyServiceImpl implements KeyService {
 
         // 3. 디바이스 온라인 상태 확인
         DeviceEntity device = key.getDevice();
-        String deviceId = String.valueOf(device.getId());
+        String deviceId = String.valueOf(device.getDeviceId());
 
         if (!deviceStatusService.isDeviceOnline(deviceId)) {
             log.warn("[KEY] 디바이스 오프라인 - deviceId: {}", deviceId);
