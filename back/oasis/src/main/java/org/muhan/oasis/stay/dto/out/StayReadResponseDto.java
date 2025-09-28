@@ -55,7 +55,7 @@ public class StayReadResponseDto{
                 .maxGuest(stay.getMaxGuests())
                 .price(stay.getPrice())
                 .photos(ImageResponseDto.from(stay.getStayPhotoEntities()))
-                .review(stay.getRatingSummary()!=null ? StayReviewSummaryResponseDto.from(stay.getRatingSummary()) : null)
+                .review(stay.getRatingSummary()!=null ? StayReviewSummaryResponseDto.from(stay.getRatingSummary(), language) : null)
                 .host(HostInfoResponseDto.from(stay.getUser()))
                 .facilities(FacilityCategoryResponseDto.from(facilities))
                 .cancellations(StayBlockResponseDto.from(blockList))
