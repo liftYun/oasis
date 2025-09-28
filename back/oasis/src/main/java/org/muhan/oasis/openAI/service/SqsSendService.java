@@ -47,7 +47,14 @@ public class SqsSendService {
                 Map.of("nickname", userNickname),
                 stayRequest);
 
-        sqsTemplate.send(stayTransQueue, message);
+        sqsTemplate.send(opts -> opts
+                .queue(stayTransQueue)
+                .payload(message)
+                .messageGroupId("stay-" + uuid)
+                .messageDeduplicationId(message.id()));
+
+
+
         return new StayTranslateIdDto(uuid);
     }
 
@@ -60,7 +67,11 @@ public class SqsSendService {
                 Map.of("review", reviewId.toString()),
                 reviewRequestDto);
 
-        sqsTemplate.send(reviewTransQueue, message);
+        sqsTemplate.send(opts -> opts
+                .queue(reviewTransQueue)
+                .payload(message)
+                .messageGroupId("review-" + reviewId)
+                .messageDeduplicationId(message.id()));
     }
 
     public void sendReviewSummaryMessage(ReviewListRequestDto reviewRequestDto, Long stayId, Rate rate) {
