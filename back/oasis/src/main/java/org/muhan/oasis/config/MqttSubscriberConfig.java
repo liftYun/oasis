@@ -129,11 +129,11 @@ public class MqttSubscriberConfig {
 
             if ("online".equals(payload)) {
                 deviceStatusService.setDeviceOnline(deviceId);
-                mqttLogService.saveStatusLog(deviceId, "ONLINE");
+                // mqttLogService.saveStatusLog(deviceId, "ONLINE");
                 log.info("[MQTT] Device {} came ONLINE", deviceId);
             } else if ("offline".equals(payload)) {
                 deviceStatusService.setDeviceOffline(deviceId);
-                mqttLogService.saveStatusLog(deviceId, "OFFLINE");
+                // mqttLogService.saveStatusLog(deviceId, "OFFLINE");
                 log.info("[MQTT] Device {} went OFFLINE", deviceId);
             } else {
                 log.warn("[MQTT] Unknown LWT payload: {} from {}", payload, topic);
@@ -161,8 +161,8 @@ public class MqttSubscriberConfig {
 
             log.info("[MQTT] Servo status from device {}: {}", deviceId, payload);
 
-            // TODO: 나중에 로그 파일 저장 기능 추가
-            mqttLogService.saveServoLog(deviceId, payload);
+            // 나중에 로그 파일 저장 기능 추가
+            // mqttLogService.saveServoLog(deviceId, payload);
 
         } else {
             log.warn("[MQTT] Invalid status topic format: {}", topic);
