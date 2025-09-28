@@ -108,6 +108,7 @@ public class SqsAsyncService {
                     ack.acknowledge();
                 })
                 .exceptionally(ex -> {
+                    System.out.println(ex.getMessage());
                     return null;
                 });
     }
@@ -134,6 +135,7 @@ public class SqsAsyncService {
                     ack.acknowledge();
                 })
                 .exceptionally(ex -> {
+                    System.out.println(ex.getMessage());
                     return null;
                 });
     }
