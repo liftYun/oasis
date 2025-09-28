@@ -31,7 +31,9 @@ export function StayForm_Edit({ form, handleSubmit, isSubmitting }: StayFormProp
     formState: { errors, isValid },
   } = form;
 
-  const titleValue = useWatch({ control: form.control, name: 'title' }) ?? '';
+  const titleFieldName = lang === 'eng' ? 'titleEng' : 'title';
+  const titleValue = useWatch({ control: form.control, name: titleFieldName }) ?? '';
+
   const openPostcode = useDaumPostcode();
 
   const handleSearchClick = async () => {
@@ -72,8 +74,13 @@ export function StayForm_Edit({ form, handleSubmit, isSubmitting }: StayFormProp
           postalCode: data.zonecode,
         };
 
-        setValue('address', selected.address, { shouldValidate: true });
-        setValue('addressEng', selected.addressEng, { shouldValidate: true });
+        if (lang === 'eng') {
+          setValue('addressEng', selected.addressEng, { shouldValidate: true });
+          setValue('addressDetailEng', '', { shouldValidate: true });
+        } else {
+          setValue('address', selected.address, { shouldValidate: true });
+          setValue('addressDetail', '', { shouldValidate: true });
+        }
         setValue('postalCode', selected.postalCode, { shouldValidate: true });
         setValue('subRegionId', selected.subRegionId, { shouldValidate: true });
       } catch (error) {
@@ -89,12 +96,12 @@ export function StayForm_Edit({ form, handleSubmit, isSubmitting }: StayFormProp
     >
       <FormField
         label={t.form.titleLabel}
-        registration={register('title', {
-          required: '숙소 이름을 입력해주세요.',
+        registration={register(titleFieldName, {
+          required: lang === 'eng' ? 'Enter the accommodation name.' : '숙소 이름을 입력해주세요.',
         })}
-        id="title"
+        id={titleFieldName}
         placeholder={t.form.titlePlaceholder}
-        defaultValue={store.title}
+        defaultValue={lang === 'eng' ? store.titleEng : store.title}
         maxLength={20}
         className="pr-12"
       >
@@ -114,7 +121,7 @@ export function StayForm_Edit({ form, handleSubmit, isSubmitting }: StayFormProp
         control={form.control}
         name="price"
         registration={register('price', {
-          required: '가격을 입력해주세요.',
+          required: lang === 'eng' ? 'Please enter the price.' : '가격을 입력해주세요.',
           setValueAs: (raw) => {
             if (raw === '' || raw == null) return undefined;
             const str: string = String(raw);
