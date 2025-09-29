@@ -10,7 +10,7 @@ export const mainMessages = {
     brandTitle: '블록체인 예약을 이용해보세요!',
     likedTitle: '좋아요 많은 숙소',
     likedSubtitle: '여행자들의 마음을 사로잡은 인기 숙소예요.',
-    favoriteTitle: '즐겨찾기 많은 숙소',
+    favoriteTitle: '리뷰 많은 숙소',
     favoriteSubtitle: '많은 사람들이 다시 찾고 싶은 숙소예요.',
   },
 
@@ -25,7 +25,7 @@ export const mainMessages = {
     brandTitle: 'Blockchain on oasis!',
     likedTitle: 'Most Liked Stays',
     likedSubtitle: 'Stays that captured travelers’ hearts.',
-    favoriteTitle: 'Most Bookmarked Stays',
+    favoriteTitle: 'Most Reviewed Stays',
     favoriteSubtitle: 'Stays many travelers want to revisit.',
   },
 } as const;
