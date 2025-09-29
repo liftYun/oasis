@@ -5,9 +5,9 @@
 </div>
 
 **블록체인 기반 P2P** 숙박 예약 플랫폼<br>
-**스마트 계약(Smart Contract)**을 통해 신뢰 없이 투명한 거래를 보장하고,
-디지털 키 발급 및 결제 내역을 온체인(On-chain)으로 관리하여,
-중개 수수료 없이 게스트와 호스트가 직접 연결되는 탈중앙화 숙박 예약 서비스를 제공합니다.
+**스마트 계약(Smart Contract)**을 통해 신뢰 없이 투명한 거래를 보장하고,<br>
+디지털 키 발급 및 결제 내역을 온체인(On-chain)으로 관리하여,<br>
+중개 수수료 없이 게스트와 호스트가 직접 연결되는 탈중앙화 숙박 예약 서비스를 제공합니다.<br><br>
 
 > 머무는 순간까지, 여행이니까 **oasis**
 
@@ -296,10 +296,10 @@ Presentation] </a> <br></td>
   </tr>
   <tr>
     <td align="center">
-      <img src="./readme-assets/jenkins_pipeline.png" width="80%" alt="Jenkins Pipeline"/>
+      <img src="./readme-assets/jenkins_pipeline.png" width="100%" alt="Jenkins Pipeline"/>
     </td>
     <td align="center">
-    <img src="./readme-assets/dlp_process.png" width="80%" alt="DLP Process"/>
+    <img src="./readme-assets/dlp_process.png" width="100%" alt="DLP Process"/>
     </td>
   </tr>
   <tr>
@@ -308,10 +308,10 @@ Presentation] </a> <br></td>
   </tr>
   <tr>
     <td align="center">
-      <img src="./readme-assets/jira_issue_created.png" width="80%" alt="Jira Issue Created"/>
+      <img src="./readme-assets/jira_issue_created.png" width="100%" alt="Jira Issue Created"/>
     </td>
     <td align="center">
-      <img src="./readme-assets/mr_notification.png" width="80%" alt="Merge Request Notification"/>
+      <img src="./readme-assets/mr_notification.png" width="100%" alt="Merge Request Notification"/>
     </td>
   </tr>
 </table>
