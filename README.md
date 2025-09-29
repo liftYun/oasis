@@ -48,12 +48,12 @@
 <div align="center">
 <table>
     <tr>
-        <td width="33%" align="center"> <a href="https://github.com/gyudol">
+        <td width="33%" align="center"> 
             <img src="./readme-assets/doyun_lee.jpg" width="160px" /> <br> 이도윤 <br>[Backend · Leader] </a> <br></td>
         <td width="33%" align="center"> <a href="https://github.com/minhe8564">
-            <img src="./readme-assets/minhee_lee.png" width="160px" /> <br> 이민희 <br>[Frontend · BlockChain] </a> <br></td>
-        <td width="33%" align="center"> <a href="https://github.com/0w0n2">
-            <img src="./readme-assets/sumin_kim.png" width="160px" /> <br> 김수민 <br>[Frontend · 
+            <img src="./readme-assets/minhee_lee.jpg" width="160px" /> <br> 이민희 <br>[Frontend · BlockChain] </a> <br></td>
+        <td width="33%" align="center"> <a href="https://github.com/soomkim00">
+            <img src="./readme-assets/sumin_kim.jpeg" width="160px" /> <br> 김수민 <br>[Frontend · 
 Presentation] </a> <br></td>
     </tr>
     <tr>
@@ -92,7 +92,7 @@ Presentation] </a> <br></td>
         <td width="33%" align="center"> <a href="https://github.com/yoonsu0325">
         <img src="./readme-assets/yunseo_won.jpg" width="160px" /> <br> 원윤서 <br>[Backend · Async API] </a> <br></td>
         <td width="33%" align="center"> <a href="https://github.com/yuju9">
-        <img src="./readme-assets/ahhyun_lee.jpg" width="160px" /> <br> 이아현 <br>[Backend · BlockChain] </a> <br></td>
+        <img src="./readme-assets/ahhyun_lee.png" width="160px" /> <br> 이아현 <br>[Backend · BlockChain] </a> <br></td>
     </tr>
     <tr>
         <td width="280px">
@@ -209,8 +209,6 @@ Presentation] </a> <br></td>
 
 ### ⚙️ Infra / DevOps
 
-### ⚙️ Infra / DevOps
-
 <div align="center">
 
 ![AWS EC2](https://img.shields.io/badge/AWS%20EC2-FF9900?style=for-the-badge&logo=amazonec2&logoColor=white)
@@ -227,15 +225,15 @@ Presentation] </a> <br></td>
 
 <br>
 
-| **Category**               | **Stack**                                                                                  |
-| :------------------------- | :----------------------------------------------------------------------------------------- |
-| **Infra**                  | AWS EC2 (Ubuntu 22.04 LTS), AWS S3                                                         |
-| **CI/CD**                  | Jenkins **2.516.2**, Docker **28.1.1**, Docker Compose **2.38.2**                          |
-| **Web / Proxy**            | Nginx **1.27**                                                                             |
-| **MQTT Broker**            | Mosquitto **2.0.22**                                                                       |
-| **Monitoring**             | Grafana **10.4.2**, Prometheus **v2.54.1**, Node Exporter **v1.9.1**, cAdvisor **v0.53.0** |
-| **Version Control / Auth** | GitLab                                                                                     |
-| **Server Spec**            | 4 vCPUs / 16 GB RAM / SSD 320 GB / HDD 6 TB                                                |
+| **Category**               | **Stack**                                                                  |
+| :------------------------- | :------------------------------------------------------------------------- |
+| **Infra**                  | AWS EC2 (Ubuntu 22.04 LTS), AWS S3                                         |
+| **CI/CD**                  | Jenkins 2.516.2, Docker 28.1.1, Docker Compose 2.38.2                      |
+| **Web / Proxy**            | Nginx 1.27                                                                 |
+| **MQTT Broker**            | Mosquitto 2.0.22                                                           |
+| **Monitoring**             | Grafana 10.4.2, Prometheus v2.54.1, Node Exporter v1.9.1, cAdvisor v0.53.0 |
+| **Version Control / Auth** | GitLab                                                                     |
+| **Server Spec**            | 4 vCPUs / 16 GB RAM / SSD 320 GB / HDD 6 TB                                |
 
 </div>
 
@@ -284,7 +282,7 @@ Presentation] </a> <br></td>
 
 <div align="center">
 
-<img src="./readme-assets/oasis_architecture.png.png"/>
+<img src="./readme-assets/oasis_architecture.png"/>
 </div>
 
 ### 📢 Collaboration & Event Notification
@@ -321,314 +319,3 @@ Presentation] </a> <br></td>
 </div>
 
 <br>
-
-## 📲 기능 구성
-
-<a name="skills"></a>
-
-<div align="center">
-
-<table>
-  <tbody align="center"> 
-    <tr> <th style="text-align: center"> 데스크톱 앱 다운로드 </th> <th style="text-align: center"> 회원가입 </th> </tr>
-    <tr> <td width="50%"><img width="100%" src="./readme-assets/demostration/desktop_app_download.gif"/></td> 
-        <td width="50%"><img width="100%" src="./readme-assets/demostration/sign_up.gif"/></td> </tr> </tbody>
-  <tbody align="center"> 
-    <tr> <th style="text-align: center"> 일반 사용자 튜토리얼 </th> <th style="text-align: center"> 구화 사용자 튜토리얼 </th> </tr>
-    <tr> <td width="50%"><img width="100%" src="./readme-assets/demostration/tutorial_common_user.gif"/></td>
-    <td width="50%"><img width="100%" src="./readme-assets/demostration/tutorial_lip_reading_user.gif"/></td> </tr> </tbody>
-  <tbody align="center"> 
-    <tr> <th style="text-align: center"> 마이페이지 </th> <th style="text-align: center"> 대기방 생성 </th> </tr>
-    <tr> <td width="50%"><img width="100%" src="./readme-assets/demostration/mypage.gif"/></td>
-    <td width="50%"><img width="100%" src="./readme-assets/demostration/meeting_room_creating.gif"/></td> </tr>
-  </tbody>
-  <tbody align="center"> 
-    <tr> <th style="text-align: center"> 대기방 채팅 </th> <th style="text-align: center"> 대기방 설정 </th> </tr>
-    <tr> <td width="50%"><img width="100%" src="./readme-assets/demostration/chat.gif"/></td>
-    <td width="50%"><img width="100%" src="./readme-assets/demostration/meeting_room_setting.gif"/></td> </tr>
-  </tbody>
-  <tbody align="center"> 
-    <tr> <th style="text-align: center"> 라이브 세션 (일반 사용자) </th> <th style="text-align: center"> 라이브 세션 (구화 사용자) </th> </tr>
-    <tr> <td width="50%"><img width="100%" src="./readme-assets/demostration/live_room_common_user.gif"/></td>
-    <td width="50%"><img width="100%" src="./readme-assets/demostration/live_room_lip_reading_user.gif"/></td> </tr>
-  </tbody>
-</table>
-</div>
-<br>
-
-## 📂 디렉터리 구조
-
-<a name="directories"></a>
-
-### 🌕 Frontend
-
-<details align="left">
-  <summary>
-    <strong>Frontend</strong>
-  </summary>
-
-```
-📦front
- ┣ 📂electron
- ┃ ┣ 📂assets
- ┣ 📂public
- ┃ ┣ 📂fonts
- ┃ ┗ 📂logo
- ┣ 📂src
- ┃ ┣ 📂apis
- ┃ ┃ ┣ 📂auth
- ┃ ┃ ┣ 📂core
- ┃ ┃ ┣ 📂live-room
- ┃ ┃ ┣ 📂meeting-room
- ┃ ┃ ┣ 📂stomp
- ┃ ┃ ┗ 📂tutorial
- ┃ ┣ 📂assets
- ┃ ┃ ┣ 📂category
- ┃ ┃ ┣ 📂icons
- ┃ ┃ ┣ 📂images
- ┃ ┃ ┣ 📂logo
- ┃ ┃ ┣ 📂profiles
- ┃ ┃ ┗ 📂test
- ┃ ┣ 📂components
- ┃ ┃ ┣ 📂auth
- ┃ ┃ ┣ 📂common
- ┃ ┃ ┣ 📂live-room
- ┃ ┃ ┣ 📂main
- ┃ ┃ ┃ ┣ 📂modal
- ┃ ┃ ┣ 📂meeting-room
- ┃ ┃ ┃ ┣ 📂chat
- ┃ ┃ ┃ ┣ 📂members
- ┃ ┃ ┃ ┗ 📂modal
- ┃ ┃ ┃ ┃ ┣ 📂info
- ┃ ┃ ┃ ┃ ┗ 📂setting
- ┃ ┃ ┣ 📂my-page
- ┃ ┃ ┃ ┣ 📂modal
- ┃ ┃ ┃ ┗ 📂tab
- ┃ ┃ ┣ 📂tutorial
- ┃ ┃ ┃ ┣ 📂modal
- ┃ ┣ 📂hooks
- ┃ ┣ 📂pages
- ┃ ┃ ┣ 📂auth
- ┃ ┃ ┣ 📂tutorial
- ┃ ┣ 📂stores
- ┃ ┣ 📂styles
- ┃ ┣ 📂types
- ┣ 📜.env
- ┣ 📜.gitignore
- ┣ 📜.prettierrc
- ┣ 📜db.json
- ┣ 📜eslint.config.js
- ┣ 📜index.html
- ┣ 📜package-lock.json
- ┣ 📜package.json
- ┣ 📜README.md
- ┣ 📜tsconfig.app.json
- ┣ 📜tsconfig.json
- ┣ 📜tsconfig.node.json
- ┗ 📜vite.config.ts
-```
-
-</details>
-
-### 🌑 Backend
-
-<details align="left">
-  <summary>
-    <strong>Backend</strong>
-  </summary>
-
-```
-📦backend-core
- ┣ 📂gradle
- ┃ ┗ 📂wrapper
- ┣ 📂src
- ┃ ┣ 📂main
- ┃ ┃ ┣ 📂java
- ┃ ┃ ┃ ┗ 📂com
- ┃ ┃ ┃ ┃ ┗ 📂bbusyeo
- ┃ ┃ ┃ ┃ ┃ ┗ 📂voida
- ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂api
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂admin
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂constant
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂service
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂auth
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂domain
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂service
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂util
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂chat
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂domain
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂repository
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂service
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂live
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂dto
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂liveroom
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂domain
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂model
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂out
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂service
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂meetingroom
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂domain
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂enums
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂repository
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂service
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂member
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂constant
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂domain
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂enums
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂repository
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂service
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂release
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂domain
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂in
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂out
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂repository
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂service
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂vo
- ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂global
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂ai
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂stt
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂tts
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂aspect
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂config
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂exception
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂health
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂mail
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂service
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂util
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂properties
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂redis
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂config
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂dao
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂response
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂security
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂config
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂constant
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂filter
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂handler
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂oauth2
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂service
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂jwt
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂oauth2
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂util
- ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂support
- ┃ ┃ ┗ 📂resources
- ┃ ┗ 📂test
- ┃ ┃ ┗ 📂java
- ┃ ┃ ┃ ┗ 📂com
- ┃ ┃ ┃ ┃ ┗ 📂bbusyeo
- ┃ ┃ ┃ ┃ ┃ ┗ 📂voida
- ┣ 📜.gitattributes
- ┣ 📜.gitignore
- ┣ 📜build.gradle
- ┣ 📜Dockerfile
- ┣ 📜gradlew
- ┣ 📜gradlew.bat
- ┣ 📜README.md
- ┗ 📜settings.gradle
-```
-
-</details>
-
-<br>
-
-## 📦 프로젝트 산출물
-
-<a name="projectDeliverables"></a>
-
-<h3><a href="https://youtu.be/C-kFXoJuF8M" target="_blank">📹 Video Portfolio</a></h3>
-<div align="center">
-
-<a href="https://youtu.be/C-kFXoJuF8M" target="_blank"><img src="./readme-assets/video_portfolio_thumbnail.png"/></a>
-
-</div>
-
-<h3>🖼️ 화면 설계서</h3>
-<div align="center">
-
-<img src="./readme-assets/screen_design.png"/>
-</div>
-
-<h3>🗄️ ERD</h3>
-<div align="center">
-
-<img src="./readme-assets/erd_image.png"/>
-</div>
-
-<h3>✅ Swagger API Docs</h3>
-<details align="left">
-  <summary>
-    <strong>Backend-Core</strong>
-  </summary>
-
-  <div align="center">
-
-  <img src="./readme-assets/backend_core_swagger.png"/>
-  </div>
-</details>
-
-<details align="left">
-  <summary>
-    <strong>Backend-Lip-Model</strong>
-  </summary>
-
-  <div align="center">
-
-  <img src="./readme-assets/backend_lip_model_swagger.png"/>
-  </div>
-</details>
-
-<h3>📅 Jira Issues</h3>
-<details align="left">
-  <summary>
-    <strong>자세히</strong>
-  </summary>
-
-  <div align="center">
-
-  <img src="./readme-assets/jira_overall_issues.png"/>
-  </div>
-</details>
-
-<h3><a href="https://www.notion.so/24276be4587d80a78d1ad824a9c825fe" target="_blank">📋 기능 명세서</a></h3>
-<details align="left">
-  <summary>
-    <strong>자세히</strong>
-  </summary>
-  <div align="center">
-
-<a href="https://www.notion.so/24276be4587d80a78d1ad824a9c825fe" target="_blank"><img src="./readme-assets/functional_specification.png" width="60%"/></a>
-
-  </div>
-
-</details>
-
-<h3><a href="https://www.notion.so/API-22a76be4587d802cb7fed72fd1e93204" target="_blank">📡 API 명세서</a></h3>
-<details align="left">
-  <summary>
-    <strong>자세히</strong>
-  </summary>
-  <div align="center">
-
-<a href="https://www.notion.so/API-22a76be4587d802cb7fed72fd1e93204" target="_blank"><img src="./readme-assets/api_specification.png"/></a>
-
-  </div>
-
-</details>
