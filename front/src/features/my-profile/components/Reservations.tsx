@@ -33,6 +33,14 @@ export function Reservations() {
   const { profileUrl, nickname } = useAuthStore();
   const router = useRouter();
 
+  const formatShortDate = (date: string) => {
+    const d = new Date(date);
+    const year = String(d.getFullYear()).slice(2); // 뒤 두 자리만
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
+  };
+
   useEffect(() => {
     const loadReservations = async () => {
       try {
@@ -144,9 +152,9 @@ export function Reservations() {
                           height={14}
                           className="shrink-0"
                         />
-                        <span>{new Date(item.checkinDate).toLocaleDateString(locale)}</span>
-                        <span>~</span>
-                        <span>{new Date(item.checkoutDate).toLocaleDateString(locale)}</span>
+                        <span>{formatShortDate(item.checkinDate)}</span>
+                        <span> ~ </span>
+                        <span>{formatShortDate(item.checkoutDate)}</span>
                       </div>
                     </Link>
                   </div>
