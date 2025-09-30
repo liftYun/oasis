@@ -11,7 +11,7 @@ export function SmartKeyStatusModal({ status, t }: Props) {
   if (status === 'idle') return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[30vh] bg-black/70">
       <div className="relative flex items-center justify-center w-150 h-150">
         {status === 'success' && (
           <>
