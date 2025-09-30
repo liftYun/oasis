@@ -18,7 +18,7 @@ public record StayReviewSummaryResponseDto(
                 .rating(summaryEntity.getAvgRating())
                 .count(summaryEntity.getRatingCnt())
                 .highRateSummary(language.equals(Language.KOR)?summaryEntity.getHighRateSummary():summaryEntity.getHighRateSummaryEng())
-                .lowRateSummary(language.equals(Language.ENG)?summaryEntity.getLowRateSummary(): summaryEntity.getLowRateSummaryEng())
+                .lowRateSummary(language.equals(Language.KOR)?summaryEntity.getLowRateSummary(): summaryEntity.getLowRateSummaryEng())
                 .build();
     }
 
