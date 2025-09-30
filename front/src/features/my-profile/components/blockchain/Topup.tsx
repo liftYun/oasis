@@ -64,8 +64,13 @@ export function Topup() {
             type="number"
             value={amount}
             onChange={(e) => {
-              const value = Number(e.target.value || 0);
-              setAmount(value);
+              const value = e.target.value;
+              if (value === '') {
+                setAmount('' as any);
+                return;
+              }
+              const num = Number(value);
+              setAmount(num);
             }}
             placeholder="금액을 입력하세요"
             className={`w-full text-xl font-semibold text-gray-800 outline-none border-b-2

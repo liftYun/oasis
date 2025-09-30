@@ -9,7 +9,12 @@ interface Props {
 
 export function SmartKeyDots({ keys, activeIndex }: Props) {
   return (
-    <div className="absolute bottom-36 inset-x-0 flex justify-center gap-2">
+    <div
+      className="absolute inset-x-0 flex justify-center gap-2"
+      style={{
+        bottom: `calc(env(safe-area-inset-bottom) + 7rem)`,
+      }}
+    >
       {keys.map((k, i) => (
         <div
           key={k.keyId}

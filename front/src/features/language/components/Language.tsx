@@ -43,7 +43,7 @@ export function Language() {
 
       <h1
         className={`text-2xl font-bold text-gray-500 leading-relaxed ${
-          isFromProfile ? 'pt-10' : ''
+          isFromProfile ? 'pt-6' : ''
         }`}
       >
         사용 언어를 선택해주세요. <br /> Please select a language.
