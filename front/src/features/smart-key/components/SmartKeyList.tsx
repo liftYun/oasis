@@ -61,7 +61,7 @@ export function SmartKeyList({ keys }: SmartKeyListProps) {
   const centerOffset = (containerWidth - cardWidth) / 2;
 
   return (
-    <main className="flex flex-col w-full max-w-[480px] mx-auto max-h-screen pt-6 pb-28">
+    <main className="flex flex-col w-full max-w-[480px] mx-auto max-h-screen pt-2">
       <h1 className="text-2xl font-semibold pb-2">{t.title}</h1>
 
       {showSummaryBar && (
