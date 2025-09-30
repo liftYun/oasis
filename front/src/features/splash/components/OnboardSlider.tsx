@@ -83,7 +83,7 @@ export function OnboardSlider({
     <section
       aria-roledescription="carousel"
       aria-label="Onboarding"
-      className={`relative mt-14 w-full select-none ${className}`}
+      className={`relative mt-10 w-full select-none ${className}`}
     >
       <button
         aria-label="Previous slide"
