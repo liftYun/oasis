@@ -62,7 +62,7 @@ export function SmartKeyList({ keys }: SmartKeyListProps) {
 
   return (
     <main className="flex flex-col w-full max-w-[480px] mx-auto max-h-screen pt-10 pb-28">
-      <h1 className="text-2xl font-semibold mt-2 pb-6">{t.title}</h1>
+      <h1 className="text-2xl font-semibold pb-2">{t.title}</h1>
 
       {showSummaryBar && (
         <SmartKeySummaryBar
@@ -74,7 +74,7 @@ export function SmartKeyList({ keys }: SmartKeyListProps) {
       )}
 
       {/* <div className="overflow-visible" ref={containerRef}> */}
-      <div className="overflow-x-hidden scrollbar-none" ref={containerRef}>
+      <div className="overflow-x-hidden scrollbar-none pt-2" ref={containerRef}>
         <motion.div
           className="flex gap-6 cursor-grab active:cursor-grabbing touch-pan-y"
           drag="x"
