@@ -76,7 +76,7 @@ export function SmartKeyList({ keys }: SmartKeyListProps) {
       {/* <div className="overflow-visible" ref={containerRef}> */}
       <div className="overflow-x-hidden scrollbar-none" ref={containerRef}>
         <motion.div
-          className="flex gap-6 pt-6 cursor-grab active:cursor-grabbing touch-pan-y"
+          className="flex gap-6 cursor-grab active:cursor-grabbing touch-pan-y"
           drag="x"
           dragElastic={0.15}
           dragMomentum={false}
