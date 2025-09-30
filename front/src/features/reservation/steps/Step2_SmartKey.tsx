@@ -93,7 +93,7 @@ export function Step2_SmartKey() {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto flex flex-1 flex-col min-h-[calc(100vh-135px)] p-4 overflow-y-auto">
+    <div className="max-w-md w-full mx-auto flex flex-1 flex-col min-h-[calc(100vh-135px)] overflow-y-auto">
       <div className="fixed left-1/2 -translate-x-1/2 top-[env(safe-area-inset-top)] w-full max-w-[480px] z-[70]">
         <header className="relative h-14 bg-white px-2 flex items-center justify-between border-x border-gray-100">
           <button
