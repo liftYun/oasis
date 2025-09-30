@@ -34,7 +34,7 @@ export function ChatListPage() {
   };
 
   return (
-    <main className="relative flex flex-col w-full pt-2 pb-28">
+    <main className="relative flex flex-col w-full pt-4 pb-28">
       <h1 className="text-2xl font-semibold text-gray-600">{t.titleChat}</h1>
 
       <div className="mt-8 flex items-center w-full max-w-md rounded-full bg-gray-100 px-4 py-2 shadow-sm">
