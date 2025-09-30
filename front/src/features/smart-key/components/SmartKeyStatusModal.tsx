@@ -12,19 +12,17 @@ export function SmartKeyStatusModal({ status, t }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-      <div className="relative flex items-center justify-center w-64 h-64">
+      <div className="relative flex items-center justify-center w-150 h-150">
         {status === 'success' && (
           <>
             <Lottie src="/lotties/card-success.json" loop={false} autoplay />
-            <p className="absolute bottom-1 text-white text-base font-medium">
-              {t.card.doorOpened}
-            </p>
+            <p className="absolute bottom-1 text-white text-xl font-medium">{t.card.doorOpened}</p>
           </>
         )}
         {status === 'error' && (
           <>
             <Lottie src="/lotties/card-fail.json" loop={false} autoplay />
-            <p className="absolute bottom-1 text-white text-base font-medium">
+            <p className="absolute bottom-3 text-white text-2xl font-medium">
               {t.card.doorOpenFailed}
             </p>
           </>
