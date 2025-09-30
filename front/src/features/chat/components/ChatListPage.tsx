@@ -37,7 +37,7 @@ export function ChatListPage() {
     <main className="relative flex flex-col w-full pt-4 pb-28">
       <h1 className="text-2xl font-semibold text-gray-600">{t.titleChat}</h1>
 
-      <div className="mt-8 flex items-center w-full max-w-md rounded-full bg-gray-100 px-4 py-2 shadow-sm">
+      <div className="mt-4 flex items-center w-full max-w-md rounded-full bg-gray-100 px-4 py-2 shadow-sm">
         <Search className="w-4 h-8 text-gray-500" />
         <input
           type="text"
@@ -48,7 +48,7 @@ export function ChatListPage() {
         />
       </div>
 
-      <div className="mt-6 min-h-screen">
+      <div className="mt-4 min-h-screen">
         {isLoading ? (
           <div className="py-10 text-center text-gray-300">{t.loading}</div>
         ) : (
