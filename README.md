@@ -310,3 +310,411 @@ Presentation] </a> <br></td>
 </div>
 
 <br>
+
+## 📲 기능 구성
+
+<a name="skills"></a>
+
+<div align="center">
+
+<table>
+  <tbody align="center">
+    <tr>
+      <th style="text-align: center">시작 화면</th>
+      <th style="text-align: center">회원가입</th>
+      <th style="text-align: center">숙소 검색</th>
+    </tr>
+    <tr>
+      <td width="33%"><img width="100%" src="./readme-assets/skills/1_splash.gif"/></td>
+      <td width="33%"><img width="100%" src="./readme-assets/skills/2_register.gif"/></td>
+      <td width="33%"><img width="100%" src="./readme-assets/skills/3_search.gif"/></td>
+    </tr>
+  </tbody>
+
+  <tbody align="center">
+    <tr>
+      <th style="text-align: center">게스트 스마트키</th>
+      <th style="text-align: center">스마트키 리스트</th>
+      <th style="text-align: center">채팅</th>
+    </tr>
+    <tr>
+      <td width="33%"><img width="100%" src="./readme-assets/skills/4_smartKey_none.gif"/></td>
+      <td width="33%"><img width="100%" src="./readme-assets/skills/5_smartKey.gif"/></td>
+      <td width="33%"><img width="100%" src="./readme-assets/skills/6_chat.gif"/></td>
+    </tr>
+  </tbody>
+
+  <tbody align="center">
+    <tr>
+      <th style="text-align: center">블록체인 지갑생성</th>
+      <th style="text-align: center">블록체인 지갑 충전</th>
+      <th style="text-align: center">내 예약 확인</th>
+    </tr>
+    <tr>
+      <td width="33%"><img width="100%" src="./readme-assets/skills/7_wallet.gif"/></td>
+      <td width="33%"><img width="100%" src="./readme-assets/skills/8_wallet_topup.gif"/></td>
+      <td width="33%"><img width="100%" src="./readme-assets/skills/9_reservation_check.gif"/></td>
+    </tr>
+  </tbody>
+
+  <tbody align="center">
+    <tr>
+      <th style="text-align: center">내 관심 숙소</th>
+      <th style="text-align: center">내 리뷰 확인</th>
+      <th style="text-align: center">내 프로필</th>
+    </tr>
+    <tr>
+      <td width="33%"><img width="100%" src="./readme-assets/skills/10_wishlist.gif"/></td>
+      <td width="33%"><img width="100%" src="./readme-assets/skills/11_review.gif"/></td>
+      <td width="33%"><img width="100%" src="./readme-assets/skills/12_profile.gif"/></td>
+    </tr>
+  </tbody>
+
+  <tbody align="center">
+    <tr>
+      <th style="text-align: center">내 숙소 관리</th>
+      <th style="text-align: center">내 숙소 등록</th>
+      <th style="text-align: center">숙소 예약</th>
+    </tr>
+    <tr>
+      <td width="33%"><img width="100%" src="./readme-assets/skills/13_edit_stay.gif"/></td>
+      <td width="33%"><img width="100%" src="./readme-assets/skills/14_create_stay.gif"/></td>
+      <td width="33%"><img width="100%" src="./readme-assets/skills/15_reservation.gif"/></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<br>
+
+## 📂 디렉터리 구조
+
+<a name="directories"></a>
+
+### 🌕 Frontend
+
+<details align="left">
+  <summary>
+    <strong>Frontend-App</strong>
+  </summary>
+
+```
+📦 front
+ ┣ 📂public
+ ┃ ┣ 📂fonts
+ ┃ ┣ 📂icons
+ ┃ ┣ 📂lotties
+ ┃ ┗ 📜manifest.webmanifest
+ ┣ 📂src
+ ┃ ┣ 📂apis
+ ┃ ┣ 📂app
+ ┃ ┃ ┣ 📂chat
+ ┃ ┃ ┣ 📂create-stay
+ ┃ ┃ ┣ 📂edit-stay
+ ┃ ┃ ┣ 📂install-ios
+ ┃ ┃ ┣ 📂language
+ ┃ ┃ ┣ 📂main
+ ┃ ┃ ┣ 📂my-profile
+ ┃ ┃ ┣ 📂register
+ ┃ ┃ ┣ 📂reservation
+ ┃ ┃ ┣ 📂reservation-detail
+ ┃ ┃ ┣ 📂search
+ ┃ ┃ ┣ 📂smart-key
+ ┃ ┃ ┣ 📂splash
+ ┃ ┃ ┣ 📂stays
+ ┃ ┃ ┗ 📂_components
+ ┃ ┣ 📂assets
+ ┃ ┃ ┣ 📂icons
+ ┃ ┃ ┣ 📂images
+ ┃ ┃ ┃ ┗ 📂flags
+ ┃ ┃ ┗ 📂logos
+ ┃ ┣ 📂components
+ ┃ ┃ ┣ 📂atoms
+ ┃ ┃ ┣ 📂molecules
+ ┃ ┃ ┗ 📂organisms
+ ┃ ┣ 📂features
+ ┃ ┃ ┣ 📂chat
+ ┃ ┃ ┣ 📂common
+ ┃ ┃ ┣ 📂create-stay
+ ┃ ┃ ┣ 📂edit-stay
+ ┃ ┃ ┣ 📂language
+ ┃ ┃ ┣ 📂main
+ ┃ ┃ ┣ 📂my-profile
+ ┃ ┃ ┣ 📂register
+ ┃ ┃ ┣ 📂reservation
+ ┃ ┃ ┣ 📂search
+ ┃ ┃ ┣ 📂smart-key
+ ┃ ┃ ┣ 📂splash
+ ┃ ┃ ┗ 📂stays
+ ┃ ┣ 📂lib
+ ┃ ┃ ┣ 📂circle
+ ┃ ┃ ┗ 📂firebase
+ ┃ ┣ 📂providers
+ ┃ ┣ 📂services
+ ┃ ┣ 📂stores
+ ┃ ┣ 📂types
+ ┃ ┗ 📂utils
+ ┣ 📂styles
+ ┣ 📂types
+ ┣ 📜.prettierrc
+ ┣ 📜dockerfile
+ ┣ 📜eslint.config.mjs
+ ┣ 📜next.config.ts
+ ┣ 📜package.json
+ ┣ 📜postcss.config.js
+ ┣ 📜README.md
+ ┣ 📜tailwind.config.js
+ ┣ 📜tailwind.config.ts
+ ┣ 📜tsconfig.json
+ ┗ 📜README.md
+
+```
+
+</details>
+
+### 🌑 Backend
+
+<details align="left">
+  <summary>
+    <strong>Backend-Core</strong>
+  </summary>
+
+```
+📦 oasis
+ ┣ 📂.gradle
+ ┃ ┣ 📂8.14.3
+ ┃ ┣ 📂buildOutputCleanup
+ ┃ ┗ 📂vcs-1
+ ┣ 📂.idea
+ ┃ ┗ 📂modules
+ ┣ 📂gradle
+ ┃ ┗ 📂wrapper
+ ┣ 📂build
+ ┃ ┣ 📂classes
+ ┃ ┃ ┗ 📂java
+ ┃ ┃ ┃ ┗ 📂main
+ ┃ ┃ ┃ ┃ ┗ 📂org
+ ┃ ┃ ┃ ┃ ┃ ┗ 📂muhan
+ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂oasis
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂charging
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂in
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂out
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂service
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂vo
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂chatTranslate
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂service
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂util
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂common
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂base
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂exception
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂config
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂external
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂circle
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂key
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂in
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂out
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂entity
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂repository
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂service
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂vo
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂mqtt
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂handler
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂service
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂vo
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂openAI
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂client
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂domain
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂in
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂out
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂service
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂reservation
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂in
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂out
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂entity
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂enums
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂listener
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂repository
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂service
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂vo
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂review
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂in
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂out
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂entity
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂repository
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂service
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂vo
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂s3
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂service
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂security
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂in
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂out
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂entity
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂exception
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂handler
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂jwt
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂repository
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂service
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂vo
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂settlement
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂service
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂stay
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂in
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂out
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂entity
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂repository
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂service
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂vo
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂user
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂in
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂out
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂entity
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂repository
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂service
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂vo
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂wallet
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂circle
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂out
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂in
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂out
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂entity
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂repository
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂service
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂vo
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂web3
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂wish
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂controller
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂dto
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂in
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂out
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂entity
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂repository
+ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂service
+ ┃ ┣ 📂resources
+ ┃ ┗ 📂tmp
+ ┣ 📂src
+ ┃ ┣ 📂main
+ ┃ ┃ ┣ 📂java
+ ┃ ┃ ┃ ┗ 📂org
+ ┃ ┃ ┃ ┃ ┗ 📂muhan
+ ┃ ┃ ┃ ┃ ┃ ┗ 📂oasis
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂charging
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂chatTranslate
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂common
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂config
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂external
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂key
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂mqtt
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂openAI
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂reservation
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂review
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂s3
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂security
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂settlement
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂stay
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂user
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂wallet
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📂web3
+ ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📂wish
+ ┃ ┃ ┗ 📂resources
+ ┃ ┗ 📂test
+ ┃ ┃ ┗ 📂java
+ ┃ ┃ ┃ ┗ 📂org
+ ┃ ┃ ┃ ┃ ┗ 📂muhan
+ ┃ ┃ ┃ ┃ ┃ ┗ 📂oasis
+ ┣ 📜.gitattributes
+ ┣ 📜.gitignore
+ ┣ 📜build.gradle
+ ┣ 📜Dockerfile
+ ┣ 📜gradlew
+ ┣ 📜gradlew.bat
+ ┣ 📜README.md
+ ┗ 📜settings.gradle
+```
+
+</details>
+<br>
+
+## 📦 프로젝트 산출물
+
+<a name="projectDeliverables"></a>
+
+<h3>🖼️ 화면 설계서</h3>
+<div align="center">
+
+<img src="./readme-asset/oasis_figma.png"/>
+</div>
+
+<h3>🗄️ ERD</h3>
+<div align="center">
+
+<img src="./readme-assets/oasis_erd.png"/>
+</div>
+
+<h3>✅ Swagger API Docs</h3>
+<details align="left">
+  <summary>
+    <strong>Backend</strong>
+  </summary>
+
+  <div align="center">
+
+  <img src="./readme-assets/oasis_API.png"/>
+  </div>
+</details>
+
+<h3>📅 Jira Issues</h3>
+<details align="left">
+  <summary>
+    <strong>자세히</strong>
+  </summary>
+
+  <div align="center">
+
+  <img src="./readme-assets/oasis_jira.png"/>
+  </div>
+</details>
+
+<h3><a href="https://www.notion.so/25abdd006a7d81b386bfc57e598b43d5" target="_blank">📋 기능 명세서</a></h3>
+<details align="left">
+  <summary>
+    <strong>자세히</strong>
+  </summary>
+  <div align="center">
+
+<a href="https://www.notion.so/25abdd006a7d81b386bfc57e598b43d5" target="_blank"><img src="./readme-assets/oasis_functional_specification.png" width="60%"/></a>
+
+  </div>
+
+</details>
+
+<h3><a href="https://www.notion.so/API-25abdd006a7d81c9aafbebc127a5014c" target="_blank">📡 API 명세서</a></h3>
+<details align="left">
+  <summary>
+    <strong>자세히</strong>
+  </summary>
+  <div align="center">
+
+<a href="https://www.notion.so/API-25abdd006a7d81c9aafbebc127a5014c" target="_blank"><img src="./readme-assets/oasis_api_specification.png"/></a>
+
+  </div>
+
+</details>
