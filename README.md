@@ -47,7 +47,7 @@
 <div align="center">
 <table>
     <tr>
-        <td width="33%" align="center"> 
+        <td width="33%" align="center"> <a href="https://github.com/liftYun">
             <img src="./readme-assets/doyun_lee.jpg" width="160px" /> <br> 이도윤 <br>[Backend · Leader] </a> <br></td>
         <td width="33%" align="center"> <a href="https://github.com/minhe8564">
             <img src="./readme-assets/minhee_lee.jpg" width="160px" /> <br> 이민희 <br>[Frontend · BlockChain] </a> <br></td>
@@ -662,19 +662,19 @@ Presentation] </a> <br></td>
 
 <a href="https://youtu.be/zElqUWnAi4o" target="_blank"><img src="./readme-assets/oasis_demonstration_video.png"/></a>
 
-</div>
+</div><br>
 
 <h3>🖼️ 화면 설계서</h3>
 <div align="center">
 
 <img src="./readme-assets/oasis_figma.png"/>
-</div>
+</div><br>
 
 <h3>🗄️ ERD</h3>
 <div align="center">
 
 <img src="./readme-assets/oasis_erd.png"/>
-</div>
+</div><br>
 
 <h3>✅ Swagger API Docs</h3>
 <details align="left">
