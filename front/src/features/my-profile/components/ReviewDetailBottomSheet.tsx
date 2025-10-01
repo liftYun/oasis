@@ -95,7 +95,11 @@ export function ReviewDetailBottomSheet({ open, onClose, reviewId }: ReviewBotto
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Image src={Marker} alt="marker" width={14} height={14} className="shrink-0" />
-              <span className="truncate">{reservation.address}</span>
+              <span className="truncate">
+                {reservation.address && reservation.address.length > 12
+                  ? `${reservation.address.slice(0, 12)}...`
+                  : reservation.address}
+              </span>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Image src={Calender} alt="calender" width={14} height={14} className="shrink-0" />
