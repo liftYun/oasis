@@ -5,7 +5,7 @@
 </div>
 
 **블록체인 기반 P2P** 숙박 예약 플랫폼<br>
-**스마트 계약(Smart Contract)**을 통해 신뢰 없이 투명한 거래를 보장하고,<br>
+**스마트 계약(Smart Contract)** 을 통해 신뢰 없이 투명한 거래를 보장하고,<br>
 디지털 키 발급 및 결제 내역을 온체인(On-chain)으로 관리하여,<br>
 중개 수수료 없이 게스트와 호스트가 직접 연결되는 탈중앙화 숙박 예약 서비스를 제공합니다.<br><br>
 
@@ -16,7 +16,7 @@
 - **개발 인원** : 6명
 - **기관** : 삼성 청년 SW·AI 아카데미 13기 <br><br>
 
-<!-- <img src="./readme-assets/oasis_thumbnail.png" /> -->
+<img src="./readme-assets/oasis_thumbnail.png" />
 
 </div> <br>
 
@@ -36,8 +36,7 @@
 
 ### <a href="#projectDeliverables">📦 프로젝트 산출물</a>
 
-</div>
-<br>
+</div> <br>
 
 ## 🌴 팀원 구성
 
@@ -48,11 +47,11 @@
 <div align="center">
 <table>
     <tr>
-        <td width="33%" align="center"> 
+        <td width="40%" align="center"> 
             <img src="./readme-assets/doyun_lee.jpg" width="160px" /> <br> 이도윤 <br>[Backend · Leader] </a> <br></td>
-        <td width="33%" align="center"> <a href="https://github.com/minhe8564">
+        <td width="40%" align="center"> <a href="https://github.com/minhe8564">
             <img src="./readme-assets/minhee_lee.jpg" width="160px" /> <br> 이민희 <br>[Frontend · BlockChain] </a> <br></td>
-        <td width="33%" align="center"> <a href="https://github.com/soomkim00">
+        <td width="40%" align="center"> <a href="https://github.com/soomkim00">
             <img src="./readme-assets/sumin_kim.jpeg" width="160px" /> <br> 김수민 <br>[Frontend · 
 Presentation] </a> <br></td>
     </tr>
@@ -87,11 +86,11 @@ Presentation] </a> <br></td>
 
 <table>
     <tr>
-        <td width="33%" align="center"> <a href="https://github.com/jieun-99">
+        <td width="40%" align="center"> <a href="https://github.com/jieun-99">
         <img src="./readme-assets/jieun_lee.jpg" width="160px" /> <br> 김지은 <br>[Infra · IoT] </a> <br></td>
-        <td width="33%" align="center"> <a href="https://github.com/yoonsu0325">
+        <td width="40%" align="center"> <a href="https://github.com/yoonsu0325">
         <img src="./readme-assets/yunseo_won.jpg" width="160px" /> <br> 원윤서 <br>[Backend · Async API] </a> <br></td>
-        <td width="33%" align="center"> <a href="https://github.com/yuju9">
+        <td width="40%" align="center"> <a href="https://github.com/yuju9">
         <img src="./readme-assets/ahhyun_lee.png" width="160px" /> <br> 이아현 <br>[Backend · BlockChain] </a> <br></td>
     </tr>
     <tr>
@@ -99,7 +98,7 @@ Presentation] </a> <br></td>
           <sub>
             - CI/CD 파이프라인 구축 / 배포 자동화 <br>
             - AWS Cloud 환경 세팅 <br>
-            - HW ESP32 ↔ EC2 통신 연동 / IoT 테스트 환경 구성 <br>
+            - HW ESP32 및 EC2 통신 연동 / IoT 테스트 환경 구성 <br>
             - 빌드 / 배포 안정성 및 서버 성능 최적화
           </sub>
         </td>
@@ -131,8 +130,6 @@ Presentation] </a> <br></td>
 
 <a name="techStack"></a>
 
----
-
 ### 🌕 Frontend
 
 <div align="center">
@@ -148,23 +145,21 @@ Presentation] </a> <br></td>
 
 <br>
 
-| **Category**             | **Stack**                                                                   |
-| :----------------------- | :-------------------------------------------------------------------------- |
-| **Language**             | TypeScript 5.4.5                                                            |
-| **Runtime Environment**  | Node.js 22.12.0 (PWA 기반)                                                  |
-| **Framework**            | Next.js 15.5.2, React 18.3.1 (App Router)                                   |
-| **Styling**              | TailwindCSS 3.4.13, Emotion 11.14.0, Framer Motion 12.23.12                 |
-| **State / Data**         | Zustand 5.0.8, TanStack React Query 5.87.1                                  |
-| **Form / Validation**    | React Hook Form 7.62.0, Zod 3.23.8, @hookform/resolvers 3.10.0              |
-| **Network / Auth**       | Axios 1.11.0, Firebase Auth 12.2.1, JWT Decode 4.0.0                        |
-| **UI / Animation**       | Swiper 12.0.2, Lottie-web 5.13.0, Lucide-react 0.542.0, Emoji Picker 4.13.3 |
-| **Blockchain / Payment** | @circle-fin/w3s-pw-web-sdk 1.1.11 (USDC 결제 처리)                          |
-| **Build / PWA**          | next-pwa 5.6.0, Babel Loader 10.0.0                                         |
-| **IDE**                  | Visual Studio Code 1.103.1                                                  |
+| **Category**             | **Stack**                                                                                          |
+| :----------------------- | :------------------------------------------------------------------------------------------------- |
+| **Language**             | TypeScript 5.6.2                                                                                   |
+| **Runtime Environment**  | Node.js 22.12.0 (PWA 기반)                                                                         |
+| **Framework**            | Next.js 15.5.2, React 18.3.1 (App Router)                                                          |
+| **Styling**              | TailwindCSS 3.4.13, Emotion 11.14.0, Framer Motion 12.23.12                                        |
+| **State / Data**         | Zustand 5.0.8, TanStack React Query 5.87.1, use-debounce 10.0.6                                    |
+| **Form / Validation**    | React Hook Form 7.62.0, Zod 3.23.8, @hookform/resolvers 3.10.0                                     |
+| **Network / Auth**       | Axios 1.11.0, Firebase Auth 12.2.1, JWT Decode 4.0.0                                               |
+| **UI / Animation**       | Swiper 12.0.2, Lottie-web 5.13.0, Lucide-react 0.542.0, Emoji Picker 4.13.3, React Hot Toast 2.6.0 |
+| **Blockchain / Payment** | @circle-fin/w3s-pw-web-sdk 1.1.11 (USDC 결제 처리)                                                 |
+| **Build / PWA**          | next-pwa 5.6.0, Babel Loader 10.0.0                                                                |
+| **IDE**                  | Visual Studio Code 1.103.1                                                                         |
 
-</div>
-
----
+</div><br>
 
 ### 🌑 Backend
 
@@ -203,9 +198,7 @@ Presentation] </a> <br></td>
 | **Docs**       | Swagger UI (springdoc-openapi-starter-webmvc-ui 2.6.0)                                                                                                                                                                                                                |
 | **IDE**        | IntelliJ IDEA 2025.1.3 (Ultimate Edition)                                                                                                                                                                                                                             |
 
-</div>
-
----
+</div><br>
 
 ### ⚙️ Infra / DevOps
 
@@ -213,6 +206,7 @@ Presentation] </a> <br></td>
 
 ![AWS EC2](https://img.shields.io/badge/AWS%20EC2-FF9900?style=for-the-badge&logo=amazonec2&logoColor=white)
 ![Amazon S3](https://img.shields.io/badge/Amazon%20S3-569A31?style=for-the-badge&logo=amazons3&logoColor=white)
+![AWS SQS](https://img.shields.io/badge/AWS%20SQS-FF4F00?style=for-the-badge&logo=awslambda&logoColor=white)
 ![Jenkins](https://img.shields.io/badge/Jenkins-2.516.2-D24939?style=for-the-badge&logo=jenkins&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-28.1.1-2496ED?style=for-the-badge&logo=docker&logoColor=white)<br>
 ![Grafana](https://img.shields.io/badge/Grafana-10.4.2-F46800?style=for-the-badge&logo=grafana&logoColor=white)
@@ -225,19 +219,17 @@ Presentation] </a> <br></td>
 
 <br>
 
-| **Category**               | **Stack**                                                                  |
-| :------------------------- | :------------------------------------------------------------------------- |
-| **Infra**                  | AWS EC2 (Ubuntu 22.04 LTS), AWS S3                                         |
-| **CI/CD**                  | Jenkins 2.516.2, Docker 28.1.1, Docker Compose 2.38.2                      |
-| **Web / Proxy**            | Nginx 1.27                                                                 |
-| **MQTT Broker**            | Mosquitto 2.0.22                                                           |
-| **Monitoring**             | Grafana 10.4.2, Prometheus v2.54.1, Node Exporter v1.9.1, cAdvisor v0.53.0 |
-| **Version Control / Auth** | GitLab                                                                     |
-| **Server Spec**            | 4 vCPUs / 16 GB RAM / SSD 320 GB / HDD 6 TB                                |
+| **Category**               | **Stack**                                                                 |
+| :------------------------- | :------------------------------------------------------------------------ |
+| **Infra**                  | AWS EC2 (Ubuntu 22.04 LTS), AWS S3, AWS SQS                               |
+| **CI/CD**                  | Jenkins 2.516.2, Docker 28.1.1, Docker Compose 2.38.2                     |
+| **Web / Proxy**            | Nginx 1.27                                                                |
+| **MQTT Broker**            | Mosquitto 2.0.22                                                          |
+| **Monitoring**             | Grafana 12.2.0, Prometheus v3.5.0, Node Exporter v1.9.1, cAdvisor v0.53.0 |
+| **Version Control / Auth** | GitLab                                                                    |
+| **Server Spec**            | 4 vCPUs / 16 GB RAM / SSD 320 GB / HDD 6 TB                               |
 
-</div>
-
----
+</div><br>
 
 ### 🔌 IoT
 
@@ -256,9 +248,7 @@ Presentation] </a> <br></td>
 | **Language** | C / C++                         |
 |  **Module**  | Servo Motor (Door Lock Control) |
 
-</div>
-
----
+</div><br>
 
 ### 🤝 Collaboration
 
@@ -270,6 +260,7 @@ Presentation] </a> <br></td>
 ![Jira](https://img.shields.io/badge/Jira-%230A0FFF?style=for-the-badge&logo=jira&logoColor=white)
 ![Mattermost](https://img.shields.io/badge/Mattermost-0058CC?style=for-the-badge&logo=mattermost&logoColor=white)
 ![Discord](https://img.shields.io/badge/Discord-%235865F2?style=for-the-badge&logo=discord&logoColor=white)
+![ZEP](https://img.shields.io/badge/ZEP-%23000000?style=for-the-badge&logo=zapier&logoColor=white)
 
 </div>
 <br>
@@ -283,7 +274,7 @@ Presentation] </a> <br></td>
 <div align="center">
 
 <img src="./readme-assets/oasis_architecture.png"/>
-</div>
+</div><br>
 
 ### 📢 Collaboration & Event Notification
 
