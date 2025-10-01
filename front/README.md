@@ -2,7 +2,7 @@
 
 > **Next.js 15 + TypeScript + TailwindCSS 기반의 Web3 숙박 예약 플랫폼 프론트엔드**
 
----
+<br><br>
 
 ## 🚀 Getting Started
 
@@ -141,7 +141,3 @@ front/
 | **Lint / Format** | `eslint`, `eslint-config-next`, `eslint-config-prettier`, `eslint-plugin-prettier`, `prettier` | 8.57.0 / 15.5.2 / 10.1.8 / 5.5.4 / 3.6.2 |
 | **Babel**         | `@babel/core`, `@babel/preset-env`                                                             | 7.28.4 / 7.28.3                          |
 | **타입 정의**     | `@types/react`, `@types/react-dom`, `@types/node`, `@types/jwt-decode`                         | 18.3.12 / 18.3.2 / 20.14.10 / 3.1.0      |
-
-```
-
-```
