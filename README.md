@@ -47,11 +47,11 @@
 <div align="center">
 <table>
     <tr>
-        <td width="40%" align="center"> 
+        <td width="33%" align="center"> 
             <img src="./readme-assets/doyun_lee.jpg" width="160px" /> <br> 이도윤 <br>[Backend · Leader] </a> <br></td>
-        <td width="40%" align="center"> <a href="https://github.com/minhe8564">
+        <td width="33%" align="center"> <a href="https://github.com/minhe8564">
             <img src="./readme-assets/minhee_lee.jpg" width="160px" /> <br> 이민희 <br>[Frontend · BlockChain] </a> <br></td>
-        <td width="40%" align="center"> <a href="https://github.com/soomkim00">
+        <td width="33%" align="center"> <a href="https://github.com/soomkim00">
             <img src="./readme-assets/sumin_kim.jpeg" width="160px" /> <br> 김수민 <br>[Frontend · 
 Presentation] </a> <br></td>
     </tr>
@@ -86,11 +86,11 @@ Presentation] </a> <br></td>
 
 <table>
     <tr>
-        <td width="40%" align="center"> <a href="https://github.com/jieun-99">
+        <td width="33%" align="center"> <a href="https://github.com/jieun-99">
         <img src="./readme-assets/jieun_lee.jpg" width="160px" /> <br> 김지은 <br>[Infra · IoT] </a> <br></td>
-        <td width="40%" align="center"> <a href="https://github.com/yoonsu0325">
+        <td width="33%" align="center"> <a href="https://github.com/yoonsu0325">
         <img src="./readme-assets/yunseo_won.jpg" width="160px" /> <br> 원윤서 <br>[Backend · Async API] </a> <br></td>
-        <td width="40%" align="center"> <a href="https://github.com/yuju9">
+        <td width="33%" align="center"> <a href="https://github.com/yuju9">
         <img src="./readme-assets/ahhyun_lee.png" width="160px" /> <br> 이아현 <br>[Backend · BlockChain] </a> <br></td>
     </tr>
     <tr>
