@@ -13,8 +13,6 @@ pnpm install
 pnpm dev
 ```
 
-````
-
 > 브라우저에서 [http://localhost:3000](http://localhost:3000)을 열면 됩니다.
 
 <br><br>
@@ -144,5 +142,6 @@ front/
 | **Babel**         | `@babel/core`, `@babel/preset-env`                                                             | 7.28.4 / 7.28.3                          |
 | **타입 정의**     | `@types/react`, `@types/react-dom`, `@types/node`, `@types/jwt-decode`                         | 18.3.12 / 18.3.2 / 20.14.10 / 3.1.0      |
 
+```
 
-````
+```
