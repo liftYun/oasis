@@ -66,10 +66,10 @@ Presentation] </a> <br></td>
       </td>
       <td width="280px">
         <sub>
-          - Next.js + TypeScript + PWA 기반 Web / Mobile App 개발 <br>
+          - Next.js + TypeScript + PWA 기반 개발 <br>
           - Polygon 트랜잭션 처리 및 비동기 흐름 최적화 <br>
           - UI/UX 설계 및 반응형 컴포넌트 구현 <br>
-          - 상태관리(Zustand) + React Query 캐싱 아키텍처 설계
+          - 상태관리(Zustand) + React Query 아키텍처 설계
         </sub>
       </td>
       <td width="280px">
