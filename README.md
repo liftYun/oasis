@@ -660,7 +660,7 @@ Presentation] </a> <br></td>
 <h3>🖼️ 화면 설계서</h3>
 <div align="center">
 
-<img src="./readme-asset/oasis_figma.png"/>
+<img src="./readme-assets/oasis_figma.png"/>
 </div>
 
 <h3>🗄️ ERD</h3>
