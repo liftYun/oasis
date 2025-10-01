@@ -657,6 +657,13 @@ Presentation] </a> <br></td>
 
 <a name="projectDeliverables"></a>
 
+<h3><a href="https://youtu.be/C-kFXoJuF8M" target="_blank">📹 Demonstration video</a></h3>
+<div align="center">
+
+<a href="https://youtu.be/C-kFXoJuF8M" target="_blank"><img src="./readme-assets/oasis_thumbnail.png"/></a>
+
+</div>
+
 <h3>🖼️ 화면 설계서</h3>
 <div align="center">
 
