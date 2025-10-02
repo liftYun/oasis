@@ -657,10 +657,17 @@ Presentation] </a> <br></td>
 
 <a name="projectDeliverables"></a>
 
-<h3><a href="https://youtu.be/zElqUWnAi4o" target="_blank">📹 Demonstration video</a></h3>
+<h3><a href="https://youtu.be/zElqUWnAi4o" target="_blank">🔐 Demonstration video</a></h3>
 <div align="center">
 
 <a href="https://youtu.be/zElqUWnAi4o" target="_blank"><img src="./readme-assets/oasis_demonstration_video.png"/></a>
+
+</div><br>
+
+<h3><a href="https://youtu.be/60CRn83SRcs" target="_blank">📹 Video portfolio</a></h3>
+<div align="center">
+
+<a href="https://youtu.be/60CRn83SRcs" target="_blank"><img src="./readme-assets/oasis_thumbnail.png"/></a>
 
 </div><br>
 
